@@ -2,31 +2,30 @@
 #include <fstream>
 #include <random>
 
-// Define the number of plants and the area dimensions
-const int numPlants = 100;
-const int areaWidth = 100;
-const int areaHeight = 100;
+#include "CPlantsSimulation.h"
 
-int main() {
-    // Set up random number generation
-    std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_real_distribution<double> disX(0.0, areaWidth);
-    std::uniform_real_distribution<double> disY(0.0, areaHeight);
+int main(int argc, const char* argv[]) 
+{
+    const char* assets_path = argv[1];
+    const char* output_path = argv[2];
+    const char* input_image_name = argv[3];
+    const char* heightmap_raw_name = argv[4];
 
-    // Create a file to store the coordinates
-    std::ofstream outFile("plant_distribution.txt");
+    const int MAX_PATH = 250;
 
-    // Generate random x and y coordinates for each plant
-    for (int i = 0; i < numPlants; ++i) {
-        double xCoord = disX(gen);
-        double yCoord = disY(gen);
-        outFile << xCoord << " " << yCoord << std::endl;
-    }
+    char input_image_file[MAX_PATH];
+    char heightmap_raw_file[MAX_PATH];
+    char output_file[MAX_PATH];
 
-    outFile.close();
-
-    std::cout << "Random spatial distribution of plants generated." << std::endl;
+#if __APPLE__
+    snprintf(input_image_file, MAX_PATH, "%s\\%s", assets_path, input_image_name);
+    snprintf(heightmap_raw_file, MAX_PATH, "%s\\%s", assets_path, heightmap_raw_name);
+    snprintf(output_file, MAX_PATH, "%s\\plants.csv", output_path);
+#else
+    sprintf_s(input_image_file, MAX_PATH, "%s\\%s", assets_path, input_image_name);
+    sprintf_s(heightmap_raw_file, MAX_PATH, "%s\\%s", assets_path, heightmap_raw_name);
+    sprintf_s(output_file, MAX_PATH, "%s\\plants.csv", output_path);
+#endif
 
     return 0;
 }
