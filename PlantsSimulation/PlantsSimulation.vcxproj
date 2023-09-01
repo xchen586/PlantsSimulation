@@ -128,11 +128,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CCellData.cpp" />
+    <ClCompile Include="CForest.cpp" />
     <ClCompile Include="CPlantsSimulation.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CCellData.h" />
+    <ClInclude Include="CColonizationTree.h" />
+    <ClInclude Include="CForest.h" />
     <ClInclude Include="CPlantsSimulation.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="stb_image_write.h" />

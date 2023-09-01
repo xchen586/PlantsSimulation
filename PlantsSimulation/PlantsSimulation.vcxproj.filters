@@ -24,6 +24,9 @@
     <ClCompile Include="CCellData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CForest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CPlantsSimulation.h">
@@ -36,6 +39,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CCellData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CColonizationTree.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CForest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
