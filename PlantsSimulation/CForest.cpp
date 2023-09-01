@@ -1,4 +1,4 @@
-#include "Forest.h"
+#include "CForest.h"
 
 CForest::CForest(void)
 {
