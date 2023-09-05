@@ -27,6 +27,9 @@
     <ClCompile Include="CForest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PsHelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CPlantsSimulation.h">
@@ -45,6 +48,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CForest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PsHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

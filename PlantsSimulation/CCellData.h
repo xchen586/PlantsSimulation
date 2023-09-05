@@ -12,9 +12,13 @@ public:
 	{
 
 	}
-private:
+
+public:
 	uint8_t m_roadAttributeValue;
 	uint8_t m_moistureValue;
 	uint8_t m_roughnessValue;
+	
+	unsigned short m_height;
+	unsigned short m_slope;
 };
 

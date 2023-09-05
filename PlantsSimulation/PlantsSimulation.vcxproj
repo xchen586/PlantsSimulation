@@ -131,12 +131,14 @@
     <ClCompile Include="CForest.cpp" />
     <ClCompile Include="CPlantsSimulation.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="PsHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CCellData.h" />
     <ClInclude Include="CColonizationTree.h" />
     <ClInclude Include="CForest.h" />
     <ClInclude Include="CPlantsSimulation.h" />
+    <ClInclude Include="PsHelper.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="stb_image_write.h" />
   </ItemGroup>

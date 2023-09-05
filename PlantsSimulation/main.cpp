@@ -18,8 +18,8 @@ int main(int argc, const char* argv[])
     char heightmap_raw_file[MAX_PATH];
     char output_file[MAX_PATH];
 
-/*
-if __APPLE__
+
+#if __APPLE__
     snprintf(input_image_file, MAX_PATH, "%s\\%s", assets_path, input_image_name);
     snprintf(heightmap_raw_file, MAX_PATH, "%s\\%s", assets_path, heightmap_raw_name);
     snprintf(output_file, MAX_PATH, "%s\\plants.csv", output_path);
@@ -28,12 +28,15 @@ if __APPLE__
     sprintf_s(heightmap_raw_file, MAX_PATH, "%s\\%s", assets_path, heightmap_raw_name);
     sprintf_s(output_file, MAX_PATH, "%s\\plants.csv", output_path);
 #endif
-*/
 
-    CForest forest;
+
+    /*CForest forest;
     forest.xSize = 4096;
     forest.zSize = 4096;
-    forest.generate(40, 40);
+    forest.generate(40, 40);*/
+
+    CPlantsSimulation ps(input_image_file, heightmap_raw_file, output_file);
+    bool isLoad = ps.LoadInputData();
 
     return 0;
 }

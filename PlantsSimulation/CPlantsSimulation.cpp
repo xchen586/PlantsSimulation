@@ -1,14 +1,8 @@
 #include "CPlantsSimulation.h"
 #include "CCellData.h"
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
 
-#define STBI_MSC_SECURE_CRT
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "stb_image_write.h"
-
-bool CPlantsSimulation::loadInputImageFile(const string& inputImageFile)
+/*bool CPlantsSimulation::loadInputImageFile(const string& inputImageFile)
 {
 	this->input_image_data = stbi_load(inputImageFile.c_str(), &this->input_image_width, &this->input_image_height, &this->input_image_comp, 1);
 	if (!this->input_image_data) {
@@ -27,4 +21,74 @@ bool CPlantsSimulation::loadInputImageFile(const string& inputImageFile)
 		}
 	}
 	return true;
+}*/
+
+
+void CPlantsSimulation::DeInitialize()
+{
+	if (m_pCellTable) {
+		int rows = m_pCellTable->size();
+		int cols = (*m_pCellTable)[0].size();
+		for (int i = 0; i < rows; ++i) {
+			for (int j = 0; j < cols; ++j) {
+				CCellData* cell = (*m_pCellTable)[i][j];
+				if (cell) {
+					delete cell;
+				}
+			}
+		}
+	}
+	if (m_topLayerImage) {
+		delete m_topLayerImage;
+	}
+}
+
+bool CPlantsSimulation::LoadInputData()
+{
+	bool ret = false;
+	this->DeInitialize();
+
+	const int width = 300;
+	const int height = 300;
+	const int newWidth = 4096;
+	const int newHeight = 4096;
+
+	try
+	{
+		std::vector<std::vector<unsigned short>> heightMap300 = Read2DShortArray(m_heightMapFile, width, height);
+
+		std::vector<std::vector<unsigned short>> heightMap4096 = ScaleArray(heightMap300, 4096, 4096);
+		std::vector<std::vector<unsigned short>> slope4096 = ComputeSlopeMap(heightMap4096);
+
+		m_pCellTable = new std::vector<std::vector<CCellData*>>(newWidth, std::vector<CCellData*>(newHeight, nullptr));
+		if (!m_pCellTable) {
+			return false;
+		}
+
+		m_topLayerImage = LoadInputImageFile(m_inputImageFile);
+		if (!m_topLayerImage)
+		{
+			return false;
+		}
+
+		for (auto i = 0; i < width; i++) {
+			for (auto j = 0; j < height; j++) {
+				int idx = (width * j + i) * 3;
+				uint8_t redValue = m_topLayerImage->input_image_data[idx + 0];
+				uint8_t greenValue = m_topLayerImage->input_image_data[idx + 0];
+				uint8_t blueValue = m_topLayerImage->input_image_data[idx + 0];
+				CCellData* cell = new CCellData(redValue, greenValue, blueValue);
+				cell->m_height = heightMap4096[i][j];
+				cell->m_slope = slope4096[i][j];
+				(*m_pCellTable)[i][j] = cell;
+			}
+		}
+		// You can access and work with 'result' here
+	}
+	catch (const std::exception& e)
+	{
+		std::cerr << "Error: " << e.what() << std::endl;
+		return false;
+	}
+
 }

@@ -1,6 +1,6 @@
 #pragma once
-#include <string>
-
+#include "PsHelper.h"
+#include "CCellData.h"
 using namespace std;
 
 class CPlantsSimulation
@@ -10,23 +10,25 @@ public:
 		: m_inputImageFile(inputImageFile)
 		, m_heightMapFile(heightMapFile)
 		, m_outputFile(outputFile)
-		, input_image_width(0)
-		, input_image_height(0)
-		, input_image_data(nullptr)
-		, input_image_comp(0)
+		, m_topLayerImage(nullptr)
+		, m_pCellTable(nullptr)
 	{
-	
+		
 	}
 private:
 	string m_inputImageFile;
 	string m_heightMapFile;
 	string m_outputFile;
 
-	int input_image_width;
-	int input_image_height;
-	unsigned char* input_image_data;
-	int input_image_comp;
+	InputImageDataInfo* m_topLayerImage;
 
-	bool loadInputImageFile(const string& inputImageFile);
+	std::vector<std::vector<CCellData*>> * m_pCellTable;
+
+private:
+	void DeInitialize();
+
+public: 
+	bool LoadInputData();
 };
+
 
