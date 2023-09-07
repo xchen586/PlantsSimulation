@@ -34,6 +34,7 @@ int main(int argc, const char* argv[])
     bool isLoad = ps.LoadInputData();
     bool loadForest = ps.LoadForest();
     bool buildForest = ps.BuildForest();
+    bool results = ps.OutputResults();
 
     return 0;
 }

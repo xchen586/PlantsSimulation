@@ -131,4 +131,10 @@ bool CPlantsSimulation::BuildForest()
 	m_pForest->generate(forestAge, iteration);
 
 	return true;
-};
+}
+
+bool CPlantsSimulation::OutputResults()
+{
+	bool outputCSV = m_pForest->outputResults(m_outputFile);
+	return outputCSV;
+}

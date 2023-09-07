@@ -1,4 +1,6 @@
 #include "CForest.h"
+#include <iostream>
+#include <fstream>
 
 CForest::CForest(void)
 {
@@ -11,25 +13,24 @@ CForest::~CForest(void)
 		delete i->second;
 }
 
-struct ClassStrength
-{
-	double strength;
-	TreeClass* treeClass;
-};
-
 #define SEED_MAX 16*1024*1024
 void CForest::loadTreeClasses()
 {
 	classes.clear();
 	TreeClass* treeClass1 = new TreeClass();
+	treeClass1->color = 0x00FF0000;
 	classes.push_back(treeClass1);
+
 	TreeClass* treeClass2 = new TreeClass();
 	treeClass2->matureAge = 20;
 	treeClass2->maxAge = 100;
+	treeClass2->color = 0x0000FF00;
 	classes.push_back(treeClass2);
+
 	TreeClass* treeClass3 = new TreeClass();
 	treeClass3->matureAge = 50;
 	treeClass3->maxAge = 200;
+	treeClass3->color = 0x000000FF;
 	classes.push_back(treeClass3);
 }
 
@@ -451,4 +452,58 @@ void CForest::generate(float forestAge, int iterations)
 
 }
 
+TreeOutput CForest::GetTreeOutputFromInstance(const CTreeInstance& instance)
+{
+	TreeOutput output;
+	output.x = instance.x;
+	output.y = instance.z;
 
+	int rgbColor = instance.treeClass->color;
+	int red = (rgbColor >> 16) & 0xFF;
+	int green = (rgbColor >> 8) & 0xFF;
+	int blue = rgbColor & 0xFF;
+	
+	output.red = red;
+	output.green = green;
+	output.blue = blue;
+
+	return output;
+}
+
+bool CForest::exportToCSV(const std::vector<TreeOutput>& data, const std::string& filename) {
+	std::ofstream outputFile(filename);
+	if (!outputFile.is_open()) {
+		std::cerr << "Error: Unable to open the file " << filename << std::endl;
+		return false;
+	}
+
+	// Write header row
+	outputFile << "X,Y,Z,Red,Green,Yellow,OtherProperties" << std::endl;
+
+	// Write data rows
+	for (const TreeOutput& tree : data) {
+		outputFile << tree.x << ","
+			<< tree.y << ","
+			<< tree.z << ","
+			<< tree.red << ","
+			<< tree.green << ","
+			<< tree.blue << std::endl;
+	}
+
+	outputFile.close();
+
+	return true;
+}
+
+bool CForest::outputResults(const std::string& csvFileName)
+{
+	outputs.clear();
+	for (const CTreeInstance& instance : trees)
+	{
+		TreeOutput output = GetTreeOutputFromInstance(instance);
+		outputs.push_back(output);
+	}
+
+	bool exportCSV = exportToCSV(outputs, csvFileName);
+	return true;
+}

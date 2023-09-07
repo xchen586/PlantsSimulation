@@ -35,6 +35,7 @@ public:
 	bool LoadInputData();
 	bool LoadForest();
 	bool BuildForest();
+	bool OutputResults();
 };
 
 
