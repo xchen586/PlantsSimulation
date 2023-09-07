@@ -3,7 +3,7 @@
 #include <random>
 
 #include "CPlantsSimulation.h"
-#include "CForest.h"
+//#include "CForest.h"
 
 int main(int argc, const char* argv[]) 
 {
@@ -29,14 +29,11 @@ int main(int argc, const char* argv[])
     sprintf_s(output_file, MAX_PATH, "%s\\plants.csv", output_path);
 #endif
 
-
-    /*CForest forest;
-    forest.xSize = 4096;
-    forest.zSize = 4096;
-    forest.generate(40, 40);*/
-
     CPlantsSimulation ps(input_image_file, heightmap_raw_file, output_file);
+    
     bool isLoad = ps.LoadInputData();
+    bool loadForest = ps.LoadForest();
+    bool buildForest = ps.BuildForest();
 
     return 0;
 }

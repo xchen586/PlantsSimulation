@@ -17,12 +17,36 @@ struct ClassStrength
 	TreeClass* treeClass;
 };
 
-#define SEED_MAX 4*1024*1024
+#define SEED_MAX 16*1024*1024
+void CForest::loadTreeClasses()
+{
+	classes.clear();
+	TreeClass* treeClass1 = new TreeClass();
+	classes.push_back(treeClass1);
+	TreeClass* treeClass2 = new TreeClass();
+	treeClass2->matureAge = 20;
+	treeClass2->maxAge = 100;
+	classes.push_back(treeClass2);
+	TreeClass* treeClass3 = new TreeClass();
+	treeClass3->matureAge = 50;
+	treeClass3->maxAge = 200;
+	classes.push_back(treeClass3);
+}
+
+void CForest::loadMasks()
+{
+
+}
+
+void CForest::loadGlobalMasks()
+{
+
+}
 
 void CForest::generate(float forestAge, int iterations)
 {
 	// allocate grid
-	int gridDelta = 40;
+	int gridDelta = 64;
 	int gridXSize = xSize/gridDelta;
 	int gridZSize = zSize/gridDelta;
 	int gridSize = (gridXSize + 1)*(gridZSize + 1)*sizeof(int);

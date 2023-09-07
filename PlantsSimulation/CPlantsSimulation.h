@@ -1,6 +1,7 @@
 #pragma once
 #include "PsHelper.h"
 #include "CCellData.h"
+#include "CForest.h"
 using namespace std;
 
 class CPlantsSimulation
@@ -12,9 +13,11 @@ public:
 		, m_outputFile(outputFile)
 		, m_topLayerImage(nullptr)
 		, m_pCellTable(nullptr)
+		, m_pForest(nullptr)
 	{
-		
+
 	}
+
 private:
 	string m_inputImageFile;
 	string m_heightMapFile;
@@ -23,12 +26,15 @@ private:
 	InputImageDataInfo* m_topLayerImage;
 
 	std::vector<std::vector<CCellData*>> * m_pCellTable;
+	CForest* m_pForest;
 
 private:
 	void DeInitialize();
 
 public: 
 	bool LoadInputData();
+	bool LoadForest();
+	bool BuildForest();
 };
 
 

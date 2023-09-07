@@ -37,9 +37,15 @@ void CPlantsSimulation::DeInitialize()
 				}
 			}
 		}
+		m_pCellTable = nullptr;
 	}
 	if (m_topLayerImage) {
 		delete m_topLayerImage;
+		m_topLayerImage = nullptr;
+	}	
+	if (m_pForest) {
+		delete m_pForest;
+		m_pForest = nullptr;
 	}
 }
 
@@ -90,5 +96,39 @@ bool CPlantsSimulation::LoadInputData()
 		std::cerr << "Error: " << e.what() << std::endl;
 		return false;
 	}
-
 }
+
+bool CPlantsSimulation::LoadForest()
+{
+	m_pForest = new CForest();
+	if (!m_pForest) {
+		return false;
+	}
+
+	m_pForest->setCellTable(m_pCellTable);
+
+	if (!m_topLayerImage) {
+		return false;
+	}
+	m_pForest->xSize = m_topLayerImage->input_image_width;
+	m_pForest->zSize = m_topLayerImage->input_image_height;
+
+	m_pForest->loadTreeClasses();
+	m_pForest->loadMasks();
+	m_pForest->loadGlobalMasks();
+	
+	return true;
+}
+
+bool CPlantsSimulation::BuildForest()
+{
+	if (!m_pForest) {
+		return false;
+	}
+
+	float forestAge = 300;
+	int iteration = 40;
+	m_pForest->generate(forestAge, iteration);
+
+	return true;
+};
