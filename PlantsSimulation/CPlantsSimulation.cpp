@@ -96,6 +96,7 @@ bool CPlantsSimulation::LoadInputData()
 		std::cerr << "Error: " << e.what() << std::endl;
 		return false;
 	}
+    return true;
 }
 
 bool CPlantsSimulation::LoadForest()

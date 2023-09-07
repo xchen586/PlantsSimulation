@@ -17,12 +17,14 @@ int main(int argc, const char* argv[])
     char input_image_file[MAX_PATH];
     char heightmap_raw_file[MAX_PATH];
     char output_file[MAX_PATH];
-
+    memset(input_image_file, 0, sizeof(char) * MAX_PATH);
+    memset(heightmap_raw_file, 0, sizeof(char) * MAX_PATH);
+    memset(output_file, 0, sizeof(char) * MAX_PATH);
 
 #if __APPLE__
-    snprintf(input_image_file, MAX_PATH, "%s\\%s", assets_path, input_image_name);
-    snprintf(heightmap_raw_file, MAX_PATH, "%s\\%s", assets_path, heightmap_raw_name);
-    snprintf(output_file, MAX_PATH, "%s\\plants.csv", output_path);
+    snprintf(input_image_file, MAX_PATH, "%s/%s", assets_path, input_image_name);
+    snprintf(heightmap_raw_file, MAX_PATH, "%s/%s", assets_path, heightmap_raw_name);
+    snprintf(output_file, MAX_PATH, "%s/plants.csv", output_path);
 #else
     sprintf_s(input_image_file, MAX_PATH, "%s\\%s", assets_path, input_image_name);
     sprintf_s(heightmap_raw_file, MAX_PATH, "%s\\%s", assets_path, heightmap_raw_name);
