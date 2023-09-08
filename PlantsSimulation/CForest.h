@@ -11,7 +11,7 @@ class CCellData;
 class I2DMask
 {
 public:
-	virtual double get2DMaskValue(double x, double z, int blur) {return 1.0;};
+	virtual double get2DMaskValue(double x, double z, int blur) {return 0.6;};
 };
 
 pair<string, I2DMask*> GetI2DMaskKeyPairFromPlantTypeWithIndex(PlantType type, int index, I2DMask* i2dMask);

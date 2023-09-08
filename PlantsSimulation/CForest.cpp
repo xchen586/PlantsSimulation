@@ -48,7 +48,7 @@ void CForest::loadTreeClasses()
 
 	DensityMap* densityTree2_0 = new DensityMap();
 	densityTree2_0->minval = 0.0002;
-	densityTree2_0->maxval = 0.88888;
+	densityTree2_0->maxval = 0.9999;
 	densityTree2_0->ease = 0.5555;
 	densityTree2_0->blur = 1;
 	densityTree2_0->invert = false;
@@ -577,7 +577,7 @@ bool CForest::exportToCSV(const std::vector<TreeOutput>& data, const std::string
 	}
 
 	// Write header row
-	outputFile << "X,Y,Z,Red,Green,Yellow,OtherProperties" << std::endl;
+	outputFile << "X,Y,Z,Red,Green,Yellow" << std::endl;
 
 	// Write data rows
 	for (const TreeOutput& tree : data) {
