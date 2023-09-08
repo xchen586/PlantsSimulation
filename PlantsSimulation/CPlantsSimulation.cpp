@@ -133,7 +133,7 @@ bool CPlantsSimulation::BuildForest()
 	}
 
 	float forestAge = 300;
-	int iteration = 40;
+	int iteration = 90;
 	m_pForest->generate(forestAge, iteration);
 
 	return true;

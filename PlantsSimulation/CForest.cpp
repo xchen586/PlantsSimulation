@@ -27,21 +27,21 @@ void CForest::loadTreeClasses()
 	treeClass1->color = 0x00FF0000;
 	treeClass1->matureAge = 10;
 	treeClass1->maxAge = 160;
-	treeClass1->seedRange = 150;
+	treeClass1->seedRange = 1100;
 
 	TreeClass* treeClass2 = new TreeClass();
 	treeClass2->type = PlantType::TREE_MAPLE;
 	treeClass2->color = 0x0000FF00;
 	treeClass2->matureAge = 20;
-	treeClass2->maxAge = 180;
-	treeClass2->seedRange = 500;
+	treeClass2->maxAge = 200;
+	treeClass2->seedRange = 1500;
 
 	TreeClass* treeClass3 = new TreeClass();
 	treeClass3->type = PlantType::TREE_FIR;
 	treeClass3->color = 0x00D2B48C;
-	treeClass3->matureAge = 50;
+	treeClass3->matureAge = 30;
 	treeClass3->maxAge = 200;
-	treeClass3->seedRange = 800;
+	treeClass3->seedRange = 500;
 
 	DensityMap* densityTree1_0 = new DensityMap();
 	densityTree1_0->minval = 0.00001;
@@ -145,7 +145,7 @@ void CForest::loadGlobalMasks()
 void CForest::generate(float forestAge, int iterations)
 {
 	// allocate grid
-	int gridDelta = 64;
+	int gridDelta = 32;
 	int gridXSize = xSize/gridDelta;
 	int gridZSize = zSize/gridDelta;
 	int gridSize = (gridXSize + 1)*(gridZSize + 1)*sizeof(int);
