@@ -16,32 +16,131 @@ CForest::~CForest(void)
 #define SEED_MAX 16*1024*1024
 void CForest::loadTreeClasses()
 {
+	for (vector<TreeClass*>::iterator i = classes.begin(); i != classes.end(); ++i) {
+		TreeClass* tree = *i;
+		delete tree;
+	}
 	classes.clear();
+
 	TreeClass* treeClass1 = new TreeClass();
+	treeClass1->type = PlantType::TREE_OAK;
 	treeClass1->color = 0x00FF0000;
+	treeClass1->matureAge = 10;
+	treeClass1->maxAge = 80;
+
+	DensityMap*  densityTree1_0 = new DensityMap();
+	densityTree1_0->minval = 0.00001;
+	densityTree1_0->maxval = 0.99999;
+	densityTree1_0->ease = 0.3333;
+	densityTree1_0->blur = 1;
+	densityTree1_0->invert = false;
+	densityTree1_0->useForThinning = true;
+	pair<string, DensityMap*> densityPair1_0 = GetDensityKeyPairFromPlantTypeWithIndex(PlantType::TREE_OAK, 0, densityTree1_0);
+	treeClass1->masks.insert(densityPair1_0);
+
 	classes.push_back(treeClass1);
 
 	TreeClass* treeClass2 = new TreeClass();
+	treeClass2->type = PlantType::TREE_MAPLE;
 	treeClass2->matureAge = 20;
 	treeClass2->maxAge = 100;
 	treeClass2->color = 0x0000FF00;
+
+	DensityMap* densityTree2_0 = new DensityMap();
+	densityTree2_0->minval = 0.0002;
+	densityTree2_0->maxval = 0.88888;
+	densityTree2_0->ease = 0.5555;
+	densityTree2_0->blur = 1;
+	densityTree2_0->invert = false;
+	densityTree2_0->useForThinning = true;
+	pair<string, DensityMap*> densityPair2_0 = GetDensityKeyPairFromPlantTypeWithIndex(PlantType::TREE_MAPLE, 0, densityTree2_0);
+	treeClass2->masks.insert(densityPair2_0);
+
 	classes.push_back(treeClass2);
 
 	TreeClass* treeClass3 = new TreeClass();
+	treeClass2->type = PlantType::TREE_FIR;
 	treeClass3->matureAge = 50;
 	treeClass3->maxAge = 200;
 	treeClass3->color = 0x000000FF;
+
+	DensityMap* densityTree3_0 = new DensityMap();
+	densityTree3_0->minval = 0.0056;
+	densityTree3_0->maxval = 1.6666;
+	densityTree3_0->ease = 0.7777;
+	densityTree3_0->blur = 1;
+	densityTree3_0->invert = true;
+	densityTree3_0->useForThinning = true;
+	pair<string, DensityMap*> densityPair3_0 = GetDensityKeyPairFromPlantTypeWithIndex(PlantType::TREE_FIR, 0, densityTree3_0);
+	treeClass3->masks.insert(densityPair3_0);
+
 	classes.push_back(treeClass3);
+
+	return;
 }
 
 void CForest::loadMasks()
 {
+	for (map<string, I2DMask*>::iterator iMask = masks.begin(); iMask != masks.end(); ++iMask) {
+		I2DMask* i2DMask = iMask->second;
+		delete i2DMask;
+	}
+	masks.clear();
 
+	int typeIndex = 0;
+	I2DMask* pI2DMask = new I2DMask();
+	pair<string, I2DMask*> treeType1Pair = GetI2DMaskKeyPairFromPlantTypeWithIndex(PlantType::TREE_OAK, typeIndex, pI2DMask);
+	masks.insert(treeType1Pair);
+	pair<string, I2DMask*> treeType2Pair = GetI2DMaskKeyPairFromPlantTypeWithIndex(PlantType::TREE_MAPLE, typeIndex, pI2DMask);
+	masks.insert(treeType2Pair);
+	pair<string, I2DMask*> treeType3Pair = GetI2DMaskKeyPairFromPlantTypeWithIndex(PlantType::TREE_FIR, typeIndex, pI2DMask);
+	masks.insert(treeType3Pair);
+
+	return;
 }
 
 void CForest::loadGlobalMasks()
 {
+	for (map<string, DensityMap*>::iterator imap = globalMasks.begin(); imap != globalMasks.end(); ++imap) {
+		DensityMap* density = imap->second;
+		delete density;
+	}
+	globalMasks.clear();
 
+	DensityMap* densityTree1_0 = new DensityMap();
+	densityTree1_0->minval = 0.00001;
+	densityTree1_0->maxval = 0.99999;
+	densityTree1_0->ease = 0.3333;
+	densityTree1_0->blur = 1;
+	densityTree1_0->invert = false;
+	densityTree1_0->useForThinning = true;
+	pair<string, DensityMap*> densityPair1_0 = GetDensityKeyPairFromPlantTypeWithIndex(PlantType::TREE_OAK, 0, densityTree1_0);
+
+	globalMasks.insert(densityPair1_0);
+
+	DensityMap* densityTree2_0 = new DensityMap();
+	densityTree2_0->minval = 0.0002;
+	densityTree2_0->maxval = 0.88888;
+	densityTree2_0->ease = 0.5555;
+	densityTree2_0->blur = 1;
+	densityTree2_0->invert = false;
+	densityTree2_0->useForThinning = true;
+	pair<string, DensityMap*> densityPair2_0 = GetDensityKeyPairFromPlantTypeWithIndex(PlantType::TREE_MAPLE, 0, densityTree2_0);
+
+	globalMasks.insert(densityPair2_0);
+
+	DensityMap* densityTree3_0 = new DensityMap();
+	densityTree3_0->minval = 0.0056;
+	densityTree3_0->maxval = 1.6666;
+	densityTree3_0->ease = 0.7777;
+	densityTree3_0->blur = 1;
+	densityTree3_0->invert = true;
+	densityTree3_0->useForThinning = true;
+	pair<string, DensityMap*> densityPair3_0 = GetDensityKeyPairFromPlantTypeWithIndex(PlantType::TREE_FIR, 0, densityTree3_0);
+	
+	globalMasks.insert(densityPair3_0);
+
+	return;
 }
 
 void CForest::generate(float forestAge, int iterations)
@@ -506,4 +605,11 @@ bool CForest::outputResults(const std::string& csvFileName)
 
 	bool exportCSV = exportToCSV(outputs, csvFileName);
 	return true;
+}
+
+pair<string, I2DMask*> GetI2DMaskKeyPairFromPlantTypeWithIndex(PlantType type, int index, I2DMask* pI2dMask)
+{
+	string keyString = PlantTypeToMaskString(type, index);
+	pair<string, I2DMask*> ret(keyString, pI2dMask);
+	return ret;
 }

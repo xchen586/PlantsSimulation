@@ -5,6 +5,7 @@
 //#include "perlin.h"
 #include <map>
 #include <string>
+#include <random>
 
 using namespace std;
 
@@ -51,10 +52,47 @@ public:
 	int blur;
 };
 
+enum class PlantType {
+	TREE_OAK,
+	TREE_MAPLE,
+	TREE_PINE,
+	TREE_BIRCH,
+	TREE_WILLOW,
+	TREE_CHERRY,
+	TREE_APPLE,
+	TREE_ORANGE,
+	TREE_LEMON,
+	TREE_PALM,
+	TREE_SPRUCE,
+	TREE_CEDAR,
+	TREE_FIR,
+
+	FLOWER_ROSE,
+	FLOWER_TULIP,
+	FLOWER_DAISY,
+	
+	SHRUB_AZALEA,
+	SHRUB_RHODODENDRON,
+	
+	VEGETABLE_TOMATO,
+	VEGETABLE_CARROT,
+	
+	HERB_BASIL,
+	HERB_MINT,
+
+	LAST_PLANT_TYPE, 
+};
+
+string PlantTypeToString(PlantType type);
+string PlantTypeToMaskString(PlantType type, int index);
+pair<string, DensityMap*> GetDensityKeyPairFromPlantTypeWithIndex(PlantType type, int index, DensityMap* density);
+PlantType RandomPlantType();
+
 class TreeClass
 {
 public:
 	TreeClass() :
+		type(PlantType::TREE_OAK),
 		color(0x00000000),
 		angleStrength(0.6, 0.6), 
 		pipeRatio(0.45, 0.45), 
@@ -110,6 +148,7 @@ public:
 	TreeParamRange rootWidth;
 	TreeParamRange rootPipeRatio;
 
+	PlantType type;
 	int color;
 	double matureAge;
 	double maxAge;
@@ -117,6 +156,13 @@ public:
 	double probSeed;
 	double seedRange;
 	map<string, DensityMap*> masks;
+
+	~TreeClass() {
+		for (map<string, DensityMap*>::iterator imap = masks.begin(); imap != masks.end(); ++imap) {
+			DensityMap* density = imap->second;
+			delete density;
+		}
+	}
 
 	TreeClass& operator= (const TreeClass& other)
 	{
@@ -164,14 +210,14 @@ public:
 	};
 };
 
-class ColonizationTree
+class CColonizationTree
 {
 public:
-	ColonizationTree();
+	CColonizationTree();
 
 	//ColonizationTree(CSegmentLayer* aSegmentVolume, CSegmentLayer* aRootSegmentVolume, CPointLayer* aCrownVolume, CHeightmapLayer* aGround);
 public:
-	~ColonizationTree(void);
+	~CColonizationTree(void);
 public:
 	void addTree(
 		double x, double y, double z, 

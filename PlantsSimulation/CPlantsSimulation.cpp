@@ -56,26 +56,29 @@ bool CPlantsSimulation::LoadInputData()
 
 	const int width = 300;
 	const int height = 300;
-	const int newWidth = 4096;
-	const int newHeight = 4096;
 
 	try
 	{
-		std::vector<std::vector<unsigned short>> heightMap300 = Read2DShortArray(m_heightMapFile, width, height);
-
-		std::vector<std::vector<unsigned short>> heightMap4096 = ScaleArray(heightMap300, 4096, 4096);
-		std::vector<std::vector<unsigned short>> slope4096 = ComputeSlopeMap(heightMap4096);
-
-		m_pCellTable = new std::vector<std::vector<CCellData*>>(newWidth, std::vector<CCellData*>(newHeight, nullptr));
-		if (!m_pCellTable) {
-			return false;
-		}
-
 		m_topLayerImage = LoadInputImageFile(m_inputImageFile);
 		if (!m_topLayerImage)
 		{
 			return false;
 		}
+
+		const int newWidth = m_topLayerImage->input_image_width;
+		const int newHeight = m_topLayerImage->input_image_height;
+		
+		m_pCellTable = new std::vector<std::vector<CCellData*>>(newWidth, std::vector<CCellData*>(newHeight, nullptr));
+		if (!m_pCellTable) {
+			return false;
+		}
+
+		
+		std::vector<std::vector<unsigned short>> heightMap300 = Read2DShortArray(m_heightMapFile, width, height);
+
+		std::vector<std::vector<unsigned short>> heightMap4096 = ScaleArray(heightMap300, newWidth, newHeight);
+		std::vector<std::vector<unsigned short>> slope4096 = ComputeSlopeMap(heightMap4096);
+
 
 		for (auto i = 0; i < width; i++) {
 			for (auto j = 0; j < height; j++) {
@@ -90,6 +93,8 @@ bool CPlantsSimulation::LoadInputData()
 			}
 		}
 		// You can access and work with 'result' here
+
+
 	}
 	catch (const std::exception& e)
 	{

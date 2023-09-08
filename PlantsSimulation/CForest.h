@@ -14,6 +14,8 @@ public:
 	virtual double get2DMaskValue(double x, double z, int blur) {return 1.0;};
 };
 
+pair<string, I2DMask*> GetI2DMaskKeyPairFromPlantTypeWithIndex(PlantType type, int index, I2DMask* i2dMask);
+
 class CTreeInstance
 {
 public:
