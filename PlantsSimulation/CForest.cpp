@@ -26,10 +26,24 @@ void CForest::loadTreeClasses()
 	treeClass1->type = PlantType::TREE_OAK;
 	treeClass1->color = 0x00FF0000;
 	treeClass1->matureAge = 10;
-	treeClass1->maxAge = 80;
-	treeClass1->seedRange = 50;
+	treeClass1->maxAge = 160;
+	treeClass1->seedRange = 150;
 
-	DensityMap*  densityTree1_0 = new DensityMap();
+	TreeClass* treeClass2 = new TreeClass();
+	treeClass2->type = PlantType::TREE_MAPLE;
+	treeClass2->color = 0x0000FF00;
+	treeClass2->matureAge = 20;
+	treeClass2->maxAge = 180;
+	treeClass2->seedRange = 500;
+
+	TreeClass* treeClass3 = new TreeClass();
+	treeClass3->type = PlantType::TREE_FIR;
+	treeClass3->color = 0x00D2B48C;
+	treeClass3->matureAge = 50;
+	treeClass3->maxAge = 200;
+	treeClass3->seedRange = 800;
+
+	DensityMap* densityTree1_0 = new DensityMap();
 	densityTree1_0->minval = 0.00001;
 	densityTree1_0->maxval = 0.99999;
 	densityTree1_0->ease = 0.3333;
@@ -37,16 +51,6 @@ void CForest::loadTreeClasses()
 	densityTree1_0->invert = false;
 	densityTree1_0->useForThinning = true;
 	pair<string, DensityMap*> densityPair1_0 = GetDensityKeyPairFromPlantTypeWithIndex(PlantType::TREE_OAK, 0, densityTree1_0);
-	treeClass1->masks.insert(densityPair1_0);
-
-	classes.push_back(treeClass1);
-
-	TreeClass* treeClass2 = new TreeClass();
-	treeClass2->type = PlantType::TREE_MAPLE;
-	treeClass2->matureAge = 20;
-	treeClass2->maxAge = 100;
-	treeClass2->color = 0x0000FF00;
-	treeClass2->seedRange = 300;
 
 	DensityMap* densityTree2_0 = new DensityMap();
 	densityTree2_0->minval = 0.0002;
@@ -56,16 +60,6 @@ void CForest::loadTreeClasses()
 	densityTree2_0->invert = false;
 	densityTree2_0->useForThinning = false;
 	pair<string, DensityMap*> densityPair2_0 = GetDensityKeyPairFromPlantTypeWithIndex(PlantType::TREE_MAPLE, 0, densityTree2_0);
-	treeClass2->masks.insert(densityPair2_0);
-
-	classes.push_back(treeClass2);
-
-	TreeClass* treeClass3 = new TreeClass();
-	treeClass2->type = PlantType::TREE_FIR;
-	treeClass3->matureAge = 50;
-	treeClass3->maxAge = 200;
-	treeClass3->color = 0x00D2B48C;
-	treeClass3->seedRange = 1500;
 
 	DensityMap* densityTree3_0 = new DensityMap();
 	densityTree3_0->minval = 0.0056;
@@ -75,10 +69,14 @@ void CForest::loadTreeClasses()
 	densityTree3_0->invert = false;
 	densityTree3_0->useForThinning = true;
 	pair<string, DensityMap*> densityPair3_0 = GetDensityKeyPairFromPlantTypeWithIndex(PlantType::TREE_FIR, 0, densityTree3_0);
+	
+
+	treeClass1->masks.insert(densityPair1_0);
+	classes.push_back(treeClass1);
+	treeClass2->masks.insert(densityPair2_0);
+	classes.push_back(treeClass2);
 	treeClass3->masks.insert(densityPair3_0);
-
 	classes.push_back(treeClass3);
-
 	return;
 }
 
@@ -119,28 +117,26 @@ void CForest::loadGlobalMasks()
 	densityTree1_0->useForThinning = true;
 	pair<string, DensityMap*> densityPair1_0 = GetDensityKeyPairFromPlantTypeWithIndex(PlantType::TREE_OAK, 0, densityTree1_0);
 
-	globalMasks.insert(densityPair1_0);
-
 	DensityMap* densityTree2_0 = new DensityMap();
 	densityTree2_0->minval = 0.0002;
-	densityTree2_0->maxval = 0.88888;
+	densityTree2_0->maxval = 0.9999;
 	densityTree2_0->ease = 0.5555;
 	densityTree2_0->blur = 1;
 	densityTree2_0->invert = false;
-	densityTree2_0->useForThinning = true;
+	densityTree2_0->useForThinning = false;
 	pair<string, DensityMap*> densityPair2_0 = GetDensityKeyPairFromPlantTypeWithIndex(PlantType::TREE_MAPLE, 0, densityTree2_0);
-
-	globalMasks.insert(densityPair2_0);
 
 	DensityMap* densityTree3_0 = new DensityMap();
 	densityTree3_0->minval = 0.0056;
 	densityTree3_0->maxval = 1.6666;
 	densityTree3_0->ease = 0.7777;
 	densityTree3_0->blur = 1;
-	densityTree3_0->invert = true;
+	densityTree3_0->invert = false;
 	densityTree3_0->useForThinning = true;
 	pair<string, DensityMap*> densityPair3_0 = GetDensityKeyPairFromPlantTypeWithIndex(PlantType::TREE_FIR, 0, densityTree3_0);
 	
+	globalMasks.insert(densityPair1_0);
+	globalMasks.insert(densityPair2_0);
 	globalMasks.insert(densityPair3_0);
 
 	return;
@@ -572,7 +568,7 @@ TreeOutput CForest::GetTreeOutputFromInstance(const CTreeInstance& instance)
 	output.green = green;
 	output.blue = blue;
 
-	output.treeType = static_cast<int>(instance.treeClass->type);
+	output.treeType = static_cast<unsigned int>(instance.treeClass->type);
 	return output;
 }
 

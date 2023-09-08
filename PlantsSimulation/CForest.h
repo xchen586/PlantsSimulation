@@ -11,7 +11,7 @@ class CCellData;
 class I2DMask
 {
 public:
-	virtual double get2DMaskValue(double x, double z, int blur) {return 0.6;};
+	virtual double get2DMaskValue(double x, double z, int blur) {return 0.9;};
 };
 
 pair<string, I2DMask*> GetI2DMaskKeyPairFromPlantTypeWithIndex(PlantType type, int index, I2DMask* i2dMask);
@@ -40,7 +40,7 @@ struct TreeOutput {
 	int red;
 	int green;
 	int blue;
-	int treeType;
+	unsigned int treeType;
 	TreeOutput()
 		: x(0)
 		, y(0)
