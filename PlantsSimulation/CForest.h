@@ -40,6 +40,7 @@ struct TreeOutput {
 	int red;
 	int green;
 	int blue;
+	int treeType;
 	TreeOutput()
 		: x(0)
 		, y(0)
@@ -47,6 +48,7 @@ struct TreeOutput {
 		, red(0)
 		, green(0)
 		, blue(0)
+		, treeType(0)
 	{
 
 	}

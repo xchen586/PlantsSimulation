@@ -27,6 +27,7 @@ void CForest::loadTreeClasses()
 	treeClass1->color = 0x00FF0000;
 	treeClass1->matureAge = 10;
 	treeClass1->maxAge = 80;
+	treeClass1->seedRange = 50;
 
 	DensityMap*  densityTree1_0 = new DensityMap();
 	densityTree1_0->minval = 0.00001;
@@ -45,6 +46,7 @@ void CForest::loadTreeClasses()
 	treeClass2->matureAge = 20;
 	treeClass2->maxAge = 100;
 	treeClass2->color = 0x0000FF00;
+	treeClass2->seedRange = 300;
 
 	DensityMap* densityTree2_0 = new DensityMap();
 	densityTree2_0->minval = 0.0002;
@@ -52,7 +54,7 @@ void CForest::loadTreeClasses()
 	densityTree2_0->ease = 0.5555;
 	densityTree2_0->blur = 1;
 	densityTree2_0->invert = false;
-	densityTree2_0->useForThinning = true;
+	densityTree2_0->useForThinning = false;
 	pair<string, DensityMap*> densityPair2_0 = GetDensityKeyPairFromPlantTypeWithIndex(PlantType::TREE_MAPLE, 0, densityTree2_0);
 	treeClass2->masks.insert(densityPair2_0);
 
@@ -62,14 +64,15 @@ void CForest::loadTreeClasses()
 	treeClass2->type = PlantType::TREE_FIR;
 	treeClass3->matureAge = 50;
 	treeClass3->maxAge = 200;
-	treeClass3->color = 0x000000FF;
+	treeClass3->color = 0x00D2B48C;
+	treeClass3->seedRange = 1500;
 
 	DensityMap* densityTree3_0 = new DensityMap();
 	densityTree3_0->minval = 0.0056;
 	densityTree3_0->maxval = 1.6666;
 	densityTree3_0->ease = 0.7777;
 	densityTree3_0->blur = 1;
-	densityTree3_0->invert = true;
+	densityTree3_0->invert = false;
 	densityTree3_0->useForThinning = true;
 	pair<string, DensityMap*> densityPair3_0 = GetDensityKeyPairFromPlantTypeWithIndex(PlantType::TREE_FIR, 0, densityTree3_0);
 	treeClass3->masks.insert(densityPair3_0);
@@ -475,6 +478,7 @@ void CForest::generate(float forestAge, int iterations)
 		}
 
 	}
+	std::cout << "Tree Instances Count :" << " " << instanceIndex + 1 << std::endl;
 	trees.clear();
 	for (int i = 0; i < instanceIndex; i++)
 	{
@@ -546,6 +550,8 @@ void CForest::generate(float forestAge, int iterations)
 		}
 	}
 
+	std::cout << "Trees Size :" << " " << trees.size() << std::endl;
+
 	delete instances;
 	free(grid);
 
@@ -566,6 +572,7 @@ TreeOutput CForest::GetTreeOutputFromInstance(const CTreeInstance& instance)
 	output.green = green;
 	output.blue = blue;
 
+	output.treeType = static_cast<int>(instance.treeClass->type);
 	return output;
 }
 
@@ -577,7 +584,7 @@ bool CForest::exportToCSV(const std::vector<TreeOutput>& data, const std::string
 	}
 
 	// Write header row
-	outputFile << "X,Y,Z,Red,Green,Yellow" << std::endl;
+	outputFile << "X,Y,Z,Red,Green,Yellow,TreeType" << std::endl;
 
 	// Write data rows
 	for (const TreeOutput& tree : data) {
@@ -586,7 +593,8 @@ bool CForest::exportToCSV(const std::vector<TreeOutput>& data, const std::string
 			<< tree.z << ","
 			<< tree.red << ","
 			<< tree.green << ","
-			<< tree.blue << std::endl;
+			<< tree.blue << ","
+			<< tree.treeType << std::endl;
 	}
 
 	outputFile.close();
@@ -597,10 +605,29 @@ bool CForest::exportToCSV(const std::vector<TreeOutput>& data, const std::string
 bool CForest::outputResults(const std::string& csvFileName)
 {
 	outputs.clear();
+	map<PlantType, int> plants;
 	for (const CTreeInstance& instance : trees)
 	{
+		PlantType pt = instance.treeClass->type;
+		map<PlantType, int>::iterator it = plants.find(pt);
+		if (it != plants.end())
+		{
+			int count = it->second;
+			count++;
+			plants[pt] = count;
+		}
+		else {
+			plants[pt] = 1;
+		}
 		TreeOutput output = GetTreeOutputFromInstance(instance);
 		outputs.push_back(output);
+	}
+
+	for (map<PlantType, int>::iterator it = plants.begin(); it != plants.end(); ++it)
+	{
+		string typeString = PlantTypeToString(it->first);
+		int count = it->second;
+		cout << typeString << " count are " << count << endl;
 	}
 
 	bool exportCSV = exportToCSV(outputs, csvFileName);
