@@ -12,6 +12,7 @@
 		320E7BC72AAA7E2900BEC8EE /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 320E7BC22AAA7E2900BEC8EE /* main.cpp */; };
 		320E7BC82AAA7E2900BEC8EE /* CForest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 320E7BC32AAA7E2900BEC8EE /* CForest.cpp */; };
 		320E7BCD2AAA7E3F00BEC8EE /* PsHelper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 320E7BCB2AAA7E3F00BEC8EE /* PsHelper.cpp */; };
+		320E7BCF2AAC104000BEC8EE /* CColonizationTree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 320E7BCE2AAC104000BEC8EE /* CColonizationTree.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -40,6 +41,7 @@
 		320E7BCA2AAA7E3F00BEC8EE /* stb_image_write.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stb_image_write.h; path = ../../stb_image_write.h; sourceTree = "<group>"; };
 		320E7BCB2AAA7E3F00BEC8EE /* PsHelper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PsHelper.cpp; path = ../../PsHelper.cpp; sourceTree = "<group>"; };
 		320E7BCC2AAA7E3F00BEC8EE /* PsHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PsHelper.h; path = ../../PsHelper.h; sourceTree = "<group>"; };
+		320E7BCE2AAC104000BEC8EE /* CColonizationTree.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CColonizationTree.cpp; path = ../../CColonizationTree.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -72,6 +74,7 @@
 		320E7BB52AAA7DF800BEC8EE /* PlantsSimulation */ = {
 			isa = PBXGroup;
 			children = (
+				320E7BCE2AAC104000BEC8EE /* CColonizationTree.cpp */,
 				320E7BCB2AAA7E3F00BEC8EE /* PsHelper.cpp */,
 				320E7BCC2AAA7E3F00BEC8EE /* PsHelper.h */,
 				320E7BCA2AAA7E3F00BEC8EE /* stb_image_write.h */,
@@ -145,6 +148,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				320E7BCF2AAC104000BEC8EE /* CColonizationTree.cpp in Sources */,
 				320E7BC62AAA7E2900BEC8EE /* CPlantsSimulation.cpp in Sources */,
 				320E7BC52AAA7E2900BEC8EE /* CCellData.cpp in Sources */,
 				320E7BC82AAA7E2900BEC8EE /* CForest.cpp in Sources */,
