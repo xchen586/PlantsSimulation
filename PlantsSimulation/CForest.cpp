@@ -35,50 +35,62 @@ void CForest::loadTreeClasses()
 	TreeClass* treeClass1 = new TreeClass();
 	treeClass1->type = PlantType::TREE_OAK;
 	treeClass1->color = 0x00FF0000;
-	treeClass1->matureAge = 10;
-	treeClass1->maxAge = 160;
-	treeClass1->seedRange = 1100;
+	treeClass1->matureAge = 35;
+	treeClass1->maxAge = 350;
+	treeClass1->seedRange = 300;
+	DensityMap* densityTree1_0 = new DensityMap();
+	densityTree1_0->minval = 0.00001;
+	densityTree1_0->maxval = 0.999999;
+	densityTree1_0->ease = 0.3333;
+	densityTree1_0->blur = 1;
+	densityTree1_0->invert = false;
+	densityTree1_0->useForThinning = false;
+	pair<string, DensityMap*> densityPair1_0 = GetDensityKeyPairFromPlantTypeWithIndex(PlantType::TREE_OAK, 0, densityTree1_0);
 
 	TreeClass* treeClass2 = new TreeClass();
 	treeClass2->type = PlantType::TREE_MAPLE;
 	treeClass2->color = 0x0000FF00;
-	treeClass2->matureAge = 20;
+	treeClass2->matureAge = 25;
 	treeClass2->maxAge = 200;
-	treeClass2->seedRange = 1500;
-
-	TreeClass* treeClass3 = new TreeClass();
-	treeClass3->type = PlantType::TREE_FIR;
-	treeClass3->color = 0x00D2B48C;
-	treeClass3->matureAge = 30;
-	treeClass3->maxAge = 200;
-	treeClass3->seedRange = 500;
-
-	DensityMap* densityTree1_0 = new DensityMap();
-	densityTree1_0->minval = 0.00001;
-	densityTree1_0->maxval = 5.99999;
-	densityTree1_0->ease = 0.3333;
-	densityTree1_0->blur = 1;
-	densityTree1_0->invert = false;
-	densityTree1_0->useForThinning = true;
-	pair<string, DensityMap*> densityPair1_0 = GetDensityKeyPairFromPlantTypeWithIndex(PlantType::TREE_OAK, 0, densityTree1_0);
-
+	treeClass2->seedRange = 750;
 	DensityMap* densityTree2_0 = new DensityMap();
-	densityTree2_0->minval = 0.0002;
-	densityTree2_0->maxval = 1.9999;
+	densityTree2_0->minval = 0.0;
+	densityTree2_0->maxval = 0.99999;
 	densityTree2_0->ease = 0.5555;
 	densityTree2_0->blur = 1;
 	densityTree2_0->invert = false;
-	densityTree2_0->useForThinning = false;
+	densityTree2_0->useForThinning = true;
 	pair<string, DensityMap*> densityPair2_0 = GetDensityKeyPairFromPlantTypeWithIndex(PlantType::TREE_MAPLE, 0, densityTree2_0);
 
+	TreeClass* treeClass3 = new TreeClass();
+	treeClass3->type = PlantType::TREE_BIRCH;
+	treeClass3->color = 0x00FFFF00;
+	treeClass3->matureAge = 30;
+	treeClass3->maxAge = 150;
+	treeClass3->seedRange = 500;
 	DensityMap* densityTree3_0 = new DensityMap();
-	densityTree3_0->minval = 0.0056;
-	densityTree3_0->maxval = 3.6666;
-	densityTree3_0->ease = 0.7777;
+	densityTree3_0->minval = 0.0;
+	densityTree3_0->maxval = 0.999999;
+	densityTree3_0->ease = 0.666;
 	densityTree3_0->blur = 1;
 	densityTree3_0->invert = false;
-	densityTree3_0->useForThinning = true;
-	pair<string, DensityMap*> densityPair3_0 = GetDensityKeyPairFromPlantTypeWithIndex(PlantType::TREE_FIR, 0, densityTree3_0);
+	densityTree3_0->useForThinning = false;
+	pair<string, DensityMap*> densityPair3_0 = GetDensityKeyPairFromPlantTypeWithIndex(PlantType::TREE_BIRCH, 0, densityTree3_0);
+
+	TreeClass* treeClass4 = new TreeClass();
+	treeClass4->type = PlantType::TREE_FIR;
+	treeClass4->color = 0x00D2B48C;
+	treeClass4->matureAge = 40;
+	treeClass4->maxAge = 300;
+	treeClass4->seedRange = 500;
+	DensityMap* densityTree4_0 = new DensityMap();
+	densityTree4_0->minval = 0.0056;
+	densityTree4_0->maxval = 0.999999;
+	densityTree4_0->ease = 0.7777;
+	densityTree4_0->blur = 1;
+	densityTree4_0->invert = false;
+	densityTree4_0->useForThinning = true;
+	pair<string, DensityMap*> densityPair4_0 = GetDensityKeyPairFromPlantTypeWithIndex(PlantType::TREE_FIR, 0, densityTree4_0);
 	
 
 	treeClass1->masks.insert(densityPair1_0);
@@ -87,6 +99,8 @@ void CForest::loadTreeClasses()
 	classes.push_back(treeClass2);
 	treeClass3->masks.insert(densityPair3_0);
 	classes.push_back(treeClass3);
+	treeClass3->masks.insert(densityPair4_0);
+	classes.push_back(treeClass4);
 	return;
 }
 
@@ -140,6 +154,11 @@ void CForest::generate(float forestAge, int iterations)
 	int gridSize = (gridXSize + 1)*(gridZSize + 1)*sizeof(int);
 	int* grid = (int*)malloc(gridSize);
 	memset(grid, 0, gridSize);
+
+	cout << "gridDelta is :" << gridDelta << endl;
+	cout << "gridXSize is :" << gridXSize << endl;
+	cout << "gridZSize is :" << gridZSize << endl;
+	cout << "gridSize is :" << gridSize << endl;
 
 	CTreeInstance* instances = (CTreeInstance*)malloc(SEED_MAX*sizeof(CTreeInstance));
 	memset(instances, 0, SEED_MAX*sizeof(CTreeInstance));

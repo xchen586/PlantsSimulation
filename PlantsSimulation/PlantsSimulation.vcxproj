@@ -104,6 +104,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -118,6 +119,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -131,6 +133,7 @@
     <ClCompile Include="CColonizationTree.cpp" />
     <ClCompile Include="CForest.cpp" />
     <ClCompile Include="CPlantsSimulation.cpp" />
+    <ClCompile Include="CTimeCounter.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="PsHelper.cpp" />
   </ItemGroup>
@@ -139,6 +142,7 @@
     <ClInclude Include="CColonizationTree.h" />
     <ClInclude Include="CForest.h" />
     <ClInclude Include="CPlantsSimulation.h" />
+    <ClInclude Include="CTimeCounter.h" />
     <ClInclude Include="PsHelper.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="stb_image_write.h" />

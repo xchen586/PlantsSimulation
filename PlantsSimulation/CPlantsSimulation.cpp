@@ -1,6 +1,6 @@
 #include "CPlantsSimulation.h"
 #include "CCellData.h"
-
+#include "CTimeCounter.h"
 
 /*bool CPlantsSimulation::loadInputImageFile(const string& inputImageFile)
 {
@@ -119,11 +119,14 @@ bool CPlantsSimulation::LoadForest()
 
 	//const int forestXSize = m_topLayerImage->input_image_width;
 	//const int forestZSize = m_topLayerImage->input_image_width;
-	const int forestXSize = 30000;
-	const int forestZSize = 30000;
+	const int forestXSize = 4096;
+	const int forestZSize = 4096;
 
 	m_pForest->xSize = forestXSize;
 	m_pForest->zSize = forestZSize;
+
+	cout << "Forest xSize is : " << forestXSize << endl;
+	cout << "Forest zSize is : " << forestZSize << endl;
 
 	m_pForest->loadTreeClasses();
 	m_pForest->loadMasks();
@@ -138,8 +141,13 @@ bool CPlantsSimulation::BuildForest()
 		return false;
 	}
 
-	float forestAge = 150;
-	int iteration = 30;
+	string title = "Build Forest";
+	CTimeCounter timeCounter(title);
+
+	float forestAge = 500;
+	int iteration = 100;
+	cout << "Forest Age is : " << forestAge << endl;
+	cout << "Toatal iteration count is : " << iteration << endl;
 	m_pForest->generate(forestAge, iteration);
 
 	return true;
