@@ -50,6 +50,27 @@ public:
 	bool invert;
 	bool useForThinning;
 	int blur;
+
+	DensityMap() 
+		: minval(0.000001)
+		, maxval(0.999999)
+		, ease(0.5)
+		, invert(false)
+		, useForThinning(true)
+		, blur(0.5)
+
+	{
+
+	}
+	DensityMap(const DensityMap& other)  {
+		// Perform a deep copy of any dynamically allocated resources here if needed.
+		minval = other.minval;
+		maxval = other.maxval;
+		ease = other.ease;
+		invert = other.invert;
+		useForThinning = other.useForThinning;
+		blur = other.blur;
+	}
 };
 
 enum class PlantType {

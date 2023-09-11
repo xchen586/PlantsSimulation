@@ -9,8 +9,18 @@ CForest::CForest(void)
 
 CForest::~CForest(void)
 {
-	for (map<string, DensityMap*>::iterator i = globalMasks.begin(); i != globalMasks.end(); ++i)
+	
+	for (vector<TreeClass*>::iterator i = classes.begin(); i != classes.end(); ++i) {
+		TreeClass* tree = *i;
+		delete tree;
+	}
+	for (vector<TreeClass*>::iterator i = classes.begin(); i != classes.end(); ++i) {
+		TreeClass* tree = *i;
+		delete tree;
+	}
+	for (map<string, DensityMap*>::iterator i = globalMasks.begin(); i != globalMasks.end(); ++i) {
 		delete i->second;
+	}
 }
 
 #define SEED_MAX 16*1024*1024
@@ -108,36 +118,15 @@ void CForest::loadGlobalMasks()
 	}
 	globalMasks.clear();
 
-	DensityMap* densityTree1_0 = new DensityMap();
-	densityTree1_0->minval = 0.00001;
-	densityTree1_0->maxval = 0.99999;
-	densityTree1_0->ease = 0.3333;
-	densityTree1_0->blur = 1;
-	densityTree1_0->invert = false;
-	densityTree1_0->useForThinning = true;
-	pair<string, DensityMap*> densityPair1_0 = GetDensityKeyPairFromPlantTypeWithIndex(PlantType::TREE_OAK, 0, densityTree1_0);
-
-	DensityMap* densityTree2_0 = new DensityMap();
-	densityTree2_0->minval = 0.0002;
-	densityTree2_0->maxval = 0.9999;
-	densityTree2_0->ease = 0.5555;
-	densityTree2_0->blur = 1;
-	densityTree2_0->invert = false;
-	densityTree2_0->useForThinning = false;
-	pair<string, DensityMap*> densityPair2_0 = GetDensityKeyPairFromPlantTypeWithIndex(PlantType::TREE_MAPLE, 0, densityTree2_0);
-
-	DensityMap* densityTree3_0 = new DensityMap();
-	densityTree3_0->minval = 0.0056;
-	densityTree3_0->maxval = 1.6666;
-	densityTree3_0->ease = 0.7777;
-	densityTree3_0->blur = 1;
-	densityTree3_0->invert = false;
-	densityTree3_0->useForThinning = true;
-	pair<string, DensityMap*> densityPair3_0 = GetDensityKeyPairFromPlantTypeWithIndex(PlantType::TREE_FIR, 0, densityTree3_0);
-	
-	globalMasks.insert(densityPair1_0);
-	globalMasks.insert(densityPair2_0);
-	globalMasks.insert(densityPair3_0);
+	for (vector<TreeClass*>::iterator i = classes.begin(); i != classes.end(); ++i) {
+		TreeClass* tree = *i;
+		for (map<string, DensityMap*>::iterator iMap = tree->masks.begin(); iMap != tree->masks.end(); ++iMap)
+		{
+			//pair<string, DensityMap*> pairMap = *iMap;
+			pair<string, DensityMap*> deepCopyPair(iMap->first, new DensityMap(*(iMap->second)));
+			globalMasks.insert(deepCopyPair);
+		}
+	}
 
 	return;
 }
