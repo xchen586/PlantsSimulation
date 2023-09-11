@@ -55,7 +55,7 @@ void CForest::loadTreeClasses()
 
 	DensityMap* densityTree1_0 = new DensityMap();
 	densityTree1_0->minval = 0.00001;
-	densityTree1_0->maxval = 0.99999;
+	densityTree1_0->maxval = 5.99999;
 	densityTree1_0->ease = 0.3333;
 	densityTree1_0->blur = 1;
 	densityTree1_0->invert = false;
@@ -64,7 +64,7 @@ void CForest::loadTreeClasses()
 
 	DensityMap* densityTree2_0 = new DensityMap();
 	densityTree2_0->minval = 0.0002;
-	densityTree2_0->maxval = 0.9999;
+	densityTree2_0->maxval = 1.9999;
 	densityTree2_0->ease = 0.5555;
 	densityTree2_0->blur = 1;
 	densityTree2_0->invert = false;
@@ -73,7 +73,7 @@ void CForest::loadTreeClasses()
 
 	DensityMap* densityTree3_0 = new DensityMap();
 	densityTree3_0->minval = 0.0056;
-	densityTree3_0->maxval = 1.6666;
+	densityTree3_0->maxval = 3.6666;
 	densityTree3_0->ease = 0.7777;
 	densityTree3_0->blur = 1;
 	densityTree3_0->invert = false;
@@ -134,7 +134,7 @@ void CForest::loadGlobalMasks()
 void CForest::generate(float forestAge, int iterations)
 {
 	// allocate grid
-	int gridDelta = 32;
+	int gridDelta = 40;
 	int gridXSize = xSize/gridDelta;
 	int gridZSize = zSize/gridDelta;
 	int gridSize = (gridXSize + 1)*(gridZSize + 1)*sizeof(int);
@@ -219,15 +219,16 @@ void CForest::generate(float forestAge, int iterations)
 		double time = timeSlice*iteration;
 
 		for (int x = xo; x < xo + xSize; x += gridDelta)
+		{
 			for (int z = zo; z < zo + zSize; z += gridDelta)
 			{
-				if (rand() > RAND_MAX/10)
+				if (rand() > RAND_MAX / 10)
 					continue;
 
 
-				int gridX = (x - xo)/gridDelta;
-				int gridZ = (z - zo)/gridDelta;
-				int gridIndex = gridXSize*gridZ + gridX;
+				int gridX = (x - xo) / gridDelta;
+				int gridZ = (z - zo) / gridDelta;
+				int gridIndex = gridXSize * gridZ + gridX;
 				int& gridP = grid[gridIndex];
 
 				bool empty = false;
@@ -259,7 +260,7 @@ void CForest::generate(float forestAge, int iterations)
 						{
 							DensityMap* dmap = classMask->second;
 
-							double mask = iMask->second->get2DMaskValue(x, z, dmap->blur); 
+							double mask = iMask->second->get2DMaskValue(x, z, dmap->blur);
 
 							if (dmap->invert)
 								mask = 1.0 - mask;
@@ -270,7 +271,7 @@ void CForest::generate(float forestAge, int iterations)
 								double scope = abs(dmap->minval - dmap->maxval);
 								if (scope > 0.000001)
 								{
-									maskValue = (mask - dmap->minval)/scope;
+									maskValue = (mask - dmap->minval) / scope;
 								}
 								else
 									maskValue = 0.0;
@@ -284,9 +285,9 @@ void CForest::generate(float forestAge, int iterations)
 					classIdx++;
 				}
 
-				double dice = maskSpan*rand()/RAND_MAX;
+				double dice = maskSpan * rand() / RAND_MAX;
 				double sum = 0.0;
-				TreeClass* chosen = NULL;			
+				TreeClass* chosen = NULL;
 				for (int i = 0; i < classIdx && sum < dice; i++)
 				{
 					ClassStrength& c = classArray[i];
@@ -298,7 +299,7 @@ void CForest::generate(float forestAge, int iterations)
 				{
 					CTreeInstance& t = instances[instanceIndex];
 					t.treeClass = chosen;
-					t.bday = time - min(timeSlice, (float)rand()*chosen->matureAge/RAND_MAX);
+					t.bday = time - min(timeSlice, (float)rand() * chosen->matureAge / RAND_MAX);
 					t.x = x;
 					t.z = z;
 					t.dead = false;
@@ -309,8 +310,10 @@ void CForest::generate(float forestAge, int iterations)
 				}
 
 			}
-
+		}
 		int currentCount = instanceIndex;
+		cout << "Current iteration : " << iteration << " has current instance count : " << currentCount << endl;
+		//Decide the dominated plants.
 		for (int iTree = 0; iTree < currentCount; ++iTree)
 		{
 			CTreeInstance& tree = instances[iTree];
@@ -337,68 +340,72 @@ void CForest::generate(float forestAge, int iterations)
 			{
 				tree.mature = abs(growth - 1.0) < 0.00001 || lastIteration;
 				for (double x = tree.x - minRx; x <= tree.x + minRx && !tree.dead; x += gridDelta)
+				{
 					for (double z = tree.z - minRz; z <= tree.z + minRz && !tree.dead; z += gridDelta)
 					{
 						int xi = (int)x;
 						int zi = (int)z;
 
-						int gridX = (xi - xo)/gridDelta;
-						int gridZ = (zi - zo)/gridDelta;
+						int gridX = (xi - xo) / gridDelta;
+						int gridZ = (zi - zo) / gridDelta;
 
 						if (gridX < 0 || gridX >= gridXSize ||
 							gridZ < 0 || gridZ >= gridZSize)
 							continue;
 
-						int gridIndex = gridXSize*gridZ + gridX;
+						int gridIndex = gridXSize * gridZ + gridX;
 						int& gridP = grid[gridIndex];
 
 						if (gridP > 0)
 						{
 							CTreeInstance& neighborTree = instances[gridP - 1];
 							double neighborAge = time - neighborTree.bday;
-							double neighborGrowth = 1.0 - max(0.0, (neighborTree.treeClass->matureAge - neighborAge)/neighborTree.treeClass->matureAge);
-							double minNeighborRx = sizeFactor*neighborGrowth*neighborTree.treeClass->xRadius.getValue(neighborTree.x, 0, neighborTree.z)*neighborTree.treeClass->radius.getValue(neighborTree.x, 0, neighborTree.z);
-							double minNeighborRz = sizeFactor*neighborGrowth*neighborTree.treeClass->zRadius.getValue(neighborTree.x, 0, neighborTree.z)*neighborTree.treeClass->radius.getValue(neighborTree.x, 0, neighborTree.z);
+							double neighborGrowth = 1.0 - max(0.0, (neighborTree.treeClass->matureAge - neighborAge) / neighborTree.treeClass->matureAge);
+							double minNeighborRx = sizeFactor * neighborGrowth * neighborTree.treeClass->xRadius.getValue(neighborTree.x, 0, neighborTree.z) * neighborTree.treeClass->radius.getValue(neighborTree.x, 0, neighborTree.z);
+							double minNeighborRz = sizeFactor * neighborGrowth * neighborTree.treeClass->zRadius.getValue(neighborTree.x, 0, neighborTree.z) * neighborTree.treeClass->radius.getValue(neighborTree.x, 0, neighborTree.z);
 							double neighborSize = max(minNeighborRx, minNeighborRz);
 							double size = max(minRx, minRz);
-							tree.dead = 
+							tree.dead =
 								&neighborTree != &tree &&
-								!neighborTree.dead && 
+								!neighborTree.dead &&
 								(/*neighborTree.bday < tree.bday || */
-								neighborSize > size ||
-								time - neighborTree.bday > neighborTree.treeClass->matureAge);
+									neighborSize > size ||
+									time - neighborTree.bday > neighborTree.treeClass->matureAge);
 						}
 
 						if (!tree.dead)
 							gridP = iTree + 1;
 					}
+				}
 			}
+			//Generate the new seed.
 			if (!tree.dead && tree.mature)
 			{
 				double seedRx = tree.treeClass->seedRange;
 				double seedRz = tree.treeClass->seedRange;
 
 				for (double x = tree.x - seedRx; x <= tree.x + seedRx; x += gridDelta)
+				{
 					for (double z = tree.z - seedRx; z <= tree.z + seedRx; z += gridDelta)
 					{
 						if (x >= tree.x - minRx && x <= tree.x + minRx &&
 							z >= tree.z - minRz && z <= tree.z + minRz)
 							continue;
 
-						if (rand() > RAND_MAX/1000)
+						if (rand() > RAND_MAX / 1000)
 							continue;
 
 						int xi = (int)x;
 						int zi = (int)z;
 
-						int gridX = (xi - xo)/gridDelta;
-						int gridZ = (zi - zo)/gridDelta;
+						int gridX = (xi - xo) / gridDelta;
+						int gridZ = (zi - zo) / gridDelta;
 
 						if (gridX < 0 || gridX >= gridXSize ||
 							gridZ < 0 || gridZ >= gridZSize)
 							continue;
 
-						int gridIndex = gridXSize*gridZ + gridX;
+						int gridIndex = gridXSize * gridZ + gridX;
 						int& gridP = grid[gridIndex];
 
 						bool empty = false;
@@ -433,7 +440,7 @@ void CForest::generate(float forestAge, int iterations)
 										double scope = abs(dmap->minval - dmap->maxval);
 										if (scope > 0.000001)
 										{
-											value = (value - dmap->minval)/scope;
+											value = (value - dmap->minval) / scope;
 										}
 										else
 											value = 0.0;
@@ -443,12 +450,12 @@ void CForest::generate(float forestAge, int iterations)
 								}
 							}
 
-							double dice = ((double)rand())/RAND_MAX;
+							double dice = ((double)rand()) / RAND_MAX;
 							if (dice < maskval)
 							{
 								CTreeInstance& t = instances[instanceIndex];
 								t.treeClass = tree.treeClass;
-								t.bday = time - min(timeSlice, (float)rand()*tree.treeClass->matureAge/RAND_MAX);
+								t.bday = time - min(timeSlice, (float)rand() * tree.treeClass->matureAge / RAND_MAX);
 								t.x = x;
 								t.z = z;
 								t.dead = false;
@@ -459,10 +466,11 @@ void CForest::generate(float forestAge, int iterations)
 							}
 						}
 					}
+				}
 			}
 		}
-
 	}
+
 	std::cout << "Tree Instances Count :" << " " << instanceIndex + 1 << std::endl;
 	trees.clear();
 	for (int i = 0; i < instanceIndex; i++)
@@ -539,7 +547,6 @@ void CForest::generate(float forestAge, int iterations)
 
 	delete instances;
 	free(grid);
-
 }
 
 TreeOutput CForest::GetTreeOutputFromInstance(const CTreeInstance& instance)

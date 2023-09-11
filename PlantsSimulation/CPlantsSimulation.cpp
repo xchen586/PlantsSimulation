@@ -116,8 +116,14 @@ bool CPlantsSimulation::LoadForest()
 	if (!m_topLayerImage) {
 		return false;
 	}
-	m_pForest->xSize = m_topLayerImage->input_image_width;
-	m_pForest->zSize = m_topLayerImage->input_image_height;
+
+	//const int forestXSize = m_topLayerImage->input_image_width;
+	//const int forestZSize = m_topLayerImage->input_image_width;
+	const int forestXSize = 30000;
+	const int forestZSize = 30000;
+
+	m_pForest->xSize = forestXSize;
+	m_pForest->zSize = forestZSize;
 
 	m_pForest->loadTreeClasses();
 	m_pForest->loadMasks();
@@ -132,8 +138,8 @@ bool CPlantsSimulation::BuildForest()
 		return false;
 	}
 
-	float forestAge = 300;
-	int iteration = 90;
+	float forestAge = 150;
+	int iteration = 30;
 	m_pForest->generate(forestAge, iteration);
 
 	return true;
