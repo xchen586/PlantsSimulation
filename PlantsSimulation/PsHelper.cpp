@@ -225,3 +225,23 @@ std::vector<std::vector<unsigned short>> ComputeSlopeMap(const std::vector<std::
 
     return slopeMap;
 }
+
+// Function to convert a 1D RGB array to a 2D vector, returning a pointer to the vector
+std::vector<std::vector<PixelRGB>>* ConvertRGBArrayTo2DVector(const unsigned char* rgbData, int width, int height) {
+    auto result = new std::vector<std::vector<PixelRGB>>(height, std::vector<PixelRGB>(width));
+
+    for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++) {
+            int index = (y * width + x) * 3; // 3 channels (RGB) per pixel
+
+            PixelRGB pixel;
+            pixel.red = rgbData[index];
+            pixel.green = rgbData[index + 1];
+            pixel.blue = rgbData[index + 2];
+
+            (*result)[y][x] = pixel;
+        }
+    }
+
+    return result;
+}

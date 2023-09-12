@@ -28,6 +28,11 @@ struct InputImageDataInfo
 	}
 };
 
+struct PixelRGB {
+	unsigned char red;
+	unsigned char green;
+	unsigned char blue;
+};
 
 InputImageDataInfo* LoadInputImageFile(const string& inputImageFile);
 
@@ -40,3 +45,5 @@ double BilinearInterpolation3(double x, double y, const std::vector<std::vector<
 std::vector<std::vector<unsigned short>> ScaleArray(const std::vector<std::vector<unsigned short>>& inputArray, int p, int q);
 
 std::vector<std::vector<unsigned short>> ComputeSlopeMap(const std::vector<std::vector<unsigned short>>& heightmap);
+
+std::vector<std::vector<PixelRGB>>* ConvertRGBArrayTo2DVector(const unsigned char* rgbData, int width, int height);
