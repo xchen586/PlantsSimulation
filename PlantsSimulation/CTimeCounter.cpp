@@ -23,6 +23,22 @@ int my_ctime_s(char* buffer, size_t bufferSize, const time_t* timeToConvert) {
 
     return 0; // Success
 }
+
+void my_ctime_s_2(char* buffer, size_t bufferSize, const time_t* timeToConvert) {
+    if (buffer == nullptr || bufferSize < 26 || timeToConvert == nullptr) {
+        throw std::invalid_argument("Invalid parameters"); // Use C++ exception for invalid parameters
+    }
+
+    struct tm localTimeInfo;
+    if (localtime_r(timeToConvert, &localTimeInfo) == nullptr) {
+        throw std::runtime_error("Error converting time: " + std::string(strerror(errno)));
+    }
+
+    // Use strftime to format time
+    if (strftime(buffer, bufferSize, "%Y-%m-%d %H:%M:%S", &localTimeInfo) == 0) {
+        throw std::overflow_error("Buffer too small for formatted time");
+    }
+}
 #endif
 
 CTimeCounter::CTimeCounter(string& title)
