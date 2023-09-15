@@ -253,3 +253,4 @@ std::string GetFileExtension(const std::string& filePath) {
     }
     return ""; // No file extension found
 }
+
