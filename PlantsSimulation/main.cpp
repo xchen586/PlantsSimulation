@@ -34,6 +34,10 @@ int main(int argc, const char* argv[])
     CPlantsSimulation ps(input_image_file, heightmap_raw_file, output_file);
     
     bool isLoad = ps.LoadInputData();
+    if (!isLoad)
+    {
+        return -1;
+    }
     bool loadForest = ps.LoadForest();
     bool buildForest = ps.BuildForest();
     bool results = ps.OutputResults();

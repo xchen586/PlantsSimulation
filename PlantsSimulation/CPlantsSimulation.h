@@ -25,13 +25,14 @@ private:
 
 	InputImageDataInfo* m_topLayerImage;
 
-	std::vector<std::vector<CCellData*>> * m_pCellTable;
+	std::vector<std::vector<CCellData*>>* m_pCellTable;
 	CForest* m_pForest;
 
 private:
 	void DeInitialize();
-
-public: 
+	bool LoadInputImage();
+	bool LoadInputHeightMap();
+public:
 	bool LoadInputData();
 	bool LoadForest();
 	bool BuildForest();

@@ -47,3 +47,5 @@ std::vector<std::vector<unsigned short>> ScaleArray(const std::vector<std::vecto
 std::vector<std::vector<unsigned short>> ComputeSlopeMap(const std::vector<std::vector<unsigned short>>& heightmap);
 
 std::vector<std::vector<PixelRGB>>* ConvertRGBArrayTo2DVector(const unsigned char* rgbData, int width, int height);
+
+std::string GetFileExtension(const std::string& filePath);

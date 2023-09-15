@@ -10,7 +10,7 @@
 InputImageDataInfo* LoadInputImageFile(const string& inputImageFile)
 {
 	InputImageDataInfo* pDataInfo = new InputImageDataInfo();
-	pDataInfo->input_image_data = stbi_load(inputImageFile.c_str(), &pDataInfo->input_image_width, &pDataInfo->input_image_height, &pDataInfo->input_image_comp, 1);
+	pDataInfo->input_image_data = stbi_load(inputImageFile.c_str(), &pDataInfo->input_image_width, &pDataInfo->input_image_height, &pDataInfo->input_image_comp, 3);
 	if (!pDataInfo->input_image_data) {
 		delete pDataInfo;
 		return nullptr;
@@ -244,4 +244,12 @@ std::vector<std::vector<PixelRGB>>* ConvertRGBArrayTo2DVector(const unsigned cha
     }
 
     return result;
+}
+
+std::string GetFileExtension(const std::string& filePath) {
+    size_t dotPosition = filePath.find_last_of('.');
+    if (dotPosition != std::string::npos) {
+        return filePath.substr(dotPosition + 1);
+    }
+    return ""; // No file extension found
 }

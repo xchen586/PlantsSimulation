@@ -42,21 +42,15 @@ void CPlantsSimulation::DeInitialize()
 	if (m_topLayerImage) {
 		delete m_topLayerImage;
 		m_topLayerImage = nullptr;
-	}	
+	}
 	if (m_pForest) {
 		delete m_pForest;
 		m_pForest = nullptr;
 	}
 }
 
-bool CPlantsSimulation::LoadInputData()
+bool CPlantsSimulation::LoadInputImage()
 {
-	bool ret = false;
-	this->DeInitialize();
-
-	const int width = 300;
-	const int height = 300;
-
 	try
 	{
 		m_topLayerImage = LoadInputImageFile(m_inputImageFile);
@@ -67,42 +61,98 @@ bool CPlantsSimulation::LoadInputData()
 
 		const int newWidth = m_topLayerImage->input_image_width;
 		const int newHeight = m_topLayerImage->input_image_height;
-		
+
 		m_pCellTable = new std::vector<std::vector<CCellData*>>(newWidth, std::vector<CCellData*>(newHeight, nullptr));
 		if (!m_pCellTable) {
 			return false;
 		}
 
-		
-		std::vector<std::vector<unsigned short>> heightMap300 = Read2DShortArray(m_heightMapFile, width, height);
-
-		std::vector<std::vector<unsigned short>> heightMap4096 = ScaleArray(heightMap300, newWidth, newHeight);
-		std::vector<std::vector<unsigned short>> slope4096 = ComputeSlopeMap(heightMap4096);
-
-
-		for (auto i = 0; i < width; i++) {
-			for (auto j = 0; j < height; j++) {
-				int idx = (width * j + i) * 3;
+		for (auto i = 0; i < newWidth; i++) {
+			for (auto j = 0; j < newHeight; j++) {
+				int idx = (newWidth * j + i) * 3;
 				uint8_t redValue = m_topLayerImage->input_image_data[idx + 0];
 				uint8_t greenValue = m_topLayerImage->input_image_data[idx + 0];
 				uint8_t blueValue = m_topLayerImage->input_image_data[idx + 0];
 				CCellData* cell = new CCellData(redValue, greenValue, blueValue);
-				cell->m_height = heightMap4096[i][j];
-				cell->m_slope = slope4096[i][j];
-				(*m_pCellTable)[i][j] = cell;
+				if (!cell) {
+					std::cout << "Fail to create CCellData at i = " << i << " j = " << j << std::endl;
+				}
+				else {
+					(*m_pCellTable)[i][j] = cell;
+				}
+
 			}
 		}
-		// You can access and work with 'result' here
-
-
 	}
 	catch (const std::exception& e)
 	{
 		std::cerr << "Error: " << e.what() << std::endl;
+		if (m_topLayerImage) {
+			delete m_topLayerImage;
+			m_topLayerImage = nullptr;
+		}
+		if (m_pCellTable) {
+			delete m_pCellTable;
+			m_pCellTable = nullptr;
+		}
 		return false;
 	}
-    return true;
+	if (m_topLayerImage && m_topLayerImage->input_image_data)
+	{
+		delete m_topLayerImage->input_image_data;
+		m_topLayerImage->input_image_data = nullptr;
+	}
+	return true;
 }
+
+bool CPlantsSimulation::LoadInputHeightMap()
+{
+	if (!m_topLayerImage || !m_pCellTable)
+	{
+		return false;
+	}
+	const int width = m_topLayerImage->input_image_width;
+	const int height = m_topLayerImage->input_image_height;
+	std::vector<std::vector<unsigned short>> heightMap4096 = Read2DShortArray(m_heightMapFile, width, height);
+	std::vector<std::vector<unsigned short>> slope4096 = ComputeSlopeMap(heightMap4096);
+
+	for (auto i = 0; i < width; i++) {
+		for (auto j = 0; j < height; j++) {
+			CCellData* cell = (*m_pCellTable)[i][j];
+			if (!cell)
+			{
+				std::cout << "Fail to get CCellData at i = " << i << " j = " << j << std::endl;
+			}
+			else
+			{
+				cell->m_height = heightMap4096[i][j];
+				cell->m_slope = slope4096[i][j];
+			}
+		}
+	}
+	return true;
+}
+
+bool CPlantsSimulation::LoadInputData()
+{
+	bool ret = false;
+	this->DeInitialize();
+	ret = LoadInputImage();
+	if (!ret) {
+		this->DeInitialize();
+		return ret;
+	}
+	ret = LoadInputHeightMap();
+	if (!ret) {
+		this->DeInitialize();
+		return ret;
+	}
+	return ret;
+}
+//std::vector<std::vector<unsigned short>> heightMap300 = Read2DShortArray(m_heightMapFile, width, height);
+
+//std::vector<std::vector<unsigned short>> heightMap4096 = ScaleArray(heightMap300, newWidth, newHeight);
+//std::vector<std::vector<unsigned short>> slope4096 = ComputeSlopeMap(heightMap4096);
 
 bool CPlantsSimulation::LoadForest()
 {
@@ -131,7 +181,7 @@ bool CPlantsSimulation::LoadForest()
 	m_pForest->loadTreeClasses();
 	m_pForest->loadMasks();
 	m_pForest->loadGlobalMasks();
-	
+
 	return true;
 }
 
