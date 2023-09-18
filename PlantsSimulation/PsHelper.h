@@ -36,15 +36,15 @@ struct PixelRGB {
 
 InputImageDataInfo* LoadInputImageFile(const string& inputImageFile);
 
-std::vector<std::vector<unsigned short>> Read2DShortArray(const std::string& filePath, int width, int height);
+std::vector<std::vector<short>> Read2DShortArray(const std::string& filePath, int width, int height);
 
-double BilinearInterpolation(double x, double y, const std::vector<std::vector<unsigned short>>& inputArray);
-double BilinearInterpolation2(double x, double y, const std::vector<std::vector<unsigned short>>& inputArray);
-double BilinearInterpolation3(double x, double y, const std::vector<std::vector<unsigned short>>& inputArray);
+double BilinearInterpolation(double x, double y, const std::vector<std::vector<short>>& inputArray);
+double BilinearInterpolation2(double x, double y, const std::vector<std::vector<short>>& inputArray);
+double BilinearInterpolation3(double x, double y, const std::vector<std::vector<short>>& inputArray);
 
-std::vector<std::vector<unsigned short>> ScaleArray(const std::vector<std::vector<unsigned short>>& inputArray, int p, int q);
+std::vector<std::vector<short>> ScaleArray(const std::vector<std::vector<short>>& inputArray, int p, int q);
 
-std::vector<std::vector<unsigned short>> ComputeSlopeMap(const std::vector<std::vector<unsigned short>>& heightmap);
+std::vector<std::vector<short>> ComputeSlopeMap(const std::vector<std::vector<short>>& heightmap);
 
 std::vector<std::vector<PixelRGB>>* ConvertRGBArrayTo2DVector(const unsigned char* rgbData, int width, int height);
 

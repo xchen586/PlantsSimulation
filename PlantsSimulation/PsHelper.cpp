@@ -20,7 +20,7 @@ InputImageDataInfo* LoadInputImageFile(const string& inputImageFile)
 	}
 }
 
-std::vector<std::vector<unsigned short>> Read2DShortArray(const std::string& filePath, int width, int height)
+std::vector<std::vector<short>> Read2DShortArray(const std::string& filePath, int width, int height)
 {
     std::ifstream fs(filePath, std::ios::binary);
     if (!fs.is_open())
@@ -31,13 +31,13 @@ std::vector<std::vector<unsigned short>> Read2DShortArray(const std::string& fil
     // Check if the file size matches the expected size
     fs.seekg(0, std::ios::end);
     std::streampos fileSize = fs.tellg();
-    if (fileSize != static_cast<std::streampos>(width) * height * sizeof(unsigned short))
+    if (fileSize != static_cast<std::streampos>(width) * height * sizeof(short))
     {
         throw std::runtime_error("File size doesn't match expected dimensions");
     }
     fs.seekg(0, std::ios::beg);
 
-    std::vector<std::vector<unsigned short>> array(width, std::vector<unsigned short>(height));
+    std::vector<std::vector<short>> array(width, std::vector<short>(height));
 
     for (int x = 0; x < width; x++)
     {
@@ -50,7 +50,7 @@ std::vector<std::vector<unsigned short>> Read2DShortArray(const std::string& fil
                 throw std::runtime_error("Failed to read data from file");
             }
 
-            unsigned short value = (static_cast<unsigned short>(bytes[1]) << 8) | bytes[0];
+            short value = (static_cast<unsigned short>(bytes[1]) << 8) | bytes[0];
             array[x][y] = value;
         }
     }
@@ -58,7 +58,7 @@ std::vector<std::vector<unsigned short>> Read2DShortArray(const std::string& fil
     return array;
 }
 
-double BilinearInterpolation(double x, double y, const std::vector<std::vector<unsigned short>>& inputArray)
+double BilinearInterpolation(double x, double y, const std::vector<std::vector<short>>& inputArray)
 {
     int width = inputArray.size();
     int height = inputArray[0].size();
@@ -86,7 +86,7 @@ double BilinearInterpolation(double x, double y, const std::vector<std::vector<u
     return value;
 }
 
-double BilinearInterpolation2(double x, double y, const std::vector<std::vector<unsigned short>>& inputArray)
+double BilinearInterpolation2(double x, double y, const std::vector<std::vector<short>>& inputArray)
 {
     int width = inputArray.size();
     int height = inputArray[0].size();
@@ -117,7 +117,7 @@ double BilinearInterpolation2(double x, double y, const std::vector<std::vector<
     return result;
 }
 
-double BilinearInterpolation3(double x, double y, const std::vector<std::vector<unsigned short>>& inputArray)
+double BilinearInterpolation3(double x, double y, const std::vector<std::vector<short>>& inputArray)
 {
     int x0 = static_cast<int>(x);
     int y0 = static_cast<int>(y);
@@ -145,12 +145,12 @@ double BilinearInterpolation3(double x, double y, const std::vector<std::vector<
     return 0.0; // Handle out-of-bounds cases gracefully
 }
 
-std::vector<std::vector<unsigned short>> ScaleArray(const std::vector<std::vector<unsigned short>>& inputArray, int p, int q)
+std::vector<std::vector<short>> ScaleArray(const std::vector<std::vector<short>>& inputArray, int p, int q)
 {
     int m = inputArray.size();
     int n = inputArray[0].size();
 
-    std::vector<std::vector<unsigned short>> scaledArray(p, std::vector<unsigned short>(q));
+    std::vector<std::vector<short>> scaledArray(p, std::vector<short>(q));
 
     double scaleX = static_cast<double>(m) / p;
     double scaleY = static_cast<double>(n) / q;
@@ -162,7 +162,7 @@ std::vector<std::vector<unsigned short>> ScaleArray(const std::vector<std::vecto
             double originalX = x * scaleX;
             double originalY = y * scaleY;
 
-            scaledArray[x][y] = static_cast<unsigned short>(BilinearInterpolation3(originalX, originalY, inputArray));
+            scaledArray[x][y] = static_cast<short>(BilinearInterpolation3(originalX, originalY, inputArray));
         }
     }
 
@@ -187,12 +187,12 @@ std::vector<std::vector<double>> ConvertUnsignedShortToDouble(const std::vector<
     return doubleArray;
 }
 
-std::vector<std::vector<unsigned short>> ComputeSlopeMap(const std::vector<std::vector<unsigned short>>& heightmap)
+std::vector<std::vector<short>> ComputeSlopeMap(const std::vector<std::vector<short>>& heightmap)
 {
     int width = heightmap.size();
     int height = heightmap[0].size();
 
-    std::vector<std::vector<unsigned short>> slopeMap(width, std::vector<unsigned short>(height, 0));
+    std::vector<std::vector<short>> slopeMap(width, std::vector<short>(height, 0));
 
     int dx[] = { -1, -1, -1, 0, 1, 1, 1, 0 };
     int dy[] = { -1, 0, 1, 1, 1, 0, -1, -1 };
@@ -201,7 +201,7 @@ std::vector<std::vector<unsigned short>> ComputeSlopeMap(const std::vector<std::
     {
         for (int y = 0; y < height; y++)
         {
-            unsigned short maxHeightDifference = 0;
+            short maxHeightDifference = 0;
 
             for (int i = 0; i < 8; i++)
             {
@@ -219,7 +219,7 @@ std::vector<std::vector<unsigned short>> ComputeSlopeMap(const std::vector<std::
                 }
             }
 
-            slopeMap[x][y] = std::min(maxHeightDifference, static_cast<unsigned short>(USHRT_MAX));
+            slopeMap[x][y] = std::min(maxHeightDifference, static_cast<short>(USHRT_MAX));
         }
     }
 

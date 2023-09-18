@@ -113,8 +113,8 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	}
 	const int width = m_topLayerImage->input_image_width;
 	const int height = m_topLayerImage->input_image_height;
-	std::vector<std::vector<unsigned short>> heightMap4096 = Read2DShortArray(m_heightMapFile, width, height);
-	std::vector<std::vector<unsigned short>> slope4096 = ComputeSlopeMap(heightMap4096);
+	std::vector<std::vector<short>> heightMap4096 = Read2DShortArray(m_heightMapFile, width, height);
+	std::vector<std::vector<short>> slope4096 = ComputeSlopeMap(heightMap4096);
 
 	for (auto i = 0; i < width; i++) {
 		for (auto j = 0; j < height; j++) {

@@ -18,7 +18,7 @@ public:
 	uint8_t m_moistureValue;
 	uint8_t m_roughnessValue;
 	
-	unsigned short m_height;
-	unsigned short m_slope;
+	short m_height;
+	short m_slope;
 };
 
