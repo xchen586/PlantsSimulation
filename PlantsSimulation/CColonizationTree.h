@@ -73,6 +73,15 @@ public:
 	}
 };
 
+enum class DensityMapType
+{
+	DensityMap_Height,
+	DensityMap_Slope,
+	DensityMap_Moisture,
+	DensityMap_Roughness,
+	DensityMap_End
+};
+
 enum class PlantType {
 	TREE_OAK,
 	TREE_MAPLE,
@@ -105,8 +114,11 @@ enum class PlantType {
 };
 
 string PlantTypeToString(PlantType type);
+string DensityMapTypeToString(DensityMapType type);
 string PlantTypeToMaskString(PlantType type, int index);
+string PlantTypeAndDensityMapToMaskString(PlantType plantType, DensityMapType densityMapType);
 pair<string, DensityMap*> GetDensityKeyPairFromPlantTypeWithIndex(PlantType type, int index, DensityMap* density);
+pair<string, DensityMap*> GetDensityKeyPairFromPlantTypeWithDensityMapType(PlantType plantType, DensityMapType densityMapType, DensityMap* density);
 PlantType RandomPlantType();
 
 class TreeClass

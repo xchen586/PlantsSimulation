@@ -1,27 +1,29 @@
 #pragma once
 #include "CColonizationTree.h"
 
-class CHeightDensityMap : DensityMap
+class CHeightDensityMap : public DensityMap
+{
+public:
+	
+};
+
+class COakHeightDensityMap : public CHeightDensityMap
+{
+public:
+	
+};
+
+class CMapleHeightDensityMap : public CHeightDensityMap
 {
 
 };
 
-class COakHeightDensityMap : CHeightDensityMap
+class CBirchHeightDensityMap : public CHeightDensityMap
 {
 
 };
 
-class CMapleHeightDensityMap : CHeightDensityMap
-{
-
-};
-
-class CBirchHeightDensityMap : CHeightDensityMap
-{
-
-};
-
-class CFirHeightDensityMap : CHeightDensityMap
+class CFirHeightDensityMap : public CHeightDensityMap
 {
 
 };
