@@ -57,7 +57,7 @@ public:
 		, ease(0.5)
 		, invert(false)
 		, useForThinning(true)
-		, blur(0.5)
+		, blur(0)
 
 	{
 
