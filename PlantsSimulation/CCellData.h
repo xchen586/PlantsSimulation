@@ -14,11 +14,12 @@ public:
 	}
 
 public:
+	short m_height;
+	short m_slope;
+
+private:
 	uint8_t m_roadAttributeValue;
 	uint8_t m_moistureValue;
 	uint8_t m_roughnessValue;
-	
-	short m_height;
-	short m_slope;
 };
 

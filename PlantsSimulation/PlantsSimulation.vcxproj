@@ -141,7 +141,11 @@
     <ClInclude Include="CCellData.h" />
     <ClInclude Include="CColonizationTree.h" />
     <ClInclude Include="CForest.h" />
+    <ClInclude Include="CHeightDensity.h" />
+    <ClInclude Include="CMoistureDensityMap.h" />
     <ClInclude Include="CPlantsSimulation.h" />
+    <ClInclude Include="CRoughnessDensityMap.h" />
+    <ClInclude Include="CSlopeDensityMap.h" />
     <ClInclude Include="CTimeCounter.h" />
     <ClInclude Include="PsHelper.h" />
     <ClInclude Include="stb_image.h" />
