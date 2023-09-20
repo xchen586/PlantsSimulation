@@ -47,6 +47,7 @@ enum class DensityMapType
 	DensityMap_Slope,
 	DensityMap_Moisture,
 	DensityMap_Roughness,
+	DensityMap_RoadAttribute,
 	DensityMap_End
 };
 

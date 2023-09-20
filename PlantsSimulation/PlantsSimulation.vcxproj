@@ -145,6 +145,7 @@
     <ClInclude Include="CHeightDensity.h" />
     <ClInclude Include="CMoistureDensityMap.h" />
     <ClInclude Include="CPlantsSimulation.h" />
+    <ClInclude Include="CRoadAttributeDensityMap.h" />
     <ClInclude Include="CRoughnessDensityMap.h" />
     <ClInclude Include="CSlopeDensityMap.h" />
     <ClInclude Include="CTimeCounter.h" />

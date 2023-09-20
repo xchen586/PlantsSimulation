@@ -3,6 +3,7 @@
 #include "CSlopeDensityMap.h"
 #include "CMoistureDensityMap.h"
 #include "CRoughnessDensityMap.h"
+#include "CRoadAttributeDensityMap.h"
 
 class COakTreeClass : public TreeClass
 {
@@ -27,6 +28,9 @@ public:
 		DensityMap* roughnessDensity = new COakRoughnessDensityMap();
 		pair<string, DensityMap*> roughnessPair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, roughnessDensity->type, roughnessDensity);
 		masks.insert(roughnessPair);
+		DensityMap* roadAttributeDensity = new CRoadAttributeDensityMap();
+		pair<string, DensityMap*> roadAttributePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, roadAttributeDensity->type, roadAttributeDensity);
+		masks.insert(roadAttributePair);
 	}
 };
 
@@ -53,6 +57,9 @@ public:
 		DensityMap* roughnessDensity = new CMapleRoughnessDensityMap();
 		pair<string, DensityMap*> roughnessPair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, roughnessDensity->type, roughnessDensity);
 		masks.insert(roughnessPair);
+		DensityMap* roadAttributeDensity = new CRoadAttributeDensityMap();
+		pair<string, DensityMap*> roadAttributePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, roadAttributeDensity->type, roadAttributeDensity);
+		masks.insert(roadAttributePair);
 	}
 };
 
@@ -79,6 +86,9 @@ public:
 		DensityMap* roughnessDensity = new CBirchRoughnessDensityMap();
 		pair<string, DensityMap*> roughnessPair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, roughnessDensity->type, roughnessDensity);
 		masks.insert(roughnessPair);
+		DensityMap* roadAttributeDensity = new CRoadAttributeDensityMap();
+		pair<string, DensityMap*> roadAttributePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, roadAttributeDensity->type, roadAttributeDensity);
+		masks.insert(roadAttributePair);
 	}
 };
 
@@ -105,5 +115,8 @@ public:
 		DensityMap* roughnessDensity = new CFirRoughnessDensityMap();
 		pair<string, DensityMap*> roughnessPair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, roughnessDensity->type, roughnessDensity);
 		masks.insert(roughnessPair);
+		DensityMap* roadAttributeDensity = new CRoadAttributeDensityMap();
+		pair<string, DensityMap*> roadAttributePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, roadAttributeDensity->type, roadAttributeDensity);
+		masks.insert(roadAttributePair);
 	}
 };
