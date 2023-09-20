@@ -68,7 +68,7 @@ public:
 		, maxval(0.999999)
 		, ease(0.5)
 		, invert(false)
-		, useForThinning(true)
+		, useForThinning(false)
 		, blur(0)
 
 	{
@@ -76,6 +76,7 @@ public:
 	}
 	DensityMap(const DensityMap& other)  {
 		// Perform a deep copy of any dynamically allocated resources here if needed.
+		type = other.type;
 		minval = other.minval;
 		maxval = other.maxval;
 		ease = other.ease;
