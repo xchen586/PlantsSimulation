@@ -125,8 +125,8 @@ bool CPlantsSimulation::LoadInputHeightMap()
 			}
 			else
 			{
-				cell->m_height = heightMap4096[i][j];
-				cell->m_slope = slope4096[i][j];
+				cell->SetHeightValue(heightMap4096[i][j]);
+				cell->SetSlopeValue(slope4096[i][j]);
 			}
 		}
 	}

@@ -1,8 +1,11 @@
 #pragma once
+
 #include <string>
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <cmath>
+#include <algorithm>
 
 using namespace std;
 
@@ -41,6 +44,10 @@ std::vector<std::vector<short>> Read2DShortArray(const std::string& filePath, in
 double BilinearInterpolation(double x, double y, const std::vector<std::vector<short>>& inputArray);
 double BilinearInterpolation2(double x, double y, const std::vector<std::vector<short>>& inputArray);
 double BilinearInterpolation3(double x, double y, const std::vector<std::vector<short>>& inputArray);
+
+double GetNormalLinearAttribute(double value, double min, double max);
+double GetInvertLinearAttribute(double value, double min, double max);
+double GetColorLinearNormallizedAttribute(short value);
 
 std::vector<std::vector<short>> ScaleArray(const std::vector<std::vector<short>>& inputArray, int p, int q);
 

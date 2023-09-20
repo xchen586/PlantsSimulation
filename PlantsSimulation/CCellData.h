@@ -5,21 +5,27 @@
 class CCellData
 {
 public:
-	CCellData(const uint8_t& roadAttributeValue, const uint8_t& moistureValue, const uint8_t& roughnessValue)
-		: m_roadAttributeValue(roadAttributeValue)
-		, m_moistureValue(moistureValue)
-		, m_roughnessValue(roughnessValue)
-	{
+	CCellData(const uint8_t& roadAttributeValue, const uint8_t& moistureValue, const uint8_t& roughnessValue);
+		
+	double GetRoadAttribute();
+	double GetHeight();
+	double GetSlope();
+	double GetMoisture();
+	double GetRoughness();
 
-	}
-
-public:
-	short m_height;
-	short m_slope;
-
+	void SetHeightValue(short heightValue);
+	void SetSlopeValue(short slopeValue);
 private:
+	short m_heightValue;
+	short m_slopeValue;
 	uint8_t m_roadAttributeValue;
 	uint8_t m_moistureValue;
 	uint8_t m_roughnessValue;
+
+	double m_roadAttribute;
+	double m_height;
+	double m_slope;
+	double m_moisture;
+	double m_roughness;
 };
 

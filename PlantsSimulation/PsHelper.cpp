@@ -145,6 +145,26 @@ double BilinearInterpolation3(double x, double y, const std::vector<std::vector<
     return 0.0; // Handle out-of-bounds cases gracefully
 }
 
+double GetNormalLinearAttribute(double value, double min, double max)
+{
+    value = std::clamp(value, min, max);
+    double normalized = (value - min) / (max - min);
+    return std::lerp(0.0, 1.0, normalized);
+}
+
+double GetInvertLinearAttribute(double value, double min, double max)
+{
+    value = std::clamp(value, min, max);
+    double normalized = (value - min) / (max - min);
+    return std::lerp(0.0, 1.0, normalized);
+}
+
+double GetColorLinearNormallizedAttribute(short value)
+{
+    double doublevalue = static_cast<double>(value);
+    return GetNormalLinearAttribute(doublevalue, 0.0, 255.0);
+}
+
 std::vector<std::vector<short>> ScaleArray(const std::vector<std::vector<short>>& inputArray, int p, int q)
 {
     int m = inputArray.size();
