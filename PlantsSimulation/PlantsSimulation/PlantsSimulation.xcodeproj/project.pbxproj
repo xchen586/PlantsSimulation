@@ -29,6 +29,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		3208CD8C2ABA94CF00149A16 /* TreeClasses.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TreeClasses.h; path = ../../TreeClasses.h; sourceTree = "<group>"; };
+		3208CD8D2ABA94D000149A16 /* CRoughnessDensityMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CRoughnessDensityMap.h; path = ../../CRoughnessDensityMap.h; sourceTree = "<group>"; };
+		3208CD8E2ABA94D000149A16 /* CHeightDensity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CHeightDensity.h; path = ../../CHeightDensity.h; sourceTree = "<group>"; };
+		3208CD8F2ABA94D000149A16 /* CMoistureDensityMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CMoistureDensityMap.h; path = ../../CMoistureDensityMap.h; sourceTree = "<group>"; };
+		3208CD902ABA94D000149A16 /* CSlopeDensityMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CSlopeDensityMap.h; path = ../../CSlopeDensityMap.h; sourceTree = "<group>"; };
 		320E7BB32AAA7DF800BEC8EE /* PlantsSimulation */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = PlantsSimulation; sourceTree = BUILT_PRODUCTS_DIR; };
 		320E7BBD2AAA7E2900BEC8EE /* CCellData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CCellData.h; path = ../../CCellData.h; sourceTree = "<group>"; };
 		320E7BBE2AAA7E2900BEC8EE /* CCellData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CCellData.cpp; path = ../../CCellData.cpp; sourceTree = "<group>"; };
@@ -77,6 +82,11 @@
 		320E7BB52AAA7DF800BEC8EE /* PlantsSimulation */ = {
 			isa = PBXGroup;
 			children = (
+				3208CD8E2ABA94D000149A16 /* CHeightDensity.h */,
+				3208CD8F2ABA94D000149A16 /* CMoistureDensityMap.h */,
+				3208CD8D2ABA94D000149A16 /* CRoughnessDensityMap.h */,
+				3208CD902ABA94D000149A16 /* CSlopeDensityMap.h */,
+				3208CD8C2ABA94CF00149A16 /* TreeClasses.h */,
 				32C4FC102AB505840001555A /* CTimeCounter.cpp */,
 				32C4FC112AB505840001555A /* CTimeCounter.h */,
 				320E7BCE2AAC104000BEC8EE /* CColonizationTree.cpp */,
