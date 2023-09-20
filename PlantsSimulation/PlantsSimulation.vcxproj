@@ -139,6 +139,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CCellData.h" />
+    <ClInclude Include="CCellI2DMask.h" />
     <ClInclude Include="CColonizationTree.h" />
     <ClInclude Include="CForest.h" />
     <ClInclude Include="CHeightDensity.h" />
@@ -147,6 +148,7 @@
     <ClInclude Include="CRoughnessDensityMap.h" />
     <ClInclude Include="CSlopeDensityMap.h" />
     <ClInclude Include="CTimeCounter.h" />
+    <ClInclude Include="I2DMask.h" />
     <ClInclude Include="PsHelper.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="stb_image_write.h" />

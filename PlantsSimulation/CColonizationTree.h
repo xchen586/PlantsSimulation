@@ -244,7 +244,7 @@ public:
 		masks = other.masks;
 
 		return *this;
-	};
+	}
 };
 
 class CColonizationTree

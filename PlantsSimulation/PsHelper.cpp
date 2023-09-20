@@ -167,13 +167,13 @@ double GetColorLinearNormallizedAttribute(short value)
 
 std::vector<std::vector<short>> ScaleArray(const std::vector<std::vector<short>>& inputArray, int p, int q)
 {
-    int m = inputArray.size();
-    int n = inputArray[0].size();
+    int rows = inputArray.size();
+    int cols = inputArray[0].size();
 
     std::vector<std::vector<short>> scaledArray(p, std::vector<short>(q));
 
-    double scaleX = static_cast<double>(m) / p;
-    double scaleY = static_cast<double>(n) / q;
+    double scaleX = static_cast<double>(rows) / p;
+    double scaleY = static_cast<double>(cols) / q;
 
     for (int x = 0; x < p; x++)
     {

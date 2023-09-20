@@ -1,18 +1,13 @@
 #pragma once
 
 #include "CColonizationTree.h"
+#include "I2DMask.h"
 #include <vector>
 #include <map>
 #include <string>
 
 using namespace std;
 class CCellData;
-
-class I2DMask
-{
-public:
-	virtual double get2DMaskValue(double x, double z, int blur) {return 0.9;};
-};
 
 pair<string, I2DMask*> GetI2DMaskKeyPairFromPlantTypeWithIndex(PlantType type, int index, I2DMask* i2dMask);
 pair<string, I2DMask*> GetI2DMaskKeyPairFromPlantTypeWithDensityMapType(PlantType plantType, DensityMapType densityType, I2DMask* pI2dMask);
