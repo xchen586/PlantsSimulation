@@ -117,10 +117,12 @@ enum class PlantType {
 
 string PlantTypeToString(PlantType type);
 string DensityMapTypeToString(DensityMapType type);
-string PlantTypeToMaskString(PlantType type, int index);
-string PlantTypeAndDensityMapToMaskString(PlantType plantType, DensityMapType densityMapType);
+string PlantTypeWithIndexToMaskString(PlantType type, int index);
+string PlantTypeWithDensityMapTypeToMaskString(PlantType plantType, DensityMapType densityMapType);
+string PlantTypeWithDensityMapTypeIndexToMaskString(PlantType plantType, DensityMapType densityMapType);
 pair<string, DensityMap*> GetDensityKeyPairFromPlantTypeWithIndex(PlantType type, int index, DensityMap* density);
 pair<string, DensityMap*> GetDensityKeyPairFromPlantTypeWithDensityMapType(PlantType plantType, DensityMapType densityMapType, DensityMap* density);
+pair<string, DensityMap*> GetDensityKeyPairFromPlantTypeWithDensityMapTypeIndex(PlantType plantType, DensityMapType densityMapType, DensityMap* density);
 PlantType RandomPlantType();
 
 class TreeClass

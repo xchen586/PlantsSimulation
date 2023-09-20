@@ -55,14 +55,43 @@ void CForest::loadMasks()
 	}
 	masks.clear();
 
-	int typeIndex = 0;
 	I2DMask* pI2DMask = new I2DMask();
-	pair<string, I2DMask*> treeType1Pair = GetI2DMaskKeyPairFromPlantTypeWithIndex(PlantType::TREE_OAK, typeIndex, pI2DMask);
-	masks.insert(treeType1Pair);
-	pair<string, I2DMask*> treeType2Pair = GetI2DMaskKeyPairFromPlantTypeWithIndex(PlantType::TREE_MAPLE, typeIndex, pI2DMask);
-	masks.insert(treeType2Pair);
-	pair<string, I2DMask*> treeType3Pair = GetI2DMaskKeyPairFromPlantTypeWithIndex(PlantType::TREE_FIR, typeIndex, pI2DMask);
-	masks.insert(treeType3Pair);
+
+	pair<string, I2DMask*> treeOakHeightPair = GetI2DMaskKeyPairFromPlantTypeWithDensityMapType(PlantType::TREE_OAK, DensityMapType::DensityMap_Height, pI2DMask);	
+	pair<string, I2DMask*> treeOakSlopePair = GetI2DMaskKeyPairFromPlantTypeWithDensityMapType(PlantType::TREE_OAK, DensityMapType::DensityMap_Slope, pI2DMask);
+	pair<string, I2DMask*> treeOakMoisturePair = GetI2DMaskKeyPairFromPlantTypeWithDensityMapType(PlantType::TREE_OAK, DensityMapType::DensityMap_Moisture, pI2DMask);
+	pair<string, I2DMask*> treeOakRoughnessPair = GetI2DMaskKeyPairFromPlantTypeWithDensityMapType(PlantType::TREE_OAK, DensityMapType::DensityMap_Roughness, pI2DMask);
+	masks.insert(treeOakHeightPair);
+	masks.insert(treeOakSlopePair);
+	masks.insert(treeOakMoisturePair);
+	masks.insert(treeOakRoughnessPair);
+
+	pair<string, I2DMask*> treeMapleHeightPair = GetI2DMaskKeyPairFromPlantTypeWithDensityMapType(PlantType::TREE_MAPLE, DensityMapType::DensityMap_Height, pI2DMask);
+	pair<string, I2DMask*> treeMapleSlopePair = GetI2DMaskKeyPairFromPlantTypeWithDensityMapType(PlantType::TREE_MAPLE, DensityMapType::DensityMap_Slope, pI2DMask);
+	pair<string, I2DMask*> treeMapleMoisturePair = GetI2DMaskKeyPairFromPlantTypeWithDensityMapType(PlantType::TREE_MAPLE, DensityMapType::DensityMap_Moisture, pI2DMask);
+	pair<string, I2DMask*> treeMaplesRoughnessPair = GetI2DMaskKeyPairFromPlantTypeWithDensityMapType(PlantType::TREE_MAPLE, DensityMapType::DensityMap_Roughness, pI2DMask);
+	masks.insert(treeMapleHeightPair);
+	masks.insert(treeMapleSlopePair);
+	masks.insert(treeMapleMoisturePair);
+	masks.insert(treeMaplesRoughnessPair);
+
+	pair<string, I2DMask*> treeBirchHeightPair = GetI2DMaskKeyPairFromPlantTypeWithDensityMapType(PlantType::TREE_BIRCH, DensityMapType::DensityMap_Height, pI2DMask);
+	pair<string, I2DMask*> treeBirchSlopePair = GetI2DMaskKeyPairFromPlantTypeWithDensityMapType(PlantType::TREE_BIRCH, DensityMapType::DensityMap_Slope, pI2DMask);
+	pair<string, I2DMask*> treeBirchMoisturePair = GetI2DMaskKeyPairFromPlantTypeWithDensityMapType(PlantType::TREE_BIRCH, DensityMapType::DensityMap_Moisture, pI2DMask);
+	pair<string, I2DMask*> treeBrichRoughnessPair = GetI2DMaskKeyPairFromPlantTypeWithDensityMapType(PlantType::TREE_BIRCH, DensityMapType::DensityMap_Roughness, pI2DMask);
+	masks.insert(treeBirchHeightPair);
+	masks.insert(treeBirchSlopePair);
+	masks.insert(treeBirchMoisturePair);
+	masks.insert(treeBrichRoughnessPair);
+
+	pair<string, I2DMask*> treeFirHeightPair = GetI2DMaskKeyPairFromPlantTypeWithDensityMapType(PlantType::TREE_FIR, DensityMapType::DensityMap_Height, pI2DMask);
+	pair<string, I2DMask*> treeFirSlopePair = GetI2DMaskKeyPairFromPlantTypeWithDensityMapType(PlantType::TREE_FIR, DensityMapType::DensityMap_Slope, pI2DMask);
+	pair<string, I2DMask*> treeFirMoisturePair = GetI2DMaskKeyPairFromPlantTypeWithDensityMapType(PlantType::TREE_FIR, DensityMapType::DensityMap_Moisture, pI2DMask);
+	pair<string, I2DMask*> treeFirRoughnessPair = GetI2DMaskKeyPairFromPlantTypeWithDensityMapType(PlantType::TREE_FIR, DensityMapType::DensityMap_Roughness, pI2DMask);
+	masks.insert(treeFirHeightPair);
+	masks.insert(treeFirSlopePair);
+	masks.insert(treeFirMoisturePair);
+	masks.insert(treeFirRoughnessPair);
 
 	return;
 }
@@ -590,7 +619,21 @@ bool CForest::outputResults(const std::string& csvFileName)
 
 pair<string, I2DMask*> GetI2DMaskKeyPairFromPlantTypeWithIndex(PlantType type, int index, I2DMask* pI2dMask)
 {
-	string keyString = PlantTypeToMaskString(type, index);
+	string keyString = PlantTypeWithIndexToMaskString(type, index);
+	pair<string, I2DMask*> ret(keyString, pI2dMask);
+	return ret;
+}
+
+pair<string, I2DMask*> GetI2DMaskKeyPairFromPlantTypeWithDensityMapType(PlantType plantType, DensityMapType densityType, I2DMask* pI2dMask)
+{
+	string keyString = PlantTypeWithDensityMapTypeToMaskString(plantType, densityType);
+	pair<string, I2DMask*> ret(keyString, pI2dMask);
+	return ret;
+}
+
+pair<string, I2DMask*> GetI2DMaskKeyPairFromPlantTypeWithDensityMapTypeIndex(PlantType plantType, DensityMapType densityType, I2DMask* pI2dMask)
+{
+	string keyString = PlantTypeWithDensityMapTypeIndexToMaskString(plantType, densityType);
 	pair<string, I2DMask*> ret(keyString, pI2dMask);
 	return ret;
 }

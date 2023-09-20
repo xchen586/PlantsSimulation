@@ -62,7 +62,7 @@ string DensityMapTypeToString(DensityMapType type)
     case DensityMapType::DensityMap_Normal:
         return "DensityMap_Normal";
     case DensityMapType::DensityMap_Height:
-        return "Density_Height";
+        return "DensityMap_Height";
     case DensityMapType::DensityMap_Slope:
         return "DensityMap_Slope";
     case DensityMapType::DensityMap_Moisture:
@@ -75,14 +75,14 @@ string DensityMapTypeToString(DensityMapType type)
         return "Unknown_DensityMap";
     }
 }
-string PlantTypeToMaskString(PlantType type, int index)
+string PlantTypeWithIndexToMaskString(PlantType type, int index)
 {
     string typeName = PlantTypeToString(type);
     string ret = typeName + "_" + to_string(index);
     return ret;
 }
 
-string PlantTypeAndDensityMapToMaskString(PlantType plantType, DensityMapType densityMapType)
+string PlantTypeWithDensityMapTypeToMaskString(PlantType plantType, DensityMapType densityMapType)
 {
     string plantTypeName = PlantTypeToString(plantType);
     string densityMapTypeName = DensityMapTypeToString(densityMapType);
@@ -90,16 +90,30 @@ string PlantTypeAndDensityMapToMaskString(PlantType plantType, DensityMapType de
     return ret;
 }
 
+string PlantTypeWithDensityMapTypeIndexToMaskString(PlantType plantType, DensityMapType densityMapType)
+{
+    string plantTypeName = PlantTypeToString(plantType);
+    string ret = plantTypeName + "_" + to_string(static_cast<int>(densityMapType));
+    return ret;
+}
+
 pair<string, DensityMap*> GetDensityKeyPairFromPlantTypeWithIndex(PlantType type, int index, DensityMap* density)
 {
-    string keyString = PlantTypeToMaskString(type, index);
+    string keyString = PlantTypeWithIndexToMaskString(type, index);
     pair<string, DensityMap*> ret(keyString, density);
     return ret;
 }
 
 pair<string, DensityMap*> GetDensityKeyPairFromPlantTypeWithDensityMapType(PlantType plantType, DensityMapType densityMapType, DensityMap* density)
 {
-    string keyString = PlantTypeAndDensityMapToMaskString(plantType, densityMapType);
+    string keyString = PlantTypeWithDensityMapTypeToMaskString(plantType, densityMapType);
+    pair<string, DensityMap*> ret(keyString, density);
+    return ret;
+}
+
+pair<string, DensityMap*> GetDensityKeyPairFromPlantTypeWithDensityMapTypeIndex(PlantType plantType, DensityMapType densityMapType, DensityMap* density)
+{
+    string keyString = PlantTypeWithDensityMapTypeIndexToMaskString(plantType, densityMapType);
     pair<string, DensityMap*> ret(keyString, density);
     return ret;
 }

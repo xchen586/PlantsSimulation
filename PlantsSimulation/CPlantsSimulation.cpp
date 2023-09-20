@@ -174,6 +174,8 @@ bool CPlantsSimulation::LoadForest()
 
 	m_pForest->xSize = forestXSize;
 	m_pForest->zSize = forestZSize;
+	m_pForest->xo = 0;
+	m_pForest->zo = 0;
 
 	cout << "Forest xSize is : " << forestXSize << endl;
 	cout << "Forest zSize is : " << forestZSize << endl;

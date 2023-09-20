@@ -26,7 +26,7 @@ public:
 		masks.insert(moisturePair);
 		DensityMap* roughnessDensity = new COakRoughnessDensityMap();
 		pair<string, DensityMap*> roughnessPair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, roughnessDensity->type, roughnessDensity);
-		masks.insert(heightPair);
+		masks.insert(roughnessPair);
 	}
 };
 
@@ -52,7 +52,7 @@ public:
 		masks.insert(moisturePair);
 		DensityMap* roughnessDensity = new CMapleRoughnessDensityMap();
 		pair<string, DensityMap*> roughnessPair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, roughnessDensity->type, roughnessDensity);
-		masks.insert(heightPair);
+		masks.insert(roughnessPair);
 	}
 };
 
@@ -78,7 +78,7 @@ public:
 		masks.insert(moisturePair);
 		DensityMap* roughnessDensity = new CBirchRoughnessDensityMap();
 		pair<string, DensityMap*> roughnessPair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, roughnessDensity->type, roughnessDensity);
-		masks.insert(heightPair);
+		masks.insert(roughnessPair);
 	}
 };
 
@@ -104,6 +104,6 @@ public:
 		masks.insert(moisturePair);
 		DensityMap* roughnessDensity = new CFirRoughnessDensityMap();
 		pair<string, DensityMap*> roughnessPair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, roughnessDensity->type, roughnessDensity);
-		masks.insert(heightPair);
+		masks.insert(roughnessPair);
 	}
 };
