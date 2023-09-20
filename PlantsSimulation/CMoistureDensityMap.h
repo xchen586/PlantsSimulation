@@ -6,6 +6,7 @@ class CMoistureDensityMap : public DensityMap
 public:
 	CMoistureDensityMap() : DensityMap()
 	{
+		type = DensityMapType::DensityMap_Moisture;
 		invert = false;
 		ease = 0.1;
 	}

@@ -59,6 +59,8 @@ string DensityMapTypeToString(DensityMapType type)
 {
     switch (type)
     {
+    case DensityMapType::DensityMap_Normal:
+        return "DensityMap_Normal";
     case DensityMapType::DensityMap_Height:
         return "Density_Height";
     case DensityMapType::DensityMap_Slope:

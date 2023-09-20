@@ -6,6 +6,7 @@ class CSlopeDensityMap : public DensityMap
 public:
 	CSlopeDensityMap() : DensityMap()
 	{
+		type = DensityMapType::DensityMap_Slope;
 		invert = true;
 	}
 };

@@ -6,6 +6,7 @@ class CRoughnessDensityMap : public DensityMap
 public:
 	CRoughnessDensityMap() : DensityMap()
 	{
+		type = DensityMapType::DensityMap_Roughness;
 		invert = false;
 		ease = 0.1;
 	}

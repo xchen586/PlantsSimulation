@@ -136,15 +136,15 @@ bool CPlantsSimulation::LoadInputHeightMap()
 bool CPlantsSimulation::LoadInputData()
 {
 	bool ret = false;
-	this->DeInitialize();
+	DeInitialize();
 	ret = LoadInputImage();
 	if (!ret) {
-		this->DeInitialize();
+		DeInitialize();
 		return ret;
 	}
 	ret = LoadInputHeightMap();
 	if (!ret) {
-		this->DeInitialize();
+		DeInitialize();
 		return ret;
 	}
 	return ret;
@@ -167,10 +167,10 @@ bool CPlantsSimulation::LoadForest()
 		return false;
 	}
 
-	//const int forestXSize = m_topLayerImage->input_image_width;
-	//const int forestZSize = m_topLayerImage->input_image_width;
-	const int forestXSize = 4096;
-	const int forestZSize = 4096;
+	const int forestXSize = m_topLayerImage->input_image_width;
+	const int forestZSize = m_topLayerImage->input_image_width;
+	//const int forestXSize = 4096;
+	//const int forestZSize = 4096;
 
 	m_pForest->xSize = forestXSize;
 	m_pForest->zSize = forestZSize;

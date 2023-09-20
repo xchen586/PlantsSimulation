@@ -16,16 +16,16 @@ public:
 		seedRange = 300;
 
 		DensityMap* heightDensity = new COakHeightDensityMap();
-		pair<string, DensityMap*> heightPair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, DensityMapType::DensityMap_Height, heightDensity);
+		pair<string, DensityMap*> heightPair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, heightDensity->type, heightDensity);
 		masks.insert(heightPair);
 		DensityMap* slopeDensity = new COakSlopeDensityMap();
-		pair<string, DensityMap*> slopePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, DensityMapType::DensityMap_Slope, slopeDensity);
+		pair<string, DensityMap*> slopePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, slopeDensity->type, slopeDensity);
 		masks.insert(slopePair);
 		DensityMap* moistureDensity = new COakMoistureDensityMap();
-		pair<string, DensityMap*> moisturePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, DensityMapType::DensityMap_Moisture, moistureDensity);
+		pair<string, DensityMap*> moisturePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, moistureDensity->type, moistureDensity);
 		masks.insert(moisturePair);
 		DensityMap* roughnessDensity = new COakRoughnessDensityMap();
-		pair<string, DensityMap*> roughnessPair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, DensityMapType::DensityMap_Roughness, roughnessDensity);
+		pair<string, DensityMap*> roughnessPair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, roughnessDensity->type, roughnessDensity);
 		masks.insert(heightPair);
 	}
 };
@@ -42,16 +42,16 @@ public:
 		seedRange = 750;
 
 		DensityMap* heightDensity = new CMapleHeightDensityMap();
-		pair<string, DensityMap*> heightPair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, DensityMapType::DensityMap_Height, heightDensity);
+		pair<string, DensityMap*> heightPair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, heightDensity->type, heightDensity);
 		masks.insert(heightPair);
 		DensityMap* slopeDensity = new CMapleSlopeDensityMap();
-		pair<string, DensityMap*> slopePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, DensityMapType::DensityMap_Slope, slopeDensity);
+		pair<string, DensityMap*> slopePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, slopeDensity->type, slopeDensity);
 		masks.insert(slopePair);
 		DensityMap* moistureDensity = new CMapleMoistureDensityMap();
-		pair<string, DensityMap*> moisturePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, DensityMapType::DensityMap_Moisture, moistureDensity);
+		pair<string, DensityMap*> moisturePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, moistureDensity->type, moistureDensity);
 		masks.insert(moisturePair);
 		DensityMap* roughnessDensity = new CMapleRoughnessDensityMap();
-		pair<string, DensityMap*> roughnessPair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, DensityMapType::DensityMap_Roughness, roughnessDensity);
+		pair<string, DensityMap*> roughnessPair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, roughnessDensity->type, roughnessDensity);
 		masks.insert(heightPair);
 	}
 };
@@ -68,16 +68,16 @@ public:
 		seedRange = 500;
 
 		DensityMap* heightDensity = new CBirchHeightDensityMap();
-		pair<string, DensityMap*> heightPair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, DensityMapType::DensityMap_Height, heightDensity);
+		pair<string, DensityMap*> heightPair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, heightDensity->type, heightDensity);
 		masks.insert(heightPair);
 		DensityMap* slopeDensity = new CBirchSlopeDensityMap();
-		pair<string, DensityMap*> slopePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, DensityMapType::DensityMap_Slope, slopeDensity);
+		pair<string, DensityMap*> slopePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, slopeDensity->type, slopeDensity);
 		masks.insert(slopePair);
 		DensityMap* moistureDensity = new CBirchMoistureDensityMap();
-		pair<string, DensityMap*> moisturePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, DensityMapType::DensityMap_Moisture, moistureDensity);
+		pair<string, DensityMap*> moisturePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, moistureDensity->type, moistureDensity);
 		masks.insert(moisturePair);
 		DensityMap* roughnessDensity = new CBirchRoughnessDensityMap();
-		pair<string, DensityMap*> roughnessPair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, DensityMapType::DensityMap_Roughness, roughnessDensity);
+		pair<string, DensityMap*> roughnessPair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, roughnessDensity->type, roughnessDensity);
 		masks.insert(heightPair);
 	}
 };
@@ -94,16 +94,16 @@ public:
 		seedRange = 500;
 
 		DensityMap* heightDensity = new CFirHeightDensityMap();
-		pair<string, DensityMap*> heightPair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, DensityMapType::DensityMap_Height, heightDensity);
+		pair<string, DensityMap*> heightPair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, heightDensity->type, heightDensity);
 		masks.insert(heightPair);
 		DensityMap* slopeDensity = new CFirSlopeDensityMap();
-		pair<string, DensityMap*> slopePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, DensityMapType::DensityMap_Slope, slopeDensity);
+		pair<string, DensityMap*> slopePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, slopeDensity->type, slopeDensity);
 		masks.insert(slopePair);
 		DensityMap* moistureDensity = new CFirMoistureDensityMap();
-		pair<string, DensityMap*> moisturePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, DensityMapType::DensityMap_Moisture, moistureDensity);
+		pair<string, DensityMap*> moisturePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, moistureDensity->type, moistureDensity);
 		masks.insert(moisturePair);
 		DensityMap* roughnessDensity = new CFirRoughnessDensityMap();
-		pair<string, DensityMap*> roughnessPair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, DensityMapType::DensityMap_Roughness, roughnessDensity);
+		pair<string, DensityMap*> roughnessPair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, roughnessDensity->type, roughnessDensity);
 		masks.insert(heightPair);
 	}
 };

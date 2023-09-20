@@ -40,10 +40,20 @@ public:
 		*/
 	}
 };
+enum class DensityMapType
+{
+	DensityMap_Normal,
+	DensityMap_Height,
+	DensityMap_Slope,
+	DensityMap_Moisture,
+	DensityMap_Roughness,
+	DensityMap_End
+};
 
 class DensityMap
 {
 public:
+	DensityMapType type;
 	double minval;
 	double maxval;
 	double ease;
@@ -52,7 +62,8 @@ public:
 	int blur;
 
 	DensityMap() 
-		: minval(0.000001)
+		: type(DensityMapType::DensityMap_Normal)
+		, minval(0.000001)
 		, maxval(0.999999)
 		, ease(0.5)
 		, invert(false)
@@ -71,15 +82,6 @@ public:
 		useForThinning = other.useForThinning;
 		blur = other.blur;
 	}
-};
-
-enum class DensityMapType
-{
-	DensityMap_Height,
-	DensityMap_Slope,
-	DensityMap_Moisture,
-	DensityMap_Roughness,
-	DensityMap_End
 };
 
 enum class PlantType {

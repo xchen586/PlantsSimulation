@@ -6,6 +6,7 @@ class CHeightDensityMap : public DensityMap
 public:
 	CHeightDensityMap() : DensityMap()
 	{
+		type = DensityMapType::DensityMap_Height;
 		invert = false;
 		blur = 0;
 	}
