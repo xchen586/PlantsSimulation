@@ -260,7 +260,7 @@ void CForest::generate(float forestAge, int iterations)
 					for (map<string, I2DMask*>::iterator iMask = masks.begin(); iMask != masks.end() && maskValue > 0.0; ++iMask)
 					{
 						string maskId = iMask->first;
-						std::cout << "maskId is : " << maskId << std::endl;
+						//std::cout << "maskId is : " << maskId << std::endl;
 						map<string, DensityMap*>::iterator classMask = treeClass->masks.find(maskId);
 
 						if (classMask != treeClass->masks.end())

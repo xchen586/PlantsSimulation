@@ -6,12 +6,13 @@ CCellData::CCellData(const uint8_t& roadAttributeValue, const uint8_t& moistureV
 	, m_moistureValue(moistureValue)
 	, m_roughnessValue(roughnessValue)
 	, m_heightValue(0)
-	, m_slopeValue(0)
+	, m_slopeHeightValue(0)
 	, m_roadAttribute(0)
 	, m_moisture(0)
 	, m_roughness(0)
 	, m_height(0)
-	, m_slope(0)
+	, m_slopeHeight(0)
+	
 {
 	m_roadAttribute = GetColorLinearNormallizedAttribute(m_roadAttributeValue);
 	m_moisture = GetColorLinearNormallizedAttribute(m_moistureValue);
@@ -24,10 +25,15 @@ void CCellData::SetHeightValue(short heightValue)
 	m_height = static_cast<double>(m_heightValue);
 }
 
-void CCellData::SetSlopeValue(short slopeValue)
+void CCellData::SetSlopeHeightValue(short slopeValue)
 {
-	m_slopeValue = slopeValue;
-	m_slope = static_cast<double>(m_slopeValue);
+	m_slopeHeightValue = slopeValue;
+	m_slopeHeight = static_cast<double>(m_slopeHeightValue);
+}
+
+void CCellData::SetSlopeAngleValue(double angle)
+{
+	m_slopeAngleValue = angle;
 }
 
 double CCellData::GetRoadAttribute()
@@ -40,9 +46,9 @@ double CCellData::GetHeight()
 	return m_height;
 }
 
-double CCellData::GetSlope()
+double CCellData::GetSlopeHeight()
 {
-	return m_slope;
+	return m_slopeHeight;
 }
 
 double CCellData::GetMoisture()
@@ -53,4 +59,9 @@ double CCellData::GetMoisture()
 double CCellData::GetRoughness()
 {
 	return m_roughness;
+}
+
+double CCellData::GetSlopeAngle()
+{
+	return m_slopeAngleValue;
 }

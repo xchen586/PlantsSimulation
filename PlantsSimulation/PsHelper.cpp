@@ -207,6 +207,33 @@ std::vector<std::vector<double>> ConvertUnsignedShortToDouble(const std::vector<
     return doubleArray;
 }
 
+// Function to convert a 2D vector of shorts to a 2D vector of doubles
+std::vector<std::vector<double>> ConvertShortMatrixToDouble1(const std::vector<std::vector<short>>& shortMatrix) {
+    std::vector<std::vector<double>> doubleMatrix(shortMatrix.size(), std::vector<double>(shortMatrix[0].size()));
+
+    for (size_t i = 0; i < shortMatrix.size(); ++i) {
+        for (size_t j = 0; j < shortMatrix[i].size(); ++j) {
+            doubleMatrix[i][j] = static_cast<double>(shortMatrix[i][j]);
+        }
+    }
+
+    return doubleMatrix;
+}
+// Function to convert a 2D vector of shorts to a 2D vector of doubles
+std::vector<std::vector<double>> ConvertShortMatrixToDouble2(const std::vector<std::vector<short>>& shortMatrix) {
+    std::vector<std::vector<double>> doubleMatrix;
+
+    for (const auto& shortRow : shortMatrix) {
+        std::vector<double> doubleRow;
+        for (const short& value : shortRow) {
+            doubleRow.push_back(static_cast<double>(value));
+        }
+        doubleMatrix.push_back(doubleRow);
+    }
+
+    return doubleMatrix;
+}
+
 std::vector<std::vector<short>> ComputeSlopeMap(const std::vector<std::vector<short>>& heightmap)
 {
     int width = heightmap.size();
@@ -222,7 +249,6 @@ std::vector<std::vector<short>> ComputeSlopeMap(const std::vector<std::vector<sh
         for (int y = 0; y < height; y++)
         {
             short maxHeightDifference = 0;
-
             for (int i = 0; i < 8; i++)
             {
                 int newX = x + dx[i];
@@ -231,19 +257,207 @@ std::vector<std::vector<short>> ComputeSlopeMap(const std::vector<std::vector<sh
                 if (newX >= 0 && newX < width && newY >= 0 && newY < height)
                 {
                     short heightDifference = static_cast<short>(std::abs(heightmap[x][y] - heightmap[newX][newY]));
-
                     if (heightDifference > maxHeightDifference)
                     {
                         maxHeightDifference = static_cast<unsigned short>(heightDifference);
                     }
                 }
             }
-
             slopeMap[x][y] = std::min(maxHeightDifference, static_cast<short>(USHRT_MAX));
         }
     }
-
     return slopeMap;
+
+}
+
+std::vector<std::vector<short>> ComputeAbsMaxHeightSlopeMap(const std::vector<std::vector<short>>& heightmap)
+{
+    int width = heightmap.size();
+    int height = heightmap[0].size();
+
+    std::vector<std::vector<short>> slopeMap(width, std::vector<short>(height, 0));
+
+    int dx[] = { -1, -1, -1, 0, 1, 1, 1, 0 };
+    int dy[] = { -1, 0, 1, 1, 1, 0, -1, -1 };
+
+    short minSlope = SHRT_MAX;
+    short maxSlope = SHRT_MIN;
+    for (int x = 0; x < width; x++)
+    {
+        for (int y = 0; y < height; y++)
+        {
+            short maxHeightDifference = 0;
+            unsigned short absMaxHeightDifference = 0;
+
+            for (int i = 0; i < 8; i++)
+            {
+                int newX = x + dx[i];
+                int newY = y + dy[i];
+
+                if (newX >= 0 && newX < width && newY >= 0 && newY < height)
+                {
+                    short heightDifference = static_cast<short>((heightmap[x][y] - heightmap[newX][newY]));
+                    unsigned short absHeightDifference = std::abs(heightDifference);
+                    if (heightDifference < 0)
+                    {
+                        //std::cout << "heightDifference abs is negative : " << heightDifference << endl;
+                    }
+
+                    if (absHeightDifference > absMaxHeightDifference)
+                    {
+                        maxHeightDifference = static_cast<short>(heightDifference);
+                        absMaxHeightDifference = std::abs(maxHeightDifference);
+                    }
+                }
+            }
+
+            short value = std::min(static_cast<short>(absMaxHeightDifference), static_cast<short>(SHRT_MAX));
+            slopeMap[x][y] = value;
+            //std::cout << "slope value is : value : " << value << ", x : " << x << ", y : " << y << std::endl;
+            if (value < 0)
+            {
+                //std::cout << "slope value is negative: value : " << value << ", x : " << x << ", y : " << y << std::endl;
+            }
+            minSlope = std::min(minSlope, value);
+            maxSlope = std::max(maxSlope, value);
+        }
+    }
+    std::cout << "Min Slope is : " << minSlope << " , Max Slope is : " << maxSlope << std::endl;
+    return slopeMap;
+}
+
+vector<vector<double>> ComputeAbsMaxSlopeAngle(const vector<vector<double>>& heightMap, double dx)
+{
+    int m = heightMap.size();
+    vector<vector<double>> slopeAngle(m, vector<double>(m, -1.0));  // Initialize with a default value.
+
+    // Initialize min and max slope angles with extreme values.
+    double minSlopeAngle = numeric_limits<double>::infinity();
+    double maxSlopeAngle = -numeric_limits<double>::infinity();
+
+    int dxdy[] = { -1, -1, -1, 0, 1, 1, 1, 0 };
+    int dydx[] = { -1, 0, 1, 1, 1, 0, -1, -1 };
+
+    minSlopeAngle = numeric_limits<double>::infinity();
+    maxSlopeAngle = -numeric_limits<double>::infinity();
+
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j < m; j++) {
+            double max_slope_angle = -numeric_limits<double>::infinity();
+            double min_slope_angle = numeric_limits<double>::infinity();
+
+            for (int k = 0; k < 8; k++) {
+                int ni = i + dxdy[k];
+                int nj = j + dydx[k];
+
+                if (ni >= 0 && ni < m && nj >= 0 && nj < m) {
+                    // Calculate the slope angle for the neighboring cell.
+                    double dz = heightMap[ni][nj] - heightMap[i][j];  // Vertical rise.
+                    double dy = sqrt(dz * dz / (dx * dx + dz * dz));  // Calculate dy based on dx and dz.
+
+                    // Handle potential division by zero (near-zero denominator).
+                    if (dz != 0.0) {
+                        double slope_angle = atan2(dy, dx) * (180.0 / M_PI);  // Convert radians to degrees.
+
+                        // Ensure the slope angle is within the range of 0-90 degrees.
+                        slope_angle = max(0.0, min(90.0 * M_PI / 180 , slope_angle));
+
+                        // Update the maximum slope angle.
+                        if (slope_angle > max_slope_angle) {
+                            max_slope_angle = slope_angle;
+                        }
+
+                        // Update the minimum slope angle.
+                        if (slope_angle < min_slope_angle) {
+                            min_slope_angle = slope_angle;
+                        }
+                    }
+                }
+            }
+
+            // Ensure positive slope angles or their absolute values.
+            max_slope_angle = abs(max_slope_angle);
+            min_slope_angle = abs(min_slope_angle);
+
+            // Store the maximum slope angle for the current cell.
+            slopeAngle[i][j] = max_slope_angle;
+
+            // Update the minimum and maximum slope angles.
+            if (max_slope_angle > maxSlopeAngle) {
+                maxSlopeAngle = max_slope_angle;
+            }
+            if (min_slope_angle < minSlopeAngle) {
+                minSlopeAngle = min_slope_angle;
+            }
+        }
+    }
+    std::cout << "The min slope angle is : " << minSlopeAngle << ", max slope angle is : " << maxSlopeAngle << std::endl;
+    return slopeAngle;
+}
+// Function to compute the average slope angle (limited to 0-90 degrees) for a height map
+vector<vector<double>> ComputeAbsAverageNeighborSlopeAngle(const vector<vector<double>>& heightMap, double dx) 
+{
+    int m = heightMap.size();
+    vector<vector<double>> slopeAngle(m, vector<double>(m, 0.0));  // Initialize with zeros.
+
+    // Initialize min and max slope angles with extreme values.
+    double minSlopeAngle = numeric_limits<double>::infinity();
+    double maxSlopeAngle = -numeric_limits<double>::infinity();
+
+    int dxdy[] = { -1, -1, -1, 0, 1, 1, 1, 0 };
+    int dydx[] = { -1, 0, 1, 1, 1, 0, -1, -1 };
+
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j < m; j++) {
+            double total_slope_angle = 0.0;
+            int neighbor_count = 0;
+
+            for (int k = 0; k < 8; k++) {
+                int ni = i + dxdy[k];
+                int nj = j + dydx[k];
+
+                if (ni >= 0 && ni < m && nj >= 0 && nj < m) {
+                    // Calculate the slope angle for the neighboring cell.
+                    double dz = heightMap[ni][nj] - heightMap[i][j];  // Vertical rise.
+                    double dy = sqrt(dz * dz / (dx * dx + dz * dz));  // Calculate dy based on dx and dz.
+                    //double dy = sqrt(dx * dx + dz * dz);
+                    // Handle potential division by zero (near-zero denominator).
+                    if (dz != 0.0) {
+                        double slope_angle = atan2(dy, dx) * (180.0 / M_PI);  // Convert radians to degrees.
+
+                        // Ensure the slope angle is within the range of 0-90 degrees.
+                        slope_angle = max(0.0, min(90.0 * M_PI / 180, slope_angle));
+
+                        // Add the slope angle to the total.
+                        total_slope_angle += slope_angle;
+                        neighbor_count++;
+
+                        //std::cout << slope_angle << std::endl;
+                    }
+                    else
+                    {
+                        //std::cout << 0 << std::endl;
+
+                        total_slope_angle += 0.0;
+                        neighbor_count++;
+                    }
+                }
+            }
+
+            // Calculate the average slope angle for the current cell's neighbors.
+            if (neighbor_count > 0) {
+                double angle = total_slope_angle / neighbor_count;
+                angle = std::max(0.0, min(90.0 * M_PI / 180, angle));
+                slopeAngle[i][j] = angle;
+                minSlopeAngle = std::min(minSlopeAngle, angle);
+                maxSlopeAngle = std::max(maxSlopeAngle, angle);
+
+            }
+        }
+    }
+    std::cout << "The min slope angle is : " << minSlopeAngle << ", max slope angle is : " << maxSlopeAngle << std::endl;
+    
+    return slopeAngle;
 }
 
 // Function to convert a 1D RGB array to a 2D vector, returning a pointer to the vector

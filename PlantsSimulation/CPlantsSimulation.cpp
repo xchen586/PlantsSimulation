@@ -113,8 +113,15 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	}
 	const int width = m_topLayerImage->input_image_width;
 	const int height = m_topLayerImage->input_image_height;
-	std::vector<std::vector<short>> heightMap4096 = Read2DShortArray(m_heightMapFile, width, height);
-	std::vector<std::vector<short>> slope4096 = ComputeSlopeMap(heightMap4096);
+	std::vector<std::vector<short>> heightMapShort4096 = Read2DShortArray(m_heightMapFile, width, height);
+	
+	//std::vector<std::vector<short>> slopeShort4096 = ComputeAbsMaxHeightSlopeMap(heightMapShort4096);
+	std::vector<std::vector<short>> slopeShort4096 = ComputeSlopeMap(heightMapShort4096);
+	std::vector<std::vector<double>> heightMapDouble4096 = ConvertShortMatrixToDouble1(heightMapShort4096);
+
+	//std::vector<std::vector<double>> slopeDouble4096 = ComputeAbsMaxSlopeAngle(heightMapDouble4096, ratio);
+	double ratio = 7.32673;
+	std::vector<std::vector<double>> slopeDouble4096 = ComputeAbsAverageNeighborSlopeAngle(heightMapDouble4096, ratio);
 
 	for (auto i = 0; i < width; i++) {
 		for (auto j = 0; j < height; j++) {
@@ -125,8 +132,9 @@ bool CPlantsSimulation::LoadInputHeightMap()
 			}
 			else
 			{
-				cell->SetHeightValue(heightMap4096[i][j]);
-				cell->SetSlopeValue(slope4096[i][j]);
+				cell->SetHeightValue(heightMapShort4096[i][j]);
+				cell->SetSlopeHeightValue(slopeShort4096[i][j]);
+				cell->SetSlopeAngleValue(slopeDouble4096[i][j]);
 			}
 		}
 	}

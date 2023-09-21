@@ -54,3 +54,68 @@ public:
 		ease = 10;
 	}
 };
+
+/*
+#pragma once
+#include "CColonizationTree.h"
+
+//#include "PsHelper.h"
+
+#define PI       3.14159265358979323846   // pi
+
+class CSlopeDensityMap : public DensityMap
+{
+public:
+	CSlopeDensityMap() : DensityMap()
+	{
+		type = DensityMapType::DensityMap_Slope;
+		invert = false;
+	}
+};
+
+class COakSlopeDensityMap : public CSlopeDensityMap
+{
+public:
+	COakSlopeDensityMap() : CSlopeDensityMap()
+	{
+		//minval = 5 * (PI / 180.0);
+		minval = 0;
+		maxval = 30 * (PI / 180.0);
+		ease = 5 * (PI / 180.0);
+	}
+};
+
+class CMapleSlopeDensityMap : public CSlopeDensityMap
+{
+public:
+	CMapleSlopeDensityMap() : CSlopeDensityMap()
+	{
+		//minval = 5 * (PI / 180.0);
+		minval = 0;
+		maxval = 30 * (PI / 180.0);
+		ease = 5 * (PI / 180.0);
+	}
+};
+
+class CBirchSlopeDensityMap : public CSlopeDensityMap
+{
+public:
+	CBirchSlopeDensityMap() : CSlopeDensityMap()
+	{
+		minval = 0;
+		maxval = 25 * (PI / 180.0);
+		ease = 5 * (PI / 180.0);
+	}
+};
+
+class CFirSlopeDensityMap : public CSlopeDensityMap
+{
+public:
+	CFirSlopeDensityMap() : CSlopeDensityMap()
+	{
+		minval = 0;
+		maxval = 40 * (PI / 180.0);
+		ease = 10 * (PI / 180.0);
+	}
+};
+*/
