@@ -1,6 +1,6 @@
 #pragma once
 #include "CColonizationTree.h"
-
+#if !USE_SCOPE_ANGLE
 class CSlopeDensityMap : public DensityMap
 {
 public:
@@ -55,11 +55,7 @@ public:
 	}
 };
 
-/*
-#pragma once
-#include "CColonizationTree.h"
-
-//#include "PsHelper.h"
+#else
 
 #define PI       3.14159265358979323846   // pi
 
@@ -118,4 +114,5 @@ public:
 		ease = 10 * (PI / 180.0);
 	}
 };
-*/
+
+#endif

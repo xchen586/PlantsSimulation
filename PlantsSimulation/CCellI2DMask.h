@@ -64,8 +64,11 @@ public:
 	{
 		CCellData* pCellData = GetCellData(x, z);
 		if (pCellData) {
-			//return pCellData->GetSlopeAngle();
+#if USE_SCOPE_ANGLE
+			return pCellData->GetSlopeAngle();
+#else
 			return pCellData->GetSlopeHeight();
+#endif
 		}
 		else {
 			return 0;

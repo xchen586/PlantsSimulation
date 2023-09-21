@@ -239,6 +239,9 @@ std::vector<std::vector<short>> ComputeSlopeMap(const std::vector<std::vector<sh
     int width = heightmap.size();
     int height = heightmap[0].size();
 
+    short minSlopeAngle = numeric_limits<short>::max();
+    short maxSlopeAngle = numeric_limits<short>::min();
+
     std::vector<std::vector<short>> slopeMap(width, std::vector<short>(height, 0));
 
     int dx[] = { -1, -1, -1, 0, 1, 1, 1, 0 };
@@ -248,7 +251,7 @@ std::vector<std::vector<short>> ComputeSlopeMap(const std::vector<std::vector<sh
     {
         for (int y = 0; y < height; y++)
         {
-            short maxHeightDifference = 0;
+            short maxHeightDifference = numeric_limits<short>::min();
             for (int i = 0; i < 8; i++)
             {
                 int newX = x + dx[i];
@@ -257,15 +260,23 @@ std::vector<std::vector<short>> ComputeSlopeMap(const std::vector<std::vector<sh
                 if (newX >= 0 && newX < width && newY >= 0 && newY < height)
                 {
                     short heightDifference = static_cast<short>(std::abs(heightmap[x][y] - heightmap[newX][newY]));
+                    if (heightDifference != 0) {
+                        //std::cout << "heightDifference is : " << heightDifference << ", x is : " << x << ", y is : " << y << std::endl;
+                    }
                     if (heightDifference > maxHeightDifference)
                     {
-                        maxHeightDifference = static_cast<unsigned short>(heightDifference);
+                        maxHeightDifference = static_cast<unsigned short>(heightDifference);;   
                     }
                 }
             }
-            slopeMap[x][y] = std::min(maxHeightDifference, static_cast<short>(USHRT_MAX));
+            short value = std::min(maxHeightDifference, static_cast<short>(USHRT_MAX));
+            //short value = maxHeightDifference;
+            slopeMap[x][y] = value;
+            minSlopeAngle = std::min(minSlopeAngle, value);
+            maxSlopeAngle = std::max(maxSlopeAngle, value);
         }
     }
+    std::cout << "ComputeSlopeMap minSlopeAngle is : " << minSlopeAngle << ", maxSlopeAngle is : " << maxSlopeAngle << std::endl;
     return slopeMap;
 
 }
