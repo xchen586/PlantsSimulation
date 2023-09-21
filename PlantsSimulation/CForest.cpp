@@ -255,11 +255,12 @@ void CForest::generate(float forestAge, int iterations)
 				for (vector<TreeClass*>::iterator i = classes.begin(); i != classes.end(); ++i)
 				{
 					TreeClass* treeClass = *i;
-
+					//std::cout << "----------------------Begin TreeClass for ClassStrength : treeClass is : " << PlantTypeToString(treeClass->type) << std::endl;
 					double maskValue = 1.0;
 					for (map<string, I2DMask*>::iterator iMask = masks.begin(); iMask != masks.end() && maskValue > 0.0; ++iMask)
 					{
 						string maskId = iMask->first;
+						std::cout << "maskId is : " << maskId << std::endl;
 						map<string, DensityMap*>::iterator classMask = treeClass->masks.find(maskId);
 
 						if (classMask != treeClass->masks.end())
@@ -282,8 +283,10 @@ void CForest::generate(float forestAge, int iterations)
 								else
 									maskValue = 0.0;
 							}
+							//std::cout << "Maskspan for ClassStrength has value : maskId is : " << maskId << " maskValue is : " << maskValue << std::endl;
 						}
 					}
+					//std::cout << "----------------------End TreeClass for ClassStrength : treeClass is : " << PlantTypeToString(treeClass->type) << " final maskValue is : " << maskValue << std::endl;
 					maskSpan += maskValue;
 					ClassStrength& c = classArray[classIdx];
 					c.strength = maskValue;
