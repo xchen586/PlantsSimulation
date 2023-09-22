@@ -37,14 +37,17 @@ void CForest::loadTreeClasses()
 	classes.clear();
 
 	TreeClass* treeClassOak = new COakTreeClass();
-	TreeClass* treeClassMaple = new CMapleTreeClass();
-	TreeClass* treeClassBirch = new CBirchTreeClass();
-	TreeClass* treeClassFir = new CFirTreeClass();
-	
 	classes.push_back(treeClassOak);
+
+	TreeClass* treeClassMaple = new CMapleTreeClass();
 	classes.push_back(treeClassMaple);
+
+	TreeClass* treeClassBirch = new CBirchTreeClass();
 	classes.push_back(treeClassBirch);
+	
+	TreeClass* treeClassFir = new CFirTreeClass();
 	classes.push_back(treeClassFir);
+
 	return;
 }
 
