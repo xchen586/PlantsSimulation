@@ -1,6 +1,7 @@
 #pragma once
 #include "I2DMask.h"
 #include "CCellData.h"
+#include "PsMarco.h"
 
 #include <vector>
 

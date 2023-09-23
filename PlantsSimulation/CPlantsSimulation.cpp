@@ -23,9 +23,6 @@
 	return true;
 }*/
 
-
-#define USE_SCOPE_ANGLE 1
-
 void CPlantsSimulation::DeInitialize()
 {
 	if (m_pCellTable) {

@@ -1,5 +1,7 @@
 #pragma once
 #include "CColonizationTree.h"
+#include "PsMarco.h"
+
 #if !USE_SCOPE_ANGLE
 class CSlopeDensityMap : public DensityMap
 {
@@ -57,15 +59,13 @@ public:
 
 #else
 
-#define PI       3.14159265358979323846   // pi
-
 class CSlopeDensityMap : public DensityMap
 {
 public:
 	CSlopeDensityMap() : DensityMap()
 	{
 		type = DensityMapType::DensityMap_Slope;
-		invert = false;
+		invert = true;
 	}
 };
 
