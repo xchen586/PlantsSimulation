@@ -84,6 +84,57 @@ public:
 		useForThinning = other.useForThinning;
 		blur = other.blur;
 	}
+
+	double GetDensityValue(double mask)
+	{
+		double value = mask;
+		if (invert) 
+		{
+			value = 1.0 - value;
+		}
+		if (value < (minval - ease) || value > (maxval + ease))
+		{
+			value = 0.0;
+		}
+		else 
+		{
+			if ((value > minval) && (value < maxval))
+			{
+				value = 1.0;
+			}
+			else 
+			{
+				double scope = abs(ease);
+				if ((value >= (minval - ease)) && (value <= minval))
+				{
+					if (scope > 0.000001)
+					{
+						value = (value - (minval - ease)) / scope;
+					}
+					else
+					{
+						value = 0.0;
+					}
+				}
+				else if ((value <= (maxval + ease)) && (value >= maxval))
+				{
+					if (scope > 0.000001)
+					{
+						value = 1.0 - (value - maxval) / scope;
+					}
+					else 
+					{
+						value = 0.0;
+					}
+				}
+				else 
+				{
+					value = 0.0;
+				}
+			}
+		}
+		return value;
+	}
 };
 
 enum class PlantType {

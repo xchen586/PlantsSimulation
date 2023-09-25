@@ -273,8 +273,8 @@ void CForest::generate(float forestAge, int iterations)
 							DensityMap* dmap = classMask->second;
 
 							double mask = iMask->second->get2DMaskValue(x, z, dmap->blur);
-
-							if (dmap->invert)
+							maskValue = dmap->GetDensityValue(mask);
+							/*if (dmap->invert)
 								mask = 1.0 - mask;
 							if (mask < dmap->minval || mask > dmap->maxval)
 								maskValue = 0.0;
@@ -287,7 +287,7 @@ void CForest::generate(float forestAge, int iterations)
 								}
 								else
 									maskValue = 0.0;
-							}
+							}*/
 							//std::cout << "Maskspan for ClassStrength has value : maskId is : " << maskId << " maskValue is : " << maskValue << std::endl;
 						}
 					}
@@ -445,20 +445,7 @@ void CForest::generate(float forestAge, int iterations)
 
 									double value = imask->second->get2DMaskValue(x, z, dmap->blur);
 
-									if (dmap->invert)
-										value = 1.0 - value;
-									if (value < dmap->minval || value > dmap->maxval)
-										value = 0.0;
-									else
-									{
-										double scope = abs(dmap->minval - dmap->maxval);
-										if (scope > 0.000001)
-										{
-											value = (value - dmap->minval) / scope;
-										}
-										else
-											value = 0.0;
-									}
+									value = dmap->GetDensityValue(value);
 
 									maskval *= value;
 								}
@@ -504,20 +491,7 @@ void CForest::generate(float forestAge, int iterations)
 					if (dmap->useForThinning)
 					{
 						double value = imask->second->get2DMaskValue(tree.x, tree.z, dmap->blur);
-						if (dmap->invert)
-							value = 1.0 - value;
-						if (value < dmap->minval || value > dmap->maxval)
-							value = 0.0;
-						else
-						{
-							double scope = abs(dmap->minval - dmap->maxval);
-							if (scope > 0.000001)
-							{
-								value = (value - dmap->minval)/scope;
-							}
-							else
-								value = 0.0;
-						}
+						value = dmap->GetDensityValue(value);
 						maskval *= value;
 					}
 				}
@@ -533,20 +507,7 @@ void CForest::generate(float forestAge, int iterations)
 				{
 					DensityMap* dmap = imap->second;
 					double value = imask->second->get2DMaskValue(tree.x, tree.z, dmap->blur);
-					if (dmap->invert)
-						value = 1.0 - value;
-					if (value < dmap->minval || value > dmap->maxval)
-						value = 0.0;
-					else
-					{
-						double scope = abs(dmap->minval - dmap->maxval);
-						if (scope > 0.000001)
-						{
-							value = (value - dmap->minval)/scope;
-						}
-						else
-							value = 0.0;
-					}
+					value = dmap->GetDensityValue(value);
 					maskval *= value;
 				}
 			}
