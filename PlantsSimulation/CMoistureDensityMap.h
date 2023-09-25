@@ -7,7 +7,7 @@ public:
 	CMoistureDensityMap() : DensityMap()
 	{
 		type = DensityMapType::DensityMap_Moisture;
-		invert = false;
+		invert = true;
 		ease = 0.1;
 	}
 };

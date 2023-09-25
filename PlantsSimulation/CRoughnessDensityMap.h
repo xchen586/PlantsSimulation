@@ -7,7 +7,7 @@ public:
 	CRoughnessDensityMap() : DensityMap()
 	{
 		type = DensityMapType::DensityMap_Roughness;
-		invert = false;
+		invert = true;
 		ease = 0.1;
 	}
 };
