@@ -17,7 +17,7 @@ class COakHeightDensityMap : public CHeightDensityMap
 public:
 	COakHeightDensityMap() : CHeightDensityMap()
 	{
-		minval = 0;
+		minval = 1;
 		maxval = 1500;
 		ease = 500;
 	}
@@ -28,7 +28,7 @@ class CMapleHeightDensityMap : public CHeightDensityMap
 public:
 	CMapleHeightDensityMap() : CHeightDensityMap()
 	{
-		minval = 0;
+		minval = 1;
 		maxval = 1800;
 		ease = 600;
 	}
