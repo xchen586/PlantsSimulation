@@ -19,19 +19,23 @@ public:
 
 		DensityMap* roadAttributeDensity = new CRoadAttributeDensityMap();
 		pair<string, DensityMap*> roadAttributePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, roadAttributeDensity->type, roadAttributeDensity);
-		masks.insert(roadAttributePair);
+		
 		DensityMap* moistureDensity = new COakMoistureDensityMap();
 		pair<string, DensityMap*> moisturePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, moistureDensity->type, moistureDensity);
-		masks.insert(moisturePair);
+		
 		DensityMap* roughnessDensity = new COakRoughnessDensityMap();
 		pair<string, DensityMap*> roughnessPair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, roughnessDensity->type, roughnessDensity);
-		masks.insert(roughnessPair);
 
 		DensityMap* heightDensity = new COakHeightDensityMap();
 		pair<string, DensityMap*> heightPair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, heightDensity->type, heightDensity);
-		masks.insert(heightPair);
+		
 		DensityMap* slopeDensity = new COakSlopeDensityMap();
 		pair<string, DensityMap*> slopePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, slopeDensity->type, slopeDensity);
+		
+		masks.insert(roadAttributePair);
+		masks.insert(moisturePair);
+		masks.insert(roughnessPair);
+		masks.insert(heightPair);
 		masks.insert(slopePair);
 	}
 };
@@ -49,19 +53,19 @@ public:
 
 		DensityMap* roadAttributeDensity = new CRoadAttributeDensityMap();
 		pair<string, DensityMap*> roadAttributePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, roadAttributeDensity->type, roadAttributeDensity);
-		masks.insert(roadAttributePair);
 		DensityMap* moistureDensity = new CMapleMoistureDensityMap();
 		pair<string, DensityMap*> moisturePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, moistureDensity->type, moistureDensity);
-		masks.insert(moisturePair);
 		DensityMap* roughnessDensity = new CMapleRoughnessDensityMap();
 		pair<string, DensityMap*> roughnessPair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, roughnessDensity->type, roughnessDensity);
-		masks.insert(roughnessPair);
-
 		DensityMap* heightDensity = new CMapleHeightDensityMap();
 		pair<string, DensityMap*> heightPair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, heightDensity->type, heightDensity);
-		masks.insert(heightPair);
 		DensityMap* slopeDensity = new CMapleSlopeDensityMap();
 		pair<string, DensityMap*> slopePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, slopeDensity->type, slopeDensity);
+
+		masks.insert(roadAttributePair);
+		masks.insert(moisturePair);
+		masks.insert(roughnessPair);
+		masks.insert(heightPair);
 		masks.insert(slopePair);	
 	}
 };
@@ -79,20 +83,25 @@ public:
 
 		DensityMap* roadAttributeDensity = new CRoadAttributeDensityMap();
 		pair<string, DensityMap*> roadAttributePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, roadAttributeDensity->type, roadAttributeDensity);
-		masks.insert(roadAttributePair);
+		
 		DensityMap* moistureDensity = new CBirchMoistureDensityMap();
 		pair<string, DensityMap*> moisturePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, moistureDensity->type, moistureDensity);
-		masks.insert(moisturePair);
+		
 		DensityMap* roughnessDensity = new CBirchRoughnessDensityMap();
 		pair<string, DensityMap*> roughnessPair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, roughnessDensity->type, roughnessDensity);
 		masks.insert(roughnessPair);
 
 		DensityMap* heightDensity = new CBirchHeightDensityMap();
 		pair<string, DensityMap*> heightPair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, heightDensity->type, heightDensity);
-		masks.insert(heightPair);
+		
 		DensityMap* slopeDensity = new CBirchSlopeDensityMap();
 		pair<string, DensityMap*> slopePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, slopeDensity->type, slopeDensity);
-		masks.insert(slopePair);		
+			
+		masks.insert(roadAttributePair);
+		masks.insert(moisturePair);
+		masks.insert(roughnessPair);
+		masks.insert(heightPair);
+		masks.insert(slopePair);
 	}
 };
 
@@ -109,19 +118,23 @@ public:
 
 		DensityMap* roadAttributeDensity = new CRoadAttributeDensityMap();
 		pair<string, DensityMap*> roadAttributePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, roadAttributeDensity->type, roadAttributeDensity);
-		masks.insert(roadAttributePair);
+		
 		DensityMap* moistureDensity = new CFirMoistureDensityMap();
 		pair<string, DensityMap*> moisturePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, moistureDensity->type, moistureDensity);
-		masks.insert(moisturePair);
+		
 		DensityMap* roughnessDensity = new CFirRoughnessDensityMap();
 		pair<string, DensityMap*> roughnessPair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, roughnessDensity->type, roughnessDensity);
-		masks.insert(roughnessPair);
-
+		
 		DensityMap* heightDensity = new CFirHeightDensityMap();
 		pair<string, DensityMap*> heightPair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, heightDensity->type, heightDensity);
-		masks.insert(heightPair);
+		
 		DensityMap* slopeDensity = new CFirSlopeDensityMap();
 		pair<string, DensityMap*> slopePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, slopeDensity->type, slopeDensity);
+
+		masks.insert(roadAttributePair);
+		masks.insert(moisturePair);
+		masks.insert(roughnessPair);
+		masks.insert(heightPair);
 		masks.insert(slopePair);
 	}
 };

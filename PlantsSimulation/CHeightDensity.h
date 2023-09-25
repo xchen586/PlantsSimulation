@@ -1,6 +1,9 @@
 #pragma once
 #include "CColonizationTree.h"
 
+
+const double WaterLevel = 0;
+
 class CHeightDensityMap : public DensityMap
 {
 public:
@@ -17,7 +20,7 @@ class COakHeightDensityMap : public CHeightDensityMap
 public:
 	COakHeightDensityMap() : CHeightDensityMap()
 	{
-		minval = 1;
+		minval = WaterLevel + 1;
 		maxval = 1500;
 		ease = 500;
 	}
@@ -28,7 +31,7 @@ class CMapleHeightDensityMap : public CHeightDensityMap
 public:
 	CMapleHeightDensityMap() : CHeightDensityMap()
 	{
-		minval = 1;
+		minval = WaterLevel + 1;
 		maxval = 1800;
 		ease = 600;
 	}
