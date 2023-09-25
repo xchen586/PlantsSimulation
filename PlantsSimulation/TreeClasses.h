@@ -1,9 +1,10 @@
 #pragma once
-#include "CHeightDensity.h"
-#include "CSlopeDensityMap.h"
+
+#include "CRoadAttributeDensityMap.h"
 #include "CMoistureDensityMap.h"
 #include "CRoughnessDensityMap.h"
-#include "CRoadAttributeDensityMap.h"
+#include "CHeightDensity.h"
+#include "CSlopeDensityMap.h"
 
 class COakTreeClass : public TreeClass
 {
@@ -16,21 +17,22 @@ public:
 		maxAge = 350;
 		seedRange = 300;
 
-		DensityMap* heightDensity = new COakHeightDensityMap();
-		pair<string, DensityMap*> heightPair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, heightDensity->type, heightDensity);
-		masks.insert(heightPair);
-		DensityMap* slopeDensity = new COakSlopeDensityMap();
-		pair<string, DensityMap*> slopePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, slopeDensity->type, slopeDensity);
-		masks.insert(slopePair);
+		DensityMap* roadAttributeDensity = new CRoadAttributeDensityMap();
+		pair<string, DensityMap*> roadAttributePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, roadAttributeDensity->type, roadAttributeDensity);
+		masks.insert(roadAttributePair);
 		DensityMap* moistureDensity = new COakMoistureDensityMap();
 		pair<string, DensityMap*> moisturePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, moistureDensity->type, moistureDensity);
 		masks.insert(moisturePair);
 		DensityMap* roughnessDensity = new COakRoughnessDensityMap();
 		pair<string, DensityMap*> roughnessPair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, roughnessDensity->type, roughnessDensity);
 		masks.insert(roughnessPair);
-		DensityMap* roadAttributeDensity = new CRoadAttributeDensityMap();
-		pair<string, DensityMap*> roadAttributePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, roadAttributeDensity->type, roadAttributeDensity);
-		masks.insert(roadAttributePair);
+
+		DensityMap* heightDensity = new COakHeightDensityMap();
+		pair<string, DensityMap*> heightPair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, heightDensity->type, heightDensity);
+		masks.insert(heightPair);
+		DensityMap* slopeDensity = new COakSlopeDensityMap();
+		pair<string, DensityMap*> slopePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, slopeDensity->type, slopeDensity);
+		masks.insert(slopePair);
 	}
 };
 
@@ -45,21 +47,22 @@ public:
 		maxAge = 200;
 		seedRange = 750;
 
-		DensityMap* heightDensity = new CMapleHeightDensityMap();
-		pair<string, DensityMap*> heightPair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, heightDensity->type, heightDensity);
-		masks.insert(heightPair);
-		DensityMap* slopeDensity = new CMapleSlopeDensityMap();
-		pair<string, DensityMap*> slopePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, slopeDensity->type, slopeDensity);
-		masks.insert(slopePair);
+		DensityMap* roadAttributeDensity = new CRoadAttributeDensityMap();
+		pair<string, DensityMap*> roadAttributePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, roadAttributeDensity->type, roadAttributeDensity);
+		masks.insert(roadAttributePair);
 		DensityMap* moistureDensity = new CMapleMoistureDensityMap();
 		pair<string, DensityMap*> moisturePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, moistureDensity->type, moistureDensity);
 		masks.insert(moisturePair);
 		DensityMap* roughnessDensity = new CMapleRoughnessDensityMap();
 		pair<string, DensityMap*> roughnessPair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, roughnessDensity->type, roughnessDensity);
 		masks.insert(roughnessPair);
-		DensityMap* roadAttributeDensity = new CRoadAttributeDensityMap();
-		pair<string, DensityMap*> roadAttributePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, roadAttributeDensity->type, roadAttributeDensity);
-		masks.insert(roadAttributePair);
+
+		DensityMap* heightDensity = new CMapleHeightDensityMap();
+		pair<string, DensityMap*> heightPair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, heightDensity->type, heightDensity);
+		masks.insert(heightPair);
+		DensityMap* slopeDensity = new CMapleSlopeDensityMap();
+		pair<string, DensityMap*> slopePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, slopeDensity->type, slopeDensity);
+		masks.insert(slopePair);	
 	}
 };
 
@@ -74,21 +77,22 @@ public:
 		maxAge = 150;
 		seedRange = 500;
 
-		DensityMap* heightDensity = new CBirchHeightDensityMap();
-		pair<string, DensityMap*> heightPair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, heightDensity->type, heightDensity);
-		masks.insert(heightPair);
-		DensityMap* slopeDensity = new CBirchSlopeDensityMap();
-		pair<string, DensityMap*> slopePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, slopeDensity->type, slopeDensity);
-		masks.insert(slopePair);
+		DensityMap* roadAttributeDensity = new CRoadAttributeDensityMap();
+		pair<string, DensityMap*> roadAttributePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, roadAttributeDensity->type, roadAttributeDensity);
+		masks.insert(roadAttributePair);
 		DensityMap* moistureDensity = new CBirchMoistureDensityMap();
 		pair<string, DensityMap*> moisturePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, moistureDensity->type, moistureDensity);
 		masks.insert(moisturePair);
 		DensityMap* roughnessDensity = new CBirchRoughnessDensityMap();
 		pair<string, DensityMap*> roughnessPair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, roughnessDensity->type, roughnessDensity);
 		masks.insert(roughnessPair);
-		DensityMap* roadAttributeDensity = new CRoadAttributeDensityMap();
-		pair<string, DensityMap*> roadAttributePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, roadAttributeDensity->type, roadAttributeDensity);
-		masks.insert(roadAttributePair);
+
+		DensityMap* heightDensity = new CBirchHeightDensityMap();
+		pair<string, DensityMap*> heightPair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, heightDensity->type, heightDensity);
+		masks.insert(heightPair);
+		DensityMap* slopeDensity = new CBirchSlopeDensityMap();
+		pair<string, DensityMap*> slopePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, slopeDensity->type, slopeDensity);
+		masks.insert(slopePair);		
 	}
 };
 
@@ -103,20 +107,21 @@ public:
 		maxAge = 300;
 		seedRange = 500;
 
-		DensityMap* heightDensity = new CFirHeightDensityMap();
-		pair<string, DensityMap*> heightPair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, heightDensity->type, heightDensity);
-		masks.insert(heightPair);
-		DensityMap* slopeDensity = new CFirSlopeDensityMap();
-		pair<string, DensityMap*> slopePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, slopeDensity->type, slopeDensity);
-		masks.insert(slopePair);
+		DensityMap* roadAttributeDensity = new CRoadAttributeDensityMap();
+		pair<string, DensityMap*> roadAttributePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, roadAttributeDensity->type, roadAttributeDensity);
+		masks.insert(roadAttributePair);
 		DensityMap* moistureDensity = new CFirMoistureDensityMap();
 		pair<string, DensityMap*> moisturePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, moistureDensity->type, moistureDensity);
 		masks.insert(moisturePair);
 		DensityMap* roughnessDensity = new CFirRoughnessDensityMap();
 		pair<string, DensityMap*> roughnessPair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, roughnessDensity->type, roughnessDensity);
 		masks.insert(roughnessPair);
-		DensityMap* roadAttributeDensity = new CRoadAttributeDensityMap();
-		pair<string, DensityMap*> roadAttributePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, roadAttributeDensity->type, roadAttributeDensity);
-		masks.insert(roadAttributePair);
+
+		DensityMap* heightDensity = new CFirHeightDensityMap();
+		pair<string, DensityMap*> heightPair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, heightDensity->type, heightDensity);
+		masks.insert(heightPair);
+		DensityMap* slopeDensity = new CFirSlopeDensityMap();
+		pair<string, DensityMap*> slopePair = GetDensityKeyPairFromPlantTypeWithDensityMapType(type, slopeDensity->type, slopeDensity);
+		masks.insert(slopePair);
 	}
 };
