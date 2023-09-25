@@ -140,7 +140,7 @@ void CForest::loadGlobalMasks()
 void CForest::generate(float forestAge, int iterations)
 {
 	// allocate grid
-	int gridDelta = 40;
+	int gridDelta = 16;
 	int gridXSize = xSize/gridDelta;
 	int gridZSize = zSize/gridDelta;
 	int gridSize = (gridXSize + 1)*(gridZSize + 1)*sizeof(int);
