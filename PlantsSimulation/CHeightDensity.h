@@ -22,7 +22,7 @@ public:
 	{
 		minval = WaterLevel + 1;
 		maxval = 1500;
-		ease = 500;
+		ease = 200;
 	}
 };
 
@@ -33,7 +33,7 @@ public:
 	{
 		minval = WaterLevel + 1;
 		maxval = 1800;
-		ease = 600;
+		ease = 200;
 	}
 };
 
@@ -44,7 +44,7 @@ public:
 	{
 		minval = 600; // 600;
 		maxval = 2400;
-		ease = 600;
+		ease = 800;
 	}
 };
 
@@ -55,6 +55,6 @@ public:
 	{
 		minval = 600;
 		maxval = 3300;
-		ease = 900;
+		ease = 600;
 	}
 };

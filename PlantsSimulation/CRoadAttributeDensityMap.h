@@ -9,7 +9,7 @@ public:
 		type = DensityMapType::DensityMap_RoadAttribute;
 		invert = true;
 		ease = 0.1;
-		minval = 0;
-		maxval = 0.3;
+		minval = 0.0;
+		maxval = 0.78;
 	}
 };
