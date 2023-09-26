@@ -228,6 +228,7 @@ bool CPlantsSimulation::LoadForest()
 	}
 
 	m_pForest->setCellTable(m_pCellTable);
+	m_pForest->setMetaInfo(m_topLayerMeta);
 
 	if (!m_topLayerImage) {
 		return false;

@@ -8,6 +8,7 @@
 
 using namespace std;
 class CCellData;
+class InputImageMetaInfo;
 
 pair<string, I2DMask*> GetI2DMaskKeyPairFromPlantTypeWithIndex(PlantType type, int index, I2DMask* i2dMask);
 pair<string, I2DMask*> GetI2DMaskKeyPairFromPlantTypeWithDensityMapType(PlantType plantType, DensityMapType densityType, I2DMask* pI2dMask);
@@ -64,7 +65,10 @@ public:
 	void setCellTable(std::vector<std::vector<CCellData*>>* pCellTable) {
 		m_pCellTable = pCellTable;
 	}
-
+	void setMetaInfo(InputImageMetaInfo* metaInfo)
+	{
+		m_pMetaInfo = metaInfo;
+	}
 	TreeInstanceOutput GetTreeOutputFromInstance(const CTreeInstance& instance);
 	bool exportToCSV(const std::vector<TreeInstanceOutput>& data, const std::string& filename);
 	bool outputResults(const std::string& csvFileName);
@@ -75,6 +79,7 @@ public:
 	vector<CTreeInstance> trees;
 	vector<TreeInstanceOutput> outputs;
 	std::vector<std::vector<CCellData*>> * m_pCellTable;
+	InputImageMetaInfo * m_pMetaInfo;
 	int xo;
 	int zo;
 	int xSize;

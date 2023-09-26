@@ -7,6 +7,7 @@
 #include <cmath>
 #include <algorithm>
 #include <limits>
+#include <random>
 
 #ifndef _USE_MATH_DEFINES
 #define _USE_MATH_DEFINES
@@ -100,3 +101,4 @@ std::vector<std::vector<double>> ConvertUnsignedShortToDouble(const std::vector<
 std::vector<std::vector<double>> ConvertShortMatrixToDouble1(const std::vector<std::vector<short>>& shortMatrix);
 std::vector<std::vector<double>> ConvertShortMatrixToDouble2(const std::vector<std::vector<short>>& shortMatrix);
 
+double GenerateRandomDouble(double min, double max);

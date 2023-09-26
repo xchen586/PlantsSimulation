@@ -499,3 +499,13 @@ std::string GetFileExtension(const std::string& filePath) {
     return ""; // No file extension found
 }
 
+// Function to generate a random double within a given range [min, max]
+double GenerateRandomDouble(double min, double max) {
+    // Initialize a random number generator
+    std::random_device rd;  // Seed generator
+    std::mt19937 gen(rd()); // Mersenne Twister engine
+    std::uniform_real_distribution<double> distribution(min, max);
+
+    // Generate a random double within the specified range and return it
+    return distribution(gen);
+}
