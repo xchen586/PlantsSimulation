@@ -239,8 +239,8 @@ std::vector<std::vector<short>> ComputeSlopeMap(const std::vector<std::vector<sh
     int width = heightmap.size();
     int height = heightmap[0].size();
 
-    short minSlopeAngle = numeric_limits<short>::max();
-    short maxSlopeAngle = numeric_limits<short>::min();
+    short minSlopeHeight = numeric_limits<short>::max();
+    short maxSlopeHeight = numeric_limits<short>::min();
 
     std::vector<std::vector<short>> slopeMap(width, std::vector<short>(height, 0));
 
@@ -272,11 +272,11 @@ std::vector<std::vector<short>> ComputeSlopeMap(const std::vector<std::vector<sh
             short value = std::min(maxHeightDifference, static_cast<short>(USHRT_MAX));
             //short value = maxHeightDifference;
             slopeMap[x][y] = value;
-            minSlopeAngle = std::min(minSlopeAngle, value);
-            maxSlopeAngle = std::max(maxSlopeAngle, value);
+            minSlopeHeight = std::min(minSlopeHeight, value);
+            maxSlopeHeight = std::max(maxSlopeHeight, value);
         }
     }
-    std::cout << "ComputeSlopeMap minSlopeAngle is : " << minSlopeAngle << ", maxSlopeAngle is : " << maxSlopeAngle << std::endl;
+    std::cout << "ComputeSlopeMap minSlopeHeight is : " << minSlopeHeight << ", maxSlopeHeight is : " << maxSlopeHeight << std::endl;
     return slopeMap;
 
 }
