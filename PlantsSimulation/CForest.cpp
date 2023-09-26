@@ -228,7 +228,7 @@ void CForest::generate(float forestAge, int iterations)
 	{
 		bool lastIteration = iteration == iterations - 1;
 		double time = timeSlice*iteration;
-
+		//Generate tree instance from empty erea.
 		for (int x = xo; x < xo + xSize; x += gridDelta)
 		{
 			for (int z = zo; z < zo + zSize; z += gridDelta)
@@ -289,12 +289,14 @@ void CForest::generate(float forestAge, int iterations)
 									maskValue = 0.0;
 							}*/
 							//std::cout << "Maskspan for ClassStrength has value : maskId is : " << maskId << " maskValue is : " << maskValue << std::endl;
+							//maskSpan *= maskValue;
 						}
 					}
 					//std::cout << "----------------------End TreeClass for ClassStrength : treeClass is : " << PlantTypeToString(treeClass->type) << " final maskValue is : " << maskValue << std::endl;
 					maskSpan += maskValue;
 					ClassStrength& c = classArray[classIdx];
 					c.strength = maskValue;
+					//c.strength = maskSpan;
 					c.treeClass = treeClass;
 					classIdx++;
 				}
@@ -405,10 +407,10 @@ void CForest::generate(float forestAge, int iterations)
 						if (x >= tree.x - minRx && x <= tree.x + minRx &&
 							z >= tree.z - minRz && z <= tree.z + minRz)
 							continue;
-
+#if USE_RANDOM_SEED
 						if (rand() > RAND_MAX / 1000)
 							continue;
-
+#endif
 						int xi = (int)x;
 						int zi = (int)z;
 
