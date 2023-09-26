@@ -50,6 +50,30 @@ struct TreeInstanceOutput {
 	{
 
 	}
+
+	TreeInstanceOutput(const CTreeInstance& instance) 
+		: x(0)
+		, y(0)
+		, z(0)
+		, red(0)
+		, green(0)
+		, blue(0)
+		, treeType(0)
+	{
+		x = instance.x;
+		y = instance.z;
+
+		int rgbColor = instance.treeClass->color;
+		int redColor = (rgbColor >> 16) & 0xFF;
+		int greenColor = (rgbColor >> 8) & 0xFF;
+		int blueColor = rgbColor & 0xFF;
+
+		red = redColor;
+		green = greenColor;
+		blue = blueColor;
+
+		treeType = static_cast<unsigned int>(instance.treeClass->type);
+	}
 };
 
 class CForest

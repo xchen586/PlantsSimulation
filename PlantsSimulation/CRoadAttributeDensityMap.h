@@ -7,9 +7,10 @@ public:
 	CRoadAttributeDensityMap() : DensityMap()
 	{
 		type = DensityMapType::DensityMap_RoadAttribute;
-		invert = true;
+		invert = false;
 		ease = 0.1;
 		minval = 0.0;
-		maxval = 0.78;
+		//maxval = 0.78;
+		maxval = 0.1;
 	}
 };

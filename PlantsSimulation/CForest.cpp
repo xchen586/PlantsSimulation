@@ -536,7 +536,7 @@ TreeInstanceOutput CForest::GetTreeOutputFromInstance(const CTreeInstance& insta
 	int red = (rgbColor >> 16) & 0xFF;
 	int green = (rgbColor >> 8) & 0xFF;
 	int blue = rgbColor & 0xFF;
-	
+
 	output.red = red;
 	output.green = green;
 	output.blue = blue;
@@ -544,7 +544,6 @@ TreeInstanceOutput CForest::GetTreeOutputFromInstance(const CTreeInstance& insta
 	output.treeType = static_cast<unsigned int>(instance.treeClass->type);
 	return output;
 }
-
 bool CForest::exportToCSV(const std::vector<TreeInstanceOutput>& data, const std::string& filename) {
 	std::ofstream outputFile(filename);
 	if (!outputFile.is_open()) {
@@ -588,7 +587,8 @@ bool CForest::outputResults(const std::string& csvFileName)
 		else {
 			plants[pt] = 1;
 		}
-		TreeInstanceOutput output = GetTreeOutputFromInstance(instance);
+		TreeInstanceOutput output = TreeInstanceOutput(instance);
+		//TreeInstanceOutput output = GetTreeOutputFromInstance(instance);
 		outputs.push_back(output);
 	}
 

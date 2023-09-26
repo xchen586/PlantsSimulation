@@ -7,7 +7,7 @@ public:
 	CRoughnessDensityMap() : DensityMap()
 	{
 		type = DensityMapType::DensityMap_Roughness;
-		invert = true;
+		invert = false;
 		ease = 0.1;
 	}
 };
@@ -18,7 +18,7 @@ public:
 	COakRoughnessDensityMap() : CRoughnessDensityMap()
 	{
 		minval = 0.1;
-		maxval = 0.8;
+		maxval = 0.298;
 	}
 };
 
@@ -27,8 +27,8 @@ class CMapleRoughnessDensityMap : public CRoughnessDensityMap
 public:
 	CMapleRoughnessDensityMap() : CRoughnessDensityMap()
 	{
-		minval = 0.2;
-		maxval = 0.7;
+		minval = 0.12;
+		maxval = 0.297;
 	}
 };
 
@@ -38,7 +38,7 @@ public:
 	CBirchRoughnessDensityMap() : CRoughnessDensityMap()
 	{
 		minval = 0.1;
-		maxval = 0.7;
+		maxval = 0.297;
 	}
 };
 
@@ -47,7 +47,7 @@ class CFirRoughnessDensityMap : public CRoughnessDensityMap
 public:
 	CFirRoughnessDensityMap() : CRoughnessDensityMap()
 	{
-		minval = 0.35;
-		maxval = 0.9;
+		minval = 0.135;
+		maxval = 0.299;
 	}
 };
