@@ -70,8 +70,8 @@ bool CPlantsSimulation::LoadInputImage()
 			for (auto j = 0; j < newHeight; j++) {
 				int idx = (newWidth * j + i) * 3;
 				uint8_t redValue = m_topLayerImage->input_image_data[idx + 0];
-				uint8_t greenValue = m_topLayerImage->input_image_data[idx + 0];
-				uint8_t blueValue = m_topLayerImage->input_image_data[idx + 0];
+				uint8_t greenValue = m_topLayerImage->input_image_data[idx + 1];
+				uint8_t blueValue = m_topLayerImage->input_image_data[idx + 2];
 				CCellData* cell = new CCellData(redValue, greenValue, blueValue);
 				if (!cell) {
 					std::cout << "Fail to create CCellData at i = " << i << " j = " << j << std::endl;
