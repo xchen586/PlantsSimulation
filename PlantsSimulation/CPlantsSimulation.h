@@ -7,8 +7,9 @@ using namespace std;
 class CPlantsSimulation
 {
 public:
-	CPlantsSimulation(const string& inputImageFile, const string& heightMapFile, const string outputFile)
+	CPlantsSimulation(const string& inputImageFile, const string& inputImageMataFile, const string& heightMapFile, const string outputFile)
 		: m_inputImageFile(inputImageFile)
+		, m_inputImageMetaFile(inputImageMataFile)
 		, m_heightMapFile(heightMapFile)
 		, m_outputFile(outputFile)
 		, m_topLayerImage(nullptr)
@@ -20,10 +21,12 @@ public:
 
 private:
 	string m_inputImageFile;
+	string m_inputImageMetaFile;
 	string m_heightMapFile;
 	string m_outputFile;
 
 	InputImageDataInfo* m_topLayerImage;
+	InputImageMetaInfo* m_topLayerMeta;
 
 	std::vector<std::vector<CCellData*>>* m_pCellTable;
 	CForest* m_pForest;
@@ -32,6 +35,7 @@ private:
 	void DeInitialize();
 	bool LoadInputImage();
 	bool LoadInputHeightMap();
+	bool LoadImageMetaFile();
 public:
 	bool LoadInputData();
 	bool LoadForest();

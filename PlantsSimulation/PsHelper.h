@@ -36,6 +36,37 @@ struct InputImageDataInfo
 	}
 };
 
+struct InputImageMetaInfo
+{
+	double xRatio;
+	double x0;
+	double y0;
+	double yRatio;
+	double batch_min_x;
+	double batch_min_y;
+	InputImageMetaInfo()
+		: xRatio(1)
+		, x0(0)
+		, y0(0)
+		, yRatio(1)
+		, batch_min_x(0)
+		, batch_min_y(0)
+	{
+
+	}
+	InputImageMetaInfo& operator= (const InputImageMetaInfo& other)
+	{
+		xRatio = other.xRatio;
+		x0 = other.x0;
+		y0 = other.y0;
+		yRatio = other.yRatio;
+		batch_min_x = other.batch_min_x;
+		batch_min_y = other.batch_min_y;
+		return *this;
+	};
+
+};
+
 struct PixelRGB {
 	unsigned char red;
 	unsigned char green;

@@ -42,6 +42,10 @@ void CPlantsSimulation::DeInitialize()
 		delete m_topLayerImage;
 		m_topLayerImage = nullptr;
 	}
+	if (m_topLayerMeta) {
+		delete m_topLayerMeta;
+		m_topLayerMeta = nullptr;
+	}
 	if (m_pForest) {
 		delete m_pForest;
 		m_pForest = nullptr;
@@ -104,6 +108,54 @@ bool CPlantsSimulation::LoadInputImage()
 	return true;
 }
 
+bool CPlantsSimulation::LoadImageMetaFile()
+{
+	bool ret = false;
+	std::ifstream inputFile(m_inputImageMetaFile);
+
+	if (!inputFile.is_open()) {
+		std::cerr << "Error opening image meta file!" << std::endl;
+		return false;
+	}
+
+	m_topLayerMeta = new InputImageMetaInfo();
+	if (!m_topLayerMeta)
+	{
+		return false;
+	}
+
+	try {
+		// Read each line from the file and assign it to the struct members
+		//std::getline(inputFile, person.name);
+		inputFile >> m_topLayerMeta->xRatio;
+		inputFile >> m_topLayerMeta->x0;
+		inputFile >> m_topLayerMeta->y0;
+		inputFile >> m_topLayerMeta->yRatio;
+		inputFile >> m_topLayerMeta->batch_min_x;
+		inputFile >> m_topLayerMeta->batch_min_y;
+		//inputFile.ignore(); // Ignore the newline character left in the stream
+		ret = true;
+	}
+	catch (const std::exception& e) {
+		std::cerr << "Error while reading data from : " << e.what() << std::endl;
+		ret = false;
+	}
+
+	inputFile.close();
+	if (!ret)
+	{
+		delete m_topLayerMeta;
+		m_topLayerMeta = nullptr;
+	}
+	std::cout << "Image Meta Info xRatio: " << m_topLayerMeta->xRatio << std::endl;
+	std::cout << "Image Meta Info x0 : " << m_topLayerMeta->x0 << std::endl;
+	std::cout << "Image Meta Info y0 : " << m_topLayerMeta->y0 << std::endl;
+	std::cout << "Image Meta Info yRatio: " << m_topLayerMeta->yRatio << std::endl;
+	std::cout << "Image Meta Info batch_min_x: " << m_topLayerMeta->batch_min_x << std::endl;
+	std::cout << "Image Meta Info batch_min_y: " << m_topLayerMeta->batch_min_y << std::endl;
+	return ret;
+}
+
 bool CPlantsSimulation::LoadInputHeightMap()
 {
 	if (!m_topLayerImage || !m_pCellTable)
@@ -149,6 +201,12 @@ bool CPlantsSimulation::LoadInputData()
 		DeInitialize();
 		return ret;
 	}
+	ret = LoadImageMetaFile();
+	if (!ret)
+	{
+		DeInitialize();
+		return ret;
+	}
 	ret = LoadInputHeightMap();
 	if (!ret) {
 		DeInitialize();
@@ -156,6 +214,7 @@ bool CPlantsSimulation::LoadInputData()
 	}
 	return ret;
 }
+
 //std::vector<std::vector<unsigned short>> heightMap300 = Read2DShortArray(m_heightMapFile, width, height);
 
 //std::vector<std::vector<unsigned short>> heightMap4096 = ScaleArray(heightMap300, newWidth, newHeight);
