@@ -526,9 +526,9 @@ void CForest::generate(float forestAge, int iterations)
 	free(grid);
 }
 
-TreeOutput CForest::GetTreeOutputFromInstance(const CTreeInstance& instance)
+TreeInstanceOutput CForest::GetTreeOutputFromInstance(const CTreeInstance& instance)
 {
-	TreeOutput output;
+	TreeInstanceOutput output;
 	output.x = instance.x;
 	output.y = instance.z;
 
@@ -545,7 +545,7 @@ TreeOutput CForest::GetTreeOutputFromInstance(const CTreeInstance& instance)
 	return output;
 }
 
-bool CForest::exportToCSV(const std::vector<TreeOutput>& data, const std::string& filename) {
+bool CForest::exportToCSV(const std::vector<TreeInstanceOutput>& data, const std::string& filename) {
 	std::ofstream outputFile(filename);
 	if (!outputFile.is_open()) {
 		std::cerr << "Error: Unable to open the file " << filename << std::endl;
@@ -556,7 +556,7 @@ bool CForest::exportToCSV(const std::vector<TreeOutput>& data, const std::string
 	outputFile << "X,Y,Z,Red,Green,Yellow,TreeType" << std::endl;
 
 	// Write data rows
-	for (const TreeOutput& tree : data) {
+	for (const TreeInstanceOutput& tree : data) {
 		outputFile << tree.x << ","
 			<< tree.y << ","
 			<< tree.z << ","
@@ -588,7 +588,7 @@ bool CForest::outputResults(const std::string& csvFileName)
 		else {
 			plants[pt] = 1;
 		}
-		TreeOutput output = GetTreeOutputFromInstance(instance);
+		TreeInstanceOutput output = GetTreeOutputFromInstance(instance);
 		outputs.push_back(output);
 	}
 

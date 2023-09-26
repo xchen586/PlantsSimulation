@@ -30,7 +30,7 @@ struct ClassStrength
 	TreeClass* treeClass;
 };
 
-struct TreeOutput {
+struct TreeInstanceOutput {
 	float x;
 	float y;
 	float z;
@@ -38,7 +38,7 @@ struct TreeOutput {
 	int green;
 	int blue;
 	unsigned int treeType;
-	TreeOutput()
+	TreeInstanceOutput()
 		: x(0)
 		, y(0)
 		, z(0)
@@ -65,15 +65,15 @@ public:
 		m_pCellTable = pCellTable;
 	}
 
-	TreeOutput GetTreeOutputFromInstance(const CTreeInstance& instance);
-	bool exportToCSV(const std::vector<TreeOutput>& data, const std::string& filename);
+	TreeInstanceOutput GetTreeOutputFromInstance(const CTreeInstance& instance);
+	bool exportToCSV(const std::vector<TreeInstanceOutput>& data, const std::string& filename);
 	bool outputResults(const std::string& csvFileName);
 public:
 	vector<TreeClass*> classes;
 	map<string, I2DMask*> masks;
 	map<string, DensityMap*> globalMasks;
 	vector<CTreeInstance> trees;
-	vector<TreeOutput> outputs;
+	vector<TreeInstanceOutput> outputs;
 	std::vector<std::vector<CCellData*>> * m_pCellTable;
 	int xo;
 	int zo;
