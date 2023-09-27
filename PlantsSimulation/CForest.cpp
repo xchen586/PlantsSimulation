@@ -26,13 +26,15 @@ void TreeInstanceFullOutput::GetPosFromInstanceOutput()
 	double scaleYmax = static_cast<double>(m_instance.y + 1) * m_pMetaInfo->yRatio;
 	double localX = GenerateRandomDouble(scaleXMin, scaleXmax);
 	double localY = GenerateRandomDouble(scaleYMin, scaleYmax);
+	//posX = localX;
+	//posY = localY;
 	posX = m_pMetaInfo->batch_min_x
 		+ m_pMetaInfo->x0
 		+ localX;
 	posY = m_pMetaInfo->batch_min_y
 		+ m_pMetaInfo->y0
 		+ localY;
-	//posZ = m_pCellData->GetHeight();
+	posZ = m_pCellData->GetHeight();
 }
 
 CForest::CForest(void)
@@ -80,17 +82,25 @@ void CForest::loadTreeClasses()
 
 void CForest::loadMasks()
 {
+	if (!m_pMetaInfo)
+	{
+		std::cout << "Meta info is not available in CForest::loadMasks()" << std::endl;
+		return;
+	}
 	for (map<string, I2DMask*>::iterator iMask = masks.begin(); iMask != masks.end(); ++iMask) {
 		I2DMask* i2DMask = iMask->second;
 		delete i2DMask;
 	}
 	masks.clear();
 
-	I2DMask* pHeightI2DMask = new CCellHeightI2DMask(m_pCellTable);
-	I2DMask* pSlopeI2DMask = new CCellSlopeI2DMask(m_pCellTable);
-	I2DMask* pMoistureI2DMask = new CCellMoistureI2DMask(m_pCellTable);
-	I2DMask* pRoughnessI2DMask = new CCellRoughnessI2DMask(m_pCellTable);
-	I2DMask* pRoadAttributeI2DMask = new CCellRoadAttributeI2DMask(m_pCellTable);
+	double xRatio = m_pMetaInfo->xRatio;
+	double yRatio = m_pMetaInfo->yRatio;
+
+	I2DMask* pHeightI2DMask = new CCellHeightI2DMask(m_pCellTable, xRatio, yRatio);
+	I2DMask* pSlopeI2DMask = new CCellSlopeI2DMask(m_pCellTable, xRatio, yRatio);
+	I2DMask* pMoistureI2DMask = new CCellMoistureI2DMask(m_pCellTable, xRatio, yRatio);
+	I2DMask* pRoughnessI2DMask = new CCellRoughnessI2DMask(m_pCellTable, xRatio, yRatio);
+	I2DMask* pRoadAttributeI2DMask = new CCellRoadAttributeI2DMask(m_pCellTable, xRatio, yRatio);
 
 	pair<string, I2DMask*> treeOakHeightPair = GetI2DMaskKeyPairFromPlantTypeWithDensityMapType(PlantType::TREE_OAK, DensityMapType::DensityMap_Height, pHeightI2DMask);
 	pair<string, I2DMask*> treeOakSlopePair = GetI2DMaskKeyPairFromPlantTypeWithDensityMapType(PlantType::TREE_OAK, DensityMapType::DensityMap_Slope, pSlopeI2DMask);
@@ -169,7 +179,7 @@ void CForest::loadGlobalMasks()
 void CForest::generate(float forestAge, int iterations)
 {
 	// allocate grid
-	int gridDelta = 16;
+	int gridDelta = 30;
 	int gridXSize = xSize/gridDelta;
 	int gridZSize = zSize/gridDelta;
 	int gridSize = (gridXSize + 1)*(gridZSize + 1)*sizeof(int);

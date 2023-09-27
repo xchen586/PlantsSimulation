@@ -23,6 +23,10 @@ void CCellData::SetHeightValue(short heightValue)
 {
 	m_heightValue = heightValue;
 	m_height = static_cast<double>(m_heightValue);
+	/*if (heightValue != 0)
+	{
+		std::cout << "height value is : " << heightValue << ", height is : " << m_height << std::endl;
+	}*/
 }
 
 void CCellData::SetSlopeHeightValue(short slopeValue)
