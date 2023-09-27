@@ -233,14 +233,18 @@ bool CPlantsSimulation::LoadForest()
 	if (!m_topLayerImage) {
 		return false;
 	}
+	if (!m_topLayerMeta)
+	{
+		return false;
+	}
 
 	const int forestXSize = m_topLayerImage->input_image_width;
 	const int forestZSize = m_topLayerImage->input_image_width;
 	//const int forestXSize = 4096;
 	//const int forestZSize = 4096;
 
-	m_pForest->xSize = forestXSize;
-	m_pForest->zSize = forestZSize;
+	m_pForest->xSize = static_cast<int>(forestXSize * m_topLayerMeta->xRatio);
+	m_pForest->zSize = static_cast<int>(forestZSize * m_topLayerMeta->yRatio);
 	m_pForest->xo = 0;
 	m_pForest->zo = 0;
 
@@ -277,7 +281,7 @@ bool CPlantsSimulation::OutputResults()
 	bool outputCSV = m_pForest->outputTreeInstanceResults(m_outputFile);
 	if (outputCSV)
 	{
-		outputCSV = m_pForest->outputFullTreeInstanceResults(m_fullOutputFile);
+		//outputCSV = m_pForest->outputFullTreeInstanceResults(m_fullOutputFile);
 	}
 	return outputCSV;
 }
