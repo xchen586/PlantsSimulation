@@ -14,6 +14,7 @@ public:
 		, m_outputFile(outputFile)
 		, m_fullOutputFile(fullOutputFile)
 		, m_topLayerImage(nullptr)
+		, m_topLayerMeta(nullptr)
 		, m_pCellTable(nullptr)
 		, m_pForest(nullptr)
 	{
