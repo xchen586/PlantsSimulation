@@ -105,10 +105,10 @@ struct TreeInstanceFullOutput
 	double posY;
 	double posZ;
 	TreeInstanceOutput m_instance;
-	const CCellData* m_pCellData;
-	const InputImageMetaInfo* m_pMetaInfo;
+	CCellData* m_pCellData;
+	InputImageMetaInfo* m_pMetaInfo;
 
-	TreeInstanceFullOutput(const TreeInstanceOutput& instance, const CCellData* pCellData, const InputImageMetaInfo* pMetaInfo);
+	TreeInstanceFullOutput(const TreeInstanceOutput& instance, CCellData* pCellData, InputImageMetaInfo* pMetaInfo);
 	void GetPosFromInstanceOutput();
 };
 
@@ -130,8 +130,10 @@ public:
 		m_pMetaInfo = metaInfo;
 	}
 	TreeInstanceOutput GetTreeOutputFromInstance(const CTreeInstance& instance);
-	bool exportTreeInstanceOutpuToCSV(const std::vector<TreeInstanceOutput>& data, const std::string& filename);
-	bool outputResults(const std::string& csvFileName);
+	bool exportTreeInstanceOutputToCSV(const std::vector<TreeInstanceOutput>& data, const std::string& filename);
+	bool exportTreeInstanceFullOutputToCSV(const std::vector<TreeInstanceFullOutput>& data, const std::string& filename);
+	bool outputTreeInstanceResults(const std::string& csvFileName);
+	bool outputFullTreeInstanceResults(const std::string& csvFileName);
 public:
 	vector<TreeClass*> classes;
 	map<string, I2DMask*> masks;

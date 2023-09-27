@@ -7,7 +7,7 @@
 #include "CCellI2DMask.h"
 #include "PsHelper.h"
 
-TreeInstanceFullOutput::TreeInstanceFullOutput(const TreeInstanceOutput& instance, const CCellData* pCellData, const InputImageMetaInfo* pMetaInfo)
+TreeInstanceFullOutput::TreeInstanceFullOutput(const TreeInstanceOutput& instance, CCellData* pCellData, InputImageMetaInfo* pMetaInfo)
 	: posX(0)
 	, posY(0)
 	, posZ(0)
@@ -32,6 +32,7 @@ void TreeInstanceFullOutput::GetPosFromInstanceOutput()
 	posY = m_pMetaInfo->batch_min_y
 		+ m_pMetaInfo->y0
 		+ localY;
+	//posZ = m_pCellData->GetHeight();
 }
 
 CForest::CForest(void)
@@ -572,7 +573,7 @@ TreeInstanceOutput CForest::GetTreeOutputFromInstance(const CTreeInstance& insta
 	output.treeType = static_cast<unsigned int>(instance.treeClass->type);
 	return output;
 }
-bool CForest::exportTreeInstanceOutpuToCSV(const std::vector<TreeInstanceOutput>& data, const std::string& filename) {
+bool CForest::exportTreeInstanceOutputToCSV(const std::vector<TreeInstanceOutput>& data, const std::string& filename) {
 	std::ofstream outputFile(filename);
 	if (!outputFile.is_open()) {
 		std::cerr << "Error: Unable to open the file " << filename << std::endl;
@@ -580,7 +581,7 @@ bool CForest::exportTreeInstanceOutpuToCSV(const std::vector<TreeInstanceOutput>
 	}
 
 	// Write header row
-	outputFile << "X,Y,Z,Red,Green,Yellow,TreeType" << std::endl;
+	outputFile << "X,Y,Z,Red,Green,Blue,TreeType" << std::endl;
 
 	// Write data rows
 	for (const TreeInstanceOutput& tree : data) {
@@ -598,7 +599,38 @@ bool CForest::exportTreeInstanceOutpuToCSV(const std::vector<TreeInstanceOutput>
 	return true;
 }
 
-bool CForest::outputResults(const std::string& csvFileName)
+bool CForest::exportTreeInstanceFullOutputToCSV(const std::vector<TreeInstanceFullOutput>& data, const std::string& filename) {
+	std::ofstream outputFile(filename);
+	if (!outputFile.is_open()) {
+		std::cerr << "Error: Unable to open the file " << filename << std::endl;
+		return false;
+	}
+
+	// Write header row
+	outputFile << "X,Y,Z,Red,Green,Blue,TreeType,RoadAttribute,Moisture,Roughness,Height,Slope" << std::endl;
+
+	// Write data rows
+	for (const TreeInstanceFullOutput& tree : data) {
+		outputFile << tree.posX << ","
+			<< tree.posY << ","
+			<< tree.posZ << ","
+			<< tree.m_instance.red << ","
+			<< tree.m_instance.green << ","
+			<< tree.m_instance.blue << ","
+			<< tree.m_instance.treeType << ","
+			<< tree.m_pCellData->GetRoadAttribute() << ","
+			<< tree.m_pCellData->GetMoisture() << ","
+			<< tree.m_pCellData->GetRoughness() << ","
+			<< tree.m_pCellData->GetHeight() << ","
+			<< tree.m_pCellData->GetSlopeAngle() << std::endl;
+	}
+
+	outputFile.close();
+
+	return true;
+}
+
+bool CForest::outputTreeInstanceResults(const std::string& csvFileName)
 {
 	outputs.clear();
 	map<PlantType, int> plants;
@@ -627,9 +659,36 @@ bool CForest::outputResults(const std::string& csvFileName)
 		cout << typeString << " count are " << count << endl;
 	}
 
-	bool exportCSV = exportTreeInstanceOutpuToCSV(outputs, csvFileName);
+	bool exportCSV = exportTreeInstanceOutputToCSV(outputs, csvFileName);
+	return exportCSV;
+}
+
+bool CForest::outputFullTreeInstanceResults(const std::string& csvFileName)
+{
+	if ((!m_pCellTable)
+		|| (!m_pMetaInfo)
+		|| (!outputs.size())
+		)
+	{
+		return false;
+	}
+	
+	for (const TreeInstanceOutput& tree : outputs)
+	{
+		CCellData* pCell = (*m_pCellTable)[tree.x][tree.y];
+		if (pCell != nullptr)
+		{
+			TreeInstanceFullOutput output = TreeInstanceFullOutput(tree, pCell, m_pMetaInfo);
+			fullOutputs.push_back(output);
+		}
+		else {
+			std::cout << "Can not find the Cell Data at X : " << tree.x << ", at Y : " << tree.y << std::endl;
+		}
+	}
+	bool exportCSV = exportTreeInstanceFullOutputToCSV(fullOutputs, csvFileName);
 	return true;
 }
+
 
 pair<string, I2DMask*> GetI2DMaskKeyPairFromPlantTypeWithIndex(PlantType type, int index, I2DMask* pI2dMask)
 {
