@@ -15,7 +15,7 @@ TreeInstanceFullOutput::TreeInstanceFullOutput(const TreeInstanceOutput& instanc
 	, m_pCellData(pCellData)
 	, m_pMetaInfo(pMetaInfo)
 {
-	GetPosFromInstanceOutput();
+	GetPosFromInstanceOutputEx();
 }
 
 void TreeInstanceFullOutput::GetPosFromInstanceOutput()
@@ -37,6 +37,21 @@ void TreeInstanceFullOutput::GetPosFromInstanceOutput()
 	posZ = m_pCellData->GetHeight();
 }
 
+void TreeInstanceFullOutput::GetPosFromInstanceOutputEx()
+{
+	double localX = m_instance.x;
+	double localY = m_instance.y;
+	//posX = localX;
+	//posY = localY;
+	posX = m_pMetaInfo->batch_min_x
+		+ m_pMetaInfo->x0
+		+ localX;
+	posY = m_pMetaInfo->batch_min_y
+		+ m_pMetaInfo->y0
+		+ localY;
+	posZ = m_pCellData->GetHeight();
+}
+
 CForest::CForest(void)
 {
 	grid = NULL;
@@ -44,7 +59,6 @@ CForest::CForest(void)
 
 CForest::~CForest(void)
 {
-	
 	for (vector<TreeClass*>::iterator i = classes.begin(); i != classes.end(); ++i) {
 		TreeClass* tree = *i;
 		delete tree;
@@ -683,16 +697,29 @@ bool CForest::outputFullTreeInstanceResults(const std::string& csvFileName)
 		return false;
 	}
 	
+	int tableRowsCount = (*m_pCellTable).size();
+	int tableColsCount = (*m_pCellTable)[0].size();
+
 	for (const TreeInstanceOutput& tree : outputs)
 	{
-		CCellData* pCell = (*m_pCellTable)[tree.x][tree.y];
+		double xRatio = m_pMetaInfo->xRatio;
+		double yRatio = m_pMetaInfo->yRatio;
+
+		int rowIdx = static_cast<int>(tree.x / xRatio);
+		int colIdx = static_cast<int>(tree.y / yRatio);
+		
+		CCellData* pCell = nullptr;
+		if (((rowIdx >= 0) && (rowIdx < tableRowsCount))
+			&& ((colIdx >= 0) && (colIdx < tableColsCount))) {
+			pCell = (*m_pCellTable)[rowIdx][colIdx];
+		}
 		if (pCell != nullptr)
 		{
 			TreeInstanceFullOutput output = TreeInstanceFullOutput(tree, pCell, m_pMetaInfo);
 			fullOutputs.push_back(output);
 		}
 		else {
-			std::cout << "Can not find the Cell Data at X : " << tree.x << ", at Y : " << tree.y << std::endl;
+			std::cout << "Can not find the Cell Data at X : " << tree.x << ", at Y : " << tree.y << ", at rowIdx : " << rowIdx << ", at colIdx : " << colIdx << std::endl;
 		}
 	}
 	bool exportCSV = exportTreeInstanceFullOutputToCSV(fullOutputs, csvFileName);

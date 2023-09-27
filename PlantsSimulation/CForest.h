@@ -110,6 +110,7 @@ struct TreeInstanceFullOutput
 
 	TreeInstanceFullOutput(const TreeInstanceOutput& instance, CCellData* pCellData, InputImageMetaInfo* pMetaInfo);
 	void GetPosFromInstanceOutput();
+	void GetPosFromInstanceOutputEx();
 };
 
 class CForest
