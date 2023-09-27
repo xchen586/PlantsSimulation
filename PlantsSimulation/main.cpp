@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <filesystem> 
 #include <random>
 
 #include "CPlantsSimulation.h"
@@ -38,6 +39,20 @@ int main(int argc, const char* argv[])
     sprintf_s(output_file, MAX_PATH, "%s\\plants.csv", output_path);
     sprintf_s(fullOutput_file, MAX_PATH, "%s\\plantsfulloutput.csv", output_path);
 #endif
+
+    // Check if the directory exists, and if not, create it
+    if (!std::filesystem::exists(assets_path)) {
+        if (!std::filesystem::create_directory(assets_path)) {
+            std::cerr << "Failed to create the directory of assets_path!" << std::endl;
+            return -1;
+        }
+    }
+    if (!std::filesystem::exists(output_path)) {
+        if (!std::filesystem::create_directory(output_path)) {
+            std::cerr << "Failed to create the directory of output_path!" << std::endl;
+            return -1;
+        }
+    }
 
     CPlantsSimulation ps(input_image_file, input_meta_file, heightmap_raw_file, output_file, fullOutput_file);
     
