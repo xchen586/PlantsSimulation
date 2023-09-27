@@ -281,7 +281,7 @@ bool CPlantsSimulation::OutputResults()
 	bool outputCSV = m_pForest->outputTreeInstanceResults(m_outputFile);
 	if (outputCSV)
 	{
-		//outputCSV = m_pForest->outputFullTreeInstanceResults(m_fullOutputFile);
+		outputCSV = m_pForest->outputFullTreeInstanceResults(m_fullOutputFile);
 	}
 	return outputCSV;
 }
