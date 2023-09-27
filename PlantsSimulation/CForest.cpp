@@ -5,6 +5,34 @@
 
 #include "TreeClasses.h"
 #include "CCellI2DMask.h"
+#include "PsHelper.h"
+
+TreeInstanceFullOutput::TreeInstanceFullOutput(const TreeInstanceOutput& instance, const CCellData* pCellData, const InputImageMetaInfo* pMetaInfo)
+	: posX(0)
+	, posY(0)
+	, posZ(0)
+	, m_instance(instance)
+	, m_pCellData(pCellData)
+	, m_pMetaInfo(pMetaInfo)
+{
+	GetPosFromInstanceOutput();
+}
+
+void TreeInstanceFullOutput::GetPosFromInstanceOutput()
+{
+	double scaleXMin = static_cast<double>(m_instance.x) * m_pMetaInfo->xRatio;
+	double scaleXmax = static_cast<double>(m_instance.x + 1) * m_pMetaInfo->xRatio;
+	double scaleYMin = static_cast<double>(m_instance.y) * m_pMetaInfo->yRatio;
+	double scaleYmax = static_cast<double>(m_instance.y + 1) * m_pMetaInfo->yRatio;
+	double localX = GenerateRandomDouble(scaleXMin, scaleXmax);
+	double localY = GenerateRandomDouble(scaleYMin, scaleYmax);
+	posX = m_pMetaInfo->batch_min_x
+		+ m_pMetaInfo->x0
+		+ localX;
+	posY = m_pMetaInfo->batch_min_y
+		+ m_pMetaInfo->y0
+		+ localY;
+}
 
 CForest::CForest(void)
 {
@@ -544,7 +572,7 @@ TreeInstanceOutput CForest::GetTreeOutputFromInstance(const CTreeInstance& insta
 	output.treeType = static_cast<unsigned int>(instance.treeClass->type);
 	return output;
 }
-bool CForest::exportToCSV(const std::vector<TreeInstanceOutput>& data, const std::string& filename) {
+bool CForest::exportTreeInstanceOutpuToCSV(const std::vector<TreeInstanceOutput>& data, const std::string& filename) {
 	std::ofstream outputFile(filename);
 	if (!outputFile.is_open()) {
 		std::cerr << "Error: Unable to open the file " << filename << std::endl;
@@ -599,7 +627,7 @@ bool CForest::outputResults(const std::string& csvFileName)
 		cout << typeString << " count are " << count << endl;
 	}
 
-	bool exportCSV = exportToCSV(outputs, csvFileName);
+	bool exportCSV = exportTreeInstanceOutpuToCSV(outputs, csvFileName);
 	return true;
 }
 

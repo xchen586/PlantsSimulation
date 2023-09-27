@@ -74,6 +74,42 @@ struct TreeInstanceOutput {
 
 		treeType = static_cast<unsigned int>(instance.treeClass->type);
 	}
+
+	TreeInstanceOutput(const TreeInstanceOutput& other)
+	{
+		x = other.x;
+		y = other.y;
+		z = other.z;
+		red = other.red;
+		green = other.green;
+		blue = other.blue;
+		treeType = other.treeType;
+	}
+
+	TreeInstanceOutput& operator= (const TreeInstanceOutput& other)
+	{
+		x = other.x;
+		y = other.y;
+		z = other.z;
+		red = other.red;
+		green = other.green;
+		blue = other.blue;
+		treeType = other.treeType;
+		return *this;
+	}
+};
+
+struct TreeInstanceFullOutput
+{
+	double posX;
+	double posY;
+	double posZ;
+	TreeInstanceOutput m_instance;
+	const CCellData* m_pCellData;
+	const InputImageMetaInfo* m_pMetaInfo;
+
+	TreeInstanceFullOutput(const TreeInstanceOutput& instance, const CCellData* pCellData, const InputImageMetaInfo* pMetaInfo);
+	void GetPosFromInstanceOutput();
 };
 
 class CForest
@@ -94,7 +130,7 @@ public:
 		m_pMetaInfo = metaInfo;
 	}
 	TreeInstanceOutput GetTreeOutputFromInstance(const CTreeInstance& instance);
-	bool exportToCSV(const std::vector<TreeInstanceOutput>& data, const std::string& filename);
+	bool exportTreeInstanceOutpuToCSV(const std::vector<TreeInstanceOutput>& data, const std::string& filename);
 	bool outputResults(const std::string& csvFileName);
 public:
 	vector<TreeClass*> classes;
@@ -102,6 +138,7 @@ public:
 	map<string, DensityMap*> globalMasks;
 	vector<CTreeInstance> trees;
 	vector<TreeInstanceOutput> outputs;
+	vector<TreeInstanceFullOutput> fullOutputs;
 	std::vector<std::vector<CCellData*>> * m_pCellTable;
 	InputImageMetaInfo * m_pMetaInfo;
 	int xo;
