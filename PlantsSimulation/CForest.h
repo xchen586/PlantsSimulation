@@ -8,7 +8,7 @@
 
 using namespace std;
 class CCellData;
-class InputImageMetaInfo;
+struct InputImageMetaInfo;
 
 pair<string, I2DMask*> GetI2DMaskKeyPairFromPlantTypeWithIndex(PlantType type, int index, I2DMask* i2dMask);
 pair<string, I2DMask*> GetI2DMaskKeyPairFromPlantTypeWithDensityMapType(PlantType plantType, DensityMapType densityType, I2DMask* pI2dMask);
