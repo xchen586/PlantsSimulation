@@ -2,10 +2,10 @@
 
 #include <cstdint>
 
-class CCellData
+class CCellInfo
 {
 public:
-	CCellData(const uint8_t& roadAttributeValue, const uint8_t& moistureValue, const uint8_t& roughnessValue);
+	CCellInfo(const uint8_t& roadAttributeValue, const uint8_t& moistureValue, const uint8_t& roughnessValue);
 		
 	double GetRoadAttribute();
 	double GetHeight();

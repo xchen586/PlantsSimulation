@@ -7,7 +7,7 @@
 #include "CCellI2DMask.h"
 #include "PsHelper.h"
 
-TreeInstanceFullOutput::TreeInstanceFullOutput(const TreeInstanceOutput& instance, CCellData* pCellData, InputImageMetaInfo* pMetaInfo)
+TreeInstanceFullOutput::TreeInstanceFullOutput(const TreeInstanceOutput& instance, CCellInfo* pCellData, InputImageMetaInfo* pMetaInfo)
 	: posX(0)
 	, posY(0)
 	, posZ(0)
@@ -708,7 +708,7 @@ bool CForest::outputFullTreeInstanceResults(const std::string& csvFileName)
 		int rowIdx = static_cast<int>(tree.x / xRatio);
 		int colIdx = static_cast<int>(tree.y / yRatio);
 		
-		CCellData* pCell = nullptr;
+		CCellInfo* pCell = nullptr;
 		if (((rowIdx >= 0) && (rowIdx < tableRowsCount))
 			&& ((colIdx >= 0) && (colIdx < tableColsCount))) {
 			pCell = (*m_pCellTable)[rowIdx][colIdx];

@@ -7,7 +7,7 @@
 #include <string>
 
 using namespace std;
-class CCellData;
+class CCellInfo;
 struct InputImageMetaInfo;
 
 pair<string, I2DMask*> GetI2DMaskKeyPairFromPlantTypeWithIndex(PlantType type, int index, I2DMask* i2dMask);
@@ -105,10 +105,10 @@ struct TreeInstanceFullOutput
 	double posY;
 	double posZ;
 	TreeInstanceOutput m_instance;
-	CCellData* m_pCellData;
+	CCellInfo* m_pCellData;
 	InputImageMetaInfo* m_pMetaInfo;
 
-	TreeInstanceFullOutput(const TreeInstanceOutput& instance, CCellData* pCellData, InputImageMetaInfo* pMetaInfo);
+	TreeInstanceFullOutput(const TreeInstanceOutput& instance, CCellInfo* pCellData, InputImageMetaInfo* pMetaInfo);
 	void GetPosFromInstanceOutput();
 	void GetPosFromInstanceOutputEx();
 };
@@ -123,7 +123,7 @@ public:
 	void loadTreeClasses();
 	void loadMasks();
 	void loadGlobalMasks();
-	void setCellTable(std::vector<std::vector<CCellData*>>* pCellTable) {
+	void setCellTable(std::vector<std::vector<CCellInfo*>>* pCellTable) {
 		m_pCellTable = pCellTable;
 	}
 	void setMetaInfo(InputImageMetaInfo* metaInfo)
@@ -142,7 +142,7 @@ public:
 	vector<CTreeInstance> trees;
 	vector<TreeInstanceOutput> outputs;
 	vector<TreeInstanceFullOutput> fullOutputs;
-	std::vector<std::vector<CCellData*>> * m_pCellTable;
+	std::vector<std::vector<CCellInfo*>> * m_pCellTable;
 	InputImageMetaInfo * m_pMetaInfo;
 	int xo;
 	int zo;

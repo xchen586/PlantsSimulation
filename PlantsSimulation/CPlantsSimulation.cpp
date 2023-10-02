@@ -30,7 +30,7 @@ void CPlantsSimulation::DeInitialize()
 		int cols = (*m_pCellTable)[0].size();
 		for (int i = 0; i < rows; ++i) {
 			for (int j = 0; j < cols; ++j) {
-				CCellData* cell = (*m_pCellTable)[i][j];
+				CCellInfo* cell = (*m_pCellTable)[i][j];
 				if (cell) {
 					delete cell;
 				}
@@ -65,7 +65,7 @@ bool CPlantsSimulation::LoadInputImage()
 		const int newWidth = m_topLayerImage->input_image_width;
 		const int newHeight = m_topLayerImage->input_image_height;
 
-		m_pCellTable = new std::vector<std::vector<CCellData*>>(newWidth, std::vector<CCellData*>(newHeight, nullptr));
+		m_pCellTable = new std::vector<std::vector<CCellInfo*>>(newWidth, std::vector<CCellInfo*>(newHeight, nullptr));
 		if (!m_pCellTable) {
 			return false;
 		}
@@ -76,7 +76,7 @@ bool CPlantsSimulation::LoadInputImage()
 				uint8_t redValue = m_topLayerImage->input_image_data[idx + 0];
 				uint8_t greenValue = m_topLayerImage->input_image_data[idx + 1];
 				uint8_t blueValue = m_topLayerImage->input_image_data[idx + 2];
-				CCellData* cell = new CCellData(redValue, greenValue, blueValue);
+				CCellInfo* cell = new CCellInfo(redValue, greenValue, blueValue);
 				if (!cell) {
 					std::cout << "Fail to create CCellData at i = " << i << " j = " << j << std::endl;
 				}
@@ -176,7 +176,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 
 	for (auto i = 0; i < width; i++) {
 		for (auto j = 0; j < height; j++) {
-			CCellData* cell = (*m_pCellTable)[i][j];
+			CCellInfo* cell = (*m_pCellTable)[i][j];
 			if (!cell)
 			{
 				std::cout << "Fail to get CCellData at i = " << i << " j = " << j << std::endl;

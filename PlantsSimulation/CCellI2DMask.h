@@ -8,7 +8,7 @@
 class CCellDataI2DMask : public I2DMask
 {
 public:
-	CCellDataI2DMask(std::vector<std::vector<CCellData*>>* pCellTable, double xRatio, double yRatio)
+	CCellDataI2DMask(std::vector<std::vector<CCellInfo*>>* pCellTable, double xRatio, double yRatio)
 		: m_pCellTable(pCellTable)
 		, m_tableRowsCount(0)
 		, m_tableColsCount(0)
@@ -21,9 +21,9 @@ public:
 		}
 	}
 protected:
-	CCellData* GetCellData(double x, double z)
+	CCellInfo* GetCellData(double x, double z)
 	{
-		CCellData* ret = nullptr;
+		CCellInfo* ret = nullptr;
 		int rowIdx = static_cast<int>(x / m_xRatio);
 		int colIdx = static_cast<int>(z / m_yRatio);
 		if (m_pCellTable) {
@@ -34,7 +34,7 @@ protected:
 		}
 		return ret;
 	}
-	std::vector<std::vector<CCellData*>>* m_pCellTable;
+	std::vector<std::vector<CCellInfo*>>* m_pCellTable;
 	int m_tableRowsCount;
 	int m_tableColsCount;
 	double m_xRatio;
@@ -44,13 +44,13 @@ protected:
 class CCellHeightI2DMask : public CCellDataI2DMask
 {
 public:
-	CCellHeightI2DMask(std::vector<std::vector<CCellData*>>* pCellTable, double xRatio, double yRatio)
+	CCellHeightI2DMask(std::vector<std::vector<CCellInfo*>>* pCellTable, double xRatio, double yRatio)
 		: CCellDataI2DMask(pCellTable, xRatio, yRatio)
 	{
 	}
 	virtual double get2DMaskValue(double x, double z, int blur)
 	{
-		CCellData* pCellData = GetCellData(x, z);
+		CCellInfo* pCellData = GetCellData(x, z);
 		if (pCellData) {
 			return pCellData->GetHeight();
 		}
@@ -63,13 +63,13 @@ public:
 class CCellSlopeI2DMask : public CCellDataI2DMask
 {
 public:
-	CCellSlopeI2DMask(std::vector<std::vector<CCellData*>>* pCellTable, double xRatio, double yRatio)
+	CCellSlopeI2DMask(std::vector<std::vector<CCellInfo*>>* pCellTable, double xRatio, double yRatio)
 		: CCellDataI2DMask(pCellTable, xRatio, yRatio)
 	{
 	}
 	virtual double get2DMaskValue(double x, double z, int blur)
 	{
-		CCellData* pCellData = GetCellData(x, z);
+		CCellInfo* pCellData = GetCellData(x, z);
 		if (pCellData) {
 #if USE_SCOPE_ANGLE
 			return pCellData->GetSlopeAngle();
@@ -86,13 +86,13 @@ public:
 class CCellMoistureI2DMask : public CCellDataI2DMask
 {
 public:
-	CCellMoistureI2DMask(std::vector<std::vector<CCellData*>>* pCellTable, double xRatio, double yRatio)
+	CCellMoistureI2DMask(std::vector<std::vector<CCellInfo*>>* pCellTable, double xRatio, double yRatio)
 		: CCellDataI2DMask(pCellTable, xRatio, yRatio)
 	{
 	}
 	virtual double get2DMaskValue(double x, double z, int blur)
 	{
-		CCellData* pCellData = GetCellData(x, z);
+		CCellInfo* pCellData = GetCellData(x, z);
 		if (pCellData) {
 			return pCellData->GetMoisture();
 		}
@@ -105,13 +105,13 @@ public:
 class CCellRoughnessI2DMask : public CCellDataI2DMask
 {
 public:
-	CCellRoughnessI2DMask(std::vector<std::vector<CCellData*>>* pCellTable, double xRatio, double yRatio)
+	CCellRoughnessI2DMask(std::vector<std::vector<CCellInfo*>>* pCellTable, double xRatio, double yRatio)
 		: CCellDataI2DMask(pCellTable, xRatio, yRatio)
 	{
 	}
 	virtual double get2DMaskValue(double x, double z, int blur)
 	{
-		CCellData* pCellData = GetCellData(x, z);
+		CCellInfo* pCellData = GetCellData(x, z);
 		if (pCellData) {
 			return pCellData->GetRoughness();
 		}
@@ -124,13 +124,13 @@ public:
 class CCellRoadAttributeI2DMask : public CCellDataI2DMask
 {
 public:
-	CCellRoadAttributeI2DMask(std::vector<std::vector<CCellData*>>* pCellTable, double xRatio, double yRatio)
+	CCellRoadAttributeI2DMask(std::vector<std::vector<CCellInfo*>>* pCellTable, double xRatio, double yRatio)
 		: CCellDataI2DMask(pCellTable, xRatio, yRatio)
 	{
 	}
 	virtual double get2DMaskValue(double x, double z, int blur)
 	{
-		CCellData* pCellData = GetCellData(x, z);
+		CCellInfo* pCellData = GetCellData(x, z);
 		if (pCellData) {
 			return pCellData->GetRoadAttribute();
 		}

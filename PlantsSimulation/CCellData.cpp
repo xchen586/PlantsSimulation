@@ -1,7 +1,7 @@
 #include "CCellData.h"
 #include "PsHelper.h"
 
-CCellData::CCellData(const uint8_t& roadAttributeValue, const uint8_t& moistureValue, const uint8_t& roughnessValue)
+CCellInfo::CCellInfo(const uint8_t& roadAttributeValue, const uint8_t& moistureValue, const uint8_t& roughnessValue)
 	: m_roadAttributeValue(roadAttributeValue)
 	, m_moistureValue(moistureValue)
 	, m_roughnessValue(roughnessValue)
@@ -19,7 +19,7 @@ CCellData::CCellData(const uint8_t& roadAttributeValue, const uint8_t& moistureV
 	m_roughness = GetColorLinearNormallizedAttribute(m_roughnessValue);
 }
 
-void CCellData::SetHeightValue(short heightValue)
+void CCellInfo::SetHeightValue(short heightValue)
 {
 	m_heightValue = heightValue;
 	m_height = static_cast<double>(m_heightValue);
@@ -29,43 +29,43 @@ void CCellData::SetHeightValue(short heightValue)
 	}*/
 }
 
-void CCellData::SetSlopeHeightValue(short slopeValue)
+void CCellInfo::SetSlopeHeightValue(short slopeValue)
 {
 	m_slopeHeightValue = slopeValue;
 	m_slopeHeight = static_cast<double>(m_slopeHeightValue);
 }
 
-void CCellData::SetSlopeAngleValue(double angle)
+void CCellInfo::SetSlopeAngleValue(double angle)
 {
 	m_slopeAngleValue = angle;
 }
 
-double CCellData::GetRoadAttribute()
+double CCellInfo::GetRoadAttribute()
 {
 	return m_roadAttribute;
 }
 
-double CCellData::GetHeight()
+double CCellInfo::GetHeight()
 {
 	return m_height;
 }
 
-double CCellData::GetSlopeHeight()
+double CCellInfo::GetSlopeHeight()
 {
 	return m_slopeHeight;
 }
 
-double CCellData::GetMoisture()
+double CCellInfo::GetMoisture()
 {
 	return m_moisture;
 }
 
-double CCellData::GetRoughness()
+double CCellInfo::GetRoughness()
 {
 	return m_roughness;
 }
 
-double CCellData::GetSlopeAngle()
+double CCellInfo::GetSlopeAngle()
 {
 	return m_slopeAngleValue;
 }

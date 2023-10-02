@@ -31,7 +31,7 @@ private:
 	InputImageDataInfo* m_topLayerImage;
 	InputImageMetaInfo* m_topLayerMeta;
 
-	std::vector<std::vector<CCellData*>>* m_pCellTable;
+	std::vector<std::vector<CCellInfo*>>* m_pCellTable;
 	CForest* m_pForest;
 
 private:
