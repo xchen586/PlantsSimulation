@@ -278,10 +278,14 @@ bool CPlantsSimulation::BuildForest()
 
 bool CPlantsSimulation::OutputResults()
 {
-	bool outputCSV = m_pForest->outputTreeInstanceResults(m_outputFile);
-	if (outputCSV)
+	bool output = m_pForest->outputCSVTreeInstanceResults(m_outputFile);
+	if (output)
 	{
-		outputCSV = m_pForest->outputFullTreeInstanceResults(m_fullOutputFile);
+		output = m_pForest->outputCSVFullTreeInstanceResults(m_fullOutputFile);
 	}
-	return outputCSV;
+	if (output)
+	{
+		output = m_pForest->outputPointsCloudFullTreeInstanceResults(m_pcFullOutputFile);
+	}
+	return output;
 }

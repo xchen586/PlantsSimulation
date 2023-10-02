@@ -7,12 +7,13 @@ using namespace std;
 class CPlantsSimulation
 {
 public:
-	CPlantsSimulation(const string& inputImageFile, const string& inputImageMataFile, const string& heightMapFile, const string outputFile, const string fullOutputFile)
+	CPlantsSimulation(const string& inputImageFile, const string& inputImageMataFile, const string& heightMapFile, const string& outputFile, const string& fullOutputFile, const string& pcFullOutputFile )
 		: m_inputImageFile(inputImageFile)
 		, m_inputImageMetaFile(inputImageMataFile)
 		, m_heightMapFile(heightMapFile)
 		, m_outputFile(outputFile)
 		, m_fullOutputFile(fullOutputFile)
+		, m_pcFullOutputFile(pcFullOutputFile)
 		, m_topLayerImage(nullptr)
 		, m_topLayerMeta(nullptr)
 		, m_pCellTable(nullptr)
@@ -27,6 +28,7 @@ private:
 	string m_heightMapFile;
 	string m_outputFile;
 	string m_fullOutputFile;
+	string m_pcFullOutputFile;
 
 	InputImageDataInfo* m_topLayerImage;
 	InputImageMetaInfo* m_topLayerMeta;

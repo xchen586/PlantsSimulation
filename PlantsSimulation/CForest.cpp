@@ -597,7 +597,7 @@ TreeInstanceOutput CForest::GetTreeOutputFromInstance(const CTreeInstance& insta
 	output.treeType = static_cast<unsigned int>(instance.treeClass->type);
 	return output;
 }
-bool CForest::exportTreeInstanceOutputToCSV(const std::vector<TreeInstanceOutput>& data, const std::string& filename) {
+bool CForest::exportTreeInstanceOutput(const std::vector<TreeInstanceOutput>& data, const std::string& filename, bool hasHeader) {
 	std::ofstream outputFile(filename);
 	if (!outputFile.is_open()) {
 		std::cerr << "Error: Unable to open the file " << filename << std::endl;
@@ -605,8 +605,11 @@ bool CForest::exportTreeInstanceOutputToCSV(const std::vector<TreeInstanceOutput
 	}
 
 	// Write header row
-	outputFile << "X,Y,Z,Red,Green,Blue,TreeType" << std::endl;
-
+	if (hasHeader)
+	{
+		outputFile << "X,Y,Z,Red,Green,Blue,TreeType" << std::endl;
+	}
+	
 	// Write data rows
 	for (const TreeInstanceOutput& tree : data) {
 		outputFile << tree.x << ","
@@ -623,7 +626,8 @@ bool CForest::exportTreeInstanceOutputToCSV(const std::vector<TreeInstanceOutput
 	return true;
 }
 
-bool CForest::exportTreeInstanceFullOutputToCSV(const std::vector<TreeInstanceFullOutput>& data, const std::string& filename) {
+bool CForest::exportTreeInstanceFullOutput(const std::vector<TreeInstanceFullOutput>& data, const std::string& filename, bool hasHeader) 
+{
 	std::ofstream outputFile(filename);
 	if (!outputFile.is_open()) {
 		std::cerr << "Error: Unable to open the file " << filename << std::endl;
@@ -631,8 +635,11 @@ bool CForest::exportTreeInstanceFullOutputToCSV(const std::vector<TreeInstanceFu
 	}
 
 	// Write header row
-	outputFile << "X,Y,Z,Red,Green,Blue,TreeType,RoadAttribute,Moisture,Roughness,Height,Slope" << std::endl;
-
+	if (hasHeader)
+	{
+		outputFile << "X,Y,Z,Red,Green,Blue,TreeType,RoadAttribute,Moisture,Roughness,Height,Slope" << std::endl;
+	}
+	
 	// Write data rows
 	for (const TreeInstanceFullOutput& tree : data) {
 		outputFile << tree.posX << ","
@@ -654,7 +661,7 @@ bool CForest::exportTreeInstanceFullOutputToCSV(const std::vector<TreeInstanceFu
 	return true;
 }
 
-bool CForest::outputTreeInstanceResults(const std::string& csvFileName)
+bool CForest::outputTreeInstanceResults(const std::string& fileName, bool hasHeader)
 {
 	outputs.clear();
 	map<PlantType, int> plants;
@@ -683,11 +690,23 @@ bool CForest::outputTreeInstanceResults(const std::string& csvFileName)
 		cout << typeString << " count are " << count << endl;
 	}
 
-	bool exportCSV = exportTreeInstanceOutputToCSV(outputs, csvFileName);
+	bool exportCSV = exportTreeInstanceOutput(outputs, fileName, hasHeader);
 	return exportCSV;
 }
 
-bool CForest::outputFullTreeInstanceResults(const std::string& csvFileName)
+bool CForest::outputCSVTreeInstanceResults(const std::string& fileName)
+{
+	bool output = outputTreeInstanceResults(fileName, true);
+	return output;
+}
+
+bool CForest::outputPointsCloudTreeInstanceResults(const std::string& fileName)
+{
+	bool output = outputTreeInstanceResults(fileName, false);
+	return output;
+}
+
+bool CForest::outputFullTreeInstanceResults(const std::string& fileName, bool hasHeader)
 {
 	if ((!m_pCellTable)
 		|| (!m_pMetaInfo)
@@ -722,10 +741,22 @@ bool CForest::outputFullTreeInstanceResults(const std::string& csvFileName)
 			std::cout << "Can not find the Cell Data at X : " << tree.x << ", at Y : " << tree.y << ", at rowIdx : " << rowIdx << ", at colIdx : " << colIdx << std::endl;
 		}
 	}
-	bool exportCSV = exportTreeInstanceFullOutputToCSV(fullOutputs, csvFileName);
+	bool exportCSV = exportTreeInstanceFullOutput(fullOutputs, fileName, hasHeader);
 	return true;
 }
 
+
+bool CForest::outputCSVFullTreeInstanceResults(const std::string& fileName)
+{
+	bool output = outputFullTreeInstanceResults(fileName, true);
+	return output;
+}
+
+bool CForest::outputPointsCloudFullTreeInstanceResults(const std::string& fileName)
+{
+	bool output = outputFullTreeInstanceResults(fileName, false);
+	return output;
+}
 
 pair<string, I2DMask*> GetI2DMaskKeyPairFromPlantTypeWithIndex(PlantType type, int index, I2DMask* pI2dMask)
 {

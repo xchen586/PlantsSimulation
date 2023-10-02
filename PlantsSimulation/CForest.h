@@ -131,10 +131,14 @@ public:
 		m_pMetaInfo = metaInfo;
 	}
 	TreeInstanceOutput GetTreeOutputFromInstance(const CTreeInstance& instance);
-	bool exportTreeInstanceOutputToCSV(const std::vector<TreeInstanceOutput>& data, const std::string& filename);
-	bool exportTreeInstanceFullOutputToCSV(const std::vector<TreeInstanceFullOutput>& data, const std::string& filename);
-	bool outputTreeInstanceResults(const std::string& csvFileName);
-	bool outputFullTreeInstanceResults(const std::string& csvFileName);
+	bool exportTreeInstanceOutput(const std::vector<TreeInstanceOutput>& data, const std::string& filename, bool hasHeader);
+	bool exportTreeInstanceFullOutput(const std::vector<TreeInstanceFullOutput>& data, const std::string& filename, bool hasHeader);
+	bool outputTreeInstanceResults(const std::string& fileName, bool hasHeader);
+	bool outputCSVTreeInstanceResults(const std::string& fileName);
+	bool outputPointsCloudTreeInstanceResults(const std::string& fileName);
+	bool outputFullTreeInstanceResults(const std::string& fileName, bool hasHeader);
+	bool outputCSVFullTreeInstanceResults(const std::string& fileName);
+	bool outputPointsCloudFullTreeInstanceResults(const std::string& fileName);
 public:
 	vector<TreeClass*> classes;
 	map<string, I2DMask*> masks;
