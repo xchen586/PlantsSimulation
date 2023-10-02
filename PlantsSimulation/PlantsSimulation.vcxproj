@@ -133,7 +133,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="CCellData.cpp" />
+    <ClCompile Include="CCellInfo.cpp" />
     <ClCompile Include="CColonizationTree.cpp" />
     <ClCompile Include="CForest.cpp" />
     <ClCompile Include="CPlantsSimulation.cpp" />
@@ -142,7 +142,7 @@
     <ClCompile Include="PsHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CCellData.h" />
+    <ClInclude Include="CCellInfo.h" />
     <ClInclude Include="CCellI2DMask.h" />
     <ClInclude Include="CColonizationTree.h" />
     <ClInclude Include="CForest.h" />

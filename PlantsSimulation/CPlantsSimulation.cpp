@@ -1,5 +1,5 @@
 #include "CPlantsSimulation.h"
-#include "CCellData.h"
+#include "CCellInfo.h"
 #include "CTimeCounter.h"
 
 /*bool CPlantsSimulation::loadInputImageFile(const string& inputImageFile)

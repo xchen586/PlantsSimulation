@@ -1,4 +1,4 @@
-#include "CCellData.h"
+#include "CCellInfo.h"
 #include "PsHelper.h"
 
 CCellInfo::CCellInfo(const uint8_t& roadAttributeValue, const uint8_t& moistureValue, const uint8_t& roughnessValue)
