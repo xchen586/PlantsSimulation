@@ -7,10 +7,10 @@ using namespace std;
 class CPlantsSimulation
 {
 public:
-	CPlantsSimulation(const string& inputImageFile, const string& inputImageMataFile, const string& heightMapFile, const string& outputFile, const string& fullOutputFile, const string& pcFullOutputFile )
+	CPlantsSimulation(const string& inputImageFile, const string& inputImageMataFile, const string& mesh_HeightMapFile, const string& outputFile, const string& fullOutputFile, const string& pcFullOutputFile )
 		: m_inputImageFile(inputImageFile)
 		, m_inputImageMetaFile(inputImageMataFile)
-		, m_heightMapFile(heightMapFile)
+		, m_meshHeightMapFile(mesh_HeightMapFile)
 		, m_outputFile(outputFile)
 		, m_fullOutputFile(fullOutputFile)
 		, m_pcFullOutputFile(pcFullOutputFile)
@@ -25,7 +25,7 @@ public:
 private:
 	string m_inputImageFile;
 	string m_inputImageMetaFile;
-	string m_heightMapFile;
+	string m_meshHeightMapFile;
 	string m_outputFile;
 	string m_fullOutputFile;
 	string m_pcFullOutputFile;
