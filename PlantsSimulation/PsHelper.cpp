@@ -28,6 +28,8 @@ std::vector<std::vector<short>> Read2DShortArray(const std::string& filePath, in
         throw std::runtime_error("Failed to open file");
     }
 
+    short minHeight = std::numeric_limits<short>::max();
+    short maxHeight = std::numeric_limits<short>::min();
     // Check if the file size matches the expected size
     fs.seekg(0, std::ios::end);
     std::streampos fileSize = fs.tellg();
@@ -51,10 +53,12 @@ std::vector<std::vector<short>> Read2DShortArray(const std::string& filePath, in
             }
 
             short value = (static_cast<unsigned short>(bytes[1]) << 8) | bytes[0];
+            minHeight = std::min(minHeight, value);
+            maxHeight = std::max(maxHeight, value);
             array[x][y] = value;
         }
     }
-
+    std::cout << "Short Height Map minHeight = " << minHeight << " , maxHeight = " << maxHeight << std::endl;
     return array;
 }
 

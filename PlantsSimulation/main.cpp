@@ -12,18 +12,21 @@ int main(int argc, const char* argv[])
     const char* output_path = argv[2];
     const char* input_image_name = argv[3];
     const char* input_meta_name = argv[4];
-    const char* heightmap_raw_name = argv[5];
+    const char* mesh_heightmap_raw_name = argv[5];
+    const char* pc_heightmap_raw_name = argv[6];
 
     const int MAX_PATH = 250;
 
     char input_image_file[MAX_PATH];
     char input_meta_file[MAX_PATH];
     char mesh_heightmap_raw_file[MAX_PATH];
+    char pc_heightmap_raw_file[MAX_PATH];
     char output_file[MAX_PATH];
     char fullOutput_file[MAX_PATH];
     char pcFullOutput_file[MAX_PATH];
     memset(input_image_file, 0, sizeof(char) * MAX_PATH);
     memset(mesh_heightmap_raw_file, 0, sizeof(char) * MAX_PATH);
+    memset(pc_heightmap_raw_file, 0, sizeof(char) * MAX_PATH);
     memset(output_file, 0, sizeof(char) * MAX_PATH);
     memset(fullOutput_file, 0, sizeof(char) * MAX_PATH);
     memset(pcFullOutput_file, 0, sizeof(char) * MAX_PATH);
@@ -31,14 +34,16 @@ int main(int argc, const char* argv[])
 #if __APPLE__
     snprintf(input_image_file, MAX_PATH, "%s/%s", assets_path, input_image_name);
     snprintf(input_meta_file, MAX_PATH, "%s/%s", assets_path, input_meta_name);
-    snprintf(heightmap_raw_file, MAX_PATH, "%s/%s", assets_path, heightmap_raw_name);
+    snprintf(mesh_heightmap_raw_file, MAX_PATH, "%s/%s", assets_path, mesh_heightmap_raw_name);
+    snprintf(pc_heightmap_raw_file, MAX_PATH, "%s/%s", assets_path, pc_heightmap_raw_name);
     snprintf(output_file, MAX_PATH, "%s/plants.csv", output_path);
     snprintf(fullOutput_file, MAX_PATH, "%s/plantsfulloutput.csv", output_path);
     snprintf(pcOutput_file, MAX_PATH, "%s/plantspointscloudoutput.xyz", output_path);
 #else
     sprintf_s(input_image_file, MAX_PATH, "%s\\%s", assets_path, input_image_name);
     sprintf_s(input_meta_file, MAX_PATH, "%s\\%s", assets_path, input_meta_name);
-    sprintf_s(mesh_heightmap_raw_file, MAX_PATH, "%s\\%s", assets_path, heightmap_raw_name);
+    sprintf_s(mesh_heightmap_raw_file, MAX_PATH, "%s\\%s", assets_path, mesh_heightmap_raw_name);
+    sprintf_s(pc_heightmap_raw_file, MAX_PATH, "%s\\%s", assets_path, pc_heightmap_raw_name);
     sprintf_s(output_file, MAX_PATH, "%s\\plants.csv", output_path);
     sprintf_s(fullOutput_file, MAX_PATH, "%s\\plantsfulloutput.csv", output_path);
     sprintf_s(pcFullOutput_file, MAX_PATH, "%s\\plantspointscloudoutput.xyz", output_path);
@@ -58,7 +63,7 @@ int main(int argc, const char* argv[])
         }
     }
 
-    CPlantsSimulation ps(input_image_file, input_meta_file, mesh_heightmap_raw_file, output_file, fullOutput_file, pcFullOutput_file);
+    CPlantsSimulation ps(input_image_file, input_meta_file, mesh_heightmap_raw_file, pc_heightmap_raw_file, output_file, fullOutput_file, pcFullOutput_file);
     
     bool isLoad = ps.LoadInputData();
     if (!isLoad)

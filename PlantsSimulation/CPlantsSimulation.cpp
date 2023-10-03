@@ -165,9 +165,27 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	const int width = m_topLayerImage->input_image_width;
 	const int height = m_topLayerImage->input_image_height;
 	std::vector<std::vector<short>> meshHeightMapShort4096 = Read2DShortArray(m_meshHeightMapFile, width, height);
-	
+	std::vector<std::vector<short>> pcHeightMapShort4096 = Read2DShortArray(m_pcHeightMapFile, width, height);
+
+	std::vector<std::vector<short>> heightMapShort4096(width, std::vector<short>(height));
+	short minHeight = std::numeric_limits<short>::max();
+	short maxHeight = std::numeric_limits<short>::min();
+	for (int x = 0; x < width; x++)
+	{
+		for (int y = 0; y < height; y++)
+		{
+			short meshValue = meshHeightMapShort4096[x][y];
+			short pcValue = pcHeightMapShort4096[x][y];
+			short value = std::max(meshValue, pcValue);
+			heightMapShort4096[x][y] = value;
+			minHeight = std::min(minHeight, value);
+			maxHeight = std::max(maxHeight, value);
+		}
+	}
+	std::cout << "Final Short Height Map minHeight = " << minHeight << " , maxHeight = " << maxHeight << std::endl;
+
 	//std::vector<std::vector<short>> slopeShort4096 = ComputeAbsMaxHeightSlopeMap(heightMapShort4096);
-	std::vector<std::vector<short>> slopeShort4096 = ComputeSlopeMap(meshHeightMapShort4096);
+	std::vector<std::vector<short>> slopeShort4096 = ComputeSlopeMap(heightMapShort4096);
 	std::vector<std::vector<double>> heightMapDouble4096 = ConvertShortMatrixToDouble1(meshHeightMapShort4096);
 
 	double ratio = 7.32673;
@@ -248,8 +266,8 @@ bool CPlantsSimulation::LoadForest()
 	m_pForest->xo = 0;
 	m_pForest->zo = 0;
 
-	cout << "Forest xSize is : " << forestXSize << endl;
-	cout << "Forest zSize is : " << forestZSize << endl;
+	cout << "Forest xSize is : " << m_pForest->xSize << endl;
+	cout << "Forest zSize is : " << m_pForest->zSize << endl;
 
 	m_pForest->loadTreeClasses();
 	m_pForest->loadMasks();
