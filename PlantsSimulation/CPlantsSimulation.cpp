@@ -201,7 +201,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 			}
 			else
 			{
-				cell->SetHeightValue(meshHeightMapShort4096[i][j]);
+				cell->SetHeightValue(heightMapDouble4096[i][j]);
 				cell->SetSlopeHeightValue(slopeShort4096[i][j]);
 				cell->SetSlopeAngleValue(slopeDouble4096[i][j]);
 			}
