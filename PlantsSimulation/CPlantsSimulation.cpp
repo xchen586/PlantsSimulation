@@ -186,7 +186,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 
 	//std::vector<std::vector<short>> slopeShort4096 = ComputeAbsMaxHeightSlopeMap(heightMapShort4096);
 	std::vector<std::vector<short>> slopeShort4096 = ComputeSlopeMap(heightMapShort4096);
-	std::vector<std::vector<double>> heightMapDouble4096 = ConvertShortMatrixToDouble1(meshHeightMapShort4096);
+	std::vector<std::vector<double>> heightMapDouble4096 = ConvertShortMatrixToDouble1(heightMapShort4096);
 
 	double ratio = 7.32673;
 	//std::vector<std::vector<double>> slopeDouble4096 = ComputeAbsMaxSlopeAngle(heightMapDouble4096, ratio);
