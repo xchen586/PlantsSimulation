@@ -7,8 +7,9 @@ using namespace std;
 class CPlantsSimulation
 {
 public:
-	CPlantsSimulation(const string& inputImageFile, const string& inputImageMataFile, const string& mesh_HeightMapFile, const string& pc_HeightMapFile, const string& outputFile, const string& fullOutputFile, const string& pcFullOutputFile )
-		: m_inputImageFile(inputImageFile)
+	CPlantsSimulation(const string& outputDir, const string& inputImageFile, const string& inputImageMataFile, const string& mesh_HeightMapFile, const string& pc_HeightMapFile, const string& outputFile, const string& fullOutputFile, const string& pcFullOutputFile )
+		: m_outputDir(outputDir)
+		, m_inputImageFile(inputImageFile)
 		, m_inputImageMetaFile(inputImageMataFile)
 		, m_meshHeightMapFile(mesh_HeightMapFile)
 		, m_pcHeightMapFile(pc_HeightMapFile)
@@ -24,6 +25,7 @@ public:
 	}
 
 private:
+	string m_outputDir;
 	string m_inputImageFile;
 	string m_inputImageMetaFile;
 	string m_meshHeightMapFile;
@@ -43,6 +45,10 @@ private:
 	bool LoadInputImage();
 	bool LoadInputHeightMap();
 	bool LoadImageMetaFile();
+	bool ExportDoubleHeightMap(std::vector<std::vector<double>>& heightMap, const string& outputPath, int rgbColor, bool hasHeader);
+	bool ExportShortHeightMap(std::vector<std::vector<short>>& heightMap, const string& outputPath, int rgbColor, bool hasHeader);
+	bool ExportShortHeightSlopeMap(std::vector<std::vector<short>>& slopeMap, const string& outputPath, int rgbColor, bool hasHeader);
+	bool ExportAngleSlopeMap(std::vector<std::vector<double>>& slopeMap, const string& outputPath, int rgbColor, bool hasHeader);
 public:
 	bool LoadInputData();
 	bool LoadForest();

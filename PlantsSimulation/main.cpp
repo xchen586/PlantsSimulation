@@ -63,7 +63,7 @@ int main(int argc, const char* argv[])
         }
     }
 
-    CPlantsSimulation ps(input_image_file, input_meta_file, mesh_heightmap_raw_file, pc_heightmap_raw_file, output_file, fullOutput_file, pcFullOutput_file);
+    CPlantsSimulation ps(output_path, input_image_file, input_meta_file, mesh_heightmap_raw_file, pc_heightmap_raw_file, output_file, fullOutput_file, pcFullOutput_file);
     
     bool isLoad = ps.LoadInputData();
     if (!isLoad)

@@ -265,7 +265,7 @@ std::vector<std::vector<short>> ComputeSlopeMap(const std::vector<std::vector<sh
                 {
                     short heightDifference = static_cast<short>(std::abs(heightmap[x][y] - heightmap[newX][newY]));
                     if (heightDifference != 0) {
-                        //std::cout << "heightDifference is : " << heightDifference << ", x is : " << x << ", y is : " << y << std::endl;
+                        //std::cout << "heightDifference is : " << heightDifference << ", old is : " << heightmap[x][y] << ", new is : " << heightmap[newX][newY] << std::endl;
                     }
                     if (heightDifference > maxHeightDifference)
                     {
@@ -273,7 +273,7 @@ std::vector<std::vector<short>> ComputeSlopeMap(const std::vector<std::vector<sh
                     }
                 }
             }
-            short value = std::min(maxHeightDifference, static_cast<short>(USHRT_MAX));
+            short value = std::min(maxHeightDifference, static_cast<short>(SHRT_MAX));
             //short value = maxHeightDifference;
             slopeMap[x][y] = value;
             minSlopeHeight = std::min(minSlopeHeight, value);
