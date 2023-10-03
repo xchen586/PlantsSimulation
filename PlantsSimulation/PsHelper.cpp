@@ -347,19 +347,16 @@ vector<vector<double>> ComputeAbsMaxSlopeAngle(const vector<vector<double>>& hei
     vector<vector<double>> slopeAngle(m, vector<double>(m, -1.0));  // Initialize with a default value.
 
     // Initialize min and max slope angles with extreme values.
-    double minSlopeAngle = numeric_limits<double>::infinity();
-    double maxSlopeAngle = -numeric_limits<double>::infinity();
+    double minSlopeAngle = M_PI / 2.0;
+    double maxSlopeAngle = 0;
 
     int dxdy[] = { -1, -1, -1, 0, 1, 1, 1, 0 };
     int dydx[] = { -1, 0, 1, 1, 1, 0, -1, -1 };
 
-    minSlopeAngle = numeric_limits<double>::infinity();
-    maxSlopeAngle = -numeric_limits<double>::infinity();
-
     for (int i = 0; i < m; i++) {
         for (int j = 0; j < m; j++) {
-            double max_slope_angle = -numeric_limits<double>::infinity();
-            double min_slope_angle = numeric_limits<double>::infinity();
+            double max_slope_angle = 0;
+            double min_slope_angle = M_PI / 2.0;;
 
             for (int k = 0; k < 8; k++) {
                 int ni = i + dxdy[k];
@@ -409,15 +406,63 @@ vector<vector<double>> ComputeAbsMaxSlopeAngle(const vector<vector<double>>& hei
     std::cout << "The min slope angle is : " << minSlopeAngle << ", max slope angle is : " << maxSlopeAngle << std::endl;
     return slopeAngle;
 }
+
+std::vector<std::vector<double>> ComputeAbsMaxSlopeAngleEx(const std::vector<std::vector<double>>& heightMap, double dx) {
+    int m = heightMap.size();
+    std::vector<std::vector<double>> slopeAngle(m, std::vector<double>(m, -1.0));  // Initialize with a default value.
+
+    int dxdy[] = { -1, -1, -1, 0, 1, 1, 1, 0 };
+    int dydx[] = { -1, 0, 1, 1, 1, 0, -1, -1 };
+
+    double min_slope_angle = M_PI / 2.0;  // Initialize as 90 degrees in radians
+    double max_slope_angle = 0.0;         // Initialize as 0 degrees in radians
+
+    for (int i = 0; i < m; i++) {
+        for (int j = 0; j < m; j++) {
+            double max_slope_angle_cell = 0.0;   // Initialize as 0 degrees in radians
+
+            for (int k = 0; k < 8; k++) {
+                int ni = i + dxdy[k];
+                int nj = j + dydx[k];
+
+                if (ni >= 0 && ni < m && nj >= 0 && nj < m) {
+                    double dz = heightMap[ni][nj] - heightMap[i][j];
+                    double dy = std::sqrt(dz * dz / (dx * dx + dz * dz));
+
+                    if (dz != 0.0) {
+                        double slope_angle = std::atan2(dy, dx);
+
+                        // Ensure the slope angle is within the range of 0 to p/2 radians
+                        slope_angle = std::max(0.0, std::min(M_PI / 2.0, slope_angle));
+
+                        max_slope_angle_cell = std::max(max_slope_angle_cell, slope_angle);
+                        min_slope_angle = std::min(min_slope_angle, slope_angle);
+                    }
+                }
+            }
+
+            // Store the maximum slope angle for the current cell (in radians)
+            slopeAngle[i][j] = max_slope_angle_cell;
+        }
+    }
+
+    std::cout << "The minimum slope angle is: " << min_slope_angle << " radians, the maximum slope angle is: " << max_slope_angle << " radians" << std::endl;
+
+    return slopeAngle;
+}
+
 // Function to compute the average slope angle (limited to 0-90 degrees) for a height map
 vector<vector<double>> ComputeAbsAverageNeighborSlopeAngle(const vector<vector<double>>& heightMap, double dx) 
 {
     int m = heightMap.size();
     vector<vector<double>> slopeAngle(m, vector<double>(m, 0.0));  // Initialize with zeros.
 
-    // Initialize min and max slope angles with extreme values.
-    double minSlopeAngle = numeric_limits<double>::infinity();
-    double maxSlopeAngle = -numeric_limits<double>::infinity();
+    // Initialize min and max slope angles with extreme values
+    double minSlopeAngle = M_PI / 2.0;  // Initialize as 90 degrees in radians
+    double maxSlopeAngle = 0.0;         // Initialize as 0 degrees in radians
+
+    //double minSlopeAngle = numeric_limits<double>::infinity();
+    //double maxSlopeAngle = -numeric_limits<double>::infinity();
 
     int dxdy[] = { -1, -1, -1, 0, 1, 1, 1, 0 };
     int dydx[] = { -1, 0, 1, 1, 1, 0, -1, -1 };

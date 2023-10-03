@@ -13,7 +13,7 @@
 #endif 
 
 #ifndef USE_MAX_SLOPE_ANGLE
-#define USE_MAX_SLOPE_ANGLE 1
+#define USE_MAX_SLOPE_ANGLE 0
 #endif 
 
 #ifndef PI
