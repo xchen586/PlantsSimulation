@@ -233,27 +233,27 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	snprintf(mesh_heightmap_raw_export, MAX_PATH, "%s/mesh_heightmap_raw_export.csv", m_outputDir);
 	snprintf(pc_heightmap_raw_export, MAX_PATH, "%s/pc_heightmap_raw_export.csv", pc_heightmap_raw_name);
 	snprintf(short_height_map_export, MAX_PATH, "%s/short_height_map_export.csv", m_outputDir);
-	snprintf(double_height_map_exportout, MAX_PATH, "%s/double_height_map_exportout.csv", m_outputDir);
-	snprintf(height_slope_map_exportout, MAX_PATH, "%s/height_slope_map_exportout.csv", m_outputDir);
-	snprintf(angle_slope_map_exportout, MAX_PATH, "%s/angle_slope_map_exportout.csv", m_outputDir);
+	snprintf(double_height_map_exportout, MAX_PATH, "%s/double_height_map_exportout.xyz", m_outputDir);
+	snprintf(height_slope_map_exportout, MAX_PATH, "%s/height_slope_map_exportout.xyz", m_outputDir);
+	snprintf(angle_slope_map_exportout, MAX_PATH, "%s/angle_slope_map_exportout.xyz", m_outputDir);
 	
 #else
 	
 	sprintf_s(mesh_heightmap_raw_export, MAX_PATH, "%s\\mesh_heightmap_raw_export.csv", m_outputDir.c_str());
 	sprintf_s(pc_heightmap_raw_export, MAX_PATH, "%s\\pc_heightmap_raw_export.csv", m_outputDir.c_str());
 	sprintf_s(short_height_map_export, MAX_PATH, "%s\\short_height_map_export.csv", m_outputDir.c_str());
-	sprintf_s(double_height_map_exportout, MAX_PATH, "%s\\double_height_map_exportout.csv", m_outputDir.c_str());
-	sprintf_s(height_slope_map_exportout, MAX_PATH, "%s\\height_slope_map_exportout.csv", m_outputDir.c_str());
-	sprintf_s(angle_slope_map_exportout, MAX_PATH, "%s\\angle_slope_map_exportout.csv", m_outputDir.c_str());
+	sprintf_s(double_height_map_exportout, MAX_PATH, "%s\\double_height_map_exportout.xyz", m_outputDir.c_str());
+	sprintf_s(height_slope_map_exportout, MAX_PATH, "%s\\height_slope_map_exportout.xyz", m_outputDir.c_str());
+	sprintf_s(angle_slope_map_exportout, MAX_PATH, "%s\\angle_slope_map_exportout.xyz", m_outputDir.c_str());
 #endif
 
 #if USE_EXPORT_HEIGHT_MAP
 	ExportShortHeightMap(meshHeightMapShort4096, mesh_heightmap_raw_export, 0x00FF0000, true);
 	ExportShortHeightMap(pcHeightMapShort4096, pc_heightmap_raw_export, 0x0000FF00, true);
 	ExportShortHeightMap(heightMapShort4096, short_height_map_export, 0x000000FF, true);
-	ExportDoubleHeightMap(heightMapDouble4096, double_height_map_exportout, 0x00FFFF00, true);
-	ExportShortHeightSlopeMap(slopeShort4096, height_slope_map_exportout, 0x0000FF00, true);
-	ExportAngleSlopeMap(slopeDouble4096, angle_slope_map_exportout, 0x00FF0000, true);
+	ExportDoubleHeightMap(heightMapDouble4096, double_height_map_exportout, 0x00FFFF00, false);
+	ExportShortHeightSlopeMap(slopeShort4096, height_slope_map_exportout, 0x0000FF00, false);
+	ExportAngleSlopeMap(slopeDouble4096, angle_slope_map_exportout, 0x00FF0000, false);
 #endif
 	return true;
 }
@@ -329,9 +329,13 @@ bool CPlantsSimulation::ExportDoubleHeightMap(std::vector<std::vector<double>>& 
 	{
 		for (int j = 0; j < height; j++)
 		{
-			outputFile << static_cast<double>(i * m_topLayerMeta->xRatio) << ","
-				<< static_cast<double>(j * m_topLayerMeta->yRatio) << ","
-				<< heightMap[i][j] << ","
+			outputFile 
+				//<< static_cast<double>(i * m_topLayerMeta->xRatio) << ","
+				//<< static_cast<double>(j * m_topLayerMeta->yRatio) << ","
+				//<< heightMap[i][j] << ","
+				<< i << ","
+				<< j << ","
+				<< static_cast<short>(heightMap[i][j] / m_topLayerMeta->xRatio) << ","
 				<< redColor << ","
 				<< greenColor << ","
 				<< blueColor << std::endl;
@@ -371,9 +375,13 @@ bool CPlantsSimulation::ExportShortHeightSlopeMap(std::vector<std::vector<short>
 	{
 		for (int j = 0; j < height; j++)
 		{
-			outputFile << i << ","
+			outputFile 
+				//<< static_cast<double>(i * m_topLayerMeta->xRatio)<< ","
+				//<< static_cast<double>(j * m_topLayerMeta->yRatio)<< ","
+				//<< static_cast<short>(slopeMap[i][j]) << ","
+				<< i << ","
 				<< j << ","
-				<< static_cast<short>(slopeMap[i][j]) << ","
+				<< static_cast<short>(slopeMap[i][j] / m_topLayerMeta->xRatio) << ","
 				<< redColor << ","
 				<< greenColor << ","
 				<< blueColor << std::endl;
@@ -413,10 +421,12 @@ bool CPlantsSimulation::ExportAngleSlopeMap(std::vector<std::vector<double>>& sl
 	{
 		for (int j = 0; j < height; j++)
 		{
-			outputFile << static_cast<double>(i) << ","
-				<< static_cast<double>(j) << ","
-				<< slopeMap[i][j] << ","
-				<< redColor << ","
+			outputFile 
+				<< static_cast<int>(i) << ","
+				<< static_cast<int>(j) << ","
+				<< static_cast<double>(180 * slopeMap[i][j] / PI) << ","
+				//<< redColor << ","
+				<< static_cast<int>( 255 * 2 *slopeMap[i][j] / PI)
 				<< greenColor << ","
 				<< blueColor << std::endl;
 		}
