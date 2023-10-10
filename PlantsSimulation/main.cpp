@@ -15,6 +15,10 @@ int main(int argc, const char* argv[])
     const char* mesh_heightmap_raw_name = argv[5];
     const char* pc_heightmap_raw_name = argv[6];
 
+    int tiles = 10;
+    int tileX = 8;
+    int tileY = 5;
+
     const int MAX_PATH = 250;
 
     char input_image_file[MAX_PATH];
@@ -38,7 +42,7 @@ int main(int argc, const char* argv[])
     snprintf(pc_heightmap_raw_file, MAX_PATH, "%s/%s", assets_path, pc_heightmap_raw_name);
     snprintf(output_file, MAX_PATH, "%s/plants.csv", output_path);
     snprintf(fullOutput_file, MAX_PATH, "%s/plantsfulloutput.csv", output_path);
-    snprintf(pcOutput_file, MAX_PATH, "%s/plantspointscloudoutput.xyz", output_path);
+    snprintf(pcOutput_file, MAX_PATH, "%s\\points_%d_%d_%d_tree.xyz", output_path, tiles, tileX, tileY);
 #else
     sprintf_s(input_image_file, MAX_PATH, "%s\\%s", assets_path, input_image_name);
     sprintf_s(input_meta_file, MAX_PATH, "%s\\%s", assets_path, input_meta_name);
@@ -46,7 +50,7 @@ int main(int argc, const char* argv[])
     sprintf_s(pc_heightmap_raw_file, MAX_PATH, "%s\\%s", assets_path, pc_heightmap_raw_name);
     sprintf_s(output_file, MAX_PATH, "%s\\plants.csv", output_path);
     sprintf_s(fullOutput_file, MAX_PATH, "%s\\plantsfulloutput.csv", output_path);
-    sprintf_s(pcFullOutput_file, MAX_PATH, "%s\\plantspointscloudoutput.xyz", output_path);
+    sprintf_s(pcFullOutput_file, MAX_PATH, "%s\\points_%d_%d_%d_tree.xyz", output_path, tiles, tileX, tileY);
 #endif
 
     // Check if the directory exists, and if not, create it

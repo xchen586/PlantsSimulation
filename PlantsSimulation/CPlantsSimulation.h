@@ -21,7 +21,9 @@ public:
 		, m_pCellTable(nullptr)
 		, m_pForest(nullptr)
 	{
-
+		/*Tiles = 10;
+		TileX = 8;
+		TileY = 5;*/
 	}
 
 private:
@@ -39,6 +41,11 @@ private:
 
 	std::vector<std::vector<CCellInfo*>>* m_pCellTable;
 	CForest* m_pForest;
+
+public:
+	/*int Tiles;
+	int TileX;
+	int TileY;*/
 
 private:
 	void DeInitialize();
