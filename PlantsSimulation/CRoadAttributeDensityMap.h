@@ -11,6 +11,6 @@ public:
 		ease = 0.1;
 		minval = 0.0;
 		//maxval = 0.78;
-		maxval = 0.1;
+		maxval = 0.5;
 	}
 };
