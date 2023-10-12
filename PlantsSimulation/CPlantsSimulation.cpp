@@ -248,6 +248,8 @@ bool CPlantsSimulation::LoadInputHeightMap()
 #endif
 
 #if USE_EXPORT_HEIGHT_MAP
+	string title = "EXPORT HEIGHT MAP INFO";
+	CTimeCounter timeCounter(title);
 	ExportShortHeightMap(meshHeightMapShort4096, mesh_heightmap_raw_export, 0x00FF0000, true);
 	ExportShortHeightMap(pcHeightMapShort4096, pc_heightmap_raw_export, 0x0000FF00, true);
 	ExportShortHeightMap(heightMapShort4096, short_height_map_export, 0x000000FF, true);
@@ -259,7 +261,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 }
 
 
-bool CPlantsSimulation::ExportShortHeightMap(std::vector<std::vector<short>>& heightMap, const string& outputPath, int rgbColor, bool hasHeader)
+bool CPlantsSimulation::ExportShortHeightMap(std::vector<std::vector<short>>& heightMap, const string& outputPath, int rgbColor, bool hasHeader, bool withRatio)
 {
 	if (!m_topLayerMeta)
 	{
@@ -281,18 +283,48 @@ bool CPlantsSimulation::ExportShortHeightMap(std::vector<std::vector<short>>& he
 	int redColor = (rgbColor >> 16) & 0xFF;
 	int greenColor = (rgbColor >> 8) & 0xFF;
 	int blueColor = rgbColor & 0xFF;
+	
+	double xRatio = m_topLayerMeta->xRatio;
+	double yRatio = m_topLayerMeta->yRatio;
+	int mapWidth = heightMap.size();
+	int mapHeight = heightMap[0].size();
 	int width = heightMap.size();
 	int height = heightMap[0].size();
+	if (withRatio) {
+		width = static_cast<int>(mapWidth * xRatio);
+		height = static_cast<int>(mapHeight * yRatio);
+	}
+	
+	std::cout << "ExportShortHeightMap file is " << outputPath << ", width " << width << ", height = " << height << std::endl;
+ 	
 	for (int i = 0; i < width; i++)
 	{
 		for (int j = 0; j < height; j++)
 		{
-			outputFile << i << ","
-				<< j << ","
-				<< static_cast<short>(heightMap[i][j] / m_topLayerMeta->xRatio)<< ","
-				<< redColor << ","
-				<< greenColor << ","
-				<< blueColor << std::endl;
+			if (withRatio)
+			{
+				int raw = clamp(static_cast<int>(width / xRatio), 0, mapWidth - 1);
+				int col = clamp(static_cast<int>(width / xRatio), 0, mapWidth - 1);
+
+				outputFile 
+					<< static_cast<double>(i * xRatio) << ","
+					<< static_cast<double>(j * yRatio) << ","
+					<< heightMap[raw][col] << ","
+					<< redColor << ","
+					<< greenColor << ","
+					<< blueColor << std::endl;
+			}
+			else
+			{
+				outputFile
+					<< i << ","
+					<< j << ","
+					<< static_cast<short>(heightMap[i][j] / xRatio) << ","
+					<< redColor << ","
+					<< greenColor << ","
+					<< blueColor << std::endl;
+			}
+			
 		}
 	}
 
@@ -301,7 +333,7 @@ bool CPlantsSimulation::ExportShortHeightMap(std::vector<std::vector<short>>& he
 	return true;
 }
 
-bool CPlantsSimulation::ExportDoubleHeightMap(std::vector<std::vector<double>>& heightMap, const string& outputPath, int rgbColor, bool hasHeader)
+bool CPlantsSimulation::ExportDoubleHeightMap(std::vector<std::vector<double>>& heightMap, const string& outputPath, int rgbColor, bool hasHeader, bool withRatio)
 {
 	if (!m_topLayerMeta)
 	{
@@ -347,7 +379,7 @@ bool CPlantsSimulation::ExportDoubleHeightMap(std::vector<std::vector<double>>& 
 	return true;
 }
 
-bool CPlantsSimulation::ExportShortHeightSlopeMap(std::vector<std::vector<short>>& slopeMap, const string& outputPath, int rgbColor, bool hasHeader)
+bool CPlantsSimulation::ExportShortHeightSlopeMap(std::vector<std::vector<short>>& slopeMap, const string& outputPath, int rgbColor, bool hasHeader, bool withRatio)
 {
 	if (!m_topLayerMeta)
 	{
@@ -393,7 +425,7 @@ bool CPlantsSimulation::ExportShortHeightSlopeMap(std::vector<std::vector<short>
 	return true;
 }
 
-bool CPlantsSimulation::ExportAngleSlopeMap(std::vector<std::vector<double>>& slopeMap, const string& outputPath, int rgbColor, bool hasHeader)
+bool CPlantsSimulation::ExportAngleSlopeMap(std::vector<std::vector<double>>& slopeMap, const string& outputPath, int rgbColor, bool hasHeader, bool withRatio)
 {
 	if (!m_topLayerMeta)
 	{
@@ -531,5 +563,7 @@ bool CPlantsSimulation::OutputResults()
 	{
 		output = m_pForest->outputPointsCloudFullTreeInstanceResults(m_pcFullOutputFile);
 	}
+	std::string pcFullOutputFileWithRatio = m_pcFullOutputFile + ".ratio.xyz";
+	output = m_pForest->outputPointsCloudFullTreeInstanceResults(pcFullOutputFileWithRatio);
 	return output;
 }

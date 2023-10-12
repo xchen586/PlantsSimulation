@@ -55,7 +55,7 @@ std::vector<std::vector<short>> Read2DShortArray(const std::string& filePath, in
             short value = (static_cast<unsigned short>(bytes[1]) << 8) | bytes[0];
             minHeight = std::min(minHeight, value);
             maxHeight = std::max(maxHeight, value);
-            array[x][y] = value;
+            array[y][x] = value;  //mirror issue !!!!!!!
         }
     }
     std::cout << "Short Height Map minHeight = " << minHeight << " , maxHeight = " << maxHeight << std::endl;

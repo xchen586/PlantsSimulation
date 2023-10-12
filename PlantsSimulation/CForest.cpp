@@ -41,14 +41,17 @@ void TreeInstanceFullOutput::GetPosFromInstanceOutputEx()
 {
 	double localX = m_instance.x;
 	double localY = m_instance.y;
-	//posX = localX;
-	//posY = localY;
+#if USE_POS_RELATIVE
+	posX = localX;
+	posY = localY;
+#else
 	posX = m_pMetaInfo->batch_min_x
 		+ m_pMetaInfo->x0
 		+ localX;
 	posY = m_pMetaInfo->batch_min_y
 		+ m_pMetaInfo->y0
 		+ localY;
+#endif
 	posZ = m_pCellData->GetHeight();
 }
 
@@ -626,7 +629,7 @@ bool CForest::exportTreeInstanceOutput(const std::vector<TreeInstanceOutput>& da
 	return true;
 }
 
-bool CForest::exportTreeInstanceFullOutput(const std::vector<TreeInstanceFullOutput>& data, const std::string& filename, bool hasHeader) 
+bool CForest::exportTreeInstanceFullOutput(const std::vector<TreeInstanceFullOutput>& data, const std::string& filename, bool hasHeader, bool withRatio) 
 {
 	std::ofstream outputFile(filename);
 	if (!outputFile.is_open()) {
@@ -640,20 +643,43 @@ bool CForest::exportTreeInstanceFullOutput(const std::vector<TreeInstanceFullOut
 		outputFile << "X,Y,Z,Red,Green,Blue,TreeType,RoadAttribute,Moisture,Roughness,Height,Slope" << std::endl;
 	}
 	
+	//bool withRatio = true;
+	double xRatio = m_pMetaInfo->xRatio;
+	double yRatio = m_pMetaInfo->yRatio;
 	// Write data rows
 	for (const TreeInstanceFullOutput& tree : data) {
-		outputFile << tree.posX << ","
-			<< tree.posY << ","
-			<< tree.posZ << ","
-			<< tree.m_instance.red << ","
-			<< tree.m_instance.green << ","
-			<< tree.m_instance.blue << ","
-			<< tree.m_instance.treeType << ","
-			<< tree.m_pCellData->GetRoadAttribute() << ","
-			<< tree.m_pCellData->GetMoisture() << ","
-			<< tree.m_pCellData->GetRoughness() << ","
-			<< tree.m_pCellData->GetHeight() << ","
-			<< tree.m_pCellData->GetSlopeAngle() << std::endl;
+
+		if (withRatio)
+		{
+			outputFile << tree.posX / xRatio << ","
+				<< tree.posY / yRatio << ","
+				<< tree.posZ / xRatio << ","
+				<< tree.m_instance.red << ","
+				<< tree.m_instance.green << ","
+				<< tree.m_instance.blue << ","
+				<< tree.m_instance.treeType << ","
+				<< tree.m_pCellData->GetRoadAttribute() << ","
+				<< tree.m_pCellData->GetMoisture() << ","
+				<< tree.m_pCellData->GetRoughness() << ","
+				<< tree.m_pCellData->GetHeight() << ","
+				<< tree.m_pCellData->GetSlopeAngle() << std::endl;
+		}
+		else
+		{
+			outputFile << tree.posX << ","
+				<< tree.posY << ","
+				<< tree.posZ << ","
+				<< tree.m_instance.red << ","
+				<< tree.m_instance.green << ","
+				<< tree.m_instance.blue << ","
+				<< tree.m_instance.treeType << ","
+				<< tree.m_pCellData->GetRoadAttribute() << ","
+				<< tree.m_pCellData->GetMoisture() << ","
+				<< tree.m_pCellData->GetRoughness() << ","
+				<< tree.m_pCellData->GetHeight() << ","
+				<< tree.m_pCellData->GetSlopeAngle() << std::endl;
+		}
+		
 	}
 
 	outputFile.close();
@@ -706,7 +732,7 @@ bool CForest::outputPointsCloudTreeInstanceResults(const std::string& fileName)
 	return output;
 }
 
-bool CForest::outputFullTreeInstanceResults(const std::string& fileName, bool hasHeader)
+bool CForest::outputFullTreeInstanceResults(const std::string& fileName, bool hasHeader, bool withRatio)
 {
 	if ((!m_pCellTable)
 		|| (!m_pMetaInfo)
@@ -741,20 +767,32 @@ bool CForest::outputFullTreeInstanceResults(const std::string& fileName, bool ha
 			std::cout << "Can not find the Cell Data at X : " << tree.x << ", at Y : " << tree.y << ", at rowIdx : " << rowIdx << ", at colIdx : " << colIdx << std::endl;
 		}
 	}
-	bool exportCSV = exportTreeInstanceFullOutput(fullOutputs, fileName, hasHeader);
+	bool exportCSV = exportTreeInstanceFullOutput(fullOutputs, fileName, hasHeader, withRatio);
 	return true;
 }
 
 
 bool CForest::outputCSVFullTreeInstanceResults(const std::string& fileName)
 {
-	bool output = outputFullTreeInstanceResults(fileName, true);
+	bool output = outputFullTreeInstanceResults(fileName, true, false);
+	return output;
+}
+
+bool CForest::outputCSVFullTreeInstanceResultsWithRatio(const std::string& fileName)
+{
+	bool output = outputFullTreeInstanceResults(fileName, true, true);
 	return output;
 }
 
 bool CForest::outputPointsCloudFullTreeInstanceResults(const std::string& fileName)
 {
-	bool output = outputFullTreeInstanceResults(fileName, false);
+	bool output = outputFullTreeInstanceResults(fileName, false, false);
+	return output;
+}
+
+bool CForest::outputPointsCloudFullTreeInstanceResultsWithRatio(const std::string& fileName)
+{
+	bool output = outputFullTreeInstanceResults(fileName, false, true);
 	return output;
 }
 

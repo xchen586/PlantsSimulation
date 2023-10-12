@@ -16,6 +16,10 @@
 #define USE_MAX_SLOPE_ANGLE 0
 #endif 
 
+#ifndef USE_POS_RELATIVE
+#define USE_POS_RELATIVE 0
+#endif
+
 #ifndef PI
 #define PI       3.14159265358979323846   // pi
 #endif // !PI
