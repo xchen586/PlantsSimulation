@@ -52,11 +52,12 @@ public:
 	{
 		CCellInfo* pCellData = GetCellData(x, z);
 		if (pCellData) {
-			return pCellData->GetHeight();
+			if (pCellData->GetHasHeight())
+			{
+				return pCellData->GetHeight();
+			}
 		}
-		else {
-			return 0;
-		}
+		return -1000;
 	}
 };
 
@@ -71,15 +72,16 @@ public:
 	{
 		CCellInfo* pCellData = GetCellData(x, z);
 		if (pCellData) {
+			if (pCellData->GetHasHeight())
+			{
 #if USE_SCOPE_ANGLE
-			return pCellData->GetSlopeAngle();
+				return pCellData->GetSlopeAngle();
 #else
-			return pCellData->GetSlopeHeight();
+				return pCellData->GetSlopeHeight();
 #endif
+			}
 		}
-		else {
-			return 0;
-		}
+		return -1000;
 	}
 };
 

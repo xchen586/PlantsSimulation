@@ -185,6 +185,20 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	}
 	std::cout << "Final Short Height Map minHeight = " << minHeight << " , maxHeight = " << maxHeight << std::endl;
 
+	std::vector<std::vector<short>> meshHeightMasksShort4096 = Read2DShortArray(m_meshHeightMasksFile, width, height);
+	std::vector<std::vector<short>> pcHeightMasksShort4096 = Read2DShortArray(m_pcHeightMasksFile, width, height);
+	std::vector<std::vector<short>> heightMasksShort4096(width, std::vector<short>(height));
+	for (int x = 0; x < width; x++)
+	{
+		for (int y = 0; y < height; y++)
+		{
+			short meshValue = meshHeightMasksShort4096[x][y];
+			short pcValue = pcHeightMasksShort4096[x][y];
+			short value = std::max(meshValue, pcValue);
+			heightMasksShort4096[x][y] = value;
+		}
+	}
+
 	//std::vector<std::vector<short>> slopeShort4096 = ComputeAbsMaxHeightSlopeMap(heightMapShort4096);
 	std::vector<std::vector<short>> slopeShort4096 = ComputeSlopeMap(heightMapShort4096);
 	std::vector<std::vector<double>> heightMapDouble4096 = ConvertShortMatrixToDouble1(heightMapShort4096);
@@ -208,6 +222,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 				cell->SetHeightValue(heightMapDouble4096[i][j]);
 				cell->SetSlopeHeightValue(slopeShort4096[i][j]);
 				cell->SetSlopeAngleValue(slopeDouble4096[i][j]);
+				cell->SetHasHeightValue(heightMasksShort4096[i][j]);
 			}
 		}
 	}

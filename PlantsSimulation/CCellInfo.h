@@ -13,11 +13,14 @@ public:
 	double GetMoisture();
 	double GetRoughness();
 	double GetSlopeAngle();
+	bool GetHasHeight();
 
 	void SetHeightValue(short heightValue);
 	void SetSlopeHeightValue(short slopeValue);
 	
 	void SetSlopeAngleValue(double angle);
+	
+	void SetHasHeightValue(short hasHeightValue);
 private:
 	short m_heightValue;
 	short m_slopeHeightValue;
@@ -25,11 +28,13 @@ private:
 	uint8_t m_moistureValue;
 	uint8_t m_roughnessValue;
 	double m_slopeAngleValue;
+	short m_hasHeightValue;
 
 	double m_roadAttribute;
 	double m_height;
 	double m_slopeHeight;
 	double m_moisture;
 	double m_roughness;
+	bool m_hasHeight;
 };
 

@@ -14,6 +14,8 @@ int main(int argc, const char* argv[])
     const char* input_meta_name = argv[4];
     const char* mesh_heightmap_raw_name = argv[5];
     const char* pc_heightmap_raw_name = argv[6];
+    const char* mesh_heightmap_masks_name = argv[7];
+    const char* pc_heightmap_masks_name = argv[8];
 
     int tiles = 10;
     int tileX = 8;
@@ -25,12 +27,16 @@ int main(int argc, const char* argv[])
     char input_meta_file[MAX_PATH];
     char mesh_heightmap_raw_file[MAX_PATH];
     char pc_heightmap_raw_file[MAX_PATH];
+    char mesh_heightmap_masks_file[MAX_PATH];
+    char pc_heightmap_masks_file[MAX_PATH];
     char output_file[MAX_PATH];
     char fullOutput_file[MAX_PATH];
     char pcFullOutput_file[MAX_PATH];
     memset(input_image_file, 0, sizeof(char) * MAX_PATH);
     memset(mesh_heightmap_raw_file, 0, sizeof(char) * MAX_PATH);
     memset(pc_heightmap_raw_file, 0, sizeof(char) * MAX_PATH);
+    memset(mesh_heightmap_masks_file, 0, sizeof(char) * MAX_PATH);
+    memset(pc_heightmap_masks_file, 0, sizeof(char) * MAX_PATH);
     memset(output_file, 0, sizeof(char) * MAX_PATH);
     memset(fullOutput_file, 0, sizeof(char) * MAX_PATH);
     memset(pcFullOutput_file, 0, sizeof(char) * MAX_PATH);
@@ -40,6 +46,8 @@ int main(int argc, const char* argv[])
     snprintf(input_meta_file, MAX_PATH, "%s/%s", assets_path, input_meta_name);
     snprintf(mesh_heightmap_raw_file, MAX_PATH, "%s/%s", assets_path, mesh_heightmap_raw_name);
     snprintf(pc_heightmap_raw_file, MAX_PATH, "%s/%s", assets_path, pc_heightmap_raw_name);
+    snprintf(mesh_heightmap_masks_file, MAX_PATH, "%s/%s", assets_path, mesh_heightmap_masks_name);
+    snprintf(pc_heightmap_masks_file, MAX_PATH, "%s/%s", assets_path, pc_heightmap_masks_name);
     snprintf(output_file, MAX_PATH, "%s/plants.csv", output_path);
     snprintf(fullOutput_file, MAX_PATH, "%s/plantsfulloutput.csv", output_path);
     snprintf(pcOutput_file, MAX_PATH, "%s\\points_%d_%d_%d_tree.xyz", output_path, tiles, tileX, tileY);
@@ -48,6 +56,8 @@ int main(int argc, const char* argv[])
     sprintf_s(input_meta_file, MAX_PATH, "%s\\%s", assets_path, input_meta_name);
     sprintf_s(mesh_heightmap_raw_file, MAX_PATH, "%s\\%s", assets_path, mesh_heightmap_raw_name);
     sprintf_s(pc_heightmap_raw_file, MAX_PATH, "%s\\%s", assets_path, pc_heightmap_raw_name);
+    sprintf_s(mesh_heightmap_masks_file, MAX_PATH, "%s\\%s", assets_path, mesh_heightmap_masks_name);
+    sprintf_s(pc_heightmap_masks_file, MAX_PATH, "%s\\%s", assets_path, pc_heightmap_masks_name);
     sprintf_s(output_file, MAX_PATH, "%s\\plants.csv", output_path);
     sprintf_s(fullOutput_file, MAX_PATH, "%s\\plantsfulloutput.csv", output_path);
     sprintf_s(pcFullOutput_file, MAX_PATH, "%s\\points_%d_%d_%d_tree.xyz", output_path, tiles, tileX, tileY);
@@ -67,7 +77,7 @@ int main(int argc, const char* argv[])
         }
     }
 
-    CPlantsSimulation ps(output_path, input_image_file, input_meta_file, mesh_heightmap_raw_file, pc_heightmap_raw_file, output_file, fullOutput_file, pcFullOutput_file);
+    CPlantsSimulation ps(output_path, input_image_file, input_meta_file, mesh_heightmap_raw_file, pc_heightmap_raw_file, mesh_heightmap_masks_file, pc_heightmap_masks_file, output_file, fullOutput_file, pcFullOutput_file);
     
     bool isLoad = ps.LoadInputData();
     if (!isLoad)
