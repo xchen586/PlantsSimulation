@@ -245,12 +245,12 @@ bool CPlantsSimulation::LoadInputHeightMap()
 
 #if __APPLE__
 	
-	snprintf(mesh_heightmap_raw_export, MAX_PATH, "%s/mesh_heightmap_raw_export.csv", m_outputDir);
-	snprintf(pc_heightmap_raw_export, MAX_PATH, "%s/pc_heightmap_raw_export.csv", pc_heightmap_raw_name);
-	snprintf(short_height_map_export, MAX_PATH, "%s/short_height_map_export.csv", m_outputDir);
-	snprintf(double_height_map_exportout, MAX_PATH, "%s/double_height_map_exportout.xyz", m_outputDir);
-	snprintf(height_slope_map_exportout, MAX_PATH, "%s/height_slope_map_exportout.xyz", m_outputDir);
-	snprintf(angle_slope_map_exportout, MAX_PATH, "%s/angle_slope_map_exportout.xyz", m_outputDir);
+	snprintf(mesh_heightmap_raw_export, MAX_PATH, "%s/mesh_heightmap_raw_export.csv", m_outputDir.c_str());
+	snprintf(pc_heightmap_raw_export, MAX_PATH, "%s/pc_heightmap_raw_export.csv", m_outputDir.c_str());
+	snprintf(short_height_map_export, MAX_PATH, "%s/short_height_map_export.csv", m_outputDir.c_str());
+	snprintf(double_height_map_exportout, MAX_PATH, "%s/double_height_map_exportout.xyz", m_outputDir.c_str());
+	snprintf(height_slope_map_exportout, MAX_PATH, "%s/height_slope_map_exportout.xyz", m_outputDir.c_str());
+	snprintf(angle_slope_map_exportout, MAX_PATH, "%s/angle_slope_map_exportout.xyz", m_outputDir.c_str());
 	
 #else
 	

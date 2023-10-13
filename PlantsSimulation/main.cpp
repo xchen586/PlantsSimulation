@@ -50,7 +50,7 @@ int main(int argc, const char* argv[])
     snprintf(pc_heightmap_masks_file, MAX_PATH, "%s/%s", assets_path, pc_heightmap_masks_name);
     snprintf(output_file, MAX_PATH, "%s/plants.csv", output_path);
     snprintf(fullOutput_file, MAX_PATH, "%s/plantsfulloutput.csv", output_path);
-    snprintf(pcOutput_file, MAX_PATH, "%s\\points_%d_%d_%d_tree.xyz", output_path, tiles, tileX, tileY);
+    snprintf(pcFullOutput_file, MAX_PATH, "%s/points_%d_%d_%d_tree.xyz", output_path, tiles, tileX, tileY);
 #else
     sprintf_s(input_image_file, MAX_PATH, "%s\\%s", assets_path, input_image_name);
     sprintf_s(input_meta_file, MAX_PATH, "%s\\%s", assets_path, input_meta_name);
