@@ -39,13 +39,14 @@ def process_point_cloud(api : voxelfarmclient.rest, project_id, folder_id, file_
         print(f'Attaching file {file_path_laz} to entity {entity_id}')
         api.attach_files(project=project_id, id=entity_id, files={'file': f})
     result = api.create_entity_processed(project=project_id, 
-        type=api.entity_type.VoxelTerrain, 
+        #type=api.entity_type.VoxelTerrain, 
+        type=api.entity_type.IndexedPointCloud,
         name=f'{name}', 
         fields={
             'source': entity_id,
             'source_type': 'RAWPC',
             'file_folder': folder_id,
-            'source_ortho' if color else '_source_ortho': entity_id
+            #'source_ortho' if color else '_source_ortho': entity_id
         }, crs = crs)
     print(f'Created entity {result.id} for {name} {version}')
 
@@ -74,7 +75,7 @@ tiles = 10
 
 x = 8
 y = 5
-process_point_cloud(api, project_id, folder_id, f'D:\\Downloads\\PlantsSimulation\\output\\points_{tiles}_{x}_{y}_tree.xyz', f'tree_{tiles}_{x}_{y}', version=version, color=True)
+process_point_cloud(api, project_id, folder_id, f'D:\\Downloads\\PlantsSimulation\\output\\points_{tiles}_{x}_{y}_tree.xyz', f'tree_{tiles}_{x}_{y}_{version}', version=version, color=True)
 #process_point_cloud(api, project_id, folder_id, f'C:\\Work\\Voxel Games\\ProcgrenAssets\\output\\pc\\points_{tiles}_{x}_{y}_toplevel.xyz', f'toplevel_{tiles}_{x}_{y}', version=version, color=False)
 #process_point_cloud(api, project_id, folder_id, f'C:\\Work\\Voxel Games\\ProcgrenAssets\\output\\pc\\points_{tiles}_{x}_{y}_bedrock.xyz', f'bottom_{tiles}_{x}_{y}', version=version, color=False)
 #process_point_cloud(api, project_id, folder_id, f'C:\\Work\\Voxel Games\\ProcgrenAssets\\output\\pc\\points_{tiles}_{x}_{y}_level1.xyz', f'level1_{tiles}_{x}_{y}', version=version, color=False)
