@@ -656,6 +656,7 @@ bool CForest::exportTreeInstanceFullOutput(const std::vector<TreeInstanceFullOut
 				<< tree.posZ / xRatio << ","
 				<< tree.m_instance.red << ","
 				<< tree.m_instance.green << ","
+#if !USE_SIMPLE_PC_OUTPUT
 				<< tree.m_instance.blue << ","
 				<< tree.m_instance.treeType << ","
 				<< tree.m_pCellData->GetRoadAttribute() << ","
@@ -663,6 +664,9 @@ bool CForest::exportTreeInstanceFullOutput(const std::vector<TreeInstanceFullOut
 				<< tree.m_pCellData->GetRoughness() << ","
 				<< tree.m_pCellData->GetHeight() << ","
 				<< tree.m_pCellData->GetSlopeAngle() << std::endl;
+#else
+				<< tree.m_instance.blue << std::endl;
+#endif
 		}
 		else
 		{
@@ -671,6 +675,7 @@ bool CForest::exportTreeInstanceFullOutput(const std::vector<TreeInstanceFullOut
 				<< tree.posZ << ","
 				<< tree.m_instance.red << ","
 				<< tree.m_instance.green << ","
+#if !USE_SIMPLE_PC_OUTPUT
 				<< tree.m_instance.blue << ","
 				<< tree.m_instance.treeType << ","
 				<< tree.m_pCellData->GetRoadAttribute() << ","
@@ -678,6 +683,9 @@ bool CForest::exportTreeInstanceFullOutput(const std::vector<TreeInstanceFullOut
 				<< tree.m_pCellData->GetRoughness() << ","
 				<< tree.m_pCellData->GetHeight() << ","
 				<< tree.m_pCellData->GetSlopeAngle() << std::endl;
+#else
+				<< tree.m_instance.blue << std::endl;
+#endif
 		}
 		
 	}

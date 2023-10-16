@@ -20,6 +20,10 @@
 #define USE_POS_RELATIVE 0
 #endif
 
+#ifndef USE_SIMPLE_PC_OUTPUT
+#define USE_SIMPLE_PC_OUTPUT 1
+#endif
+
 #ifndef PI
 #define PI       3.14159265358979323846   // pi
 #endif // !PI
