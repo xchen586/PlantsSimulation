@@ -102,3 +102,30 @@ std::vector<std::vector<double>> ConvertShortMatrixToDouble1(const std::vector<s
 std::vector<std::vector<double>> ConvertShortMatrixToDouble2(const std::vector<std::vector<short>>& shortMatrix);
 
 double GenerateRandomDouble(double min, double max);
+
+template <typename T>
+T FindMinIn3(const T& num1, const T& num2, const T& num3) {
+	T min_num = num1;
+
+	if (num2 < min_num) {
+		min_num = num2;
+	}
+	if (num3 < min_num) {
+		min_num = num3;
+	}
+	return min_num;
+}
+
+template <typename T>
+T FindMaxIn3(const T& num1, const T& num2, const T& num3) {
+	T max_num = num1;
+
+	if (num2 > max_num) {
+		max_num = num2;
+	}
+	if (num3 > max_num) {
+		max_num = num3;
+	}
+	return max_num;
+}
+

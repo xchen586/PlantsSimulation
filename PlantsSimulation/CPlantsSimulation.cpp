@@ -2,6 +2,7 @@
 #include "CCellInfo.h"
 #include "CTimeCounter.h"
 #include "PsMarco.h"
+//#include "PsHelper.h"
 
 /*bool CPlantsSimulation::loadInputImageFile(const string& inputImageFile)
 {
@@ -166,6 +167,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	const int width = m_topLayerImage->input_image_width;
 	const int height = m_topLayerImage->input_image_height;
 	std::vector<std::vector<short>> meshHeightMapShort4096 = Read2DShortArray(m_meshHeightMapFile, width, height);
+	std::vector<std::vector<short>> mesh2HeightMapShort4096 = Read2DShortArray(m_mesh2HeightMapFile, width, height);
 	std::vector<std::vector<short>> pcHeightMapShort4096 = Read2DShortArray(m_pcHeightMapFile, width, height);
 
 	std::vector<std::vector<short>> heightMapShort4096(width, std::vector<short>(height));
@@ -176,8 +178,10 @@ bool CPlantsSimulation::LoadInputHeightMap()
 		for (int y = 0; y < height; y++)
 		{
 			short meshValue = meshHeightMapShort4096[x][y];
+			short mesh2Value = mesh2HeightMapShort4096[x][y];
 			short pcValue = pcHeightMapShort4096[x][y];
-			short value = std::max(meshValue, pcValue);
+			//short value = std::max(meshValue, pcValue);
+			short value = FindMaxIn3(meshValue, mesh2Value, pcValue);
 			heightMapShort4096[x][y] = value;
 			minHeight = std::min(minHeight, value);
 			maxHeight = std::max(maxHeight, value);
@@ -186,6 +190,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	std::cout << "Final Short Height Map minHeight = " << minHeight << " , maxHeight = " << maxHeight << std::endl;
 
 	std::vector<std::vector<short>> meshHeightMasksShort4096 = Read2DShortArray(m_meshHeightMasksFile, width, height);
+	std::vector<std::vector<short>> mesh2HeightMasksShort4096 = Read2DShortArray(m_mesh2HeightMasksFile, width, height);
 	std::vector<std::vector<short>> pcHeightMasksShort4096 = Read2DShortArray(m_pcHeightMasksFile, width, height);
 	std::vector<std::vector<short>> heightMasksShort4096(width, std::vector<short>(height));
 	for (int x = 0; x < width; x++)
@@ -193,8 +198,10 @@ bool CPlantsSimulation::LoadInputHeightMap()
 		for (int y = 0; y < height; y++)
 		{
 			short meshValue = meshHeightMasksShort4096[x][y];
+			short mesh2Value = mesh2HeightMasksShort4096[x][y];
 			short pcValue = pcHeightMasksShort4096[x][y];
-			short value = std::max(meshValue, pcValue);
+			//short value = std::max(meshValue, pcValue);
+			short value = FindMaxIn3(meshValue, mesh2Value, pcValue);
 			heightMasksShort4096[x][y] = value;
 		}
 	}
@@ -230,6 +237,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	const int MAX_PATH = 250;
 	
 	char mesh_heightmap_raw_export[MAX_PATH];
+	char mesh2_heightmap_raw_export[MAX_PATH];
 	char pc_heightmap_raw_export[MAX_PATH];
 	char short_height_map_export[MAX_PATH];
 	char double_height_map_exportout[MAX_PATH];
@@ -237,6 +245,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	char angle_slope_map_exportout[MAX_PATH];
 
 	memset(mesh_heightmap_raw_export, 0, sizeof(char) * MAX_PATH);
+	memset(mesh2_heightmap_raw_export, 0, sizeof(char) * MAX_PATH);
 	memset(pc_heightmap_raw_export, 0, sizeof(char) * MAX_PATH);
 	memset(short_height_map_export, 0, sizeof(char) * MAX_PATH);
 	memset(double_height_map_exportout, 0, sizeof(char) * MAX_PATH);
@@ -246,6 +255,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 #if __APPLE__
 	
 	snprintf(mesh_heightmap_raw_export, MAX_PATH, "%s/mesh_heightmap_raw_export.csv", m_outputDir.c_str());
+	snprintf(mesh2_heightmap_raw_export, MAX_PATH, "%s/mesh2_heightmap_raw_export.csv", m_outputDir.c_str());
 	snprintf(pc_heightmap_raw_export, MAX_PATH, "%s/pc_heightmap_raw_export.csv", m_outputDir.c_str());
 	snprintf(short_height_map_export, MAX_PATH, "%s/short_height_map_export.csv", m_outputDir.c_str());
 	snprintf(double_height_map_exportout, MAX_PATH, "%s/double_height_map_exportout.xyz", m_outputDir.c_str());
@@ -255,6 +265,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 #else
 	
 	sprintf_s(mesh_heightmap_raw_export, MAX_PATH, "%s\\mesh_heightmap_raw_export.csv", m_outputDir.c_str());
+	sprintf_s(mesh2_heightmap_raw_export, MAX_PATH, "%s\\mesh_heightmap_raw_export.csv", m_outputDir.c_str());
 	sprintf_s(pc_heightmap_raw_export, MAX_PATH, "%s\\pc_heightmap_raw_export.csv", m_outputDir.c_str());
 	sprintf_s(short_height_map_export, MAX_PATH, "%s\\short_height_map_export.csv", m_outputDir.c_str());
 	sprintf_s(double_height_map_exportout, MAX_PATH, "%s\\double_height_map_exportout.xyz", m_outputDir.c_str());
@@ -266,6 +277,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	string title = "EXPORT HEIGHT MAP INFO";
 	CTimeCounter timeCounter(title);
 	ExportShortHeightMap(meshHeightMapShort4096, mesh_heightmap_raw_export, 0x00FF0000, true);
+	ExportShortHeightMap(mesh2HeightMapShort4096, mesh2_heightmap_raw_export, 0x00FF0000, true);
 	ExportShortHeightMap(pcHeightMapShort4096, pc_heightmap_raw_export, 0x0000FF00, true);
 	ExportShortHeightMap(heightMapShort4096, short_height_map_export, 0x000000FF, true);
 	ExportDoubleHeightMap(heightMapDouble4096, double_height_map_exportout, 0x00FFFF00, false);
