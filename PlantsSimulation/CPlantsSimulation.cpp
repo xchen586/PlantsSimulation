@@ -265,7 +265,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 #else
 	
 	sprintf_s(mesh_heightmap_raw_export, MAX_PATH, "%s\\mesh_heightmap_raw_export.csv", m_outputDir.c_str());
-	sprintf_s(mesh2_heightmap_raw_export, MAX_PATH, "%s\\mesh_heightmap_raw_export.csv", m_outputDir.c_str());
+	sprintf_s(mesh2_heightmap_raw_export, MAX_PATH, "%s\\mesh2_heightmap_raw_export.csv", m_outputDir.c_str());
 	sprintf_s(pc_heightmap_raw_export, MAX_PATH, "%s\\pc_heightmap_raw_export.csv", m_outputDir.c_str());
 	sprintf_s(short_height_map_export, MAX_PATH, "%s\\short_height_map_export.csv", m_outputDir.c_str());
 	sprintf_s(double_height_map_exportout, MAX_PATH, "%s\\double_height_map_exportout.xyz", m_outputDir.c_str());
@@ -318,8 +318,8 @@ bool CPlantsSimulation::ExportShortHeightMap(std::vector<std::vector<short>>& he
 	int width = heightMap.size();
 	int height = heightMap[0].size();
 	if (withRatio) {
-		width = static_cast<int>(mapWidth * xRatio);
-		height = static_cast<int>(mapHeight * yRatio);
+		//width = static_cast<int>(mapWidth * xRatio);
+		//height = static_cast<int>(mapHeight * yRatio);
 	}
 	
 	std::cout << "ExportShortHeightMap file is " << outputPath << ", width " << width << ", height = " << height << std::endl;
@@ -330,23 +330,34 @@ bool CPlantsSimulation::ExportShortHeightMap(std::vector<std::vector<short>>& he
 		{
 			if (withRatio)
 			{
-				int raw = clamp(static_cast<int>(width / xRatio), 0, mapWidth - 1);
-				int col = clamp(static_cast<int>(width / xRatio), 0, mapWidth - 1);
+				//int raw = clamp(static_cast<int>(width / xRatio), 0, mapWidth - 1);
+				//int col = clamp(static_cast<int>(width / xRatio), 0, mapWidth - 1);
+				short value = (static_cast<short>(heightMap[i][j]));
+				if (value != 0)
+				{
+					//std::cout << "height map value is not 0 :  value : " << value << ", i = " << i << " , j = " << j << std::endl;
+				}
 
 				outputFile 
 					<< static_cast<double>(i * xRatio) << ","
 					<< static_cast<double>(j * yRatio) << ","
-					<< heightMap[raw][col] << ","
+					//<< heightMap[raw][col] << ","
+					<< value << ","
 					<< redColor << ","
 					<< greenColor << ","
 					<< blueColor << std::endl;
 			}
 			else
 			{
+				short value = static_cast<short>(heightMap[i][j] / xRatio);
+				if (value != 0)
+				{
+					//std::cout << "height map value is not 0 :  value : " << value << ", i = " << i << " , j = " << j << std::endl;
+				}
 				outputFile
 					<< i << ","
 					<< j << ","
-					<< static_cast<short>(heightMap[i][j] / xRatio) << ","
+					<< value << ","
 					<< redColor << ","
 					<< greenColor << ","
 					<< blueColor << std::endl;
