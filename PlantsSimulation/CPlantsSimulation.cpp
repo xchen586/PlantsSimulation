@@ -374,13 +374,20 @@ bool CPlantsSimulation::ExportShortHeightMap(std::vector<std::vector<short>>& he
 				{
 					//std::cout << "height map value is not 0 :  value : " << value << ", i = " << i << " , j = " << j << std::endl;
 				}
-				outputFile
-					<< i << ","
-					<< j << ","
-					<< value << ","
-					<< redColor << ","
-					<< greenColor << ","
-					<< blueColor << std::endl;
+#if USE_OUTPUT_ONLY_POSITIVE_HEIGHT
+				if (value >= 0)
+				{
+#endif
+					outputFile
+						<< i << ","
+						<< j << ","
+						<< value << ","
+						<< redColor << ","
+						<< greenColor << ","
+						<< blueColor << std::endl;
+#if USE_OUTPUT_ONLY_POSITIVE_HEIGHT
+				}
+#endif
 			}
 			
 		}
@@ -461,20 +468,29 @@ bool CPlantsSimulation::ExportShortHeightSlopeMap(std::vector<std::vector<short>
 	int blueColor = rgbColor & 0xFF;
 	int width = slopeMap.size();
 	int height = slopeMap[0].size();
+	
 	for (int i = 0; i < width; i++)
 	{
 		for (int j = 0; j < height; j++)
 		{
-			outputFile 
-				//<< static_cast<double>(i * m_topLayerMeta->xRatio)<< ","
-				//<< static_cast<double>(j * m_topLayerMeta->yRatio)<< ","
-				//<< static_cast<short>(slopeMap[i][j]) << ","
-				<< i << ","
-				<< j << ","
-				<< static_cast<short>(slopeMap[i][j] / m_topLayerMeta->xRatio) << ","
-				<< redColor << ","
-				<< greenColor << ","
-				<< blueColor << std::endl;
+			short heightValue = static_cast<short>(slopeMap[i][j] / m_topLayerMeta->xRatio);
+#if USE_OUTPUT_ONLY_POSITIVE_HEIGHT
+			if (heightValue >= 0)
+			{
+#endif
+				outputFile
+					//<< static_cast<double>(i * m_topLayerMeta->xRatio)<< ","
+					//<< static_cast<double>(j * m_topLayerMeta->yRatio)<< ","
+					//<< static_cast<short>(slopeMap[i][j]) << ","
+					<< i << ","
+					<< j << ","
+					<< heightValue << ","
+					<< redColor << ","
+					<< greenColor << ","
+					<< blueColor << std::endl;
+#if USE_OUTPUT_ONLY_POSITIVE_HEIGHT
+			}
+#endif
 		}
 	}
 

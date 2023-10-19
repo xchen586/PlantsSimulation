@@ -21,7 +21,15 @@
 #endif
 
 #ifndef USE_SIMPLE_PC_OUTPUT
-#define USE_SIMPLE_PC_OUTPUT 1
+#define USE_SIMPLE_PC_OUTPUT 0
+#endif
+
+#ifndef USE_OUTPUT_HEIGHT_MAP_CSV
+#define USE_OUTPUT_HEIGHT_MAP_CSV 0
+#endif
+
+#ifndef USE_OUTPUT_ONLY_POSITIVE_HEIGHT
+#define USE_OUTPUT_ONLY_POSITIVE_HEIGHT 1
 #endif
 
 #ifndef PI
