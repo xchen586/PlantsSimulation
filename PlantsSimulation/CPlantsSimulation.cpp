@@ -253,21 +253,34 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	memset(angle_slope_map_exportout, 0, sizeof(char) * MAX_PATH);
 
 #if __APPLE__
-	
+#if USE_OUTPUT_HEIGHT_MAP_CSV
 	snprintf(mesh_heightmap_raw_export, MAX_PATH, "%s/mesh_heightmap_raw_export.csv", m_outputDir.c_str());
 	snprintf(mesh2_heightmap_raw_export, MAX_PATH, "%s/mesh2_heightmap_raw_export.csv", m_outputDir.c_str());
 	snprintf(pc_heightmap_raw_export, MAX_PATH, "%s/pc_heightmap_raw_export.csv", m_outputDir.c_str());
 	snprintf(short_height_map_export, MAX_PATH, "%s/short_height_map_export.csv", m_outputDir.c_str());
+#else
+	snprintf(mesh_heightmap_raw_export, MAX_PATH, "%s/mesh_heightmap_raw_export.xyz", m_outputDir.c_str());
+	snprintf(mesh2_heightmap_raw_export, MAX_PATH, "%s/mesh2_heightmap_raw_export.xyz", m_outputDir.c_str());
+	snprintf(pc_heightmap_raw_export, MAX_PATH, "%s/pc_heightmap_raw_export.xyz", m_outputDir.c_str());
+	snprintf(short_height_map_export, MAX_PATH, "%s/short_height_map_export.xyz", m_outputDir.c_str());
+#endif
 	snprintf(double_height_map_exportout, MAX_PATH, "%s/double_height_map_exportout.xyz", m_outputDir.c_str());
 	snprintf(height_slope_map_exportout, MAX_PATH, "%s/height_slope_map_exportout.xyz", m_outputDir.c_str());
 	snprintf(angle_slope_map_exportout, MAX_PATH, "%s/angle_slope_map_exportout.xyz", m_outputDir.c_str());
 	
 #else
-	
+#if USE_OUTPUT_HEIGHT_MAP_CSV
 	sprintf_s(mesh_heightmap_raw_export, MAX_PATH, "%s\\mesh_heightmap_raw_export.csv", m_outputDir.c_str());
 	sprintf_s(mesh2_heightmap_raw_export, MAX_PATH, "%s\\mesh2_heightmap_raw_export.csv", m_outputDir.c_str());
 	sprintf_s(pc_heightmap_raw_export, MAX_PATH, "%s\\pc_heightmap_raw_export.csv", m_outputDir.c_str());
 	sprintf_s(short_height_map_export, MAX_PATH, "%s\\short_height_map_export.csv", m_outputDir.c_str());
+#else
+	sprintf_s(mesh_heightmap_raw_export, MAX_PATH, "%s\\mesh_heightmap_raw_export.xyz", m_outputDir.c_str());
+	sprintf_s(mesh2_heightmap_raw_export, MAX_PATH, "%s\\mesh2_heightmap_raw_export.xyz", m_outputDir.c_str());
+	sprintf_s(pc_heightmap_raw_export, MAX_PATH, "%s\\pc_heightmap_raw_export.xyz", m_outputDir.c_str());
+	sprintf_s(short_height_map_export, MAX_PATH, "%s\\short_height_map_export.xyz", m_outputDir.c_str());
+#endif
+
 	sprintf_s(double_height_map_exportout, MAX_PATH, "%s\\double_height_map_exportout.xyz", m_outputDir.c_str());
 	sprintf_s(height_slope_map_exportout, MAX_PATH, "%s\\height_slope_map_exportout.xyz", m_outputDir.c_str());
 	sprintf_s(angle_slope_map_exportout, MAX_PATH, "%s\\angle_slope_map_exportout.xyz", m_outputDir.c_str());
@@ -276,10 +289,17 @@ bool CPlantsSimulation::LoadInputHeightMap()
 #if USE_EXPORT_HEIGHT_MAP
 	string title = "EXPORT HEIGHT MAP INFO";
 	CTimeCounter timeCounter(title);
+#if USE_OUTPUT_HEIGHT_MAP_CSV
 	ExportShortHeightMap(meshHeightMapShort4096, mesh_heightmap_raw_export, 0x00FF0000, true);
 	ExportShortHeightMap(mesh2HeightMapShort4096, mesh2_heightmap_raw_export, 0x00FF0000, true);
 	ExportShortHeightMap(pcHeightMapShort4096, pc_heightmap_raw_export, 0x0000FF00, true);
 	ExportShortHeightMap(heightMapShort4096, short_height_map_export, 0x000000FF, true);
+#else
+	ExportShortHeightMap(meshHeightMapShort4096, mesh_heightmap_raw_export, 0x00FF0000, false);
+	ExportShortHeightMap(mesh2HeightMapShort4096, mesh2_heightmap_raw_export, 0x00FF0000, false);
+	ExportShortHeightMap(pcHeightMapShort4096, pc_heightmap_raw_export, 0x0000FF00, false);
+	ExportShortHeightMap(heightMapShort4096, short_height_map_export, 0x000000FF, false);
+#endif
 	ExportDoubleHeightMap(heightMapDouble4096, double_height_map_exportout, 0x00FFFF00, false);
 	ExportShortHeightSlopeMap(slopeShort4096, height_slope_map_exportout, 0x0000FF00, false);
 	ExportAngleSlopeMap(slopeDouble4096, angle_slope_map_exportout, 0x00FF0000, false);
@@ -602,6 +622,6 @@ bool CPlantsSimulation::OutputResults()
 		output = m_pForest->outputPointsCloudFullTreeInstanceResults(m_pcFullOutputFile);
 	}
 	std::string pcFullOutputFileWithRatio = m_pcFullOutputFile + ".ratio.xyz";
-	output = m_pForest->outputPointsCloudFullTreeInstanceResults(pcFullOutputFileWithRatio);
+	output = m_pForest->outputPointsCloudFullTreeInstanceResultsWithRatio(pcFullOutputFileWithRatio);
 	return output;
 }

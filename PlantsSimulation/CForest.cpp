@@ -91,8 +91,8 @@ void CForest::loadTreeClasses()
 
 	classes.push_back(treeClassOak);
 	classes.push_back(treeClassMaple);
-	classes.push_back(treeClassBirch);
-	classes.push_back(treeClassFir);
+	//classes.push_back(treeClassBirch);
+	//classes.push_back(treeClassFir);
 
 	return;
 }
@@ -646,13 +646,24 @@ bool CForest::exportTreeInstanceFullOutput(const std::vector<TreeInstanceFullOut
 	//bool withRatio = true;
 	double xRatio = m_pMetaInfo->xRatio;
 	double yRatio = m_pMetaInfo->yRatio;
+	double batch_min_x = m_pMetaInfo->batch_min_x;
+	double batch_min_y = m_pMetaInfo->batch_min_y;
+	double x0 = m_pMetaInfo->x0;
+	double y0 = m_pMetaInfo->y0;
 	// Write data rows
 	for (const TreeInstanceFullOutput& tree : data) {
 
 		if (withRatio)
 		{
-			outputFile << tree.posX / xRatio << ","
+			outputFile 
+#if USE_POS_RELATIVE
+				<< tree.posX / xRatio << ","
 				<< tree.posY / yRatio << ","
+#else
+				<< (tree.posX - batch_min_x - x0) / xRatio << ","
+				<< (tree.posY - batch_min_y - y0) / yRatio << ","
+				
+#endif
 				<< tree.posZ / xRatio << ","
 				<< tree.m_instance.red << ","
 				<< tree.m_instance.green << ","
