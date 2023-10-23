@@ -4,7 +4,7 @@ import os
 
 import subprocess
 
-def process_point_cloud(api : voxelfarmclient.rest, project_id, folder_id, file_path, name : str, version : int, color : bool):
+def process_point_cloud(api : voxelfarmclient.rest, project_id, folder_id, entity_type, file_path, name : str, version : int, color : bool):
 
     if not os.path.exists(file_path):
         print(f'File {file_path} does not exist')
@@ -40,7 +40,9 @@ def process_point_cloud(api : voxelfarmclient.rest, project_id, folder_id, file_
         api.attach_files(project=project_id, id=entity_id, files={'file': f})
     result = api.create_entity_processed(project=project_id, 
         #type=api.entity_type.VoxelTerrain, 
-        type=api.entity_type.IndexedPointCloud,
+        #type=api.entity_type.VoxelMesh,
+        #type=api.entity_type.IndexedPointCloud,
+        type = entity_type,
         name=f'{name}', 
         fields={
             'source': entity_id,
@@ -57,6 +59,9 @@ workflow_api = workflow_lambda.workflow_lambda_host()
 project_id = '1D4CBBD1D957477E8CC3FF376FB87470' #'74F0C96BF0F24DA2BB5AE4ED65D81D8C'
 folder_id = '218233195003437A881AEFB3DAFE364A'
 project_entity = api.get_entity(project_id)
+entity_type_IndexedPointCloud = api.entity_type.IndexedPointCloud
+entity_type_VoxelTerrain = api.entity_type.VoxelTerrain
+
 version = int(project_entity['version']) + 1 if 'version' in project_entity else 1
 api.update_entity(project=project_id, id=project_id, fields={'version': version})
 
@@ -76,17 +81,22 @@ tiles = 10
 x = 8
 y = 5
 
-process_point_cloud(api, project_id, folder_id, f'D:\\Downloads\\PlantsSimulation\\output\\points_{tiles}_{x}_{y}_tree.xyz', f'tree_{tiles}_{x}_{y}-{version}', version=version, color=True)
+process_point_cloud(api, project_id, folder_id, entity_type_IndexedPointCloud, f'D:\\Downloads\\PlantsSimulation\\output\\points_{tiles}_{x}_{y}_tree.xyz', f'tree_{tiles}_{x}_{y}-{version}', version=version, color=True)
 '''
-process_point_cloud(api, project_id, folder_id, f'D:\\Downloads\\PlantsSimulation\\output\\mesh_heightmap_raw_export.xyz', f'Mesh_0_height_{tiles}_{x}_{y}-{version}', version=version, color=True)
-process_point_cloud(api, project_id, folder_id, f'D:\\Downloads\\PlantsSimulation\\output\\mesh2_heightmap_raw_export.xyz', f'Mesh_1_height_{tiles}_{x}_{y}-{version}', version=version, color=True)
-process_point_cloud(api, project_id, folder_id, f'D:\\Downloads\\PlantsSimulation\\output\\pc_heightmap_raw_export.xyz', f'Toplevel_height_{tiles}_{x}_{y}-{version}', version=version, color=True)
-process_point_cloud(api, project_id, folder_id, f'D:\\Downloads\\PlantsSimulation\\output\\short_height_map_export.xyz', f'Final_short_height_{tiles}_{x}_{y}-{version}', version=version, color=True)
-#process_point_cloud(api, project_id, folder_id, f'D:\\Downloads\\PlantsSimulation\\output\\double_height_map_exportout.xyz', f'Final_double_height_{tiles}_{x}_{y}-{version}', version=version, color=True)
-process_point_cloud(api, project_id, folder_id, f'D:\\Downloads\\PlantsSimulation\\output\\points_10_8_5_toplevel.xyz.ratio.xyz', f'Toplevel_Ratio_{tiles}_{x}_{y}-{version}', version=version, color=True)
-process_point_cloud(api, project_id, folder_id, f'D:\\Downloads\\PlantsSimulation\\output\\points_10_8_5_tree.xyz.ratio.xyz', f'Tree_Ratio_{tiles}_{x}_{y}-{version}', version=version, color=True)
+process_point_cloud(api, project_id, folder_id, entity_type_IndexedPointCloud, f'D:\\Downloads\\PlantsSimulation\\output\\mesh_heightmap_raw_export.xyz', f'Mesh_0_height_{tiles}_{x}_{y}-{version}', version=version, color=True)
+process_point_cloud(api, project_id, folder_id, entity_type_IndexedPointCloud, f'D:\\Downloads\\PlantsSimulation\\output\\mesh2_heightmap_raw_export.xyz', f'Mesh_1_height_{tiles}_{x}_{y}-{version}', version=version, color=True)
+process_point_cloud(api, project_id, folder_id, entity_type_IndexedPointCloud, f'D:\\Downloads\\PlantsSimulation\\output\\pc_heightmap_raw_export.xyz', f'Toplevel_height_{tiles}_{x}_{y}-{version}', version=version, color=True)
+process_point_cloud(api, project_id, folder_id, entity_type_IndexedPointCloud, f'D:\\Downloads\\PlantsSimulation\\output\\l1_heightmap_raw_export.xyz', f'level1_height_{tiles}_{x}_{y}-{version}', version=version, color=True)
+process_point_cloud(api, project_id, folder_id, entity_type_IndexedPointCloud, f'D:\\Downloads\\PlantsSimulation\\output\\short_height_map_export.xyz', f'Final_short_height_{tiles}_{x}_{y}-{version}', version=version, color=True)
+process_point_cloud(api, project_id, folder_id, entity_type_VoxelTerrain, f'D:\\Downloads\\PlantsSimulation\\output\\short_height_map_export.xyz', f'Final_short_Mesh_height_{tiles}_{x}_{y}-{version}', version=version, color=True)
+#process_point_cloud(api, project_id, folder_id, entity_type_IndexedPointCloud, f'D:\\Downloads\\PlantsSimulation\\output\\double_height_map_exportout.xyz', f'Final_double_height_{tiles}_{x}_{y}-{version}', version=version, color=True)
+process_point_cloud(api, project_id, folder_id, entity_type_IndexedPointCloud, f'D:\\Downloads\\PlantsSimulation\\output\\points_10_8_5_toplevel.xyz.ratio.xyz', f'Toplevel_Ratio_{tiles}_{x}_{y}-{version}', version=version, color=True)
+process_point_cloud(api, project_id, folder_id, entity_type_IndexedPointCloud, f'D:\\Downloads\\PlantsSimulation\\output\\points_10_8_5_tree.xyz.ratio.xyz', f'Tree_Ratio_{tiles}_{x}_{y}-{version}', version=version, color=True)
 
-process_point_cloud(api, project_id, folder_id, f'D:\\Downloads\\PlantsSimulation\\output\\points_10_8_5_toplevel.xyz', f'Toplevel_{tiles}_{x}_{y}-{version}', version=version, color=True)
+process_point_cloud(api, project_id, folder_id, entity_type_IndexedPointCloud, f'D:\\Downloads\\PlantsSimulation\\output\\points_10_8_5_toplevel.xyz', f'Toplevel_{tiles}_{x}_{y}-{version}', version=version, color=True)
+
+process_point_cloud(api, project_id, folder_id, entity_type_IndexedPointCloud, f'D:\\Downloads\\PlantsSimulation\\output\\points_10_8_5_level1.xyz', f'Level1_{tiles}_{x}_{y}-{version}', version=version, color=True)
+process_point_cloud(api, project_id, folder_id, entity_type_IndexedPointCloud, f'D:\\Downloads\\PlantsSimulation\\output\\points_10_8_5_bedrock.xyz', f'Bedrock_{tiles}_{x}_{y}-{version}', version=version, color=True)
 '''
 #process_point_cloud(api, project_id, folder_id, f'C:\\Work\\Voxel Games\\ProcgrenAssets\\output\\pc\\points_{tiles}_{x}_{y}_toplevel.xyz', f'toplevel_{tiles}_{x}_{y}', version=version, color=False)
 #process_point_cloud(api, project_id, folder_id, f'C:\\Work\\Voxel Games\\ProcgrenAssets\\output\\pc\\points_{tiles}_{x}_{y}_bedrock.xyz', f'bottom_{tiles}_{x}_{y}', version=version, color=False)
