@@ -14,6 +14,8 @@
 		320E7BCF2AAC104000BEC8EE /* CColonizationTree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 320E7BCE2AAC104000BEC8EE /* CColonizationTree.cpp */; };
 		3298E7D62ACB057D006EC9D6 /* CCellInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3298E7D52ACB057D006EC9D6 /* CCellInfo.cpp */; };
 		32C4FC122AB505840001555A /* CTimeCounter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32C4FC102AB505840001555A /* CTimeCounter.cpp */; };
+		32D19E2B2AE863B800D6BD39 /* VoxelFarmPlatform.h in Headers */ = {isa = PBXBuildFile; fileRef = 32D19E2A2AE863B800D6BD39 /* VoxelFarmPlatform.h */; };
+		32D19E2D2AE8644700D6BD39 /* Utils.h in Headers */ = {isa = PBXBuildFile; fileRef = 32D19E2C2AE8644700D6BD39 /* Utils.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -54,6 +56,8 @@
 		3298E7D52ACB057D006EC9D6 /* CCellInfo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CCellInfo.cpp; path = ../../CCellInfo.cpp; sourceTree = "<group>"; };
 		32C4FC102AB505840001555A /* CTimeCounter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CTimeCounter.cpp; path = ../../CTimeCounter.cpp; sourceTree = "<group>"; };
 		32C4FC112AB505840001555A /* CTimeCounter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CTimeCounter.h; path = ../../CTimeCounter.h; sourceTree = "<group>"; };
+		32D19E2A2AE863B800D6BD39 /* VoxelFarmPlatform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VoxelFarmPlatform.h; path = ../../VoxelFarmPlatform.h; sourceTree = "<group>"; };
+		32D19E2C2AE8644700D6BD39 /* Utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Utils.h; path = ../../Utils.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -72,6 +76,7 @@
 			children = (
 				320E7BB52AAA7DF800BEC8EE /* PlantsSimulation */,
 				320E7BB42AAA7DF800BEC8EE /* Products */,
+				32D19E212AE8500F00D6BD39 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -86,6 +91,8 @@
 		320E7BB52AAA7DF800BEC8EE /* PlantsSimulation */ = {
 			isa = PBXGroup;
 			children = (
+				32D19E2C2AE8644700D6BD39 /* Utils.h */,
+				32D19E2A2AE863B800D6BD39 /* VoxelFarmPlatform.h */,
 				3298E7D52ACB057D006EC9D6 /* CCellInfo.cpp */,
 				3298E7D42ACB057D006EC9D6 /* CCellInfo.h */,
 				3257FA352ABE8E2D00400A91 /* PsMarco.h */,
@@ -114,13 +121,33 @@
 			path = PlantsSimulation;
 			sourceTree = "<group>";
 		};
+		32D19E212AE8500F00D6BD39 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		32D19E242AE852AB00D6BD39 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				32D19E2D2AE8644700D6BD39 /* Utils.h in Headers */,
+				32D19E2B2AE863B800D6BD39 /* VoxelFarmPlatform.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
 		320E7BB22AAA7DF800BEC8EE /* PlantsSimulation */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 320E7BBA2AAA7DF800BEC8EE /* Build configuration list for PBXNativeTarget "PlantsSimulation" */;
 			buildPhases = (
+				32D19E242AE852AB00D6BD39 /* Headers */,
 				320E7BAF2AAA7DF800BEC8EE /* Sources */,
 				320E7BB02AAA7DF800BEC8EE /* Frameworks */,
 				320E7BB12AAA7DF800BEC8EE /* CopyFiles */,
