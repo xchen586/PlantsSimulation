@@ -129,3 +129,40 @@ T FindMaxIn3(const T& num1, const T& num2, const T& num3) {
 	return max_num;
 }
 
+template <typename T>
+T FindMinIn4(T num1, T num2, T num3, T num4) {
+	T min_num = num1; // Assume num1 is the minimum
+
+	if (num2 < min_num) {
+		min_num = num2;
+	}
+
+	if (num3 < min_num) {
+		min_num = num3;
+	}
+
+	if (num4 < min_num) {
+		min_num = num4;
+	}
+
+	return min_num;
+}
+
+template <typename T>
+T FindMaxIn4(T num1, T num2, T num3, T num4) {
+	T max_num = num1; // Assume num1 is the maximum
+
+	if (num2 > max_num) {
+		max_num = num2;
+	}
+
+	if (num3 > max_num) {
+		max_num = num3;
+	}
+
+	if (num4 > max_num) {
+		max_num = num4;
+	}
+
+	return max_num;
+}

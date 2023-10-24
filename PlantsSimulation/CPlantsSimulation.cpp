@@ -169,6 +169,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	std::vector<std::vector<short>> meshHeightMapShort4096 = Read2DShortArray(m_meshHeightMapFile, width, height);
 	std::vector<std::vector<short>> mesh2HeightMapShort4096 = Read2DShortArray(m_mesh2HeightMapFile, width, height);
 	std::vector<std::vector<short>> pcHeightMapShort4096 = Read2DShortArray(m_pcHeightMapFile, width, height);
+	std::vector<std::vector<short>> l1HeightMapShort4096 = Read2DShortArray(m_l1HeightMapFile, width, height);
 
 	std::vector<std::vector<short>> heightMapShort4096(width, std::vector<short>(height));
 	short minHeight = std::numeric_limits<short>::max();
@@ -180,8 +181,10 @@ bool CPlantsSimulation::LoadInputHeightMap()
 			short meshValue = meshHeightMapShort4096[x][y];
 			short mesh2Value = mesh2HeightMapShort4096[x][y];
 			short pcValue = pcHeightMapShort4096[x][y];
+			short l1Value = l1HeightMapShort4096[x][y];
 			//short value = std::max(meshValue, pcValue);
-			short value = FindMaxIn3(meshValue, mesh2Value, pcValue);
+			//short value = FindMaxIn3(meshValue, mesh2Value, pcValue);
+			short value = FindMaxIn4(meshValue, mesh2Value, pcValue, l1Value);
 			heightMapShort4096[x][y] = value;
 			minHeight = std::min(minHeight, value);
 			maxHeight = std::max(maxHeight, value);
@@ -192,6 +195,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	std::vector<std::vector<short>> meshHeightMasksShort4096 = Read2DShortArray(m_meshHeightMasksFile, width, height);
 	std::vector<std::vector<short>> mesh2HeightMasksShort4096 = Read2DShortArray(m_mesh2HeightMasksFile, width, height);
 	std::vector<std::vector<short>> pcHeightMasksShort4096 = Read2DShortArray(m_pcHeightMasksFile, width, height);
+	std::vector<std::vector<short>> l1HeightMasksShort4096 = Read2DShortArray(m_l1HeightMasksFile, width, height);
 	std::vector<std::vector<short>> heightMasksShort4096(width, std::vector<short>(height));
 	for (int x = 0; x < width; x++)
 	{
@@ -200,8 +204,10 @@ bool CPlantsSimulation::LoadInputHeightMap()
 			short meshValue = meshHeightMasksShort4096[x][y];
 			short mesh2Value = mesh2HeightMasksShort4096[x][y];
 			short pcValue = pcHeightMasksShort4096[x][y];
+			short l1Value = l1HeightMasksShort4096[x][y];
 			//short value = std::max(meshValue, pcValue);
-			short value = FindMaxIn3(meshValue, mesh2Value, pcValue);
+			//short value = FindMaxIn3(meshValue, mesh2Value, pcValue);
+			short value = FindMaxIn4(meshValue, mesh2Value, pcValue, l1Value);
 			heightMasksShort4096[x][y] = value;
 		}
 	}
@@ -239,6 +245,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	char mesh_heightmap_raw_export[MAX_PATH];
 	char mesh2_heightmap_raw_export[MAX_PATH];
 	char pc_heightmap_raw_export[MAX_PATH];
+	char l1_heightmap_raw_export[MAX_PATH];
 	char short_height_map_export[MAX_PATH];
 	char double_height_map_exportout[MAX_PATH];
 	char height_slope_map_exportout[MAX_PATH];
@@ -247,6 +254,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	memset(mesh_heightmap_raw_export, 0, sizeof(char) * MAX_PATH);
 	memset(mesh2_heightmap_raw_export, 0, sizeof(char) * MAX_PATH);
 	memset(pc_heightmap_raw_export, 0, sizeof(char) * MAX_PATH);
+	memset(l1_heightmap_raw_export, 0, sizeof(char) * MAX_PATH);
 	memset(short_height_map_export, 0, sizeof(char) * MAX_PATH);
 	memset(double_height_map_exportout, 0, sizeof(char) * MAX_PATH);
 	memset(height_slope_map_exportout, 0, sizeof(char) * MAX_PATH);
@@ -257,11 +265,13 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	snprintf(mesh_heightmap_raw_export, MAX_PATH, "%s/mesh_heightmap_raw_export.csv", m_outputDir.c_str());
 	snprintf(mesh2_heightmap_raw_export, MAX_PATH, "%s/mesh2_heightmap_raw_export.csv", m_outputDir.c_str());
 	snprintf(pc_heightmap_raw_export, MAX_PATH, "%s/pc_heightmap_raw_export.csv", m_outputDir.c_str());
+	snprintf(l1_heightmap_raw_export, MAX_PATH, "%s/l1_heightmap_raw_export.csv", m_outputDir.c_str());
 	snprintf(short_height_map_export, MAX_PATH, "%s/short_height_map_export.csv", m_outputDir.c_str());
 #else
 	snprintf(mesh_heightmap_raw_export, MAX_PATH, "%s/mesh_heightmap_raw_export.xyz", m_outputDir.c_str());
 	snprintf(mesh2_heightmap_raw_export, MAX_PATH, "%s/mesh2_heightmap_raw_export.xyz", m_outputDir.c_str());
 	snprintf(pc_heightmap_raw_export, MAX_PATH, "%s/pc_heightmap_raw_export.xyz", m_outputDir.c_str());
+	snprintf(l1_heightmap_raw_export, MAX_PATH, "%s/11_heightmap_raw_export.xyz", m_outputDir.c_str());
 	snprintf(short_height_map_export, MAX_PATH, "%s/short_height_map_export.xyz", m_outputDir.c_str());
 #endif
 	snprintf(double_height_map_exportout, MAX_PATH, "%s/double_height_map_exportout.xyz", m_outputDir.c_str());
@@ -273,11 +283,13 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	sprintf_s(mesh_heightmap_raw_export, MAX_PATH, "%s\\mesh_heightmap_raw_export.csv", m_outputDir.c_str());
 	sprintf_s(mesh2_heightmap_raw_export, MAX_PATH, "%s\\mesh2_heightmap_raw_export.csv", m_outputDir.c_str());
 	sprintf_s(pc_heightmap_raw_export, MAX_PATH, "%s\\pc_heightmap_raw_export.csv", m_outputDir.c_str());
+	sprintf_s(l1_heightmap_raw_export, MAX_PATH, "%s\\1l_heightmap_raw_export.csv", m_outputDir.c_str());
 	sprintf_s(short_height_map_export, MAX_PATH, "%s\\short_height_map_export.csv", m_outputDir.c_str());
 #else
 	sprintf_s(mesh_heightmap_raw_export, MAX_PATH, "%s\\mesh_heightmap_raw_export.xyz", m_outputDir.c_str());
 	sprintf_s(mesh2_heightmap_raw_export, MAX_PATH, "%s\\mesh2_heightmap_raw_export.xyz", m_outputDir.c_str());
 	sprintf_s(pc_heightmap_raw_export, MAX_PATH, "%s\\pc_heightmap_raw_export.xyz", m_outputDir.c_str());
+	sprintf_s(l1_heightmap_raw_export, MAX_PATH, "%s\\l1_heightmap_raw_export.xyz", m_outputDir.c_str());
 	sprintf_s(short_height_map_export, MAX_PATH, "%s\\short_height_map_export.xyz", m_outputDir.c_str());
 #endif
 
@@ -293,12 +305,14 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	ExportShortHeightMap(meshHeightMapShort4096, mesh_heightmap_raw_export, 0x00FF0000, true);
 	ExportShortHeightMap(mesh2HeightMapShort4096, mesh2_heightmap_raw_export, 0x00FF0000, true);
 	ExportShortHeightMap(pcHeightMapShort4096, pc_heightmap_raw_export, 0x0000FF00, true);
+	ExportShortHeightMap(l1HeightMapShort4096, l1_heightmap_raw_export, 0x0000FF00, true);
 	ExportShortHeightMap(heightMapShort4096, short_height_map_export, 0x000000FF, true);
 #else
-	ExportShortHeightMap(meshHeightMapShort4096, mesh_heightmap_raw_export, 0x00FF0000, false);
-	ExportShortHeightMap(mesh2HeightMapShort4096, mesh2_heightmap_raw_export, 0x00FF0000, false);
-	ExportShortHeightMap(pcHeightMapShort4096, pc_heightmap_raw_export, 0x0000FF00, false);
-	ExportShortHeightMap(heightMapShort4096, short_height_map_export, 0x000000FF, false);
+	ExportShortHeightMap(meshHeightMapShort4096, mesh_heightmap_raw_export, 0x00FF0000, false, true);
+	ExportShortHeightMap(mesh2HeightMapShort4096, mesh2_heightmap_raw_export, 0x00FF0000, false, true);
+	ExportShortHeightMap(pcHeightMapShort4096, pc_heightmap_raw_export, 0x0000FF00, false, true);
+	ExportShortHeightMap(l1HeightMapShort4096, l1_heightmap_raw_export, 0x0000FF00, false, true);
+	ExportShortHeightMap(heightMapShort4096, short_height_map_export, 0x000000FF, false, true);
 #endif
 	ExportDoubleHeightMap(heightMapDouble4096, double_height_map_exportout, 0x00FFFF00, false);
 	ExportShortHeightSlopeMap(slopeShort4096, height_slope_map_exportout, 0x0000FF00, false);
@@ -333,6 +347,10 @@ bool CPlantsSimulation::ExportShortHeightMap(std::vector<std::vector<short>>& he
 	
 	double xRatio = m_topLayerMeta->xRatio;
 	double yRatio = m_topLayerMeta->yRatio;
+	double batch_min_x = m_topLayerMeta->batch_min_x;
+	double batch_min_y = m_topLayerMeta->batch_min_y;
+	double x0 = m_topLayerMeta->x0;
+	double y0 = m_topLayerMeta->y0;
 	int mapWidth = heightMap.size();
 	int mapHeight = heightMap[0].size();
 	int width = heightMap.size();
@@ -357,15 +375,25 @@ bool CPlantsSimulation::ExportShortHeightMap(std::vector<std::vector<short>>& he
 				{
 					//std::cout << "height map value is not 0 :  value : " << value << ", i = " << i << " , j = " << j << std::endl;
 				}
-
-				outputFile 
-					<< static_cast<double>(i * xRatio) << ","
-					<< static_cast<double>(j * yRatio) << ","
-					//<< heightMap[raw][col] << ","
-					<< value << ","
-					<< redColor << ","
-					<< greenColor << ","
-					<< blueColor << std::endl;
+#if USE_OUTPUT_ONLY_POSITIVE_HEIGHT
+				if (value >= 0)
+				{
+#endif
+					double posX = static_cast<double>(i * xRatio);
+					double posY = static_cast<double>(j * yRatio);
+					double fullPosX = batch_min_x + x0 + posX;
+					double fullPoxY = batch_min_y + y0 + posY;
+					outputFile
+						<< fullPosX << ","
+						<< fullPoxY << ","
+						//<< heightMap[raw][col] << ","
+						<< value << ","
+						<< redColor << ","
+						<< greenColor << ","
+						<< blueColor << std::endl;
+#if USE_OUTPUT_ONLY_POSITIVE_HEIGHT
+				}
+#endif
 			}
 			else
 			{
