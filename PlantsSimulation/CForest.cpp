@@ -2,10 +2,13 @@
 
 #include <iostream>
 #include <fstream>
+#include <filesystem> 
 
 #include "TreeClasses.h"
 #include "CCellI2DMask.h"
 #include "PsHelper.h"
+
+#include "Utils.h"
 
 TreeInstanceFullOutput::TreeInstanceFullOutput(const TreeInstanceOutput& instance, CCellInfo* pCellData, InputImageMetaInfo* pMetaInfo)
 	: posX(0)
@@ -394,6 +397,7 @@ void CForest::generate(float forestAge, int iterations)
 				continue;
 
 			double age = time - tree.bday;
+			tree.age = age;
 			tree.dead = age > tree.treeClass->maxAge;
 
 			if (tree.dead)
@@ -790,6 +794,54 @@ bool CForest::outputFullTreeInstanceResults(const std::string& fileName, bool ha
 	return true;
 }
 
+bool CForest::outputSubfiles(const std::string& outputSubsDir)
+{
+	if (!std::filesystem::exists(outputSubsDir)) {
+		if (!std::filesystem::create_directory(outputSubsDir)) {
+			std::cerr << "Failed to create the directory of outputSubsDir!" << std::endl;
+			return false;
+		}
+	}
+
+	int lod = 5;
+
+	const double cellSize = (1 << lod) * VoxelFarm::CELL_SIZE;
+	const double voxelSize = cellSize / VoxelFarm::BLOCK_DIMENSION;
+
+	CAffineTransform transform(
+		CAffineTransform::sAffineVector{
+			0.0, 0.0, 0.0
+		}, 2.0, CAffineTransform::eTransformMode::TM_YZ_ROTATE);
+
+	for (const TreeInstanceFullOutput& instance : fullOutputs)
+	{
+		auto posWorldToVF = transform.WC_TO_VF(CAffineTransform::sAffineVector(instance.posX, instance.posY, instance.posZ));
+		double doubleXIdx = posWorldToVF.X / cellSize;
+		double doubleYIdx = posWorldToVF.Z / cellSize;
+		int intXIdx = static_cast<int>(std::floor(doubleXIdx));
+		int intYIdx = static_cast<int>(std::floor(doubleYIdx));
+
+		auto cellOrgVFToWorld = transform.VF_TO_WC(CAffineTransform::sAffineVector{ static_cast<double>(intXIdx), posWorldToVF.Y, static_cast<double>(intXIdx) });
+
+		double relativeOffsetXWorld = instance.posX - cellOrgVFToWorld.X;
+		double relativeOffsetYWorld = instance.posY - cellOrgVFToWorld.Y;
+
+		const int MAX_PATH = 250;
+		char subFilePath[MAX_PATH];
+		memset(subFilePath, 0, sizeof(char) * MAX_PATH);
+#if __APPLE__
+		snprintf(subFilePath, MAX_PATH, "%s/%s", outputSubsDir, input_image_name);
+#else
+		sprintf_s(subFilePath, MAX_PATH, "%s\\instances_%d_%d.csv", outputSubsDir, intXIdx, intYIdx);
+#endif
+		/*std::ofstream outputFile(subFilePath);
+		if (!outputFile.is_open()) {
+			std::cerr << "Error: Unable to open the subFilePath file " << subFilePath << std::endl;
+			return false;
+		*/
+	}
+	return true;
+}
 
 bool CForest::outputCSVFullTreeInstanceResults(const std::string& fileName)
 {

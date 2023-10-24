@@ -23,6 +23,7 @@ public:
 	float z;
 	bool dead;
 	bool mature;
+	double age;
 };
 
 struct ClassStrength
@@ -39,6 +40,7 @@ struct TreeInstanceOutput {
 	int green;
 	int blue;
 	unsigned int treeType;
+	double age;
 	TreeInstanceOutput()
 		: x(0)
 		, y(0)
@@ -47,6 +49,7 @@ struct TreeInstanceOutput {
 		, green(0)
 		, blue(0)
 		, treeType(0)
+		, age(0)
 	{
 
 	}
@@ -59,6 +62,7 @@ struct TreeInstanceOutput {
 		, green(0)
 		, blue(0)
 		, treeType(0)
+		, age(0)
 	{
 		x = instance.x;
 		y = instance.z;
@@ -73,6 +77,7 @@ struct TreeInstanceOutput {
 		blue = blueColor;
 
 		treeType = static_cast<unsigned int>(instance.treeClass->type);
+		age = instance.age;
 	}
 
 	TreeInstanceOutput(const TreeInstanceOutput& other)
@@ -84,6 +89,7 @@ struct TreeInstanceOutput {
 		green = other.green;
 		blue = other.blue;
 		treeType = other.treeType;
+		age = other.age;
 	}
 
 	TreeInstanceOutput& operator= (const TreeInstanceOutput& other)
@@ -95,6 +101,7 @@ struct TreeInstanceOutput {
 		green = other.green;
 		blue = other.blue;
 		treeType = other.treeType;
+		age = other.age;
 		return *this;
 	}
 };
@@ -141,6 +148,8 @@ public:
 	bool outputCSVFullTreeInstanceResultsWithRatio(const std::string& fileName);
 	bool outputPointsCloudFullTreeInstanceResults(const std::string& fileName);
 	bool outputPointsCloudFullTreeInstanceResultsWithRatio(const std::string& fileName);
+
+	bool outputSubfiles(const std::string& outputSubsDir);
 public:
 	vector<TreeClass*> classes;
 	map<string, I2DMask*> masks;
