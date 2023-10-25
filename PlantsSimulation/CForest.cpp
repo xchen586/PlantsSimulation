@@ -830,7 +830,7 @@ bool CForest::outputSubfiles(const std::string& outputSubsDir)
 		char subFilePath[MAX_PATH];
 		memset(subFilePath, 0, sizeof(char) * MAX_PATH);
 #if __APPLE__
-		snprintf(subFilePath, MAX_PATH, "%s/%s", outputSubsDir, input_image_name);
+		snprintf(subFilePath, MAX_PATH, "%s/instances_%d_%d.csv", outputSubsDir.c_str(), intXIdx, intYIdx);
 #else
 		sprintf_s(subFilePath, MAX_PATH, "%s\\instances_%d_%d.csv", outputSubsDir, intXIdx, intYIdx);
 #endif

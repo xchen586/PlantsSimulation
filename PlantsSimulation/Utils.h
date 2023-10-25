@@ -202,6 +202,13 @@ public:
 	struct sAffineVector
 	{
 		double X, Y, Z;
+        sAffineVector(double x, double y, double z)
+        : X(x)
+        , Y(y)
+        , Z(y)
+        {
+            
+        }
 	};
 
 public:
