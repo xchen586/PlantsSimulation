@@ -205,7 +205,7 @@ public:
         sAffineVector(double x, double y, double z)
         : X(x)
         , Y(y)
-        , Z(y)
+        , Z(z)
         {
             
         }
