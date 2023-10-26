@@ -89,12 +89,6 @@
     <ClInclude Include="TreeInstance.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Utils.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="VoxelFarmPlatform.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\Common\Include\Instance.h">
       <Filter>Common</Filter>
     </ClInclude>
