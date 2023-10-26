@@ -1,11 +1,11 @@
 #pragma once
-
-#include "TreeInstance.h"
-#include "I2DMask.h"
 #include <vector>
 #include <map>
 #include <string>
 
+#include "I2DMask.h"
+
+#include "..\Common\include\TreeInstance.h"
 #include "..\Common\include\Utils.h"
 
 using namespace std;
@@ -15,6 +15,12 @@ struct InputImageMetaInfo;
 pair<string, I2DMask*> GetI2DMaskKeyPairFromPlantTypeWithIndex(PlantType type, int index, I2DMask* i2dMask);
 pair<string, I2DMask*> GetI2DMaskKeyPairFromPlantTypeWithDensityMapType(PlantType plantType, DensityMapType densityType, I2DMask* pI2dMask);
 pair<string, I2DMask*> GetI2DMaskKeyPairFromPlantTypeWithDensityMapTypeIndex(PlantType plantType, DensityMapType densityType, I2DMask* pI2dMask);
+
+struct ClassStrength
+{
+	double strength;
+	TreeClass* treeClass;
+};
 
 class CForest
 {

@@ -1,6 +1,6 @@
 #pragma once
 #include "CColonizationTree.h"
-#include "..\Common\include\Instance.h"
+#include "Instance.h"
 
 class CCellInfo;
 struct InputImageMetaInfo;
@@ -15,12 +15,6 @@ public:
 	bool dead;
 	bool mature;
 	double age;
-};
-
-struct ClassStrength
-{
-	double strength;
-	TreeClass* treeClass;
 };
 
 struct TreeInstanceOutput {

@@ -1,6 +1,5 @@
 #include "CPlantsSimulation.h"
-#include "CCellInfo.h"
-#include "CTimeCounter.h"
+#include "..\Common\include\CTimeCounter.h"
 #include "..\Common\include\PsMarco.h"
 
 

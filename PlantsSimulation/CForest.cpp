@@ -815,7 +815,7 @@ bool CForest::outputSubfiles(const std::string& outputSubsDir)
 		double VF_Y = static_cast<double>(intYIdx * cellSize);// + worldOriginVF.Y;
 		double VF_Z = static_cast<double>(intZIdx * cellSize);// + worldOriginVF.Z;
 
-		auto cellOrgVFToWorld = transform.VF_TO_WC(CAffineTransform::sAffineVector{ VF_X, VF_Y, VF_Z + cellSize });
+		auto cellOrgVFToWorld = transform.VF_TO_WC(CAffineTransform::sAffineVector{ VF_X, VF_Y, VF_Z + cellSize }); // + cellSize : maybe it is a hack!!!
 
 		double relativeOffsetXWorld = instance.posX - cellOrgVFToWorld.X;
 		double relativeOffsetYWorld = instance.posY - cellOrgVFToWorld.Y;

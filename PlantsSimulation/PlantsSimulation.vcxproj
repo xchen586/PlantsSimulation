@@ -135,26 +135,28 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\Common\Include\CCellInfo.cpp" />
+    <ClCompile Include="..\Common\Include\CColonizationTree.cpp" />
+    <ClCompile Include="..\Common\Include\CTimeCounter.cpp" />
     <ClCompile Include="..\Common\Include\PsHelper.cpp" />
-    <ClCompile Include="CCellInfo.cpp" />
-    <ClCompile Include="CColonizationTree.cpp" />
+    <ClCompile Include="..\Common\Include\TreeInstance.cpp" />
     <ClCompile Include="CForest.cpp" />
     <ClCompile Include="CPlantsSimulation.cpp" />
-    <ClCompile Include="CTimeCounter.cpp" />
-    <ClCompile Include="TreeInstance.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Common\Include\CCellInfo.h" />
+    <ClInclude Include="..\Common\Include\CColonizationTree.h" />
+    <ClInclude Include="..\Common\Include\CTimeCounter.h" />
     <ClInclude Include="..\Common\Include\Instance.h" />
     <ClInclude Include="..\Common\Include\PsHelper.h" />
     <ClInclude Include="..\Common\Include\PsMarco.h" />
     <ClInclude Include="..\Common\Include\stb_image.h" />
     <ClInclude Include="..\Common\Include\stb_image_write.h" />
+    <ClInclude Include="..\Common\Include\TreeInstance.h" />
     <ClInclude Include="..\Common\Include\Utils.h" />
     <ClInclude Include="..\Common\Include\VoxelFarmPlatform.h" />
-    <ClInclude Include="CCellInfo.h" />
     <ClInclude Include="CCellI2DMask.h" />
-    <ClInclude Include="CColonizationTree.h" />
     <ClInclude Include="CForest.h" />
     <ClInclude Include="CHeightDensity.h" />
     <ClInclude Include="CMoistureDensityMap.h" />
@@ -162,9 +164,7 @@
     <ClInclude Include="CRoadAttributeDensityMap.h" />
     <ClInclude Include="CRoughnessDensityMap.h" />
     <ClInclude Include="CSlopeDensityMap.h" />
-    <ClInclude Include="CTimeCounter.h" />
     <ClInclude Include="I2DMask.h" />
-    <ClInclude Include="TreeInstance.h" />
     <ClInclude Include="TreeClasses.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

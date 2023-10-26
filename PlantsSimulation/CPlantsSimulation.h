@@ -1,6 +1,6 @@
 #pragma once
 #include "..\Common\include\PsHelper.h"
-#include "CCellInfo.h"
+#include "..\Common\include\CCellInfo.h"
 #include "CForest.h"
 using namespace std;
 

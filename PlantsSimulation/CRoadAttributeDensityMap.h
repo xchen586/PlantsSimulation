@@ -1,5 +1,5 @@
 #pragma once
-#include "CColonizationTree.h"
+#include "..\Common\include\CColonizationTree.h"
 
 class CRoadAttributeDensityMap : public DensityMap
 {

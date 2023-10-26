@@ -27,19 +27,19 @@
     <ClCompile Include="CForest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CColonizationTree.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CTimeCounter.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CCellInfo.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="TreeInstance.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\Common\Include\PsHelper.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\Include\CCellInfo.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\Include\CColonizationTree.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\Include\CTimeCounter.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Common\Include\TreeInstance.cpp">
       <Filter>Common</Filter>
     </ClCompile>
   </ItemGroup>
@@ -47,13 +47,7 @@
     <ClInclude Include="CPlantsSimulation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CColonizationTree.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CForest.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CTimeCounter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CCellI2DMask.h">
@@ -80,12 +74,6 @@
     <ClInclude Include="TreeClasses.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CCellInfo.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TreeInstance.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\Common\Include\Instance.h">
       <Filter>Common</Filter>
     </ClInclude>
@@ -105,6 +93,18 @@
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="..\Common\Include\PsHelper.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Include\CCellInfo.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Include\CColonizationTree.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Include\CTimeCounter.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Include\TreeInstance.h">
       <Filter>Common</Filter>
     </ClInclude>
   </ItemGroup>
