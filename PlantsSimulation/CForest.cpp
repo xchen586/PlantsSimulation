@@ -3,12 +3,11 @@
 #include <iostream>
 #include <fstream>
 #include <filesystem> 
+#include <thread>
 
 #include "TreeClasses.h"
 #include "CCellI2DMask.h"
 #include "PsHelper.h"
-
-#include "Utils.h"
 
 TreeInstanceFullOutput::TreeInstanceFullOutput(const TreeInstanceOutput& instance, CCellInfo* pCellData, InputImageMetaInfo* pMetaInfo)
 	: posX(0)
@@ -794,6 +793,32 @@ bool CForest::outputFullTreeInstanceResults(const std::string& fileName, bool ha
 	return true;
 }
 
+bool OutputCSVFileForSubInstances(const string& filePath, std::shared_ptr<TreeInsSubOutputVector> subVector)
+{
+	std::ofstream outputFile(filePath);
+	if (!outputFile.is_open()) {
+		std::cerr << "Error: Unable to open the sub csv file " << filePath << std::endl;
+		return false;
+	}
+
+	outputFile << "X,Y,Z,TreeTypeId,Age" << std::endl;
+
+	for (const auto& sub : *subVector)
+	{
+		outputFile
+
+			<< sub.xOffsetW << ","
+			<< sub.yOffsetW << ","
+			<< sub.rPosZ << ","
+			<< sub.typeId << ","
+			<< sub.age << std::endl;
+
+	}
+
+	outputFile.close();
+	return true;
+}
+
 bool CForest::outputSubfiles(const std::string& outputSubsDir)
 {
 	if (!std::filesystem::exists(outputSubsDir)) {
@@ -812,34 +837,101 @@ bool CForest::outputSubfiles(const std::string& outputSubsDir)
 		CAffineTransform::sAffineVector{
 			0.0, 0.0, 0.0
 		}, 2.0, CAffineTransform::eTransformMode::TM_YZ_ROTATE);
+	auto worldOriginVF = transform.WC_TO_VF(CAffineTransform::sAffineVector{ 0.0, 0.0, 0.0 });
+
+	TreeInsSubOutputMap outputMap;
 
 	for (const TreeInstanceFullOutput& instance : fullOutputs)
 	{
 		auto posWorldToVF = transform.WC_TO_VF(CAffineTransform::sAffineVector(instance.posX, instance.posY, instance.posZ));
 		double doubleXIdx = posWorldToVF.X / cellSize;
-		double doubleYIdx = posWorldToVF.Z / cellSize;
+		double doubleYIdx = posWorldToVF.Y / cellSize;
 		int intXIdx = static_cast<int>(std::floor(doubleXIdx));
 		int intYIdx = static_cast<int>(std::floor(doubleYIdx));
 
-		auto cellOrgVFToWorld = transform.VF_TO_WC(CAffineTransform::sAffineVector{ static_cast<double>(intXIdx), posWorldToVF.Y, static_cast<double>(intXIdx) });
+		double VF_X = static_cast<double>(intXIdx * cellSize);// + worldOriginVF.X;
+		double VF_Y = static_cast<double>(intYIdx * cellSize);// +worldOriginVF.Y;
+		double VF_Z = posWorldToVF.Z;// + worldOriginVF.Z;
+
+		auto testVFToWorld1 = transform.VF_TO_WC(CAffineTransform::sAffineVector(posWorldToVF.X, posWorldToVF.Y, posWorldToVF.Z));
+		auto testVFToWorld2 = transform.VF_TO_WC(CAffineTransform::sAffineVector(posWorldToVF.X, posWorldToVF.Z, posWorldToVF.Y));
+		auto testVFToWorld3 = transform.VF_TO_WC(CAffineTransform::sAffineVector(posWorldToVF.X + worldOriginVF.X, posWorldToVF.Y + worldOriginVF.Y, posWorldToVF.Z + worldOriginVF.Z));
+		auto testVFToWorld4 = transform.VF_TO_WC(CAffineTransform::sAffineVector(posWorldToVF.X + worldOriginVF.X, posWorldToVF.Z + worldOriginVF.Z, posWorldToVF.Y + worldOriginVF.Y));
+		auto testVFToWorld5 = transform.VF_TO_WC(CAffineTransform::sAffineVector(posWorldToVF.X - worldOriginVF.X, posWorldToVF.Y - worldOriginVF.Y, posWorldToVF.Z - worldOriginVF.Z));
+		auto testVFToWorld6 = transform.VF_TO_WC(CAffineTransform::sAffineVector(posWorldToVF.X - worldOriginVF.X, posWorldToVF.Z - worldOriginVF.Z, posWorldToVF.Y - worldOriginVF.Y));
+
+		auto cellOrgVFToWorld = transform.VF_TO_WC(CAffineTransform::sAffineVector{ VF_X, VF_Y, VF_Z });
 
 		double relativeOffsetXWorld = instance.posX - cellOrgVFToWorld.X;
 		double relativeOffsetYWorld = instance.posY - cellOrgVFToWorld.Y;
 
+		TreeInstanceSubOutput sub = TreeInstanceSubOutput();
+		sub.xIdx = intXIdx;
+		sub.yIdx = intYIdx;
+		sub.xOffsetW = relativeOffsetXWorld;
+		sub.yOffsetW = relativeOffsetYWorld;
+		sub.typeId = instance.m_instance.treeType;
+		sub.age = instance.m_instance.age;
+
 		const int MAX_PATH = 250;
+		char subFileName[MAX_PATH];
 		char subFilePath[MAX_PATH];
+		memset(subFileName, 0, sizeof(char) * MAX_PATH);
 		memset(subFilePath, 0, sizeof(char) * MAX_PATH);
 #if __APPLE__
-		snprintf(subFilePath, MAX_PATH, "%s/instances_%d_%d.csv", outputSubsDir.c_str(), intXIdx, intYIdx);
+		snprintf(subFileName, MAX_PATH, "instances_%d_%d.csv", intXIdx, intYIdx);
+		snprintf(subFilePath, MAX_PATH, "%s/%s", outputSubsDir.c_str(), subFileName);
 #else
-		sprintf_s(subFilePath, MAX_PATH, "%s\\instances_%d_%d.csv", outputSubsDir, intXIdx, intYIdx);
+		sprintf_s(subFileName, MAX_PATH, "instances_%d_%d.csv", intXIdx, intYIdx);
+		sprintf_s(subFilePath, MAX_PATH, "%s\\%s", outputSubsDir.c_str(), subFileName);
 #endif
-		/*std::ofstream outputFile(subFilePath);
-		if (!outputFile.is_open()) {
-			std::cerr << "Error: Unable to open the subFilePath file " << subFilePath << std::endl;
-			return false;
-		*/
+		string keyString = subFilePath;
+		TreeInsSubOutputMap::iterator iter = outputMap.find(keyString);
+		if (outputMap.end() == iter)
+		{
+			outputMap[keyString] = std::make_shared<TreeInsSubOutputVector>();
+		}
+
+		std::shared_ptr<TreeInsSubOutputVector> subVector = outputMap[keyString];
+		subVector->push_back(sub);
 	}
+
+	std::vector<std::thread> workers;
+	for (const auto& pair : outputMap)
+	{
+		workers.emplace_back(std::thread(OutputCSVFileForSubInstances, pair.first, pair.second));
+	}
+	/*for (int i = 0; i < workers.size() - 1; i++)
+	{
+		workers[i].join();
+	}
+	workers.back().join();*/
+	// Join all the threads to wait for them to finish
+	for (std::thread& t : workers) {
+		
+		t.join();
+	}
+
+	// Use the function results as needed
+	bool allOk = true;
+	for (const std::thread& t : workers) {
+		bool result = t.joinable(); // Replace with actual result retrieval logic
+		if (result) {
+			// Do something when the function returns true
+		}
+		else {
+			// Do something when the function returns false
+			allOk = false;
+		}
+	}
+
+	return allOk;
+	/*std::ofstream outputFile(subFilePath);
+	if (!outputFile.is_open()) {
+		std::cerr << "Error: Unable to open the subFilePath file " << subFilePath << std::endl;
+		return false;
+	}*/
+	
 	return true;
 }
 

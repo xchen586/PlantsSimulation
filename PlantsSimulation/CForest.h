@@ -6,6 +6,8 @@
 #include <map>
 #include <string>
 
+#include "Utils.h"
+
 using namespace std;
 class CCellInfo;
 struct InputImageMetaInfo;
@@ -105,6 +107,27 @@ struct TreeInstanceOutput {
 		return *this;
 	}
 };
+
+struct InstanceSubOutput
+{
+	int xIdx;
+	int yIdx;
+	double xOffsetW;
+	double yOffsetW;
+	//double rPosX;
+	//double rPosY;
+	double rPosZ;
+};
+
+struct TreeInstanceSubOutput : public InstanceSubOutput
+{
+	unsigned int typeId;
+	int age;
+
+};
+
+typedef std::vector<TreeInstanceSubOutput> TreeInsSubOutputVector;
+typedef std::map <std::string, std::shared_ptr<TreeInsSubOutputVector>> TreeInsSubOutputMap;
 
 struct TreeInstanceFullOutput
 {

@@ -9,7 +9,7 @@
 #endif 
 
 #ifndef USE_EXPORT_HEIGHT_MAP
-#define USE_EXPORT_HEIGHT_MAP 1
+#define USE_EXPORT_HEIGHT_MAP 0
 #endif 
 
 #ifndef USE_MAX_SLOPE_ANGLE

@@ -665,7 +665,19 @@ bool CPlantsSimulation::OutputResults()
 	{
 		output = m_pForest->outputPointsCloudFullTreeInstanceResults(m_pcFullOutputFile);
 	}
-	std::string pcFullOutputFileWithRatio = m_pcFullOutputFile + ".ratio.xyz";
-	output = m_pForest->outputPointsCloudFullTreeInstanceResultsWithRatio(pcFullOutputFileWithRatio);
+	//std::string pcFullOutputFileWithRatio = m_pcFullOutputFile + ".ratio.xyz";
+	//output = m_pForest->outputPointsCloudFullTreeInstanceResultsWithRatio(pcFullOutputFileWithRatio);
+	const int MAX_PATH = 250;
+	char subFullOutput_Dir[MAX_PATH];
+	memset(subFullOutput_Dir, 0, sizeof(char) * MAX_PATH);
+#if __APPLE__ 
+	snprintf(subFullOutput_Dir, MAX_PATH, "%s/instanceoutput", m_outputDir.c_str());
+#else
+	sprintf_s(subFullOutput_Dir, MAX_PATH, "%s\\instanceoutput", m_outputDir.c_str());
+#endif
+	if (output)
+	{
+		output = m_pForest->outputSubfiles(subFullOutput_Dir);
+	}
 	return output;
 }
