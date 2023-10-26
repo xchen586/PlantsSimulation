@@ -94,6 +94,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <Optimization>Disabled</Optimization>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -124,6 +125,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <Optimization>Disabled</Optimization>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -138,6 +140,7 @@
     <ClCompile Include="CForest.cpp" />
     <ClCompile Include="CPlantsSimulation.cpp" />
     <ClCompile Include="CTimeCounter.cpp" />
+    <ClCompile Include="TreeInstance.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="PsHelper.cpp" />
   </ItemGroup>
@@ -154,6 +157,8 @@
     <ClInclude Include="CSlopeDensityMap.h" />
     <ClInclude Include="CTimeCounter.h" />
     <ClInclude Include="I2DMask.h" />
+    <ClInclude Include="Instance.h" />
+    <ClInclude Include="TreeInstance.h" />
     <ClInclude Include="PsHelper.h" />
     <ClInclude Include="PsMarco.h" />
     <ClInclude Include="stb_image.h" />
