@@ -32,14 +32,11 @@ class CMapleMoistureDensityMap : public CMoistureDensityMap
 public:
 	CMapleMoistureDensityMap() : CMoistureDensityMap()
 	{
-		//minval = 0.1;
-		//maxval = 0.8;
+		minval = 0.1;
+		maxval = 0.8;
 
 		//minval = 0;
 		//maxval = 1.0;
-
-		minval = 0.1;
-		maxval = 0.37;
 	}
 };
 

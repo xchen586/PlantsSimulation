@@ -21,8 +21,8 @@ public:
 	COakHeightDensityMap() : CHeightDensityMap()
 	{
 		minval = WaterLevel + 1;
-		maxval = 2500;
-		ease = 100;
+		maxval = 1500;
+		ease = 200;
 	}
 };
 
@@ -32,9 +32,8 @@ public:
 	CMapleHeightDensityMap() : CHeightDensityMap()
 	{
 		minval = WaterLevel + 1;
-		//maxval = 1800;
-		maxval = 2500;
-		ease = 100;
+		maxval = 1800;
+		ease = 200;
 	}
 };
 

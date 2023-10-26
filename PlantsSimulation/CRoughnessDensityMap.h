@@ -27,11 +27,8 @@ class CMapleRoughnessDensityMap : public CRoughnessDensityMap
 public:
 	CMapleRoughnessDensityMap() : CRoughnessDensityMap()
 	{
-		//minval = 0.12;
-		//maxval = 0.297;
-
-		minval = 0.1;
-		maxval = 0.298;
+		minval = 0.12;
+		maxval = 0.297;
 	}
 };
 
