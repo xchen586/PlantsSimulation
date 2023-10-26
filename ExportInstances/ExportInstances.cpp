@@ -3,9 +3,11 @@
 
 #include <iostream>
 
-int main()
+int main(int argc, const char* argv[])
 {
-    std::cout << "Hello World!\n";
+    //const char* assets_path = argv[1];
+    //const char* output_path = argv[2];
+    return 0;
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
