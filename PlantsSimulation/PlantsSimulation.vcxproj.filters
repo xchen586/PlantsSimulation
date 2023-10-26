@@ -13,15 +13,15 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Common">
+      <UniqueIdentifier>{70c34a48-c063-453d-8fdc-3c51eb8d463e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CPlantsSimulation.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CCellData.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CForest.cpp">
@@ -36,18 +36,15 @@
     <ClCompile Include="CTimeCounter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CCellInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TreeInstance.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CPlantsSimulation.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="stb_image.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="stb_image_write.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CCellData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CColonizationTree.h">
@@ -86,8 +83,23 @@
     <ClInclude Include="TreeClasses.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PsMarco.h">
+    <ClInclude Include="CCellInfo.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TreeInstance.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VoxelFarmPlatform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Include\Instance.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Include\PsMarco.h">
+      <Filter>Common</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -9,54 +9,6 @@
 #include "CCellI2DMask.h"
 #include "PsHelper.h"
 
-TreeInstanceFullOutput::TreeInstanceFullOutput(const TreeInstanceOutput& instance, CCellInfo* pCellData, InputImageMetaInfo* pMetaInfo)
-	: posX(0)
-	, posY(0)
-	, posZ(0)
-	, m_instance(instance)
-	, m_pCellData(pCellData)
-	, m_pMetaInfo(pMetaInfo)
-{
-	GetPosFromInstanceOutputEx();
-}
-
-void TreeInstanceFullOutput::GetPosFromInstanceOutput()
-{
-	double scaleXMin = static_cast<double>(m_instance.x) * m_pMetaInfo->xRatio;
-	double scaleXmax = static_cast<double>(m_instance.x + 1) * m_pMetaInfo->xRatio;
-	double scaleYMin = static_cast<double>(m_instance.y) * m_pMetaInfo->yRatio;
-	double scaleYmax = static_cast<double>(m_instance.y + 1) * m_pMetaInfo->yRatio;
-	double localX = GenerateRandomDouble(scaleXMin, scaleXmax);
-	double localY = GenerateRandomDouble(scaleYMin, scaleYmax);
-	//posX = localX;
-	//posY = localY;
-	posX = m_pMetaInfo->batch_min_x
-		+ m_pMetaInfo->x0
-		+ localX;
-	posY = m_pMetaInfo->batch_min_y
-		+ m_pMetaInfo->y0
-		+ localY;
-	posZ = m_pCellData->GetHeight();
-}
-
-void TreeInstanceFullOutput::GetPosFromInstanceOutputEx()
-{
-	double localX = m_instance.x;
-	double localY = m_instance.y;
-#if USE_POS_RELATIVE
-	posX = localX;
-	posY = localY;
-#else
-	posX = m_pMetaInfo->batch_min_x
-		+ m_pMetaInfo->x0
-		+ localX;
-	posY = m_pMetaInfo->batch_min_y
-		+ m_pMetaInfo->y0
-		+ localY;
-#endif
-	posZ = m_pCellData->GetHeight();
-}
-
 CForest::CForest(void)
 {
 	grid = NULL;
@@ -801,7 +753,7 @@ bool OutputCSVFileForSubInstances(const string& filePath, std::shared_ptr<TreeIn
 		return false;
 	}
 
-	outputFile << "X,Y,Z,TreeTypeId,Age" << std::endl;
+	outputFile << "X,Y,Z,ScaleX,ScaleY,ScaleZ,RoationX,RotationY,RotaionZ,InstanceType,Variant,Age" << std::endl;
 
 	for (const auto& sub : *subVector)
 	{
@@ -809,8 +761,15 @@ bool OutputCSVFileForSubInstances(const string& filePath, std::shared_ptr<TreeIn
 
 			<< sub.xOffsetW << ","
 			<< sub.yOffsetW << ","
-			<< sub.rPosZ << ","
-			<< sub.typeId << ","
+			<< sub.posZ << ","
+			<< sub.scaleX << ","
+			<< sub.scaleY << ","
+			<< sub.scaleZ << ","
+			<< sub.rotationX << ","
+			<< sub.rotationY << ","
+			<< sub.rotationZ << ","
+			<< sub.instanceType << ","
+			<< sub.variant << ","
 			<< sub.age << std::endl;
 
 	}
@@ -828,7 +787,8 @@ bool CForest::outputSubfiles(const std::string& outputSubsDir)
 		}
 	}
 
-	int lod = 5;
+	//int lod = 5;
+	auto lod = VoxelFarm::LOD_0 + 3;
 
 	const double cellSize = (1 << lod) * VoxelFarm::CELL_SIZE;
 	const double voxelSize = cellSize / VoxelFarm::BLOCK_DIMENSION;
@@ -836,7 +796,7 @@ bool CForest::outputSubfiles(const std::string& outputSubsDir)
 	CAffineTransform transform(
 		CAffineTransform::sAffineVector{
 			0.0, 0.0, 0.0
-		}, 2.0, CAffineTransform::eTransformMode::TM_YZ_ROTATE);
+		}, voxelSize, CAffineTransform::eTransformMode::TM_YZ_ROTATE);
 	auto worldOriginVF = transform.WC_TO_VF(CAffineTransform::sAffineVector{ 0.0, 0.0, 0.0 });
 
 	TreeInsSubOutputMap outputMap;
@@ -846,21 +806,16 @@ bool CForest::outputSubfiles(const std::string& outputSubsDir)
 		auto posWorldToVF = transform.WC_TO_VF(CAffineTransform::sAffineVector(instance.posX, instance.posY, instance.posZ));
 		double doubleXIdx = posWorldToVF.X / cellSize;
 		double doubleYIdx = posWorldToVF.Y / cellSize;
+		double doubleZIdx = posWorldToVF.Z / cellSize;
 		int intXIdx = static_cast<int>(std::floor(doubleXIdx));
 		int intYIdx = static_cast<int>(std::floor(doubleYIdx));
+		int intZIdx = static_cast<int>(std::floor(doubleZIdx));
 
 		double VF_X = static_cast<double>(intXIdx * cellSize);// + worldOriginVF.X;
-		double VF_Y = static_cast<double>(intYIdx * cellSize);// +worldOriginVF.Y;
-		double VF_Z = posWorldToVF.Z;// + worldOriginVF.Z;
+		double VF_Y = static_cast<double>(intYIdx * cellSize);// + worldOriginVF.Y;
+		double VF_Z = static_cast<double>(intZIdx * cellSize);// + worldOriginVF.Z;
 
-		auto testVFToWorld1 = transform.VF_TO_WC(CAffineTransform::sAffineVector(posWorldToVF.X, posWorldToVF.Y, posWorldToVF.Z));
-		auto testVFToWorld2 = transform.VF_TO_WC(CAffineTransform::sAffineVector(posWorldToVF.X, posWorldToVF.Z, posWorldToVF.Y));
-		auto testVFToWorld3 = transform.VF_TO_WC(CAffineTransform::sAffineVector(posWorldToVF.X + worldOriginVF.X, posWorldToVF.Y + worldOriginVF.Y, posWorldToVF.Z + worldOriginVF.Z));
-		auto testVFToWorld4 = transform.VF_TO_WC(CAffineTransform::sAffineVector(posWorldToVF.X + worldOriginVF.X, posWorldToVF.Z + worldOriginVF.Z, posWorldToVF.Y + worldOriginVF.Y));
-		auto testVFToWorld5 = transform.VF_TO_WC(CAffineTransform::sAffineVector(posWorldToVF.X - worldOriginVF.X, posWorldToVF.Y - worldOriginVF.Y, posWorldToVF.Z - worldOriginVF.Z));
-		auto testVFToWorld6 = transform.VF_TO_WC(CAffineTransform::sAffineVector(posWorldToVF.X - worldOriginVF.X, posWorldToVF.Z - worldOriginVF.Z, posWorldToVF.Y - worldOriginVF.Y));
-
-		auto cellOrgVFToWorld = transform.VF_TO_WC(CAffineTransform::sAffineVector{ VF_X, VF_Y, VF_Z });
+		auto cellOrgVFToWorld = transform.VF_TO_WC(CAffineTransform::sAffineVector{ VF_X, VF_Y, VF_Z + cellSize });
 
 		double relativeOffsetXWorld = instance.posX - cellOrgVFToWorld.X;
 		double relativeOffsetYWorld = instance.posY - cellOrgVFToWorld.Y;
@@ -870,8 +825,10 @@ bool CForest::outputSubfiles(const std::string& outputSubsDir)
 		sub.yIdx = intYIdx;
 		sub.xOffsetW = relativeOffsetXWorld;
 		sub.yOffsetW = relativeOffsetYWorld;
-		sub.typeId = instance.m_instance.treeType;
-		sub.age = instance.m_instance.age;
+		sub.posZ = instance.posZ;
+		sub.instanceType = static_cast<unsigned int>(InstanceType::InstanceType_Tree);
+		sub.variant = instance.m_instance.treeType;
+		sub.age = static_cast<double>(instance.m_instance.age / instance.m_instance.maxAge);
 
 		const int MAX_PATH = 250;
 		char subFileName[MAX_PATH];
@@ -879,10 +836,10 @@ bool CForest::outputSubfiles(const std::string& outputSubsDir)
 		memset(subFileName, 0, sizeof(char) * MAX_PATH);
 		memset(subFilePath, 0, sizeof(char) * MAX_PATH);
 #if __APPLE__
-		snprintf(subFileName, MAX_PATH, "instances_%d_%d.csv", intXIdx, intYIdx);
+		snprintf(subFileName, MAX_PATH, "instances_x_%d_z_%d.csv", intXIdx, intYIdx);
 		snprintf(subFilePath, MAX_PATH, "%s/%s", outputSubsDir.c_str(), subFileName);
 #else
-		sprintf_s(subFileName, MAX_PATH, "instances_%d_%d.csv", intXIdx, intYIdx);
+		sprintf_s(subFileName, MAX_PATH, "instances_x_%d_z_%d.csv", intXIdx, intYIdx);
 		sprintf_s(subFilePath, MAX_PATH, "%s\\%s", outputSubsDir.c_str(), subFileName);
 #endif
 		string keyString = subFilePath;

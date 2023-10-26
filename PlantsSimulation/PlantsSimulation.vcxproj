@@ -145,6 +145,8 @@
     <ClCompile Include="PsHelper.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Common\Include\Instance.h" />
+    <ClInclude Include="..\Common\Include\PsMarco.h" />
     <ClInclude Include="CCellInfo.h" />
     <ClInclude Include="CCellI2DMask.h" />
     <ClInclude Include="CColonizationTree.h" />
@@ -157,12 +159,8 @@
     <ClInclude Include="CSlopeDensityMap.h" />
     <ClInclude Include="CTimeCounter.h" />
     <ClInclude Include="I2DMask.h" />
-    <ClInclude Include="Instance.h" />
     <ClInclude Include="TreeInstance.h" />
     <ClInclude Include="PsHelper.h" />
-    <ClInclude Include="PsMarco.h" />
-    <ClInclude Include="stb_image.h" />
-    <ClInclude Include="stb_image_write.h" />
     <ClInclude Include="TreeClasses.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="VoxelFarmPlatform.h" />

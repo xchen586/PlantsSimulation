@@ -1,6 +1,6 @@
 #pragma once
 #include "CColonizationTree.h"
-#include "Instance.h"
+#include "..\Common\include\Instance.h"
 
 class CCellInfo;
 struct InputImageMetaInfo;
