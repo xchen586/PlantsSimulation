@@ -27,9 +27,6 @@
     <ClCompile Include="CForest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PsHelper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="CColonizationTree.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -42,6 +39,9 @@
     <ClCompile Include="TreeInstance.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\Common\Include\PsHelper.cpp">
+      <Filter>Common</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CPlantsSimulation.h">
@@ -51,9 +51,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CForest.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PsHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CTimeCounter.h">
@@ -93,6 +90,21 @@
       <Filter>Common</Filter>
     </ClInclude>
     <ClInclude Include="..\Common\Include\PsMarco.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Include\stb_image.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Include\stb_image_write.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Include\Utils.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Include\VoxelFarmPlatform.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Include\PsHelper.h">
       <Filter>Common</Filter>
     </ClInclude>
   </ItemGroup>

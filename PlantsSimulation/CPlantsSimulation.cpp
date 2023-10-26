@@ -2,7 +2,7 @@
 #include "CCellInfo.h"
 #include "CTimeCounter.h"
 #include "..\Common\include\PsMarco.h"
-//#include "PsHelper.h"
+
 
 /*bool CPlantsSimulation::loadInputImageFile(const string& inputImageFile)
 {

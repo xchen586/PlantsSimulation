@@ -1,6 +1,6 @@
 #pragma once
 #include "CColonizationTree.h"
-#include "PsMarco.h"
+#include "..\Common\include\PsMarco.h"
 
 #if USE_SCOPE_ANGLE
 class CSlopeDensityMap : public DensityMap
@@ -20,7 +20,9 @@ public:
 	{
 		//minval = 5 * (PI / 180.0);
 		minval = 0 * (PI / 180.0);
-		maxval = 30 * (PI / 180.0);
+		//maxval = 30 * (PI / 180.0);
+		//maxval = 90 * (PI / 180.0);
+		maxval = 1;
 		ease = 5 * (PI / 180.0);
 	}
 };
@@ -32,7 +34,9 @@ public:
 	{
 		//minval = 5 * (PI / 180.0);
 		minval = 0 * (PI / 180.0);
-		maxval = 30 * (PI / 180.0);
+		//maxval = 30 * (PI / 180.0);
+		//maxval = 90 * (PI / 180.0);
+		maxval = 1;
 		ease = 5 * (PI / 180.0);
 	}
 };

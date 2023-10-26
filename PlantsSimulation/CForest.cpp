@@ -7,7 +7,7 @@
 
 #include "TreeClasses.h"
 #include "CCellI2DMask.h"
-#include "PsHelper.h"
+#include "..\Common\include\PsHelper.h"
 
 CForest::CForest(void)
 {

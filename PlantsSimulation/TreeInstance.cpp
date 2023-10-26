@@ -1,5 +1,5 @@
 #include "TreeInstance.h"
-#include "PsHelper.h"
+#include "..\Common\include\PsHelper.h"
 #include "CPlantsSimulation.h"
 
 TreeInstanceFullOutput::TreeInstanceFullOutput(const TreeInstanceOutput& instance, CCellInfo* pCellData, InputImageMetaInfo* pMetaInfo)
