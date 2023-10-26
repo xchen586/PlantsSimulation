@@ -1,6 +1,12 @@
 #pragma once
-#include "..\Common\include\CColonizationTree.h"
-#include "..\Common\include\PsMarco.h"
+
+#if __APPLE__
+    #include "../Common/include/CColonizationTree.h"
+    #include "../Common/include/PsMarco.h"
+#else
+    #include "..\Common\include\CColonizationTree.h"
+    #include "..\Common\include\PsMarco.h"
+#endif
 
 #if USE_SCOPE_ANGLE
 class CSlopeDensityMap : public DensityMap

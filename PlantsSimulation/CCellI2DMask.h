@@ -1,9 +1,15 @@
 #pragma once
-#include "I2DMask.h"
-#include "..\Common\include\CCellInfo.h"
-#include "..\Common\include\PsMarco.h"
-
 #include <vector>
+
+#include "I2DMask.h"
+
+#if __APPLE__
+    #include "../Common/include/CCellInfo.h"
+    #include "../Common/include/PsMarco.h"
+#else
+    #include "..\Common\include\CCellInfo.h"
+    #include "..\Common\include\PsMarco.h"
+#endif
 
 class CCellDataI2DMask : public I2DMask
 {

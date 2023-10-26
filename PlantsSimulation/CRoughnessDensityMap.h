@@ -1,5 +1,10 @@
 #pragma once
-#include "..\Common\include\CColonizationTree.h"
+
+#if __APPLE__
+    #include "../Common/include/CColonizationTree.h"
+#else
+    #include "..\Common\include\CColonizationTree.h"
+#endif
 
 class CRoughnessDensityMap : public DensityMap
 {

@@ -1,7 +1,15 @@
 #pragma once
-#include "..\Common\include\PsHelper.h"
-#include "..\Common\include\CCellInfo.h"
+
 #include "CForest.h"
+
+#if __APPLE__
+    #include "../Common/include/PsHelper.h"
+    #include "../Common/include/CCellInfo.h"
+#else
+    #include "..\Common\include\PsHelper.h"
+    #include "..\Common\include\CCellInfo.h"
+#endif
+
 using namespace std;
 
 class CPlantsSimulation

@@ -10,12 +10,22 @@
 		320E7BC62AAA7E2900BEC8EE /* CPlantsSimulation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 320E7BBF2AAA7E2900BEC8EE /* CPlantsSimulation.cpp */; };
 		320E7BC72AAA7E2900BEC8EE /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 320E7BC22AAA7E2900BEC8EE /* main.cpp */; };
 		320E7BC82AAA7E2900BEC8EE /* CForest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 320E7BC32AAA7E2900BEC8EE /* CForest.cpp */; };
-		320E7BCD2AAA7E3F00BEC8EE /* PsHelper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 320E7BCB2AAA7E3F00BEC8EE /* PsHelper.cpp */; };
-		320E7BCF2AAC104000BEC8EE /* CColonizationTree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 320E7BCE2AAC104000BEC8EE /* CColonizationTree.cpp */; };
-		3298E7D62ACB057D006EC9D6 /* CCellInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3298E7D52ACB057D006EC9D6 /* CCellInfo.cpp */; };
-		32C4FC122AB505840001555A /* CTimeCounter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32C4FC102AB505840001555A /* CTimeCounter.cpp */; };
-		32D19E2B2AE863B800D6BD39 /* VoxelFarmPlatform.h in Headers */ = {isa = PBXBuildFile; fileRef = 32D19E2A2AE863B800D6BD39 /* VoxelFarmPlatform.h */; };
-		32D19E2D2AE8644700D6BD39 /* Utils.h in Headers */ = {isa = PBXBuildFile; fileRef = 32D19E2C2AE8644700D6BD39 /* Utils.h */; };
+		329893062AEB02A700E8B190 /* Utils.h in Headers */ = {isa = PBXBuildFile; fileRef = 329892F62AEB02A700E8B190 /* Utils.h */; };
+		329893072AEB02A700E8B190 /* CTimeCounter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 329892F72AEB02A700E8B190 /* CTimeCounter.cpp */; };
+		329893082AEB02A700E8B190 /* PsHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 329892F82AEB02A700E8B190 /* PsHelper.h */; };
+		329893092AEB02A700E8B190 /* CColonizationTree.h in Headers */ = {isa = PBXBuildFile; fileRef = 329892F92AEB02A700E8B190 /* CColonizationTree.h */; };
+		3298930A2AEB02A700E8B190 /* TreeInstance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 329892FA2AEB02A700E8B190 /* TreeInstance.cpp */; };
+		3298930B2AEB02A700E8B190 /* stb_image_write.h in Headers */ = {isa = PBXBuildFile; fileRef = 329892FB2AEB02A700E8B190 /* stb_image_write.h */; };
+		3298930C2AEB02A700E8B190 /* PsMarco.h in Headers */ = {isa = PBXBuildFile; fileRef = 329892FC2AEB02A700E8B190 /* PsMarco.h */; };
+		3298930D2AEB02A700E8B190 /* CColonizationTree.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 329892FD2AEB02A700E8B190 /* CColonizationTree.cpp */; };
+		3298930E2AEB02A700E8B190 /* stb_image.h in Headers */ = {isa = PBXBuildFile; fileRef = 329892FE2AEB02A700E8B190 /* stb_image.h */; };
+		3298930F2AEB02A700E8B190 /* TreeInstance.h in Headers */ = {isa = PBXBuildFile; fileRef = 329892FF2AEB02A700E8B190 /* TreeInstance.h */; };
+		329893102AEB02A700E8B190 /* CTimeCounter.h in Headers */ = {isa = PBXBuildFile; fileRef = 329893002AEB02A700E8B190 /* CTimeCounter.h */; };
+		329893112AEB02A700E8B190 /* Instance.h in Headers */ = {isa = PBXBuildFile; fileRef = 329893012AEB02A700E8B190 /* Instance.h */; };
+		329893122AEB02A700E8B190 /* PsHelper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 329893022AEB02A700E8B190 /* PsHelper.cpp */; };
+		329893132AEB02A700E8B190 /* CCellInfo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 329893032AEB02A700E8B190 /* CCellInfo.cpp */; };
+		329893142AEB02A700E8B190 /* VoxelFarmPlatform.h in Headers */ = {isa = PBXBuildFile; fileRef = 329893042AEB02A700E8B190 /* VoxelFarmPlatform.h */; };
+		329893152AEB02A700E8B190 /* CCellInfo.h in Headers */ = {isa = PBXBuildFile; fileRef = 329893052AEB02A700E8B190 /* CCellInfo.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -39,25 +49,28 @@
 		320E7BB32AAA7DF800BEC8EE /* PlantsSimulation */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = PlantsSimulation; sourceTree = BUILT_PRODUCTS_DIR; };
 		320E7BBF2AAA7E2900BEC8EE /* CPlantsSimulation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CPlantsSimulation.cpp; path = ../../CPlantsSimulation.cpp; sourceTree = "<group>"; };
 		320E7BC02AAA7E2900BEC8EE /* CForest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CForest.h; path = ../../CForest.h; sourceTree = "<group>"; };
-		320E7BC12AAA7E2900BEC8EE /* CColonizationTree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CColonizationTree.h; path = ../../CColonizationTree.h; sourceTree = "<group>"; };
 		320E7BC22AAA7E2900BEC8EE /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../../main.cpp; sourceTree = "<group>"; };
 		320E7BC32AAA7E2900BEC8EE /* CForest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CForest.cpp; path = ../../CForest.cpp; sourceTree = "<group>"; };
 		320E7BC42AAA7E2900BEC8EE /* CPlantsSimulation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CPlantsSimulation.h; path = ../../CPlantsSimulation.h; sourceTree = "<group>"; };
-		320E7BC92AAA7E3F00BEC8EE /* stb_image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stb_image.h; path = ../../stb_image.h; sourceTree = "<group>"; };
-		320E7BCA2AAA7E3F00BEC8EE /* stb_image_write.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stb_image_write.h; path = ../../stb_image_write.h; sourceTree = "<group>"; };
-		320E7BCB2AAA7E3F00BEC8EE /* PsHelper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = PsHelper.cpp; path = ../../PsHelper.cpp; sourceTree = "<group>"; };
-		320E7BCC2AAA7E3F00BEC8EE /* PsHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PsHelper.h; path = ../../PsHelper.h; sourceTree = "<group>"; };
-		320E7BCE2AAC104000BEC8EE /* CColonizationTree.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CColonizationTree.cpp; path = ../../CColonizationTree.cpp; sourceTree = "<group>"; };
 		3257FA322ABCF3B700400A91 /* I2DMask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = I2DMask.h; path = ../../I2DMask.h; sourceTree = "<group>"; };
 		3257FA332ABCF3B700400A91 /* CCellI2DMask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CCellI2DMask.h; path = ../../CCellI2DMask.h; sourceTree = "<group>"; };
 		3257FA342ABCF3B700400A91 /* CRoadAttributeDensityMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CRoadAttributeDensityMap.h; path = ../../CRoadAttributeDensityMap.h; sourceTree = "<group>"; };
-		3257FA352ABE8E2D00400A91 /* PsMarco.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PsMarco.h; path = ../../PsMarco.h; sourceTree = "<group>"; };
-		3298E7D42ACB057D006EC9D6 /* CCellInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CCellInfo.h; path = ../../CCellInfo.h; sourceTree = "<group>"; };
-		3298E7D52ACB057D006EC9D6 /* CCellInfo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CCellInfo.cpp; path = ../../CCellInfo.cpp; sourceTree = "<group>"; };
-		32C4FC102AB505840001555A /* CTimeCounter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CTimeCounter.cpp; path = ../../CTimeCounter.cpp; sourceTree = "<group>"; };
-		32C4FC112AB505840001555A /* CTimeCounter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CTimeCounter.h; path = ../../CTimeCounter.h; sourceTree = "<group>"; };
-		32D19E2A2AE863B800D6BD39 /* VoxelFarmPlatform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = VoxelFarmPlatform.h; path = ../../VoxelFarmPlatform.h; sourceTree = "<group>"; };
-		32D19E2C2AE8644700D6BD39 /* Utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Utils.h; path = ../../Utils.h; sourceTree = "<group>"; };
+		329892F62AEB02A700E8B190 /* Utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Utils.h; sourceTree = "<group>"; };
+		329892F72AEB02A700E8B190 /* CTimeCounter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CTimeCounter.cpp; sourceTree = "<group>"; };
+		329892F82AEB02A700E8B190 /* PsHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PsHelper.h; sourceTree = "<group>"; };
+		329892F92AEB02A700E8B190 /* CColonizationTree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CColonizationTree.h; sourceTree = "<group>"; };
+		329892FA2AEB02A700E8B190 /* TreeInstance.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TreeInstance.cpp; sourceTree = "<group>"; };
+		329892FB2AEB02A700E8B190 /* stb_image_write.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_image_write.h; sourceTree = "<group>"; };
+		329892FC2AEB02A700E8B190 /* PsMarco.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PsMarco.h; sourceTree = "<group>"; };
+		329892FD2AEB02A700E8B190 /* CColonizationTree.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CColonizationTree.cpp; sourceTree = "<group>"; };
+		329892FE2AEB02A700E8B190 /* stb_image.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stb_image.h; sourceTree = "<group>"; };
+		329892FF2AEB02A700E8B190 /* TreeInstance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TreeInstance.h; sourceTree = "<group>"; };
+		329893002AEB02A700E8B190 /* CTimeCounter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CTimeCounter.h; sourceTree = "<group>"; };
+		329893012AEB02A700E8B190 /* Instance.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Instance.h; sourceTree = "<group>"; };
+		329893022AEB02A700E8B190 /* PsHelper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PsHelper.cpp; sourceTree = "<group>"; };
+		329893032AEB02A700E8B190 /* CCellInfo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CCellInfo.cpp; sourceTree = "<group>"; };
+		329893042AEB02A700E8B190 /* VoxelFarmPlatform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VoxelFarmPlatform.h; sourceTree = "<group>"; };
+		329893052AEB02A700E8B190 /* CCellInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCellInfo.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -91,11 +104,7 @@
 		320E7BB52AAA7DF800BEC8EE /* PlantsSimulation */ = {
 			isa = PBXGroup;
 			children = (
-				32D19E2C2AE8644700D6BD39 /* Utils.h */,
-				32D19E2A2AE863B800D6BD39 /* VoxelFarmPlatform.h */,
-				3298E7D52ACB057D006EC9D6 /* CCellInfo.cpp */,
-				3298E7D42ACB057D006EC9D6 /* CCellInfo.h */,
-				3257FA352ABE8E2D00400A91 /* PsMarco.h */,
+				329892F42AEB02A700E8B190 /* Common */,
 				3257FA332ABCF3B700400A91 /* CCellI2DMask.h */,
 				3257FA342ABCF3B700400A91 /* CRoadAttributeDensityMap.h */,
 				3257FA322ABCF3B700400A91 /* I2DMask.h */,
@@ -104,14 +113,6 @@
 				3208CD8D2ABA94D000149A16 /* CRoughnessDensityMap.h */,
 				3208CD902ABA94D000149A16 /* CSlopeDensityMap.h */,
 				3208CD8C2ABA94CF00149A16 /* TreeClasses.h */,
-				32C4FC102AB505840001555A /* CTimeCounter.cpp */,
-				32C4FC112AB505840001555A /* CTimeCounter.h */,
-				320E7BCE2AAC104000BEC8EE /* CColonizationTree.cpp */,
-				320E7BCB2AAA7E3F00BEC8EE /* PsHelper.cpp */,
-				320E7BCC2AAA7E3F00BEC8EE /* PsHelper.h */,
-				320E7BCA2AAA7E3F00BEC8EE /* stb_image_write.h */,
-				320E7BC92AAA7E3F00BEC8EE /* stb_image.h */,
-				320E7BC12AAA7E2900BEC8EE /* CColonizationTree.h */,
 				320E7BC32AAA7E2900BEC8EE /* CForest.cpp */,
 				320E7BC02AAA7E2900BEC8EE /* CForest.h */,
 				320E7BBF2AAA7E2900BEC8EE /* CPlantsSimulation.cpp */,
@@ -119,6 +120,38 @@
 				320E7BC22AAA7E2900BEC8EE /* main.cpp */,
 			);
 			path = PlantsSimulation;
+			sourceTree = "<group>";
+		};
+		329892F42AEB02A700E8B190 /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				329892F52AEB02A700E8B190 /* Include */,
+			);
+			name = Common;
+			path = ../../../Common;
+			sourceTree = "<group>";
+		};
+		329892F52AEB02A700E8B190 /* Include */ = {
+			isa = PBXGroup;
+			children = (
+				329892F62AEB02A700E8B190 /* Utils.h */,
+				329892F72AEB02A700E8B190 /* CTimeCounter.cpp */,
+				329892F82AEB02A700E8B190 /* PsHelper.h */,
+				329892F92AEB02A700E8B190 /* CColonizationTree.h */,
+				329892FA2AEB02A700E8B190 /* TreeInstance.cpp */,
+				329892FB2AEB02A700E8B190 /* stb_image_write.h */,
+				329892FC2AEB02A700E8B190 /* PsMarco.h */,
+				329892FD2AEB02A700E8B190 /* CColonizationTree.cpp */,
+				329892FE2AEB02A700E8B190 /* stb_image.h */,
+				329892FF2AEB02A700E8B190 /* TreeInstance.h */,
+				329893002AEB02A700E8B190 /* CTimeCounter.h */,
+				329893012AEB02A700E8B190 /* Instance.h */,
+				329893022AEB02A700E8B190 /* PsHelper.cpp */,
+				329893032AEB02A700E8B190 /* CCellInfo.cpp */,
+				329893042AEB02A700E8B190 /* VoxelFarmPlatform.h */,
+				329893052AEB02A700E8B190 /* CCellInfo.h */,
+			);
+			path = Include;
 			sourceTree = "<group>";
 		};
 		32D19E212AE8500F00D6BD39 /* Frameworks */ = {
@@ -135,8 +168,17 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				32D19E2D2AE8644700D6BD39 /* Utils.h in Headers */,
-				32D19E2B2AE863B800D6BD39 /* VoxelFarmPlatform.h in Headers */,
+				3298930B2AEB02A700E8B190 /* stb_image_write.h in Headers */,
+				329893062AEB02A700E8B190 /* Utils.h in Headers */,
+				329893142AEB02A700E8B190 /* VoxelFarmPlatform.h in Headers */,
+				329893152AEB02A700E8B190 /* CCellInfo.h in Headers */,
+				3298930F2AEB02A700E8B190 /* TreeInstance.h in Headers */,
+				3298930E2AEB02A700E8B190 /* stb_image.h in Headers */,
+				3298930C2AEB02A700E8B190 /* PsMarco.h in Headers */,
+				329893082AEB02A700E8B190 /* PsHelper.h in Headers */,
+				329893102AEB02A700E8B190 /* CTimeCounter.h in Headers */,
+				329893112AEB02A700E8B190 /* Instance.h in Headers */,
+				329893092AEB02A700E8B190 /* CColonizationTree.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -198,13 +240,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				320E7BCF2AAC104000BEC8EE /* CColonizationTree.cpp in Sources */,
+				3298930D2AEB02A700E8B190 /* CColonizationTree.cpp in Sources */,
+				3298930A2AEB02A700E8B190 /* TreeInstance.cpp in Sources */,
 				320E7BC62AAA7E2900BEC8EE /* CPlantsSimulation.cpp in Sources */,
-				32C4FC122AB505840001555A /* CTimeCounter.cpp in Sources */,
 				320E7BC82AAA7E2900BEC8EE /* CForest.cpp in Sources */,
-				3298E7D62ACB057D006EC9D6 /* CCellInfo.cpp in Sources */,
 				320E7BC72AAA7E2900BEC8EE /* main.cpp in Sources */,
-				320E7BCD2AAA7E3F00BEC8EE /* PsHelper.cpp in Sources */,
+				329893132AEB02A700E8B190 /* CCellInfo.cpp in Sources */,
+				329893122AEB02A700E8B190 /* PsHelper.cpp in Sources */,
+				329893072AEB02A700E8B190 /* CTimeCounter.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -326,6 +369,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = LRBR86W7V8;
 				ENABLE_HARDENED_RUNTIME = YES;
+				HEADER_SEARCH_PATHS = ../Common/include/;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -336,6 +380,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = LRBR86W7V8;
 				ENABLE_HARDENED_RUNTIME = YES;
+				HEADER_SEARCH_PATHS = ../Common/include/;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

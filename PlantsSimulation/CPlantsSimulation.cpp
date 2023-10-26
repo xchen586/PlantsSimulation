@@ -1,7 +1,12 @@
 #include "CPlantsSimulation.h"
-#include "..\Common\include\CTimeCounter.h"
-#include "..\Common\include\PsMarco.h"
 
+#if __APPLE__
+    #include "../Common/include/CTimeCounter.h"
+    #include "../Common/include/PsMarco.h"
+#else
+    #include "..\Common\include\CTimeCounter.h"
+    #include "..\Common\include\PsMarco.h"
+#endif
 
 /*bool CPlantsSimulation::loadInputImageFile(const string& inputImageFile)
 {

@@ -7,7 +7,12 @@
 
 #include "TreeClasses.h"
 #include "CCellI2DMask.h"
-#include "..\Common\include\PsHelper.h"
+
+#if __APPLE__
+    #include "../Common/include/PsHelper.h"
+#else
+    #include "..\Common\include\PsHelper.h"
+#endif
 
 CForest::CForest(void)
 {

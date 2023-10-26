@@ -1,12 +1,18 @@
 #pragma once
+
 #include <vector>
 #include <map>
 #include <string>
 
 #include "I2DMask.h"
 
-#include "..\Common\include\TreeInstance.h"
-#include "..\Common\include\Utils.h"
+#if __APPLE__
+    #include "../Common/include/TreeInstance.h"
+    #include "../Common/include/Utils.h"
+#else
+    #include "..\Common\include\TreeInstance.h"
+    #include "..\Common\include\Utils.h"
+#endif
 
 using namespace std;
 class CCellInfo;
