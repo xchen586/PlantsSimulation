@@ -4,6 +4,7 @@ enum struct InstanceType
 {
 	InstanceType_None,
 	InstanceType_Tree,
+	InstanceType_Point,
 	InstanceType_End,
 };
 
@@ -23,6 +24,8 @@ struct InstanceSubOutput
 	double rotationY;
 	double rotationZ;
 	unsigned int instanceType;
+	unsigned int variant;
+	int outputItemCount;
 
 	InstanceSubOutput()
 		: xIdx(0)
@@ -37,6 +40,8 @@ struct InstanceSubOutput
 		, rotationY(0.0)
 		, rotationZ(0.0)
 		, instanceType(0)
+		, variant(0)
+		, outputItemCount(11)
 	{
 
 	}

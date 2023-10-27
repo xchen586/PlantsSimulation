@@ -77,5 +77,8 @@
     <ClInclude Include="CInstanceExporter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\Common\Include\PointInstance.h">
+      <Filter>Common</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

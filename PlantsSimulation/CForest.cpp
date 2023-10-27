@@ -750,7 +750,7 @@ bool CForest::outputFullTreeInstanceResults(const std::string& fileName, bool ha
 	return true;
 }
 
-bool OutputCSVFileForSubInstances(const string& filePath, std::shared_ptr<TreeInsSubOutputVector> subVector)
+bool OutputCSVFileForSubInstances(const string& filePath, std::shared_ptr<InstanceSubOutputVector> subVector)
 {
 	std::ofstream outputFile(filePath);
 	if (!outputFile.is_open()) {
@@ -760,22 +760,34 @@ bool OutputCSVFileForSubInstances(const string& filePath, std::shared_ptr<TreeIn
 
 	outputFile << "X,Y,Z,ScaleX,ScaleY,ScaleZ,RoationX,RotationY,RotaionZ,InstanceType,Variant,Age" << std::endl;
 
+	int fullOutputItemCount = 12;
+
 	for (const auto& sub : *subVector)
 	{
-		outputFile
+		int outputItemCount = sub->outputItemCount;
 
-			<< sub.xOffsetW << ","
-			<< sub.yOffsetW << ","
-			<< sub.posZ << ","
-			<< sub.scaleX << ","
-			<< sub.scaleY << ","
-			<< sub.scaleZ << ","
-			<< sub.rotationX << ","
-			<< sub.rotationY << ","
-			<< sub.rotationZ << ","
-			<< sub.instanceType << ","
-			<< sub.variant << ","
-			<< sub.age << std::endl;
+		outputFile
+			<< sub->xOffsetW << ","
+			<< sub->yOffsetW << ","
+			<< sub->posZ << ","
+			<< sub->scaleX << ","
+			<< sub->scaleY << ","
+			<< sub->scaleZ << ","
+			<< sub->rotationX << ","
+			<< sub->rotationY << ","
+			<< sub->rotationZ << ","
+			<< sub->instanceType << ","
+			<< sub->variant << ",";
+
+		if (outputItemCount != fullOutputItemCount)
+		{
+			outputFile << 1.0 << std::endl;
+		}
+		else
+		{
+			outputFile << sub->age << std::endl;
+		}
+			
 
 	}
 
@@ -804,7 +816,7 @@ bool CForest::outputSubfiles(const std::string& outputSubsDir)
 		}, voxelSize, CAffineTransform::eTransformMode::TM_YZ_ROTATE);
 	auto worldOriginVF = transform.WC_TO_VF(CAffineTransform::sAffineVector{ 0.0, 0.0, 0.0 });
 
-	TreeInsSubOutputMap outputMap;
+	InstanceSubOutputMap outputMap;
 
 	for (const TreeInstanceFullOutput& instance : fullOutputs)
 	{
@@ -825,15 +837,15 @@ bool CForest::outputSubfiles(const std::string& outputSubsDir)
 		double relativeOffsetXWorld = instance.posX - cellOrgVFToWorld.X;
 		double relativeOffsetYWorld = instance.posY - cellOrgVFToWorld.Y;
 
-		TreeInstanceSubOutput sub = TreeInstanceSubOutput();
-		sub.xIdx = intXIdx;
-		sub.yIdx = intYIdx;
-		sub.xOffsetW = relativeOffsetXWorld;
-		sub.yOffsetW = relativeOffsetYWorld;
-		sub.posZ = instance.posZ;
-		sub.instanceType = static_cast<unsigned int>(InstanceType::InstanceType_Tree);
-		sub.variant = instance.m_instance.treeType;
-		sub.age = static_cast<double>(instance.m_instance.age / instance.m_instance.maxAge);
+		std::shared_ptr<TreeInstanceSubOutput> sub = std::make_shared<TreeInstanceSubOutput>();
+		sub->xIdx = intXIdx;
+		sub->yIdx = intYIdx;
+		sub->xOffsetW = relativeOffsetXWorld;
+		sub->yOffsetW = relativeOffsetYWorld;
+		sub->posZ = instance.posZ;
+		sub->instanceType = static_cast<unsigned int>(InstanceType::InstanceType_Tree);
+		sub->variant = instance.m_instance.treeType;
+		sub->age = static_cast<double>(instance.m_instance.age / instance.m_instance.maxAge);
 
 		const int MAX_PATH = 250;
 		char subFileName[MAX_PATH];
@@ -841,20 +853,20 @@ bool CForest::outputSubfiles(const std::string& outputSubsDir)
 		memset(subFileName, 0, sizeof(char) * MAX_PATH);
 		memset(subFilePath, 0, sizeof(char) * MAX_PATH);
 #if __APPLE__
-		snprintf(subFileName, MAX_PATH, "instances_x_%d_z_%d.csv", intXIdx, intYIdx);
+		snprintf(subFileName, MAX_PATH, "instances_%d_%d.csv", intXIdx, intYIdx);
 		snprintf(subFilePath, MAX_PATH, "%s/%s", outputSubsDir.c_str(), subFileName);
 #else
-		sprintf_s(subFileName, MAX_PATH, "instances_x_%d_z_%d.csv", intXIdx, intYIdx);
+		sprintf_s(subFileName, MAX_PATH, "instances_%d_%d.csv", intXIdx, intYIdx);
 		sprintf_s(subFilePath, MAX_PATH, "%s\\%s", outputSubsDir.c_str(), subFileName);
 #endif
 		string keyString = subFilePath;
-		TreeInsSubOutputMap::iterator iter = outputMap.find(keyString);
+		InstanceSubOutputMap::iterator iter = outputMap.find(keyString);
 		if (outputMap.end() == iter)
 		{
-			outputMap[keyString] = std::make_shared<TreeInsSubOutputVector>();
+			outputMap[keyString] = std::make_shared<InstanceSubOutputVector>();
 		}
 
-		std::shared_ptr<TreeInsSubOutputVector> subVector = outputMap[keyString];
+		std::shared_ptr<InstanceSubOutputVector> subVector = outputMap[keyString];
 		subVector->push_back(sub);
 	}
 

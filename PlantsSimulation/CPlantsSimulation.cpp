@@ -176,6 +176,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	std::vector<std::vector<short>> l1HeightMapShort4096 = Read2DShortArray(m_l1HeightMapFile, width, height);
 
 	std::vector<std::vector<short>> heightMapShort4096(width, std::vector<short>(height));
+	
 	short minHeight = std::numeric_limits<short>::max();
 	short maxHeight = std::numeric_limits<short>::min();
 	for (int x = 0; x < width; x++)

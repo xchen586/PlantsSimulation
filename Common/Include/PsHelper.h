@@ -3,6 +3,7 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <vector>
 #include <cmath>
 #include <algorithm>
@@ -77,6 +78,7 @@ struct PixelRGB {
 InputImageDataInfo* LoadInputImageFile(const string& inputImageFile);
 
 std::vector<std::vector<short>> Read2DShortArray(const std::string& filePath, int width, int height);
+bool Write2DShortArrayAsRaw(const std::string& filePath, std::vector<std::vector<short>> array);
 
 double BilinearInterpolation(double x, double y, const std::vector<std::vector<short>>& inputArray);
 double BilinearInterpolation2(double x, double y, const std::vector<std::vector<short>>& inputArray);

@@ -62,6 +62,31 @@ std::vector<std::vector<short>> Read2DShortArray(const std::string& filePath, in
     return array;
 }
 
+bool Write2DShortArrayAsRaw(const std::string& filePath, std::vector<std::vector<short>> array)
+{
+    bool ret = false;
+    int width = array.size();
+    int height = array[0].size();
+        
+    std::ofstream outputArrayFile(filePath, std::ios::binary | std::ios::trunc);
+    int arraySize = width * height * sizeof(short);
+    if (outputArrayFile.is_open()) {
+        for (const auto& row : array) {
+            for (short value : row) {
+                outputArrayFile.write(reinterpret_cast<char*>(&value), sizeof(short));
+            }
+        }
+        outputArrayFile.close();
+        std::cout << "Array of short save to array file successfully." << std::endl;
+        ret = true;
+    }
+    else {
+        std::cerr << "Unable to open array file for saving." << std::endl;
+        ret = false;
+    }
+    return ret;
+}
+
 double BilinearInterpolation(double x, double y, const std::vector<std::vector<short>>& inputArray)
 {
     int width = inputArray.size();

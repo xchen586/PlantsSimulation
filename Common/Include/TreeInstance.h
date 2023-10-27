@@ -1,4 +1,5 @@
 #pragma once
+
 #include "CColonizationTree.h"
 #include "Instance.h"
 
@@ -100,12 +101,15 @@ struct TreeInstanceOutput {
 
 struct TreeInstanceSubOutput : public InstanceSubOutput
 {
-	unsigned int variant;
 	double age;
+	TreeInstanceSubOutput() : InstanceSubOutput()
+	{
+		outputItemCount = 12;
+	}
 };
 
-typedef std::vector<TreeInstanceSubOutput> TreeInsSubOutputVector;
-typedef std::map <std::string, std::shared_ptr<TreeInsSubOutputVector>> TreeInsSubOutputMap;
+typedef std::vector<std::shared_ptr<TreeInstanceSubOutput>> InstanceSubOutputVector;
+typedef std::map <std::string, std::shared_ptr<InstanceSubOutputVector>> InstanceSubOutputMap;
 
 struct TreeInstanceFullOutput
 {

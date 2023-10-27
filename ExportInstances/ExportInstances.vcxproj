@@ -144,6 +144,7 @@
     <ClInclude Include="..\Common\Include\CColonizationTree.h" />
     <ClInclude Include="..\Common\Include\CTimeCounter.h" />
     <ClInclude Include="..\Common\Include\Instance.h" />
+    <ClInclude Include="..\Common\Include\PointInstance.h" />
     <ClInclude Include="..\Common\Include\PsHelper.h" />
     <ClInclude Include="..\Common\Include\PsMarco.h" />
     <ClInclude Include="..\Common\Include\stb_image.h" />
