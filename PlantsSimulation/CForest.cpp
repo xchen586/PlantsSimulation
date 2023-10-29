@@ -887,6 +887,8 @@ bool CForest::loadPointInstanceFromCSV(const string& filePath, const string& out
 
 	int tableRowsCount = (*m_pCellTable).size();
 	int tableColsCount = (*m_pCellTable)[0].size();
+
+	int negativeHeightCount = 0;
 	
 	while (std::getline(file, line)) {
 		std::stringstream lineStream(line);
@@ -898,10 +900,12 @@ bool CForest::loadPointInstanceFromCSV(const string& filePath, const string& out
 		
 		bool hasHeight = true;
 		if (std::getline(lineStream, field, ',')) {
-			xPos = std::stod(field);
+			//xPos = std::stod(field);
+			yPos = std::stod(field);
 		}
 		if (std::getline(lineStream, field, ',')) {
-			yPos = std::stod(field);
+			//yPos = std::stod(field);
+			xPos = std::stod(field);
 		}
 		if (std::getline(lineStream, field, ',')) {
 			zPos = std::stod(field);
@@ -915,9 +919,9 @@ bool CForest::loadPointInstanceFromCSV(const string& filePath, const string& out
 		if (std::getline(lineStream, field, ',')) {
 			
 		}
-
+#if USE_CELLINFO_FOR_POINT_INSTANCE
 		int rowIdx = static_cast<int>(xPos / xRatio);
-		int colIdx = static_cast<int>(xPos / yRatio);
+		int colIdx = static_cast<int>(yPos / yRatio);
 
 		CCellInfo* pCell = nullptr;
 		if (((rowIdx >= 0) && (rowIdx < tableRowsCount))
@@ -933,10 +937,22 @@ bool CForest::loadPointInstanceFromCSV(const string& filePath, const string& out
 			hasHeight = false;
 		}
 
+		bool negativeZPos = false;
+		if ((zPos < 0) && hasHeight);
+		{
+			negativeZPos = true;
+			negativeHeightCount++;
+		}
+#endif
+		double posX = xPos + batch_min_x + x0;
+		double posY = yPos + batch_min_y + y0;
+		double posZ = zPos;
+		//double posZ = zPos ? zPos : 0;
+
 		if (hasHeight)
 		{
 			std::shared_ptr<PointInstanceSubOutput> sub = std::make_shared<PointInstanceSubOutput>();
-			SetupInstanceSubOutput(xPos, yPos, zPos, transform, cellSize, sub);
+			SetupInstanceSubOutput(posX, posY, posZ, transform, cellSize, sub);
 			sub->instanceType = static_cast<unsigned int>(InstanceType::InstanceType_Point);
 			sub->variant = variant;
 			sub->age = 1.0;
@@ -952,6 +968,8 @@ bool CForest::loadPointInstanceFromCSV(const string& filePath, const string& out
 			subVector->push_back(sub);
 		}
 	}
+
+	std::cout << "The points of negative height count is : " << negativeHeightCount << std::endl;
 
 	file.close();
 }
@@ -979,8 +997,15 @@ bool CForest::outputSubfiles(const std::string& outputSubsDir)
 
 	InstanceSubOutputMap outputMap;
 
+	int negativeHeightCount = 0;
 	for (const TreeInstanceFullOutput& instance : fullOutputs)
 	{
+		bool negativeHeight = false;
+		if (instance.posZ < 0)
+		{
+			negativeHeight = true;
+			negativeHeightCount++;
+		}
 		std::shared_ptr<TreeInstanceSubOutput> sub = std::make_shared<TreeInstanceSubOutput>();
 		SetupInstanceSubOutput(instance.posX, instance.posY, instance.posZ, transform, cellSize, sub);
 		
@@ -999,7 +1024,7 @@ bool CForest::outputSubfiles(const std::string& outputSubsDir)
 		std::shared_ptr<InstanceSubOutputVector> subVector = outputMap[keyString];
 		subVector->push_back(sub);
 	}
-
+	std::cout << "The trees of negative height count is : " << negativeHeightCount << std::endl;
 	unsigned int mostTravelledVariant = static_cast<unsigned int>(PointType::Point_MostTravelled);
 	bool getMostTravelledPoint = loadPointInstanceFromCSV(m_mostTravelledPointFilePath, outputSubsDir, outputMap, mostTravelledVariant, transform, cellSize);
 	unsigned int mostDistantVariant = static_cast<unsigned int>(PointType::Point_MostDistant);

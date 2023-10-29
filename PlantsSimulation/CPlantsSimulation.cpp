@@ -170,6 +170,28 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	}
 	const int width = m_topLayerImage->input_image_width;
 	const int height = m_topLayerImage->input_image_height;
+
+	std::vector<std::vector<short>> meshHeightMasksShort4096 = Read2DShortArray(m_meshHeightMasksFile, width, height);
+	std::vector<std::vector<short>> mesh2HeightMasksShort4096 = Read2DShortArray(m_mesh2HeightMasksFile, width, height);
+	std::vector<std::vector<short>> pcHeightMasksShort4096 = Read2DShortArray(m_pcHeightMasksFile, width, height);
+	std::vector<std::vector<short>> l1HeightMasksShort4096 = Read2DShortArray(m_l1HeightMasksFile, width, height);
+
+	std::vector<std::vector<short>> heightMasksShort4096(width, std::vector<short>(height));
+	for (int x = 0; x < width; x++)
+	{
+		for (int y = 0; y < height; y++)
+		{
+			short meshValue = meshHeightMasksShort4096[x][y];
+			short mesh2Value = mesh2HeightMasksShort4096[x][y];
+			short pcValue = pcHeightMasksShort4096[x][y];
+			short l1Value = l1HeightMasksShort4096[x][y];
+			//short value = std::max(meshValue, pcValue);
+			//short value = FindMaxIn3(meshValue, mesh2Value, pcValue);
+			short value = FindMaxIn4(meshValue, mesh2Value, pcValue, l1Value);
+			heightMasksShort4096[x][y] = value;
+		}
+	}
+
 	std::vector<std::vector<short>> meshHeightMapShort4096 = Read2DShortArray(m_meshHeightMapFile, width, height);
 	std::vector<std::vector<short>> mesh2HeightMapShort4096 = Read2DShortArray(m_mesh2HeightMapFile, width, height);
 	std::vector<std::vector<short>> pcHeightMapShort4096 = Read2DShortArray(m_pcHeightMapFile, width, height);
@@ -191,31 +213,14 @@ bool CPlantsSimulation::LoadInputHeightMap()
 			//short value = FindMaxIn3(meshValue, mesh2Value, pcValue);
 			short value = FindMaxIn4(meshValue, mesh2Value, pcValue, l1Value);
 			heightMapShort4096[x][y] = value;
-			minHeight = std::min(minHeight, value);
-			maxHeight = std::max(maxHeight, value);
+			if (heightMasksShort4096[x][y] > 0)
+			{
+				minHeight = std::min(minHeight, value);
+				maxHeight = std::max(maxHeight, value);
+			}	
 		}
 	}
 	std::cout << "Final Short Height Map minHeight = " << minHeight << " , maxHeight = " << maxHeight << std::endl;
-
-	std::vector<std::vector<short>> meshHeightMasksShort4096 = Read2DShortArray(m_meshHeightMasksFile, width, height);
-	std::vector<std::vector<short>> mesh2HeightMasksShort4096 = Read2DShortArray(m_mesh2HeightMasksFile, width, height);
-	std::vector<std::vector<short>> pcHeightMasksShort4096 = Read2DShortArray(m_pcHeightMasksFile, width, height);
-	std::vector<std::vector<short>> l1HeightMasksShort4096 = Read2DShortArray(m_l1HeightMasksFile, width, height);
-	std::vector<std::vector<short>> heightMasksShort4096(width, std::vector<short>(height));
-	for (int x = 0; x < width; x++)
-	{
-		for (int y = 0; y < height; y++)
-		{
-			short meshValue = meshHeightMasksShort4096[x][y];
-			short mesh2Value = mesh2HeightMasksShort4096[x][y];
-			short pcValue = pcHeightMasksShort4096[x][y];
-			short l1Value = l1HeightMasksShort4096[x][y];
-			//short value = std::max(meshValue, pcValue);
-			//short value = FindMaxIn3(meshValue, mesh2Value, pcValue);
-			short value = FindMaxIn4(meshValue, mesh2Value, pcValue, l1Value);
-			heightMasksShort4096[x][y] = value;
-		}
-	}
 
 	//std::vector<std::vector<short>> slopeShort4096 = ComputeAbsMaxHeightSlopeMap(heightMapShort4096);
 	std::vector<std::vector<short>> slopeShort4096 = ComputeSlopeMap(heightMapShort4096);

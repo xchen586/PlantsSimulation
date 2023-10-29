@@ -32,6 +32,10 @@
 #define USE_OUTPUT_ONLY_POSITIVE_HEIGHT 1
 #endif
 
+#ifndef USE_CELLINFO_FOR_POINT_INSTANCE
+#define USE_CELLINFO_FOR_POINT_INSTANCE 0
+#endif
+
 #ifndef PI
 #define PI       3.14159265358979323846   // pi
 #endif // !PI
