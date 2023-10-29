@@ -16,7 +16,8 @@ class CPlantsSimulation
 {
 public:
 	CPlantsSimulation(const string& outputDir, const string& inputImageFile, const string& inputImageMataFile, const string& mesh_HeightMapFile, const string& mesh2_HeightMapFile, const string& pc_HeightMapFile, const string& l1_HeightMapFile,
-		const string& mesh_HeightMasksFile, const string& mesh2_HeightMasksFile, const string& pc_HeightMasksFile, const string& l1_HeightMasksFile, const string& outputFile, const string& fullOutputFile, const string& pcFullOutputFile )
+		const string& mesh_HeightMasksFile, const string& mesh2_HeightMasksFile, const string& pc_HeightMasksFile, const string& l1_HeightMasksFile, const string& mostTravelledPointFile, const string& mostDistantPointFile, 
+		const string& outputFile, const string& fullOutputFile, const string& pcFullOutputFile )
 		: m_outputDir(outputDir)
 		, m_inputImageFile(inputImageFile)
 		, m_inputImageMetaFile(inputImageMataFile)
@@ -28,6 +29,8 @@ public:
 		, m_mesh2HeightMasksFile(mesh2_HeightMasksFile)
 		, m_pcHeightMasksFile(pc_HeightMasksFile)
 		, m_l1HeightMasksFile(l1_HeightMasksFile)
+		, m_mostTravelledPointFile(mostTravelledPointFile)
+		, m_mostDistantPointFile(mostDistantPointFile)
 		, m_outputFile(outputFile)
 		, m_fullOutputFile(fullOutputFile)
 		, m_pcFullOutputFile(pcFullOutputFile)
@@ -53,6 +56,8 @@ private:
 	string m_mesh2HeightMasksFile;
 	string m_pcHeightMasksFile;
 	string m_l1HeightMasksFile;
+	string m_mostTravelledPointFile;
+	string m_mostDistantPointFile;
 	string m_outputFile;
 	string m_fullOutputFile;
 	string m_pcFullOutputFile;

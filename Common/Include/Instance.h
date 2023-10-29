@@ -46,4 +46,9 @@ struct InstanceSubOutput
 
 	}
 
+	virtual int GetOutputItemCount()
+	{
+		return outputItemCount;
+	}
+
 };

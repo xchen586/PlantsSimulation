@@ -45,6 +45,14 @@ public:
 	{
 		m_pMetaInfo = metaInfo;
 	}
+	void setMostTravelledPointFilePath(const string& filePath)
+	{
+		m_mostTravelledPointFilePath = filePath;
+	}
+	void setMostDistantPointFilePath(const string& filePath)
+	{
+		m_mostDistantPointFilePath = filePath;
+	}
 	TreeInstanceOutput GetTreeOutputFromInstance(const CTreeInstance& instance);
 	bool exportTreeInstanceOutput(const std::vector<TreeInstanceOutput>& data, const std::string& filename, bool hasHeader);
 	bool exportTreeInstanceFullOutput(const std::vector<TreeInstanceFullOutput>& data, const std::string& filename, bool hasHeader, bool withRatio = false);
@@ -57,6 +65,7 @@ public:
 	bool outputPointsCloudFullTreeInstanceResults(const std::string& fileName);
 	bool outputPointsCloudFullTreeInstanceResultsWithRatio(const std::string& fileName);
 
+	bool loadPointInstanceFromCSV(const string& filePath, const string& outputSubDir, InstanceSubOutputMap& outputMap, unsigned int variant, CAffineTransform transform, double voxelSize);
 	bool outputSubfiles(const std::string& outputSubsDir);
 public:
 	vector<TreeClass*> classes;
@@ -67,10 +76,15 @@ public:
 	vector<TreeInstanceFullOutput> fullOutputs;
 	std::vector<std::vector<CCellInfo*>> * m_pCellTable;
 	InputImageMetaInfo * m_pMetaInfo;
+	
 	int xo;
 	int zo;
 	int xSize;
 	int zSize;
 	int* grid;
+
+private:
+	string m_mostTravelledPointFilePath;
+	string m_mostDistantPointFilePath;
 };
 

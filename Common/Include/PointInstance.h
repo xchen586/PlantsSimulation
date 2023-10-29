@@ -9,7 +9,7 @@ enum class PointType {
 	Point_End
 };
 
-struct PointInstanceSubOutput : InstanceSubOutput
+struct PointInstanceSubOutput : public InstanceSubOutput
 {
 	double age;
 

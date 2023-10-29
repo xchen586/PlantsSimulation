@@ -108,7 +108,7 @@ struct TreeInstanceSubOutput : public InstanceSubOutput
 	}
 };
 
-typedef std::vector<std::shared_ptr<TreeInstanceSubOutput>> InstanceSubOutputVector;
+typedef std::vector<std::shared_ptr<InstanceSubOutput>> InstanceSubOutputVector;
 typedef std::map <std::string, std::shared_ptr<InstanceSubOutputVector>> InstanceSubOutputMap;
 
 struct TreeInstanceFullOutput

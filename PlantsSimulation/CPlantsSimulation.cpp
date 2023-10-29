@@ -595,6 +595,7 @@ bool CPlantsSimulation::LoadInputData()
 		DeInitialize();
 		return ret;
 	}
+	
 	return ret;
 }
 
@@ -612,6 +613,8 @@ bool CPlantsSimulation::LoadForest()
 
 	m_pForest->setCellTable(m_pCellTable);
 	m_pForest->setMetaInfo(m_topLayerMeta);
+	m_pForest->setMostTravelledPointFilePath(m_mostTravelledPointFile);
+	m_pForest->setMostDistantPointFilePath(m_mostDistantPointFile);
 
 	if (!m_topLayerImage) {
 		return false;
