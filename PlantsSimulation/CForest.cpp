@@ -773,7 +773,7 @@ bool OutputCSVFileForSubInstances(const string& filePath, std::shared_ptr<Instan
 		outputFile
 			<< sub->xOffsetW << ","
 			<< sub->yOffsetW << ","
-			<< sub->posZ << ","
+			<< sub->zOffsetW << ","
 			<< sub->scaleX << ","
 			<< sub->scaleY << ","
 			<< sub->scaleZ << ","
@@ -824,9 +824,11 @@ void SetupInstanceSubOutput(double posX, double posY, double posZ, CAffineTransf
 	}
 
 	auto posWorldToVF = transform.WC_TO_VF(CAffineTransform::sAffineVector(posX, posY, posZ));
+
 	double doubleXIdx = posWorldToVF.X / cellSize;
 	double doubleYIdx = posWorldToVF.Y / cellSize;
 	double doubleZIdx = posWorldToVF.Z / cellSize;
+
 	int intXIdx = static_cast<int>(std::floor(doubleXIdx));
 	int intYIdx = static_cast<int>(std::floor(doubleYIdx));
 	int intZIdx = static_cast<int>(std::floor(doubleZIdx));
@@ -838,16 +840,23 @@ void SetupInstanceSubOutput(double posX, double posY, double posZ, CAffineTransf
 	auto cellOrgVFToWorld = transform.VF_TO_WC(CAffineTransform::sAffineVector{ VF_X, VF_Y, VF_Z + cellSize }); // + cellSize : maybe it is a hack!!!
 
 	double relativeOffsetXWorld = posX - cellOrgVFToWorld.X;
-	double relativeOffsetYWorld = posY - cellOrgVFToWorld.Y;
+	double relativeOffsetYWorld = posY - cellOrgVFToWorld.Y; 
+	double relativeOffsetZWorld = posZ - cellOrgVFToWorld.Z;
 
 	sub->xIdx = intXIdx;
 	sub->yIdx = intYIdx;
+	sub->zIdx = intZIdx;
+
 	sub->xOffsetW = relativeOffsetXWorld;
 	sub->yOffsetW = relativeOffsetYWorld;
+	sub->zOffsetW = relativeOffsetZWorld;
+	
+	sub->posX = posX;
+	sub->posY = posY;
 	sub->posZ = posZ;
 }
 
-std::string GetKeyStringForInstance(const string& outputDir, int intXIdx, int intYIdx)
+std::string GetKeyStringForInstance(const string& outputDir, int intXIdx, int intZIdx)
 {
 	const int MAX_PATH = 250;
 	char subFileName[MAX_PATH];
@@ -855,10 +864,10 @@ std::string GetKeyStringForInstance(const string& outputDir, int intXIdx, int in
 	memset(subFileName, 0, sizeof(char) * MAX_PATH);
 	memset(subFilePath, 0, sizeof(char) * MAX_PATH);
 #if __APPLE__
-	snprintf(subFileName, MAX_PATH, "instances_%d_%d.csv", intXIdx, intYIdx);
+	snprintf(subFileName, MAX_PATH, "instances_%d_%d.csv", intXIdx, intZIdx);
 	snprintf(subFilePath, MAX_PATH, "%s/%s", outputDir.c_str(), subFileName);
 #else
-	sprintf_s(subFileName, MAX_PATH, "instances_%d_%d.csv", intXIdx, intYIdx);
+	sprintf_s(subFileName, MAX_PATH, "instances_%d_%d.csv", intXIdx, intZIdx);
 	sprintf_s(subFilePath, MAX_PATH, "%s\\%s", outputDir.c_str(), subFileName);
 #endif
 	string ret = subFilePath;
@@ -919,7 +928,7 @@ bool CForest::loadPointInstanceFromCSV(const string& filePath, const string& out
 		if (std::getline(lineStream, field, ',')) {
 			
 		}
-#if USE_CELLINFO_FOR_POINT_INSTANCE
+#if USE_CELLINFO_HEIGHT_FOR_POINT_INSTANCE
 		int rowIdx = static_cast<int>(xPos / xRatio);
 		int colIdx = static_cast<int>(yPos / yRatio);
 
@@ -957,7 +966,7 @@ bool CForest::loadPointInstanceFromCSV(const string& filePath, const string& out
 			sub->variant = variant;
 			sub->age = 1.0;
 
-			string keyString = GetKeyStringForInstance(outputSubDir, sub->xIdx, sub->yIdx);
+			string keyString = GetKeyStringForInstance(outputSubDir, sub->xIdx, sub->zIdx);
 			InstanceSubOutputMap::iterator iter = outputMap.find(keyString);
 			if (outputMap.end() == iter)
 			{
@@ -982,6 +991,8 @@ bool CForest::outputSubfiles(const std::string& outputSubsDir)
 			return false;
 		}
 	}
+
+	bool removeFiles = RemoveAllFilesInFolder(outputSubsDir);
 
 	//int lod = 5;
 	auto lod = VoxelFarm::LOD_0 + 3;

@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <filesystem>
 #include <vector>
 #include <cmath>
 #include <algorithm>
@@ -104,6 +105,8 @@ std::vector<std::vector<double>> ConvertShortMatrixToDouble1(const std::vector<s
 std::vector<std::vector<double>> ConvertShortMatrixToDouble2(const std::vector<std::vector<short>>& shortMatrix);
 
 double GenerateRandomDouble(double min, double max);
+
+bool RemoveAllFilesInFolder(const std::string& folderPath);
 
 template <typename T>
 T FindMinIn3(const T& num1, const T& num2, const T& num3) {

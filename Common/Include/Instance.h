@@ -12,10 +12,12 @@ struct InstanceSubOutput
 {
 	int xIdx;
 	int yIdx;
+	int zIdx;
 	double xOffsetW;
 	double yOffsetW;
-	//double posX;
-	//double posY;
+	double zOffsetW;
+	double posX;
+	double posY;
 	double posZ;
 	double scaleX;
 	double scaleY;
@@ -30,8 +32,12 @@ struct InstanceSubOutput
 	InstanceSubOutput()
 		: xIdx(0)
 		, yIdx(0)
+		, zIdx(0)
 		, xOffsetW(0.0)
 		, yOffsetW(0.0)
+		, zOffsetW(0.0)
+		, posX(0.0)
+		, posY(0.0)
 		, posZ(0.0)
 		, scaleX(1.0)
 		, scaleY(1.0)

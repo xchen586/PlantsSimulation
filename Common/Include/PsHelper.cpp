@@ -583,3 +583,26 @@ double GenerateRandomDouble(double min, double max) {
     // Generate a random double within the specified range and return it
     return distribution(gen);
 }
+
+bool RemoveAllFilesInFolder(const std::string& folderPath) {
+    try {
+        std::filesystem::path directoryPath(folderPath);
+
+        if (std::filesystem::is_directory(directoryPath)) {
+            for (const auto& entry : std::filesystem::directory_iterator(directoryPath)) {
+                if (entry.is_regular_file()) {
+                    std::filesystem::remove(entry);
+                }
+            }
+            return true;  // All files removed successfully
+        }
+        else {
+            std::cerr << "The specified path is not a directory: " << folderPath << std::endl;
+            return false;  // Directory doesn't exist
+        }
+    }
+    catch (const std::exception& e) {
+        std::cerr << "Error while removing files in " << folderPath << ": " << e.what() << std::endl;
+        return false;  // An error occurred
+    }
+}
