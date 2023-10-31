@@ -249,6 +249,7 @@ bool CPsInstanceExporter::loadPointInstanceFromCSV(const string& filePath, const
 	std::cout << "The points of negative height count is : " << negativeHeightCount << std::endl;
 
 	file.close();
+    return true;
 }
 
 bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)

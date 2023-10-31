@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		3298932C2AEB28A600E8B190 /* CInstanceExporter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 329893292AEB28A600E8B190 /* CInstanceExporter.cpp */; };
 		3298932D2AEB28A600E8B190 /* ExportInstances.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3298932A2AEB28A600E8B190 /* ExportInstances.cpp */; };
 		329893402AEB28D000E8B190 /* CTimeCounter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 329893312AEB28D000E8B190 /* CTimeCounter.cpp */; };
 		329893412AEB28D000E8B190 /* TreeInstance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 329893342AEB28D000E8B190 /* TreeInstance.cpp */; };
@@ -30,9 +29,7 @@
 
 /* Begin PBXFileReference section */
 		3298931F2AEB281D00E8B190 /* ExportInstances */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ExportInstances; sourceTree = BUILT_PRODUCTS_DIR; };
-		329893292AEB28A600E8B190 /* CInstanceExporter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CInstanceExporter.cpp; path = ../../CInstanceExporter.cpp; sourceTree = "<group>"; };
 		3298932A2AEB28A600E8B190 /* ExportInstances.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ExportInstances.cpp; path = ../../ExportInstances.cpp; sourceTree = "<group>"; };
-		3298932B2AEB28A600E8B190 /* CInstanceExporter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CInstanceExporter.h; path = ../../CInstanceExporter.h; sourceTree = "<group>"; };
 		329893302AEB28D000E8B190 /* Utils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Utils.h; sourceTree = "<group>"; };
 		329893312AEB28D000E8B190 /* CTimeCounter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CTimeCounter.cpp; sourceTree = "<group>"; };
 		329893322AEB28D000E8B190 /* PsHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PsHelper.h; sourceTree = "<group>"; };
@@ -82,8 +79,6 @@
 			isa = PBXGroup;
 			children = (
 				3298932E2AEB28D000E8B190 /* Common */,
-				329893292AEB28A600E8B190 /* CInstanceExporter.cpp */,
-				3298932B2AEB28A600E8B190 /* CInstanceExporter.h */,
 				3298932A2AEB28A600E8B190 /* ExportInstances.cpp */,
 			);
 			path = ExportInstances;
@@ -183,7 +178,6 @@
 				329893432AEB28D000E8B190 /* PsHelper.cpp in Sources */,
 				329893412AEB28D000E8B190 /* TreeInstance.cpp in Sources */,
 				329893442AEB28D000E8B190 /* CCellInfo.cpp in Sources */,
-				3298932C2AEB28A600E8B190 /* CInstanceExporter.cpp in Sources */,
 				329893422AEB28D000E8B190 /* CColonizationTree.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

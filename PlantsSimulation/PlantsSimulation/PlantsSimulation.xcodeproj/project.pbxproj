@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3208E0372AF1BC7900D20937 /* CPsInstanceExporter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3208E0352AF1BC7900D20937 /* CPsInstanceExporter.cpp */; };
+		3208E0382AF1BC7900D20937 /* CPsInstanceExporter.h in Headers */ = {isa = PBXBuildFile; fileRef = 3208E0362AF1BC7900D20937 /* CPsInstanceExporter.h */; };
 		320E7BC62AAA7E2900BEC8EE /* CPlantsSimulation.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 320E7BBF2AAA7E2900BEC8EE /* CPlantsSimulation.cpp */; };
 		320E7BC72AAA7E2900BEC8EE /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 320E7BC22AAA7E2900BEC8EE /* main.cpp */; };
 		320E7BC82AAA7E2900BEC8EE /* CForest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 320E7BC32AAA7E2900BEC8EE /* CForest.cpp */; };
@@ -46,6 +48,8 @@
 		3208CD8E2ABA94D000149A16 /* CHeightDensity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CHeightDensity.h; path = ../../CHeightDensity.h; sourceTree = "<group>"; };
 		3208CD8F2ABA94D000149A16 /* CMoistureDensityMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CMoistureDensityMap.h; path = ../../CMoistureDensityMap.h; sourceTree = "<group>"; };
 		3208CD902ABA94D000149A16 /* CSlopeDensityMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CSlopeDensityMap.h; path = ../../CSlopeDensityMap.h; sourceTree = "<group>"; };
+		3208E0352AF1BC7900D20937 /* CPsInstanceExporter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CPsInstanceExporter.cpp; path = ../../CPsInstanceExporter.cpp; sourceTree = "<group>"; };
+		3208E0362AF1BC7900D20937 /* CPsInstanceExporter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CPsInstanceExporter.h; path = ../../CPsInstanceExporter.h; sourceTree = "<group>"; };
 		320E7BB32AAA7DF800BEC8EE /* PlantsSimulation */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = PlantsSimulation; sourceTree = BUILT_PRODUCTS_DIR; };
 		320E7BBF2AAA7E2900BEC8EE /* CPlantsSimulation.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CPlantsSimulation.cpp; path = ../../CPlantsSimulation.cpp; sourceTree = "<group>"; };
 		320E7BC02AAA7E2900BEC8EE /* CForest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CForest.h; path = ../../CForest.h; sourceTree = "<group>"; };
@@ -104,6 +108,8 @@
 		320E7BB52AAA7DF800BEC8EE /* PlantsSimulation */ = {
 			isa = PBXGroup;
 			children = (
+				3208E0352AF1BC7900D20937 /* CPsInstanceExporter.cpp */,
+				3208E0362AF1BC7900D20937 /* CPsInstanceExporter.h */,
 				329892F42AEB02A700E8B190 /* Common */,
 				3257FA332ABCF3B700400A91 /* CCellI2DMask.h */,
 				3257FA342ABCF3B700400A91 /* CRoadAttributeDensityMap.h */,
@@ -179,6 +185,7 @@
 				329893102AEB02A700E8B190 /* CTimeCounter.h in Headers */,
 				329893112AEB02A700E8B190 /* Instance.h in Headers */,
 				329893092AEB02A700E8B190 /* CColonizationTree.h in Headers */,
+				3208E0382AF1BC7900D20937 /* CPsInstanceExporter.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -242,6 +249,7 @@
 			files = (
 				3298930D2AEB02A700E8B190 /* CColonizationTree.cpp in Sources */,
 				3298930A2AEB02A700E8B190 /* TreeInstance.cpp in Sources */,
+				3208E0372AF1BC7900D20937 /* CPsInstanceExporter.cpp in Sources */,
 				320E7BC62AAA7E2900BEC8EE /* CPlantsSimulation.cpp in Sources */,
 				320E7BC82AAA7E2900BEC8EE /* CForest.cpp in Sources */,
 				320E7BC72AAA7E2900BEC8EE /* main.cpp in Sources */,
