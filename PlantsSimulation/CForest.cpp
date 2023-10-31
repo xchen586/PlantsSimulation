@@ -771,9 +771,15 @@ bool OutputCSVFileForSubInstances(const string& filePath, std::shared_ptr<Instan
 		int outputItemCount = sub->outputItemCount;
 
 		outputFile
+#if USE_OFFSET_FOR_INSTANCE_OUTPUT
 			<< sub->xOffsetW << ","
 			<< sub->yOffsetW << ","
 			<< sub->zOffsetW << ","
+#else
+			<< sub->posX << ","
+			<< sub->posY << ","
+			<< sub->posZ << ","
+#endif
 			<< sub->scaleX << ","
 			<< sub->scaleY << ","
 			<< sub->scaleZ << ","

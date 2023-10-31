@@ -32,7 +32,7 @@ def process_files_point_cloud(api : voxelfarmclient.rest, project_id, folder_id,
     for file_path in file_paths:
         with open(file_path, "rb") as file:
             api.attach_files(project=project_id, id=entity_id, files={'file': file})
-            
+
     result = api.create_entity_processed(project=project_id, 
         #type=api.entity_type.VoxelTerrain, 
         #type=api.entity_type.VoxelMesh,
@@ -77,5 +77,5 @@ tiles = 10
 x = 8
 y = 5
 
-process_files_point_cloud(api, project_id, folder_id, entity_type_IndexedPointCloud, f'D:\\Downloads\\PlantsSimulation\\output\\instanceoutput', f'instances_{tiles}_{x}_{y}-{version}', version=version, color=True)
-
+#process_files_point_cloud(api, project_id, folder_id, entity_type_IndexedPointCloud, f'D:\\Downloads\\PlantsSimulation\\output\\instanceoutput', f'instances_{tiles}_{x}_{y}-{version}', version=version, color=True)
+process_files_point_cloud(api, project_id, folder_id, entity_type_IndexedPointCloud, f'D:\\Downloads\\PlantsSimulation\\output\\instanceoutput', f'instances_nooffset_{tiles}_{x}_{y}-{version}', version=version, color=True)

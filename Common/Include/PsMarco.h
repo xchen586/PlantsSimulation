@@ -36,6 +36,10 @@
 #define USE_CELLINFO_HEIGHT_FOR_POINT_INSTANCE 1
 #endif
 
+#ifndef USE_OFFSET_FOR_INSTANCE_OUTPUT
+#define USE_OFFSET_FOR_INSTANCE_OUTPUT 0
+#endif
+
 #ifndef PI
 #define PI       3.14159265358979323846   // pi
 #endif // !PI
