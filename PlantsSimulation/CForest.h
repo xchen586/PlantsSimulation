@@ -8,10 +8,8 @@
 
 #if __APPLE__
     #include "../Common/include/TreeInstance.h"
-    #include "../Common/include/Utils.h"
 #else
     #include "..\Common\include\TreeInstance.h"
-    #include "..\Common\include\Utils.h"
 #endif
 
 using namespace std;
@@ -38,6 +36,7 @@ public:
 	void loadTreeClasses();
 	void loadMasks();
 	void loadGlobalMasks();
+	
 	void setCellTable(std::vector<std::vector<CCellInfo*>>* pCellTable) {
 		m_pCellTable = pCellTable;
 	}
@@ -45,15 +44,6 @@ public:
 	{
 		m_pMetaInfo = metaInfo;
 	}
-	void setMostTravelledPointFilePath(const string& filePath)
-	{
-		m_mostTravelledPointFilePath = filePath;
-	}
-	void setMostDistantPointFilePath(const string& filePath)
-	{
-		m_mostDistantPointFilePath = filePath;
-	}
-
 	vector<TreeInstanceFullOutput>* getTreeInstanceFullOutput()
 	{
 		return &fullOutputs;
@@ -71,8 +61,6 @@ public:
 	bool outputPointsCloudFullTreeInstanceResults(const std::string& fileName);
 	bool outputPointsCloudFullTreeInstanceResultsWithRatio(const std::string& fileName);
 
-	bool loadPointInstanceFromCSV(const string& filePath, const string& outputSubDir, InstanceSubOutputMap& outputMap, unsigned int variant, CAffineTransform transform, double voxelSize);
-	bool outputSubfiles(const std::string& outputSubsDir);
 public:
 	vector<TreeClass*> classes;
 	map<string, I2DMask*> masks;
@@ -87,10 +75,8 @@ public:
 	int zSize;
 	int* grid;
 
-private:
+protected:
 	std::vector<std::vector<CCellInfo*>>* m_pCellTable;
 	InputImageMetaInfo* m_pMetaInfo;
-	string m_mostTravelledPointFilePath;
-	string m_mostDistantPointFilePath;
 };
 

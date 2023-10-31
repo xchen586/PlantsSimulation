@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CForest.h"
+#include "CPsInstanceExporter.h"
 
 #if __APPLE__
     #include "../Common/include/PsHelper.h"
@@ -67,6 +68,7 @@ private:
 
 	std::vector<std::vector<CCellInfo*>>* m_pCellTable;
 	CForest* m_pForest;
+	CPsInstanceExporter* m_pInstanceExporter;
 
 public:
 	/*int Tiles;
@@ -85,6 +87,7 @@ private:
 public:
 	bool LoadInputData();
 	bool LoadForest();
+	bool LoadInstanceExporter();
 	bool BuildForest();
 	bool OutputResults();
 };

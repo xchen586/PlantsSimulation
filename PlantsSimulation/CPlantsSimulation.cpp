@@ -618,8 +618,6 @@ bool CPlantsSimulation::LoadForest()
 
 	m_pForest->setCellTable(m_pCellTable);
 	m_pForest->setMetaInfo(m_topLayerMeta);
-	m_pForest->setMostTravelledPointFilePath(m_mostTravelledPointFile);
-	m_pForest->setMostDistantPointFilePath(m_mostDistantPointFile);
 
 	if (!m_topLayerImage) {
 		return false;
@@ -649,6 +647,24 @@ bool CPlantsSimulation::LoadForest()
 	return true;
 }
 
+bool CPlantsSimulation::LoadInstanceExporter()
+{
+	m_pInstanceExporter = new CPsInstanceExporter();
+	if (!m_pInstanceExporter)
+	{
+		return false;
+	}
+
+	m_pInstanceExporter->setCellTable(m_pCellTable);
+	m_pInstanceExporter->setMetaInfo(m_topLayerMeta);
+	m_pInstanceExporter->setMostTravelledPointFilePath(m_mostTravelledPointFile);
+	m_pInstanceExporter->setMostDistantPointFilePath(m_mostDistantPointFile);
+
+	m_pInstanceExporter->setFullTreeOutputs(m_pForest->getTreeInstanceFullOutput());
+
+	return true;
+}
+
 bool CPlantsSimulation::BuildForest()
 {
 	if (!m_pForest) {
@@ -670,16 +686,27 @@ bool CPlantsSimulation::BuildForest()
 bool CPlantsSimulation::OutputResults()
 {
 	bool output = m_pForest->outputCSVTreeInstanceResults(m_outputFile);
-	if (output)
+	if (!output)
 	{
-		output = m_pForest->outputCSVFullTreeInstanceResults(m_fullOutputFile);
+		std::cout << "Fail to m_pForest->outputCSVTreeInstanceResults for file : " << m_outputFile << std::endl;
+		return false;
 	}
-	if (output)
+	output = m_pForest->outputCSVFullTreeInstanceResults(m_fullOutputFile);
+	if (!output)
 	{
-		output = m_pForest->outputPointsCloudFullTreeInstanceResults(m_pcFullOutputFile);
+		std::cout << "Fail to m_pForest->outputCSVFullTreeInstanceResults for file : " << m_fullOutputFile << std::endl;
+		return false;
 	}
+	output = m_pForest->outputPointsCloudFullTreeInstanceResults(m_pcFullOutputFile);
 	//std::string pcFullOutputFileWithRatio = m_pcFullOutputFile + ".ratio.xyz";
 	//output = m_pForest->outputPointsCloudFullTreeInstanceResultsWithRatio(pcFullOutputFileWithRatio);
+
+	output = LoadInstanceExporter();
+	if (!output)
+	{
+		std::cout << "Fail to m_pForest->LoadInstanceExporter()" << std::endl;
+		return false;
+	}
 	const int MAX_PATH = 250;
 	char subFullOutput_Dir[MAX_PATH];
 	memset(subFullOutput_Dir, 0, sizeof(char) * MAX_PATH);
@@ -690,7 +717,7 @@ bool CPlantsSimulation::OutputResults()
 #endif
 	if (output)
 	{
-		output = m_pForest->outputSubfiles(subFullOutput_Dir);
+		output = m_pInstanceExporter->outputSubfiles(subFullOutput_Dir);
 	}
 	return output;
 }
