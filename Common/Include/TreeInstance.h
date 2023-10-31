@@ -101,10 +101,8 @@ struct TreeInstanceOutput {
 
 struct TreeInstanceSubOutput : public InstanceSubOutput
 {
-	double age;
 	TreeInstanceSubOutput() : InstanceSubOutput()
 	{
-		outputItemCount = 12;
 	}
 };
 

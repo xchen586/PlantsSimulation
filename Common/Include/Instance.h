@@ -27,7 +27,9 @@ struct InstanceSubOutput
 	double rotationZ;
 	unsigned int instanceType;
 	unsigned int variant;
+	double age;
 	int outputItemCount;
+	
 
 	InstanceSubOutput()
 		: xIdx(0)
@@ -47,7 +49,8 @@ struct InstanceSubOutput
 		, rotationZ(0.0)
 		, instanceType(0)
 		, variant(0)
-		, outputItemCount(11)
+		, age(0)
+		, outputItemCount(12)
 	{
 
 	}

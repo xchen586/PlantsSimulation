@@ -11,11 +11,8 @@ enum class PointType {
 
 struct PointInstanceSubOutput : public InstanceSubOutput
 {
-	double age;
-
 	PointInstanceSubOutput() : InstanceSubOutput()
 	{
-		outputItemCount = 12;
 	}
 
 };

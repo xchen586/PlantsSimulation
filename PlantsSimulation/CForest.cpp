@@ -787,9 +787,10 @@ bool OutputCSVFileForSubInstances(const string& filePath, std::shared_ptr<Instan
 			<< sub->rotationY << ","
 			<< sub->rotationZ << ","
 			<< sub->instanceType << ","
-			<< sub->variant << ",";
+			<< sub->variant << ","
+			<< sub->age << std::endl;
 
-		if (outputItemCount != fullOutputItemCount)
+		/*if (outputItemCount != fullOutputItemCount)
 		{
 			outputFile << 1.0 << std::endl;
 		}
@@ -813,9 +814,7 @@ bool OutputCSVFileForSubInstances(const string& filePath, std::shared_ptr<Instan
 				}
 			}
 			
-		}
-			
-
+		}*/
 	}
 
 	outputFile.close();
@@ -1030,7 +1029,6 @@ bool CForest::outputSubfiles(const std::string& outputSubsDir)
 		sub->variant = instance.m_instance.treeType;
 		sub->age = static_cast<double>(instance.m_instance.age / instance.m_instance.maxAge);
 
-		
 		string keyString = GetKeyStringForInstance(outputSubsDir, sub->xIdx, sub->yIdx);
 		InstanceSubOutputMap::iterator iter = outputMap.find(keyString);
 		if (outputMap.end() == iter)
