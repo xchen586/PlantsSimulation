@@ -53,6 +53,12 @@ public:
 	{
 		m_mostDistantPointFilePath = filePath;
 	}
+
+	vector<TreeInstanceFullOutput>* getTreeInstanceFullOutput()
+	{
+		return &fullOutputs;
+	}
+
 	TreeInstanceOutput GetTreeOutputFromInstance(const CTreeInstance& instance);
 	bool exportTreeInstanceOutput(const std::vector<TreeInstanceOutput>& data, const std::string& filename, bool hasHeader);
 	bool exportTreeInstanceFullOutput(const std::vector<TreeInstanceFullOutput>& data, const std::string& filename, bool hasHeader, bool withRatio = false);
@@ -74,8 +80,6 @@ public:
 	vector<CTreeInstance> trees;
 	vector<TreeInstanceOutput> outputs;
 	vector<TreeInstanceFullOutput> fullOutputs;
-	std::vector<std::vector<CCellInfo*>> * m_pCellTable;
-	InputImageMetaInfo * m_pMetaInfo;
 	
 	int xo;
 	int zo;
@@ -84,6 +88,8 @@ public:
 	int* grid;
 
 private:
+	std::vector<std::vector<CCellInfo*>>* m_pCellTable;
+	InputImageMetaInfo* m_pMetaInfo;
 	string m_mostTravelledPointFilePath;
 	string m_mostDistantPointFilePath;
 };

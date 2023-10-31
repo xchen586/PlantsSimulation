@@ -36,9 +36,6 @@
     <ClCompile Include="..\Common\Include\TreeInstance.cpp">
       <Filter>Common</Filter>
     </ClCompile>
-    <ClCompile Include="CInstanceExporter.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Common\Include\CCellInfo.h">
@@ -73,9 +70,6 @@
     </ClInclude>
     <ClInclude Include="..\Common\Include\VoxelFarmPlatform.h">
       <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="CInstanceExporter.h">
-      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Common\Include\PointInstance.h">
       <Filter>Common</Filter>

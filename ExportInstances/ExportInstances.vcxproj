@@ -136,7 +136,6 @@
     <ClCompile Include="..\Common\Include\CTimeCounter.cpp" />
     <ClCompile Include="..\Common\Include\PsHelper.cpp" />
     <ClCompile Include="..\Common\Include\TreeInstance.cpp" />
-    <ClCompile Include="CInstanceExporter.cpp" />
     <ClCompile Include="ExportInstances.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -152,7 +151,6 @@
     <ClInclude Include="..\Common\Include\TreeInstance.h" />
     <ClInclude Include="..\Common\Include\Utils.h" />
     <ClInclude Include="..\Common\Include\VoxelFarmPlatform.h" />
-    <ClInclude Include="CInstanceExporter.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -144,6 +144,7 @@
     <ClCompile Include="..\Common\Include\TreeInstance.cpp" />
     <ClCompile Include="CForest.cpp" />
     <ClCompile Include="CPlantsSimulation.cpp" />
+    <ClCompile Include="CPsInstanceExporter.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -164,6 +165,7 @@
     <ClInclude Include="CHeightDensity.h" />
     <ClInclude Include="CMoistureDensityMap.h" />
     <ClInclude Include="CPlantsSimulation.h" />
+    <ClInclude Include="CPsInstanceExporter.h" />
     <ClInclude Include="CRoadAttributeDensityMap.h" />
     <ClInclude Include="CRoughnessDensityMap.h" />
     <ClInclude Include="CSlopeDensityMap.h" />

@@ -42,6 +42,9 @@
     <ClCompile Include="..\Common\Include\TreeInstance.cpp">
       <Filter>Common</Filter>
     </ClCompile>
+    <ClCompile Include="CPsInstanceExporter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CPlantsSimulation.h">
@@ -109,6 +112,9 @@
     </ClInclude>
     <ClInclude Include="..\Common\Include\PointInstance.h">
       <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="CPsInstanceExporter.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

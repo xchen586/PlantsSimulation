@@ -724,6 +724,8 @@ bool CForest::outputFullTreeInstanceResults(const std::string& fileName, bool ha
 		return false;
 	}
 	
+	fullOutputs.clear();
+
 	int tableRowsCount = (*m_pCellTable).size();
 	int tableColsCount = (*m_pCellTable)[0].size();
 
