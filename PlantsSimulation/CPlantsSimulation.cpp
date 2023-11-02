@@ -225,6 +225,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	//std::vector<std::vector<short>> slopeShort4096 = ComputeAbsMaxHeightSlopeMap(heightMapShort4096);
 	std::vector<std::vector<short>> slopeShort4096 = ComputeSlopeMap(heightMapShort4096);
 	std::vector<std::vector<double>> heightMapDouble4096 = ConvertShortMatrixToDouble1(heightMapShort4096);
+	std::vector<std::vector<unsigned short>> heightMapUShort4096 = ConvertShortMatrixToUShort(heightMapShort4096);
 
 	double ratio = 7.32673;
 #if USE_MAX_SLOPE_ANGLE
@@ -260,6 +261,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	char double_height_map_exportout[MAX_PATH];
 	char height_slope_map_exportout[MAX_PATH];
 	char angle_slope_map_exportout[MAX_PATH];
+	char ushort_height_map_raw[MAX_PATH];
 
 	memset(mesh_heightmap_raw_export, 0, sizeof(char) * MAX_PATH);
 	memset(mesh2_heightmap_raw_export, 0, sizeof(char) * MAX_PATH);
@@ -269,6 +271,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	memset(double_height_map_exportout, 0, sizeof(char) * MAX_PATH);
 	memset(height_slope_map_exportout, 0, sizeof(char) * MAX_PATH);
 	memset(angle_slope_map_exportout, 0, sizeof(char) * MAX_PATH);
+	memset(ushort_height_map_raw, 0, sizeof(char) * MAX_PATH);
 
 #if __APPLE__
 #if USE_OUTPUT_HEIGHT_MAP_CSV
@@ -302,10 +305,15 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	sprintf_s(l1_heightmap_raw_export, MAX_PATH, "%s\\l1_heightmap_raw_export.xyz", m_outputDir.c_str());
 	sprintf_s(short_height_map_export, MAX_PATH, "%s\\short_height_map_export.xyz", m_outputDir.c_str());
 #endif
-
 	sprintf_s(double_height_map_exportout, MAX_PATH, "%s\\double_height_map_exportout.xyz", m_outputDir.c_str());
 	sprintf_s(height_slope_map_exportout, MAX_PATH, "%s\\height_slope_map_exportout.xyz", m_outputDir.c_str());
 	sprintf_s(angle_slope_map_exportout, MAX_PATH, "%s\\angle_slope_map_exportout.xyz", m_outputDir.c_str());
+#endif
+
+#if __APPLE_
+	snprintf(ushort_height_map_raw, MAX_PATH, "%s/4k_ushort_height_map_raw.raw", m_outputDir.c_str());
+#else
+	sprintf_s(ushort_height_map_raw, MAX_PATH, "%s\\4k_ushort_height_map_raw.raw", m_outputDir.c_str());
 #endif
 
 #if USE_EXPORT_HEIGHT_MAP
@@ -328,6 +336,9 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	ExportShortHeightSlopeMap(slopeShort4096, height_slope_map_exportout, 0x0000FF00, false);
 	ExportAngleSlopeMap(slopeDouble4096, angle_slope_map_exportout, 0x00FF0000, false);
 #endif
+
+	bool outputHeightMap = Output2DVectorToRawFile(heightMapUShort4096, ushort_height_map_raw);
+
 	return true;
 }
 

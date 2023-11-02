@@ -248,6 +248,7 @@ std::vector<std::vector<double>> ConvertShortMatrixToDouble1(const std::vector<s
 
     return doubleMatrix;
 }
+
 // Function to convert a 2D vector of shorts to a 2D vector of doubles
 std::vector<std::vector<double>> ConvertShortMatrixToDouble2(const std::vector<std::vector<short>>& shortMatrix) {
     std::vector<std::vector<double>> doubleMatrix;
@@ -261,6 +262,25 @@ std::vector<std::vector<double>> ConvertShortMatrixToDouble2(const std::vector<s
     }
 
     return doubleMatrix;
+}
+
+std::vector<std::vector<unsigned short>> ConvertShortMatrixToUShort(const std::vector<std::vector<short>>& shortMatrix) {
+    std::vector<std::vector<unsigned short>> ushortMatrix(shortMatrix.size(), std::vector<unsigned short>(shortMatrix[0].size()));
+
+    for (size_t i = 0; i < shortMatrix.size(); ++i) {
+        for (size_t j = 0; j < shortMatrix[i].size(); ++j) {
+            if (shortMatrix[i][j] < 0)
+            {
+                ushortMatrix[i][j] = 0;
+            }
+            else
+            {
+                ushortMatrix[i][j] = static_cast<unsigned short>(shortMatrix[i][j]);
+            }
+        }
+    }
+
+    return ushortMatrix;
 }
 
 std::vector<std::vector<short>> ComputeSlopeMap(const std::vector<std::vector<short>>& heightmap)
@@ -606,3 +626,5 @@ bool RemoveAllFilesInFolder(const std::string& folderPath) {
         return false;  // An error occurred
     }
 }
+
+

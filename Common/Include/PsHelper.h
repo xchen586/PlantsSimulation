@@ -103,6 +103,7 @@ std::string GetFileExtension(const std::string& filePath);
 std::vector<std::vector<double>> ConvertUnsignedShortToDouble(const std::vector<std::vector<unsigned short>>& inputArray);
 std::vector<std::vector<double>> ConvertShortMatrixToDouble1(const std::vector<std::vector<short>>& shortMatrix);
 std::vector<std::vector<double>> ConvertShortMatrixToDouble2(const std::vector<std::vector<short>>& shortMatrix);
+std::vector<std::vector<unsigned short>> ConvertShortMatrixToUShort(const std::vector<std::vector<short>>& shortMatrix);
 
 double GenerateRandomDouble(double min, double max);
 
@@ -170,4 +171,32 @@ T FindMaxIn4(T num1, T num2, T num3, T num4) {
 	}
 
 	return max_num;
+}
+
+template <typename T>
+bool Output2DVectorToRawFile(const std::vector<std::vector<T>>& data, const std::string& filePath) {
+	std::ofstream outputFile(filePath, std::ios::binary);
+
+	if (!outputFile.is_open()) {
+		std::cerr << "Failed to open the file for writing: " << filePath << std::endl;
+		return false;
+	}
+
+	try {
+		for (const auto& row : data) {
+			for (const T& value : row) {
+				if (!outputFile.write(reinterpret_cast<const char*>(&value), sizeof(value))) {
+					std::cerr << "Failed to write data to file: " << filePath << std::endl;
+					return false;
+				}
+			}
+		}
+	}
+	catch (const std::ofstream::failure& ex) {
+		std::cerr << "File write error: " << ex.what() << std::endl;
+		return false;
+	}
+
+	outputFile.close();
+	return true;
 }
