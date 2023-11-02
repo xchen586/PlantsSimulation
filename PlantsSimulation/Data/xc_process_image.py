@@ -4,47 +4,43 @@ import os
 
 import subprocess
 
-def process_files_point_cloud(api : voxelfarmclient.rest, project_id, folder_id, entity_type, folder_path, name : str, version : int, color : bool):
+def process_file_image(api : voxelfarmclient.rest, project_id, folder_id, entity_type, file_path, jgw_path : str, name : str, version : int, color : bool):
 
-    if not os.path.exists(folder_path):
-        print(f'File {folder_path} does not exist')
+    if not ((entity_type == api.entity_type.IndexedOrthoImagery) or (entity_type == api.entity_type.OrthoImagery)):
+        print(f'Entity type should be api.entity_type.IndexedOrthoImagery or api.entity_type.OrthoImagery')
+        return
+    if not os.path.exists(file_path):
+        print(f'File {file_path} does not exist')
+        return
+    if not os.path.exists(jgw_path):
+        print(f'File {jgw_path} does not exist')
         return
     
-    # Use the os.listdir() function to get a list of filenames in the folder
-    file_names = os.listdir(folder_path)
-
-    # Create a list of file paths by joining the folder path with each file name
-    file_paths = [os.path.join(folder_path, file_name) for file_name in file_names]    
-    print(file_paths)
-
     result = api.get_project_crs(project_id)
     crs = result.crs
-    
     result = api.create_entity_raw(project=project_id, 
-        #type=api.entity_type.RawPointCloud, 
-        type=entity_type,
-        name=f'{name}', 
-        fields={
-            'file_folder': folder_id,
-        }, crs = crs)
+            type=entity_type, 
+            name=f'{name}', 
+            fields={
+                'file_folder': folder_id,
+            }, crs = crs)
     entity_id = result.id
-    print(f'Attaching file {file_paths} to entity {entity_id}')
-    #api.attach_files(project=project_id, id=entity_id, files={'file': file})
-    for file_path in file_paths:
-        with open(file_path, "rb") as file:
-            api.attach_files(project=project_id, id=entity_id, files={'file': file})
+    
+    with open(jgw_path, 'rb') as j:
+        api.attach_files(project=project_id, id=entity_id, files={'file': j})
+    print(f'Attaching file {jgw_path} to entity {entity_id}')
+    with open(file_path, 'rb') as f:
+        api.attach_files(project=project_id, id=entity_id, files={'file': f})
+    print(f'Attaching file {file_path} to entity {entity_id}')
 
     result = api.create_entity_processed(project=project_id, 
-        #type=api.entity_type.VoxelTerrain, 
-        #type=api.entity_type.VoxelMesh,
-        #type=api.entity_type.IndexedPointCloud,
-        type = entity_type,
+        type=api.entity_type.VoxelTerrain, 
         name=f'{name}', 
         fields={
             'source': entity_id,
-            'source_type': 'RAWPC',
+            'source_type': 'ORTHO',
             'file_folder': folder_id,
-            #'source_ortho' if color else '_source_ortho': entity_id
+            'source_ortho': entity_id
         }, crs = crs)
     print(f'Created entity {result.id} for {name} {version}')
 
@@ -58,6 +54,8 @@ folder_id = '90F6348AD5D94FCEA85C7C1CD081CE97'
 project_entity = api.get_entity(project_id)
 entity_type_IndexedPointCloud = api.entity_type.IndexedPointCloud
 entity_type_VoxelTerrain = api.entity_type.VoxelTerrain
+entity_type_IndexedOrthoImagery = api.entity_type.IndexedOrthoImagery
+entity_type_OrthoImagery = api.entity_type.OrthoImagery
 
 version = int(project_entity['version']) + 1 if 'version' in project_entity else 1
 api.update_entity(project=project_id, id=project_id, fields={'version': version})
@@ -78,5 +76,6 @@ tiles = 10
 x = 8
 y = 5
 
-#process_files_point_cloud(api, project_id, folder_id, entity_type_IndexedPointCloud, f'D:\\Downloads\\PlantsSimulation\\output\\instanceoutput', f'instances_{tiles}_{x}_{y}-{version}', version=version, color=True)
-process_files_point_cloud(api, project_id, folder_id, entity_type_IndexedPointCloud, f'D:\\Downloads\\PlantsSimulation\\output\\instanceoutput', f'instances_nooffset_{tiles}_{x}_{y}-{version}', version=version, color=True)
+process_file_image(api, project_id, folder_id, entity_type_OrthoImagery, f'D:\\Downloads\\ProcgrenAssets\\output-dev\\points_{tiles}_{x}_{y}_toplevel.xyz.jpg', f'D:\\Downloads\\ProcgrenAssets\\output-dev\\points_{tiles}_{x}_{y}_toplevel.xyz.jgw', f'image_{tiles}_{x}_{y}-{version}', version=version, color=True)
+#process_file_image(api, project_id, folder_id, entity_type_IndexedOrthoImagery, f'D:\\Downloads\\ProcgrenAssets\\output-dev\\points_{tiles}_{x}_{y}_toplevel.xyz.jpg', f'IdxImage_{tiles}_{x}_{y}-{version}', version=version, color=True)
+
