@@ -37,7 +37,8 @@ bool OutputCSVFileForSubInstances(const string& filePath, std::shared_ptr<Instan
 #if USE_OFFSET_FOR_INSTANCE_OUTPUT
 			<< sub->xOffsetW << ","
 			<< sub->yOffsetW << ","
-			<< sub->zOffsetW << ","
+			//<< sub->zOffsetW << ","
+			<< sub->posZ << ","
 #else
 			<< sub->posX << ","
 			<< sub->posY << ","
@@ -84,7 +85,110 @@ bool OutputCSVFileForSubInstances(const string& filePath, std::shared_ptr<Instan
 	return true;
 }
 
-void SetupInstanceSubOutput(double posX, double posY, double posZ, CAffineTransform transform, double cellSize, std::shared_ptr<InstanceSubOutput> sub)
+void SetupInstanceSubOutput2(double posX, double posY, double posZ, const CAffineTransform& transform, double cellSize, std::shared_ptr<InstanceSubOutput> sub)
+{
+	const auto vfPosition = transform.WC_TO_VF(CAffineTransform::sAffineVector(posX, posY, posZ));
+	
+	//cell min
+	int cellX = (int)(vfPosition.X / cellSize);
+	int cellY = (int)(vfPosition.Y / cellSize);
+	int cellZ = (int)(vfPosition.Z / cellSize);
+
+	//cell max
+	int cellX1 = cellX + 1;
+	int cellY1 = cellY + 1;
+	int cellZ1 = cellZ + 1;
+
+	//vf point 0
+	double vfPointX = (cellX * cellSize);
+	double vfPointY = (cellY * cellSize);
+	double vfPointZ = (cellZ * cellSize);
+
+	//vf point 1
+	double vfPoint1X = (cellX1 * cellSize);
+	double vfPoint1Y = (cellY1 * cellSize);
+	double vfPoint1Z = (cellZ1 * cellSize);
+
+	//vf bounds size
+	double vfBoundsSizeX = (vfPoint1X - vfPointX);
+	double vfBoundsSizeY = (vfPoint1Y - vfPointY);
+	double vfBoundsSizeZ = (vfPoint1Z - vfPointZ);
+
+	//vf min
+	double vfMinX = min(vfPointX, vfPoint1X);
+	double vfMinY = min(vfPointY, vfPoint1Y);
+	double vfMinZ = min(vfPointZ, vfPoint1Z);
+
+	//vf max
+	double vfMaxX = max(vfPointX, vfPoint1X);
+	double vfMaxY = max(vfPointY, vfPoint1Y);
+	double vfMaxZ = max(vfPointZ, vfPoint1Z);
+
+	//world point 0
+	auto worldPoint0 = transform.VF_TO_WC(CAffineTransform::sAffineVector{ vfMinX, vfMinY, vfMinZ });
+
+	//world point 1
+	auto worldPoint1 = transform.VF_TO_WC(CAffineTransform::sAffineVector{ vfMaxX, vfMaxY, vfMaxZ });
+
+	//world min
+	double worldMinX = min(worldPoint0.X, worldPoint1.X);
+	double worldMinY = min(worldPoint0.Y, worldPoint1.Y);
+	double worldMinZ = min(worldPoint0.Z, worldPoint1.Z);
+
+	//world max
+	double worldMaxX = max(worldPoint0.X, worldPoint1.X);
+	double worldMaxY = max(worldPoint0.Y, worldPoint1.Y);
+	double worldMaxZ = max(worldPoint0.Z, worldPoint1.Z);
+
+	//world bounds size
+	double worldBoundsSizeX = (worldMaxX - worldMinX);
+	double worldBoundsSizeY = (worldMaxY - worldMinY);
+	double worldBoundsSizeZ = (worldMaxZ - worldMinZ);
+
+	//world offset
+	double worldOffsetX = (posX - worldMinX);
+	double worldOffsetY = (posY - worldMinY);
+	double worldOffsetZ = (posZ - worldMinZ);
+
+	//const bool ok = (worldOffsetX < 640.000001 && worldOffsetY < 640.000001 && worldOffsetZ < 640.000001);
+	const bool ok = (worldOffsetX < 5120.000001 && worldOffsetY < 5120.000001 && worldOffsetZ < 5120.000001);
+
+	if (!ok)
+	{
+		std::cout << "offset is overflow" << std::endl;
+	}
+
+	if ((posX < worldMinX) ||
+		(posY < worldMinY) ||
+		(posZ < worldMinZ) ||
+		(posX > worldMaxX) ||
+		(posY > worldMaxY) ||
+		(posZ > worldMaxZ))
+	{
+		std::cout << "pos is not in the cell" << std::endl;
+	}
+
+	if (worldOffsetX < 0 ||
+		worldOffsetY < 0 ||
+		worldOffsetZ < 0)
+	{
+		std::cout << "offset is not in the cell" << std::endl;
+	}
+
+	sub->xIdx = cellX;
+	sub->yIdx = cellY;
+	sub->zIdx = cellZ;
+
+	sub->xOffsetW = worldOffsetX;
+	sub->yOffsetW = worldOffsetY;
+	sub->zOffsetW = worldOffsetZ;
+
+	sub->posX = posX;
+	sub->posY = posY;
+	sub->posZ = posZ;
+}
+
+void SetupInstanceSubOutput(double posX, double posY, double posZ, const CAffineTransform& transform, double cellSize, std::shared_ptr<InstanceSubOutput> sub)
 {
 	if (sub == nullptr)
 	{
@@ -105,11 +209,36 @@ void SetupInstanceSubOutput(double posX, double posY, double posZ, CAffineTransf
 	double VF_Y = static_cast<double>(intYIdx * cellSize);// + worldOriginVF.Y;
 	double VF_Z = static_cast<double>(intZIdx * cellSize);// + worldOriginVF.Z;
 
+	double VF_X_MAX = static_cast<double>((intXIdx + 1) * cellSize);
+	double VF_Y_MAX = static_cast<double>((intYIdx + 1) * cellSize);
+	double VF_Z_MAX = static_cast<double>((intZIdx + 1) * cellSize);
+
 	auto cellOrgVFToWorld = transform.VF_TO_WC(CAffineTransform::sAffineVector{ VF_X, VF_Y, VF_Z + cellSize }); // + cellSize : maybe it is a hack!!!
+	auto cellMaxVFToWorld = transform.VF_TO_WC(CAffineTransform::sAffineVector{ VF_X_MAX, VF_Y_MAX, VF_Z_MAX + cellSize }); // + cellSize : maybe it is a hack!!!
 
 	double relativeOffsetXWorld = posX - cellOrgVFToWorld.X;
 	double relativeOffsetYWorld = posY - cellOrgVFToWorld.Y;
 	double relativeOffsetZWorld = posZ - cellOrgVFToWorld.Z;
+
+	//SetupInstanceSubOutput2(posX, posY, posZ, transform, cellSize, sub);
+
+	if ((relativeOffsetXWorld > 5120.000001)
+		|| (relativeOffsetYWorld > 5120.000001 ))
+	{
+		auto cellOrgVFToWorld = transform.VF_TO_WC(CAffineTransform::sAffineVector{ VF_X, VF_Y, VF_Z + cellSize }); 
+		//SetupInstanceSubOutput2(posX, posY, posZ, transform, cellSize, sub);
+		std::cout << "offset is overflow" << std::endl;
+	}
+
+	if ((posX < cellOrgVFToWorld.X)
+		|| (posX > cellMaxVFToWorld.X)
+		|| (posY < cellOrgVFToWorld.Y)
+		|| (posY > cellMaxVFToWorld.Y)
+		|| (posZ < cellOrgVFToWorld.Z)
+		|| (posZ > cellMaxVFToWorld.Z))
+	{
+		std::cout << "offset is not in the cell" << std::endl;
+	}
 
 	sub->xIdx = intXIdx;
 	sub->yIdx = intYIdx;
@@ -215,7 +344,7 @@ bool CPsInstanceExporter::loadPointInstanceFromCSV(const string& filePath, const
 		}
 
 		bool negativeZPos = false;
-		if ((zPos < 0) && hasHeight);
+		if ((zPos < 0) && hasHeight)
 		{
 			negativeZPos = true;
 			negativeHeightCount++;
@@ -229,7 +358,7 @@ bool CPsInstanceExporter::loadPointInstanceFromCSV(const string& filePath, const
 		if (hasHeight)
 		{
 			std::shared_ptr<PointInstanceSubOutput> sub = std::make_shared<PointInstanceSubOutput>();
-			SetupInstanceSubOutput(posX, posY, posZ, transform, cellSize, sub);
+			SetupInstanceSubOutput2(posX, posY, posZ, transform, cellSize, sub);
 			sub->instanceType = static_cast<unsigned int>(InstanceType::InstanceType_Point);
 			sub->variant = variant;
 			sub->age = 1.0;
@@ -268,10 +397,12 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 	bool removeFiles = RemoveAllFilesInFolder(outputSubsDir);
 
 	//int lod = 5;
-	auto lod = VoxelFarm::LOD_0 + 3;
+	//auto lod = VoxelFarm::LOD_0 + 3;
+	auto lod = VoxelFarm::LOD_0 + 6;
 
 	const double cellSize = (1 << lod) * VoxelFarm::CELL_SIZE;
-	const double voxelSize = cellSize / VoxelFarm::BLOCK_DIMENSION;
+	//const double voxelSize = cellSize / VoxelFarm::BLOCK_DIMENSION;// 
+	const double voxelSize = 2.0;// cellSize / VoxelFarm::BLOCK_DIMENSION;
 
 	CAffineTransform transform(
 		CAffineTransform::sAffineVector{
@@ -291,13 +422,13 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 			negativeHeightCount++;
 		}
 		std::shared_ptr<TreeInstanceSubOutput> sub = std::make_shared<TreeInstanceSubOutput>();
-		SetupInstanceSubOutput(instance.posX, instance.posY, instance.posZ, transform, cellSize, sub);
+		SetupInstanceSubOutput2(instance.posX, instance.posY, instance.posZ, transform, cellSize, sub);
 
 		sub->instanceType = static_cast<unsigned int>(InstanceType::InstanceType_Tree);
 		sub->variant = instance.m_instance.treeType;
 		sub->age = static_cast<double>(instance.m_instance.age / instance.m_instance.maxAge);
 
-		string keyString = GetKeyStringForInstance(outputSubsDir, sub->xIdx, sub->yIdx);
+		string keyString = GetKeyStringForInstance(outputSubsDir, sub->xIdx, sub->zIdx);
 		InstanceSubOutputMap::iterator iter = outputMap.find(keyString);
 		if (outputMap.end() == iter)
 		{

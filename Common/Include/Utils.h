@@ -202,6 +202,8 @@ public:
 	struct sAffineVector
 	{
 		double X, Y, Z;
+
+#ifdef __APPLE__
         sAffineVector(double x, double y, double z)
         : X(x)
         , Y(y)
@@ -209,6 +211,7 @@ public:
         {
             
         }
+#endif
 	};
 
 public:
