@@ -177,9 +177,9 @@ void SetupInstanceSubOutput2(double posX, double posY, double posZ, const CAffin
 		std::cout << "offset is not in the cell" << std::endl;
 	}
 
-	sub->xIdx = cellX;
-	sub->yIdx = cellY;
-	sub->zIdx = cellZ;
+	sub->cellXIdx = cellX;
+	sub->cellYIdx = cellY;
+	sub->cellZIdx = cellZ;
 
 	sub->xOffsetW = worldOffsetX;
 	sub->yOffsetW = worldOffsetY;
@@ -241,9 +241,9 @@ void SetupInstanceSubOutput(double posX, double posY, double posZ, const CAffine
 		std::cout << "offset is not in the cell" << std::endl;
 	}*/
 
-	sub->xIdx = intXIdx;
-	sub->yIdx = intYIdx;
-	sub->zIdx = intZIdx;
+	sub->cellXIdx = intXIdx;
+	sub->cellYIdx = intYIdx;
+	sub->cellZIdx = intZIdx;
 
 	sub->xOffsetW = relativeOffsetXWorld;
 	sub->yOffsetW = relativeOffsetYWorld;
@@ -365,7 +365,7 @@ bool CPsInstanceExporter::loadPointInstanceFromCSV(const string& filePath, const
 			sub->variant = variant;
 			sub->age = 1.0;
 
-			string keyString = GetKeyStringForInstance(outputSubDir, sub->xIdx, sub->zIdx);
+			string keyString = GetKeyStringForInstance(outputSubDir, sub->cellXIdx, sub->cellZIdx);
 			InstanceSubOutputMap::iterator iter = outputMap.find(keyString);
 			if (outputMap.end() == iter)
 			{
@@ -431,7 +431,7 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 		sub->variant = instance.m_instance.treeType;
 		sub->age = static_cast<double>(instance.m_instance.age / instance.m_instance.maxAge);
 
-		string keyString = GetKeyStringForInstance(outputSubsDir, sub->xIdx, sub->zIdx);
+		string keyString = GetKeyStringForInstance(outputSubsDir, sub->cellXIdx, sub->cellZIdx);
 		InstanceSubOutputMap::iterator iter = outputMap.find(keyString);
 		if (outputMap.end() == iter)
 		{

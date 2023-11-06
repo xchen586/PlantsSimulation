@@ -10,9 +10,9 @@ enum struct InstanceType
 
 struct InstanceSubOutput
 {
-	int xIdx;
-	int yIdx;
-	int zIdx;
+	int cellXIdx;
+	int cellYIdx;
+	int cellZIdx;
 	double xOffsetW;
 	double yOffsetW;
 	double zOffsetW;
@@ -32,9 +32,9 @@ struct InstanceSubOutput
 	
 
 	InstanceSubOutput()
-		: xIdx(0)
-		, yIdx(0)
-		, zIdx(0)
+		: cellXIdx(0)
+		, cellYIdx(0)
+		, cellZIdx(0)
 		, xOffsetW(0.0)
 		, yOffsetW(0.0)
 		, zOffsetW(0.0)
