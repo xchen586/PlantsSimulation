@@ -85,7 +85,7 @@ bool OutputCSVFileForSubInstances(const string& filePath, std::shared_ptr<Instan
 	return true;
 }
 
-void SetupInstanceSubOutput2(double posX, double posY, double posZ, const CAffineTransform& transform, double cellSize, std::shared_ptr<InstanceSubOutput> sub)
+void SetupInstanceSubOutput2(double posX, double posY, double posZ, const CAffineTransform& transform, double cellSize, int32_t lod, std::shared_ptr<InstanceSubOutput> sub)
 {
 	const auto vfPosition = transform.WC_TO_VF(CAffineTransform::sAffineVector(posX, posY, posZ));
 	
@@ -151,7 +151,9 @@ void SetupInstanceSubOutput2(double posX, double posY, double posZ, const CAffin
 	double worldOffsetZ = (posZ - worldMinZ);
 
 	//const bool ok = (worldOffsetX < 640.000001 && worldOffsetY < 640.000001 && worldOffsetZ < 640.000001);
-	const bool ok = (worldOffsetX < 5120.000001 && worldOffsetY < 5120.000001 && worldOffsetZ < 5120.000001);
+	double lodSize = (1 << lod) * 20.0;
+	lodSize += 0.000001;
+	const bool ok = (worldOffsetX < lodSize && worldOffsetY < lodSize && worldOffsetZ < lodSize);
 
 	if (!ok)
 	{
@@ -188,7 +190,7 @@ void SetupInstanceSubOutput2(double posX, double posY, double posZ, const CAffin
 	sub->posZ = posZ;
 }
 
-void SetupInstanceSubOutput(double posX, double posY, double posZ, const CAffineTransform& transform, double cellSize, std::shared_ptr<InstanceSubOutput> sub)
+void SetupInstanceSubOutput(double posX, double posY, double posZ, const CAffineTransform& transform, double cellSize, int32_t lod, std::shared_ptr<InstanceSubOutput> sub)
 {
 	if (sub == nullptr)
 	{
@@ -220,17 +222,16 @@ void SetupInstanceSubOutput(double posX, double posY, double posZ, const CAffine
 	double relativeOffsetYWorld = posY - cellOrgVFToWorld.Y;
 	double relativeOffsetZWorld = posZ - cellOrgVFToWorld.Z;
 
-	//SetupInstanceSubOutput2(posX, posY, posZ, transform, cellSize, sub);
-
-	if ((relativeOffsetXWorld > 5120.000001)
-		|| (relativeOffsetYWorld > 5120.000001 ))
+	double lodSize = (1 << lod) * 20.0;
+	lodSize += 0.000001;
+	if ((relativeOffsetXWorld > lodSize)
+		|| (relativeOffsetYWorld > lodSize))
 	{
-		auto cellOrgVFToWorld = transform.VF_TO_WC(CAffineTransform::sAffineVector{ VF_X, VF_Y, VF_Z + cellSize }); 
-		//SetupInstanceSubOutput2(posX, posY, posZ, transform, cellSize, sub);
+		//auto cellOrgVFToWorld = transform.VF_TO_WC(CAffineTransform::sAffineVector{ VF_X, VF_Y, VF_Z + cellSize }); 
 		std::cout << "offset is overflow" << std::endl;
 	}
 
-	if ((posX < cellOrgVFToWorld.X)
+	/*if ((posX < cellOrgVFToWorld.X)
 		|| (posX > cellMaxVFToWorld.X)
 		|| (posY < cellOrgVFToWorld.Y)
 		|| (posY > cellMaxVFToWorld.Y)
@@ -238,7 +239,7 @@ void SetupInstanceSubOutput(double posX, double posY, double posZ, const CAffine
 		|| (posZ > cellMaxVFToWorld.Z))
 	{
 		std::cout << "offset is not in the cell" << std::endl;
-	}
+	}*/
 
 	sub->xIdx = intXIdx;
 	sub->yIdx = intYIdx;
@@ -271,7 +272,7 @@ std::string GetKeyStringForInstance(const string& outputDir, int intXIdx, int in
 	return ret;
 }
 
-bool CPsInstanceExporter::loadPointInstanceFromCSV(const string& filePath, const string& outputSubDir, InstanceSubOutputMap& outputMap, unsigned int variant, CAffineTransform transform, double cellSize)
+bool CPsInstanceExporter::loadPointInstanceFromCSV(const string& filePath, const string& outputSubDir, InstanceSubOutputMap& outputMap, unsigned int variant, CAffineTransform transform, double cellSize, int32_t lod)
 {
 	std::ifstream file(filePath);
 	if (!file.is_open()) {
@@ -358,7 +359,8 @@ bool CPsInstanceExporter::loadPointInstanceFromCSV(const string& filePath, const
 		if (hasHeight)
 		{
 			std::shared_ptr<PointInstanceSubOutput> sub = std::make_shared<PointInstanceSubOutput>();
-			SetupInstanceSubOutput2(posX, posY, posZ, transform, cellSize, sub);
+			//SetupInstanceSubOutput(posX, posY, posZ, transform, cellSize, lod, sub);
+			SetupInstanceSubOutput2(posX, posY, posZ, transform, cellSize, lod, sub);
 			sub->instanceType = static_cast<unsigned int>(InstanceType::InstanceType_Point);
 			sub->variant = variant;
 			sub->age = 1.0;
@@ -422,7 +424,8 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 			negativeHeightCount++;
 		}
 		std::shared_ptr<TreeInstanceSubOutput> sub = std::make_shared<TreeInstanceSubOutput>();
-		SetupInstanceSubOutput2(instance.posX, instance.posY, instance.posZ, transform, cellSize, sub);
+		//SetupInstanceSubOutput(instance.posX, instance.posY, instance.posZ, transform, cellSize, lod, sub);
+		SetupInstanceSubOutput2(instance.posX, instance.posY, instance.posZ, transform, cellSize, lod, sub);
 
 		sub->instanceType = static_cast<unsigned int>(InstanceType::InstanceType_Tree);
 		sub->variant = instance.m_instance.treeType;
@@ -440,9 +443,9 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 	}
 	std::cout << "The trees of negative height count is : " << negativeHeightCount << std::endl;
 	unsigned int mostTravelledVariant = static_cast<unsigned int>(PointType::Point_MostTravelled);
-	bool getMostTravelledPoint = loadPointInstanceFromCSV(m_mostTravelledPointFilePath, outputSubsDir, outputMap, mostTravelledVariant, transform, cellSize);
+	bool getMostTravelledPoint = loadPointInstanceFromCSV(m_mostTravelledPointFilePath, outputSubsDir, outputMap, mostTravelledVariant, transform, cellSize, lod);
 	unsigned int mostDistantVariant = static_cast<unsigned int>(PointType::Point_MostDistant);
-	bool getMostDistantPoint = loadPointInstanceFromCSV(m_mostDistantPointFilePath, outputSubsDir, outputMap, mostDistantVariant, transform, cellSize);
+	bool getMostDistantPoint = loadPointInstanceFromCSV(m_mostDistantPointFilePath, outputSubsDir, outputMap, mostDistantVariant, transform, cellSize, lod);
 
 	std::vector<std::thread> workers;
 	for (const auto& pair : outputMap)

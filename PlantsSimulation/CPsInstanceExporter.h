@@ -35,7 +35,7 @@ public:
 	{
 		m_pFullTreeOutputs = pFullTreeOutputs;
 	}
-	bool loadPointInstanceFromCSV(const string& filePath, const string& outputSubDir, InstanceSubOutputMap& outputMap, unsigned int variant, CAffineTransform transform, double voxelSize);
+	bool loadPointInstanceFromCSV(const string& filePath, const string& outputSubDir, InstanceSubOutputMap& outputMap, unsigned int variant, CAffineTransform transform, double voxelSize, int32_t lod);
 	bool outputSubfiles(const std::string& outputSubsDir);
 protected:
 	std::vector<std::vector<CCellInfo*>>* m_pCellTable;
