@@ -672,6 +672,7 @@ bool CPlantsSimulation::LoadInstanceExporter()
 	m_pInstanceExporter->setMostDistantPointFilePath(m_mostDistantPointFile);
 
 	m_pInstanceExporter->setFullTreeOutputs(m_pForest->getTreeInstanceFullOutput());
+	m_pInstanceExporter->setLod(m_currentLod);
 
 	return true;
 }

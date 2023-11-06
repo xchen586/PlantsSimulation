@@ -18,7 +18,7 @@ class CPlantsSimulation
 public:
 	CPlantsSimulation(const string& outputDir, const string& inputImageFile, const string& inputImageMataFile, const string& mesh_HeightMapFile, const string& mesh2_HeightMapFile, const string& pc_HeightMapFile, const string& l1_HeightMapFile,
 		const string& mesh_HeightMasksFile, const string& mesh2_HeightMasksFile, const string& pc_HeightMasksFile, const string& l1_HeightMasksFile, const string& mostTravelledPointFile, const string& mostDistantPointFile, 
-		const string& outputFile, const string& fullOutputFile, const string& pcFullOutputFile )
+		const string& outputFile, const string& fullOutputFile, const string& pcFullOutputFile, int32_t lod )
 		: m_outputDir(outputDir)
 		, m_inputImageFile(inputImageFile)
 		, m_inputImageMetaFile(inputImageMataFile)
@@ -39,6 +39,7 @@ public:
 		, m_topLayerMeta(nullptr)
 		, m_pCellTable(nullptr)
 		, m_pForest(nullptr)
+		, m_currentLod(lod)
 	{
 		/*Tiles = 10;
 		TileX = 8;
@@ -62,6 +63,8 @@ private:
 	string m_outputFile;
 	string m_fullOutputFile;
 	string m_pcFullOutputFile;
+
+	int32_t m_currentLod;
 
 	InputImageDataInfo* m_topLayerImage;
 	InputImageMetaInfo* m_topLayerMeta;

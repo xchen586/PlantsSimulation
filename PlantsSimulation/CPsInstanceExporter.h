@@ -35,6 +35,10 @@ public:
 	{
 		m_pFullTreeOutputs = pFullTreeOutputs;
 	}
+	void setLod(int32_t lod)
+	{
+		m_lod = lod;
+	}
 	bool loadPointInstanceFromCSV(const string& filePath, const string& outputSubDir, InstanceSubOutputMap& outputMap, unsigned int variant, CAffineTransform transform, double voxelSize, int32_t lod);
 	bool outputSubfiles(const std::string& outputSubsDir);
 protected:
@@ -43,5 +47,6 @@ protected:
 	string m_mostTravelledPointFilePath;
 	string m_mostDistantPointFilePath;
 	vector<TreeInstanceFullOutput> * m_pFullTreeOutputs;
+	int32_t m_lod; 
 };
 

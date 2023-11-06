@@ -400,9 +400,9 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 
 	//int lod = 5;
 	//auto lod = VoxelFarm::LOD_0 + 3;
-	auto lod = VoxelFarm::LOD_0 + 6;
+	//auto m_lod = VoxelFarm::LOD_0 + 6;
 
-	const double cellSize = (1 << lod) * VoxelFarm::CELL_SIZE;
+	const double cellSize = (1 << m_lod) * VoxelFarm::CELL_SIZE;
 	//const double voxelSize = cellSize / VoxelFarm::BLOCK_DIMENSION;// 
 	const double voxelSize = 2.0;// cellSize / VoxelFarm::BLOCK_DIMENSION;
 
@@ -424,8 +424,8 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 			negativeHeightCount++;
 		}
 		std::shared_ptr<TreeInstanceSubOutput> sub = std::make_shared<TreeInstanceSubOutput>();
-		//SetupInstanceSubOutput(instance.posX, instance.posY, instance.posZ, transform, cellSize, lod, sub);
-		SetupInstanceSubOutput2(instance.posX, instance.posY, instance.posZ, transform, cellSize, lod, sub);
+		//SetupInstanceSubOutput(instance.posX, instance.posY, instance.posZ, transform, cellSize, m_lod, sub);
+		SetupInstanceSubOutput2(instance.posX, instance.posY, instance.posZ, transform, cellSize, m_lod, sub);
 
 		sub->instanceType = static_cast<unsigned int>(InstanceType::InstanceType_Tree);
 		sub->variant = instance.m_instance.treeType;
@@ -443,9 +443,9 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 	}
 	std::cout << "The trees of negative height count is : " << negativeHeightCount << std::endl;
 	unsigned int mostTravelledVariant = static_cast<unsigned int>(PointType::Point_MostTravelled);
-	bool getMostTravelledPoint = loadPointInstanceFromCSV(m_mostTravelledPointFilePath, outputSubsDir, outputMap, mostTravelledVariant, transform, cellSize, lod);
+	bool getMostTravelledPoint = loadPointInstanceFromCSV(m_mostTravelledPointFilePath, outputSubsDir, outputMap, mostTravelledVariant, transform, cellSize, m_lod);
 	unsigned int mostDistantVariant = static_cast<unsigned int>(PointType::Point_MostDistant);
-	bool getMostDistantPoint = loadPointInstanceFromCSV(m_mostDistantPointFilePath, outputSubsDir, outputMap, mostDistantVariant, transform, cellSize, lod);
+	bool getMostDistantPoint = loadPointInstanceFromCSV(m_mostDistantPointFilePath, outputSubsDir, outputMap, mostDistantVariant, transform, cellSize, m_lod);
 
 	std::vector<std::thread> workers;
 	for (const auto& pair : outputMap)

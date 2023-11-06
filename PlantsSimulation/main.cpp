@@ -2,6 +2,7 @@
 #include <fstream>
 #include <filesystem> 
 #include <random>
+#include <string>
 
 #include "CPlantsSimulation.h"
 //#include "CForest.h"
@@ -22,6 +23,10 @@ int main(int argc, const char* argv[])
     const char* l1_heightmap_masks_name = argv[12];
     const char* point_most_travelled_name = argv[13];
     const char* point_most_distant_name = argv[14];
+    const char* lod_str = argv[15];
+
+    std::string lod_string = lod_str;
+    int lod = std::stoi(lod_string);
 
     int tiles = 10;
     int tileX = 8;
@@ -109,7 +114,7 @@ int main(int argc, const char* argv[])
 
     CPlantsSimulation ps(output_path, input_image_file, input_meta_file, mesh_heightmap_raw_file, mesh2_heightmap_raw_file, pc_heightmap_raw_file, l1_heightmap_raw_file
         , mesh_heightmap_masks_file, mesh2_heightmap_masks_file, pc_heightmap_masks_file, l1_heightmap_masks_file
-        , point_most_travelled_file, point_most_distant_file, output_file, fullOutput_file, pcFullOutput_file);
+        , point_most_travelled_file, point_most_distant_file, output_file, fullOutput_file, pcFullOutput_file, lod);
     
     bool isLoad = ps.LoadInputData();
     if (!isLoad)
