@@ -79,5 +79,6 @@ x = 8
 y = 5
 
 #process_files_point_cloud(api, project_id, folder_id, entity_type_IndexedPointCloud, f'D:\\Downloads\\PlantsSimulation\\output\\instanceoutput', f'instances_{tiles}_{x}_{y}-{version}', version=version, color=True)
+#process_files_point_cloud(api, project_id, folder_id, entity_type_IndexedPointCloud, f'D:\\Downloads\\PlantsSimulation\\output\\instanceoutputwithoutoffeset', f'instances_without_offset_{tiles}_{x}_{y}-{version}', version=version, color=True)
 process_files_point_cloud(api, project_id, folder_id, entity_type_IndexedPointCloud, f'D:\\Downloads\\PlantsSimulation\\output\\instanceoutput', f'instances_lod8_{tiles}_{x}_{y}-{version}', version=version, color=True)
-#process_files_point_cloud(api, project_id, folder_id, entity_type_IndexedPointCloud, f'D:\\Downloads\\PlantsSimulation\\output\\instanceoutput', f'instances_nooffset_{tiles}_{x}_{y}-{version}', version=version, color=True)
+#process_files_point_cloud(api, project_id, folder_id, entity_type_IndexedPointCloud, f'D:\\Downloads\\PlantsSimulation\\output\\instanceoutputwithoutoffeset', f'instances_lod8_without_offset_{tiles}_{x}_{y}-{version}', version=version, color=True)
