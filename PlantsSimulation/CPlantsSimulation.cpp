@@ -687,6 +687,7 @@ bool CPlantsSimulation::BuildForest()
 	CTimeCounter timeCounter(title);
 
 	float forestAge = 500;
+	//int iteration = 25;
 	int iteration = 100;
 	cout << "Forest Age is : " << forestAge << endl;
 	cout << "Toatal iteration count is : " << iteration << endl;
@@ -722,10 +723,18 @@ bool CPlantsSimulation::OutputResults()
 	const int MAX_PATH = 250;
 	char subFullOutput_Dir[MAX_PATH];
 	memset(subFullOutput_Dir, 0, sizeof(char) * MAX_PATH);
-#if __APPLE__ 
-	snprintf(subFullOutput_Dir, MAX_PATH, "%s/instanceoutput", m_outputDir.c_str());
+#if USE_OFFSET_FOR_INSTANCE_OUTPUT
+	#if __APPLE__ 
+		snprintf(subFullOutput_Dir, MAX_PATH, "%s/instanceoutput", m_outputDir.c_str());
+	#else
+		sprintf_s(subFullOutput_Dir, MAX_PATH, "%s\\instanceoutput", m_outputDir.c_str());
+	#endif
 #else
-	sprintf_s(subFullOutput_Dir, MAX_PATH, "%s\\instanceoutput", m_outputDir.c_str());
+	#if __APPLE__ 
+		snprintf(subFullOutput_Dir, MAX_PATH, "%s/instanceoutputwithoutoffeset", m_outputDir.c_str());
+	#else
+		sprintf_s(subFullOutput_Dir, MAX_PATH, "%s\\instanceoutputwithoutoffeset", m_outputDir.c_str());
+	#endif
 #endif
 	if (output)
 	{
