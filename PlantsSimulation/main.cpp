@@ -28,6 +28,25 @@ int main(int argc, const char* argv[])
     std::string lod_string = lod_str;
     int lod = std::stoi(lod_string);
 
+    std::cout << "Command line is : " << std::endl;
+    std::cout << "Output path is : " << assets_path << std::endl;
+    std::cout << "Assert path is : " << output_path << std::endl;
+    std::cout << "Input image name is : " << input_image_name << std::endl;
+    std::cout << "Input meta file name is : " << input_meta_name << std::endl;
+    std::cout << "Mesh 0 height map file name is : " << mesh_heightmap_raw_name << std::endl;
+    std::cout << "Mesh 1 height map file name is : " << mesh2_heightmap_raw_name << std::endl;
+    std::cout << "Point cloud top level height map file name is : " << pc_heightmap_raw_name << std::endl;
+    std::cout << "Point cloud level 1 height map file name is : " << l1_heightmap_raw_name << std::endl;
+    std::cout << "Mesh 0 height map mask file name is : " << mesh_heightmap_masks_name << std::endl;
+    std::cout << "Mesh 1 height map mask file name is : " << mesh2_heightmap_masks_name << std::endl;
+    std::cout << "Point cloud top level height mask map file name is : " << pc_heightmap_masks_name << std::endl;
+    std::cout << "Point cloud level 1 height mask map file name is : " << l1_heightmap_masks_name << std::endl;
+    std::cout << "Most travelled point file name is : " << point_most_travelled_name << std::endl;
+    std::cout << "Most distant  point file name is : " << point_most_distant_name << std::endl;
+    std::cout << "Los is  : " << lod_str << std::endl;
+    std::cout << std::endl;
+    
+
     int tiles = 10;
     int tileX = 8;
     int tileY = 5;
