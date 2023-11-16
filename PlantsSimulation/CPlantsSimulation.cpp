@@ -192,6 +192,73 @@ bool CPlantsSimulation::LoadInputHeightMap()
 		}
 	}
 
+#if USE_DISPLAY_HEIGHTMAP_MASK_RESULT
+	unsigned int noHeightCountMesh0 = 0;
+	for (int x = 0; x < width; x++)
+	{
+		for (int y = 0; y < height; y++)
+		{
+			if (meshHeightMasksShort4096[x][y] == 0)
+			{
+				noHeightCountMesh0++;
+			}
+		}
+	}
+	std::cout << "Mesh level 0 height map mask no data count is : " << noHeightCountMesh0 << std::endl;
+
+	unsigned int noHeightCountMesh1 = 0;
+	for (int x = 0; x < width; x++)
+	{
+		for (int y = 0; y < height; y++)
+		{
+			if (mesh2HeightMasksShort4096[x][y] == 0)
+			{
+				noHeightCountMesh1++;
+			}
+		}
+	}
+	std::cout << "Mesh level 1 height map mask no data count is : " << noHeightCountMesh1 << std::endl;
+
+	unsigned int noHeightCountTopLevel = 0;
+	for (int x = 0; x < width; x++)
+	{
+		for (int y = 0; y < height; y++)
+		{
+			if (pcHeightMasksShort4096[x][y] == 0)
+			{
+				noHeightCountTopLevel++;
+			}
+		}
+	}
+	std::cout << "Point cloud top level height map mask no data count is : " << noHeightCountTopLevel << std::endl;
+
+	unsigned int noHeightCountLevel1 = 0;
+	for (int x = 0; x < width; x++)
+	{
+		for (int y = 0; y < height; y++)
+		{
+			if (l1HeightMasksShort4096[x][y] == 0)
+			{
+				noHeightCountLevel1++;
+			}
+		}
+	}
+	std::cout << "Point cloud level 1 height map mask no data count is : " << noHeightCountLevel1 << std::endl;
+
+	unsigned int noHeightCountFinal = 0;
+	for (int x = 0; x < width; x++)
+	{
+		for (int y = 0; y < height; y++)
+		{
+			if (heightMasksShort4096[x][y] == 0)
+			{
+				noHeightCountFinal++;
+			}
+		}
+	}
+	std::cout << "Final height map mask no data count is : " << noHeightCountFinal << std::endl;
+#endif
+	
 	std::vector<std::vector<short>> meshHeightMapShort4096 = Read2DShortArray(m_meshHeightMapFile, width, height);
 	std::vector<std::vector<short>> mesh2HeightMapShort4096 = Read2DShortArray(m_mesh2HeightMapFile, width, height);
 	std::vector<std::vector<short>> pcHeightMapShort4096 = Read2DShortArray(m_pcHeightMapFile, width, height);
