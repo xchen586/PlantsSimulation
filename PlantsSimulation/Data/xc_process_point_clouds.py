@@ -107,6 +107,7 @@ project_entity = api.get_entity(project_id)
 entity_type_IndexedPointCloud = api.entity_type.IndexedPointCloud
 entity_type_VoxelTerrain = api.entity_type.VoxelTerrain
 entity_type_IndexedOrthoImagery = api.entity_type.IndexedOrthoImagery
+entity_type_VoxelTerrain = api.entity_type.VoxelTerrain
 
 version = int(project_entity['version']) + 1 if 'version' in project_entity else 1
 api.update_entity(project=project_id, id=project_id, fields={'version': version})
@@ -127,13 +128,23 @@ tiles = 10
 x = 8
 y = 5
 
-process_point_cloud(api, project_id, folder_id, entity_type_IndexedPointCloud, f'D:\\Downloads\\PlantsSimulation\\output\\points_{tiles}_{x}_{y}_tree.xyz', f'tree_{tiles}_{x}_{y}-{version}', version=version, color=True)
+process_point_cloud(api, project_id, folder_id, entity_type_VoxelTerrain, f'D:\\Downloads\\PlantsSimulation\\output\\mesh_heightmap_raw_export.xyz', f'Mesh_level0_height_{tiles}_{x}_{y}-{version}', version=version, color=True)
+process_point_cloud(api, project_id, folder_id, entity_type_VoxelTerrain, f'D:\\Downloads\\PlantsSimulation\\output\\mesh2_heightmap_raw_export.xyz', f'Mesh_level1_height_{tiles}_{x}_{y}-{version}', version=version, color=True)
+process_point_cloud(api, project_id, folder_id, entity_type_VoxelTerrain, f'D:\\Downloads\\PlantsSimulation\\output\\pc_heightmap_raw_export.xyz', f'Toplevel_height_{tiles}_{x}_{y}-{version}', version=version, color=True)
+process_point_cloud(api, project_id, folder_id, entity_type_VoxelTerrain, f'D:\\Downloads\\PlantsSimulation\\output\\l1_heightmap_raw_export.xyz', f'Level1_height_{tiles}_{x}_{y}-{version}', version=version, color=True)
+process_point_cloud(api, project_id, folder_id, entity_type_VoxelTerrain, f'D:\\Downloads\\PlantsSimulation\\output\\short_height_map_export.xyz', f'Final_short_height_{tiles}_{x}_{y}-{version}', version=version, color=True)
 
 process_point_cloud(api, project_id, folder_id, entity_type_IndexedPointCloud, f'D:\\Downloads\\PlantsSimulation\\output\\mesh_heightmap_raw_export.xyz', f'Mesh_level0_height_{tiles}_{x}_{y}-{version}', version=version, color=True)
 process_point_cloud(api, project_id, folder_id, entity_type_IndexedPointCloud, f'D:\\Downloads\\PlantsSimulation\\output\\mesh2_heightmap_raw_export.xyz', f'Mesh_level1_height_{tiles}_{x}_{y}-{version}', version=version, color=True)
 process_point_cloud(api, project_id, folder_id, entity_type_IndexedPointCloud, f'D:\\Downloads\\PlantsSimulation\\output\\pc_heightmap_raw_export.xyz', f'Toplevel_height_{tiles}_{x}_{y}-{version}', version=version, color=True)
 process_point_cloud(api, project_id, folder_id, entity_type_IndexedPointCloud, f'D:\\Downloads\\PlantsSimulation\\output\\l1_heightmap_raw_export.xyz', f'Level1_height_{tiles}_{x}_{y}-{version}', version=version, color=True)
 process_point_cloud(api, project_id, folder_id, entity_type_IndexedPointCloud, f'D:\\Downloads\\PlantsSimulation\\output\\short_height_map_export.xyz', f'Final_short_height_{tiles}_{x}_{y}-{version}', version=version, color=True)
+
+process_point_cloud(api, project_id, folder_id, entity_type_VoxelTerrain, f'D:\\Downloads\\PlantsSimulation\\output\\points_{tiles}_{x}_{y}_tree.xyz', f'tree_{tiles}_{x}_{y}-{version}', version=version, color=True)
+process_point_cloud(api, project_id, folder_id, entity_type_IndexedPointCloud, f'D:\\Downloads\\PlantsSimulation\\output\\points_{tiles}_{x}_{y}_tree.xyz', f'tree_{tiles}_{x}_{y}-{version}', version=version, color=True)
+
+process_point_cloud(api, project_id, folder_id, entity_type_VoxelTerrain, f'D:\\Downloads\\PlantsSimulation\\output\\{tiles}_{x}_{y}_0_allinstances.csv', f'allinstances_{tiles}_{x}_{y}-{version}', version=version, color=True)
+process_point_cloud(api, project_id, folder_id, entity_type_IndexedPointCloud, f'D:\\Downloads\\PlantsSimulation\\output\\{tiles}_{x}_{y}_0_allinstances.csv', f'allinstances_{tiles}_{x}_{y}-{version}', version=version, color=True)
 '''
 process_point_cloud(api, project_id, folder_id, entity_type_VoxelTerrain, f'D:\\Downloads\\PlantsSimulation\\output\\short_height_map_export.xyz', f'Final_short_Mesh_height_{tiles}_{x}_{y}-{version}', version=version, color=True)
 #process_point_cloud(api, project_id, folder_id, entity_type_IndexedPointCloud, f'D:\\Downloads\\PlantsSimulation\\output\\double_height_map_exportout.xyz', f'Final_double_height_{tiles}_{x}_{y}-{version}', version=version, color=True)
