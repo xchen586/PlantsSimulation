@@ -33,6 +33,8 @@ folder_id = '90F6348AD5D94FCEA85C7C1CD081CE97'
 
 entity_id = 'E0070AD37D4543FCB9E70D60AE47541D'
 
+#entity_id = "536674D5E8D440D9A7EFCD1D879AD57A"
+
 entity_type_IndexedPointCloud = api.entity_type.IndexedPointCloud
 
 version = 80

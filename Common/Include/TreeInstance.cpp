@@ -2,13 +2,14 @@
 #include "PsHelper.h"
 #include "CCellInfo.h"
 
-TreeInstanceFullOutput::TreeInstanceFullOutput(const TreeInstanceOutput& instance, CCellInfo* pCellData, InputImageMetaInfo* pMetaInfo)
+TreeInstanceFullOutput::TreeInstanceFullOutput(const TreeInstanceOutput& instance, CCellInfo* pCellData, InputImageMetaInfo* pMetaInfo, int index)
 	: posX(0)
 	, posY(0)
 	, posZ(0)
 	, m_instance(instance)
 	, m_pCellData(pCellData)
 	, m_pMetaInfo(pMetaInfo)
+	, index(index)
 {
 	GetPosFromInstanceOutputEx();
 }

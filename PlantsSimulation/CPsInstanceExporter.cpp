@@ -24,10 +24,12 @@ bool OutputCSVFileForSubInstances(const string& filePath, std::shared_ptr<Instan
 		std::cerr << "Error: Unable to open the sub csv file " << filePath << std::endl;
 		return false;
 	}
-
-	outputFile << "X,Y,Z,ScaleX,ScaleY,ScaleZ,RoationX,RotationY,RotaionZ,InstanceType,Variant,Age" << std::endl;
-
-	int fullOutputItemCount = 12;
+#if !USE_OUTPUT_INSTANCE_IDSTRING
+	outputFile << "X,Y,Z,ScaleX,ScaleY,ScaleZ,RoationX,RotationY,RotaionZ,InstanceType,Variant,Age, xworld, yworld, zworld" << std::endl;
+#else
+	outputFile << "X,Y,Z,ScaleX,ScaleY,ScaleZ,RoationX,RotationY,RotaionZ,InstanceType,Variant,Age, xworld, yworld, zworld, idString" << std::endl;
+#endif
+	int fullOutputItemCount = 15;
 
 	for (const std::shared_ptr<InstanceSubOutput>& sub : *subVector)
 	{
@@ -52,7 +54,16 @@ bool OutputCSVFileForSubInstances(const string& filePath, std::shared_ptr<Instan
 			<< sub->rotationZ << ","
 			<< sub->instanceType << ","
 			<< sub->variant << ","
-			<< sub->age << std::endl;
+			<< sub->age << ","
+			<< sub->posX << ","
+			<< sub->posY << ","
+#if !USE_OUTPUT_INSTANCE_IDSTRING
+			<< sub->posZ << std::endl;
+#else
+			<< sub->posZ << ","
+			<< sub->idString << std::endl;
+#endif
+		
 
 		/*if (outputItemCount != fullOutputItemCount)
 		{
@@ -81,6 +92,54 @@ bool OutputCSVFileForSubInstances(const string& filePath, std::shared_ptr<Instan
 		}*/
 	}
 
+	outputFile.close();
+	return true;
+}
+
+bool OutputAllInstance(string outputDir, const InstanceSubOutputMap& allInstances)
+{
+	const int MAX_PATH = 250;
+	char allinstances_file[MAX_PATH];
+	string allinstance_name = "10_8_5_0_allinstances.csv";
+	memset(allinstances_file, 0, sizeof(char) * MAX_PATH);
+#if __APPLE__
+	snprintf(allinstances_file, MAX_PATH, "%s/%s", outputDir.c_str(), allinstance_name.c_str());
+#else
+	sprintf_s(allinstances_file, MAX_PATH, "%s\\%s", outputDir.c_str(), allinstance_name.c_str());
+#endif
+
+	string filePath = allinstances_file;
+	std::ofstream outputFile(filePath);
+	if (!outputFile.is_open()) {
+		std::cerr << "Error: Unable to open the sub csv file " << filePath << std::endl;
+		return false;
+	}
+
+	outputFile << "xworld, yworld,zworld,ScaleX,ScaleY,ScaleZ,RoationX,RotationY,RotaionZ,InstanceType,Variant,Age, idString" << std::endl;
+
+	for (auto pair : allInstances)
+	{
+		std::shared_ptr<InstanceSubOutputVector> subVector = pair.second;
+		for (const std::shared_ptr<InstanceSubOutput>& sub : *subVector)
+		{
+			int outputItemCount = sub->outputItemCount;
+
+			outputFile
+				<< sub->posX << ","
+				<< sub->posY << ","
+				<< sub->posZ << ","
+				<< sub->scaleX << ","
+				<< sub->scaleY << ","
+				<< sub->scaleZ << ","
+				<< sub->rotationX << ","
+				<< sub->rotationY << ","
+				<< sub->rotationZ << ","
+				<< sub->instanceType << ","
+				<< sub->variant << ","
+				<< sub->age << ","
+				<< sub->idString << std::endl;
+		}
+	}
 	outputFile.close();
 	return true;
 }
@@ -188,6 +247,8 @@ void SetupInstanceSubOutput2(double posX, double posY, double posZ, const CAffin
 	sub->posX = posX;
 	sub->posY = posY;
 	sub->posZ = posZ;
+	
+	sub->cellId = VoxelFarm::packCellId(lod, cellX, cellY, cellZ);
 }
 
 void SetupInstanceSubOutput(double posX, double posY, double posZ, const CAffineTransform& transform, double cellSize, int32_t lod, std::shared_ptr<InstanceSubOutput> sub)
@@ -252,6 +313,8 @@ void SetupInstanceSubOutput(double posX, double posY, double posZ, const CAffine
 	sub->posX = posX;
 	sub->posY = posY;
 	sub->posZ = posZ;
+
+	sub->cellId = VoxelFarm::packCellId(lod, intXIdx, intYIdx, intZIdx);
 }
 
 std::string GetKeyStringForInstance(const string& outputDir, int intXIdx, int intZIdx)
@@ -296,6 +359,7 @@ bool CPsInstanceExporter::loadPointInstanceFromCSV(const string& filePath, const
 	int tableColsCount = (*m_pCellTable)[0].size();
 
 	int negativeHeightCount = 0;
+	int index = 0;
 
 	while (std::getline(file, line)) {
 		std::stringstream lineStream(line);
@@ -364,6 +428,9 @@ bool CPsInstanceExporter::loadPointInstanceFromCSV(const string& filePath, const
 			sub->instanceType = static_cast<unsigned int>(InstanceType::InstanceType_Point);
 			sub->variant = variant;
 			sub->age = 1.0;
+			index++;
+			sub->index = index;
+			sub->MakeIdString();
 
 			string keyString = GetKeyStringForInstance(outputSubDir, sub->cellXIdx, sub->cellZIdx);
 			InstanceSubOutputMap::iterator iter = outputMap.find(keyString);
@@ -427,9 +494,11 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 		//SetupInstanceSubOutput(instance.posX, instance.posY, instance.posZ, transform, cellSize, m_lod, sub);
 		SetupInstanceSubOutput2(instance.posX, instance.posY, instance.posZ, transform, cellSize, m_lod, sub);
 
+		sub->index = instance.index;
 		sub->instanceType = static_cast<unsigned int>(InstanceType::InstanceType_Tree);
 		sub->variant = instance.m_instance.treeType;
 		sub->age = static_cast<double>(instance.m_instance.age / instance.m_instance.maxAge);
+		sub->MakeIdString();
 
 		string keyString = GetKeyStringForInstance(outputSubsDir, sub->cellXIdx, sub->cellZIdx);
 		InstanceSubOutputMap::iterator iter = outputMap.find(keyString);
@@ -446,6 +515,8 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 	bool getMostTravelledPoint = loadPointInstanceFromCSV(m_mostTravelledPointFilePath, outputSubsDir, outputMap, mostTravelledVariant, transform, cellSize, m_lod);
 	unsigned int mostDistantVariant = static_cast<unsigned int>(PointType::Point_MostDistant);
 	bool getMostDistantPoint = loadPointInstanceFromCSV(m_mostDistantPointFilePath, outputSubsDir, outputMap, mostDistantVariant, transform, cellSize, m_lod);
+
+	bool outputAll = OutputAllInstance(outputSubsDir, outputMap);
 
 	std::vector<std::thread> workers;
 	for (const auto& pair : outputMap)

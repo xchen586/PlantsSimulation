@@ -1,4 +1,5 @@
 #pragma once
+#include "Utils.h"
 
 enum struct InstanceType
 {
@@ -30,6 +31,10 @@ struct InstanceSubOutput
 	double age;
 	int outputItemCount;
 	
+	VoxelFarm::CellId cellId;
+	unsigned int index;
+	string idString;
+	
 
 	InstanceSubOutput()
 		: cellXIdx(0)
@@ -50,7 +55,10 @@ struct InstanceSubOutput
 		, instanceType(0)
 		, variant(0)
 		, age(0)
-		, outputItemCount(12)
+		, cellId(0)
+		, index(0)
+		, idString("")
+		, outputItemCount(15)
 	{
 
 	}
@@ -60,4 +68,10 @@ struct InstanceSubOutput
 		return outputItemCount;
 	}
 
+	void MakeIdString()
+	{
+		std::stringstream ss;
+		ss << cellId << "_" << instanceType << "_" << instanceType << "_" << variant << "_" << index;
+		idString = ss.str();
+	}
 };

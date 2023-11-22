@@ -311,6 +311,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 			else
 			{
 				cell->SetHeightValue(heightMapDouble4096[i][j]);
+				//cell->SetHeightValue(pcHeightMapShort4096[i][j]);
 				cell->SetSlopeHeightValue(slopeShort4096[i][j]);
 				cell->SetSlopeAngleValue(slopeDouble4096[i][j]);
 				cell->SetHasHeightValue(heightMasksShort4096[i][j]);

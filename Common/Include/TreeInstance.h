@@ -111,6 +111,7 @@ typedef std::map <std::string, std::shared_ptr<InstanceSubOutputVector>> Instanc
 
 struct TreeInstanceFullOutput
 {
+	unsigned int index;
 	double posX;
 	double posY;
 	double posZ;
@@ -118,7 +119,7 @@ struct TreeInstanceFullOutput
 	CCellInfo* m_pCellData;
 	InputImageMetaInfo* m_pMetaInfo;
 
-	TreeInstanceFullOutput(const TreeInstanceOutput& instance, CCellInfo* pCellData, InputImageMetaInfo* pMetaInfo);
+	TreeInstanceFullOutput(const TreeInstanceOutput& instance, CCellInfo* pCellData, InputImageMetaInfo* pMetaInfo, int index);
 	void GetPosFromInstanceOutput();
 	void GetPosFromInstanceOutputEx();
 };

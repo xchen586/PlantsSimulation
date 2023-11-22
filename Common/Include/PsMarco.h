@@ -44,6 +44,10 @@
 #define USE_DISPLAY_HEIGHTMAP_MASK_RESULT 1
 #endif
 
+#ifndef USE_OUTPUT_INSTANCE_IDSTRING
+#define USE_OUTPUT_INSTANCE_IDSTRING 0
+#endif
+
 #ifndef PI
 #define PI       3.14159265358979323846   // pi
 #endif // !PI

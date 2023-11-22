@@ -734,6 +734,7 @@ bool CForest::outputFullTreeInstanceResults(const std::string& fileName, bool ha
 
 	double xRatio = m_pMetaInfo->xRatio;
 	double yRatio = m_pMetaInfo->yRatio;
+	unsigned int index = 0;
 
 	for (const TreeInstanceOutput& tree : outputs)
 	{
@@ -748,7 +749,8 @@ bool CForest::outputFullTreeInstanceResults(const std::string& fileName, bool ha
 		}
 		if (pCell != nullptr)
 		{
-			TreeInstanceFullOutput output = TreeInstanceFullOutput(tree, pCell, m_pMetaInfo);
+			index++;
+			TreeInstanceFullOutput output = TreeInstanceFullOutput(tree, pCell, m_pMetaInfo, index);
 			fullOutputs.push_back(output);
 		}
 		else {
