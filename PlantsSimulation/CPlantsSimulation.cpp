@@ -451,9 +451,9 @@ bool CPlantsSimulation::ExportShortHeightMap(std::vector<std::vector<short>>& he
 	
 	std::cout << "ExportShortHeightMap file is " << outputPath << ", width " << width << ", height = " << height << std::endl;
  	
-	for (int i = 0; i < width; i++)
+	for (int i = 0; i < height; i++)
 	{
-		for (int j = 0; j < height; j++)
+		for (int j = 0; j < width; j++)
 		{
 			if (withRatio)
 			{
@@ -539,9 +539,9 @@ bool CPlantsSimulation::ExportDoubleHeightMap(std::vector<std::vector<double>>& 
 	int blueColor = rgbColor & 0xFF;
 	int width = heightMap.size();
 	int height = heightMap[0].size();
-	for (int i = 0; i < width; i++)
+	for (int i = 0; i < height; i++)
 	{
-		for (int j = 0; j < height; j++)
+		for (int j = 0; j < width; j++)
 		{
 			outputFile 
 				//<< static_cast<double>(i * m_topLayerMeta->xRatio) << ","
@@ -586,9 +586,9 @@ bool CPlantsSimulation::ExportShortHeightSlopeMap(std::vector<std::vector<short>
 	int width = slopeMap.size();
 	int height = slopeMap[0].size();
 	
-	for (int i = 0; i < width; i++)
+	for (int i = 0; i < height; i++)
 	{
-		for (int j = 0; j < height; j++)
+		for (int j = 0; j < width; j++)
 		{
 			short heightValue = static_cast<short>(slopeMap[i][j] / m_topLayerMeta->xRatio);
 #if USE_OUTPUT_ONLY_POSITIVE_HEIGHT
@@ -640,9 +640,9 @@ bool CPlantsSimulation::ExportAngleSlopeMap(std::vector<std::vector<double>>& sl
 	int blueColor = rgbColor & 0xFF;
 	int width = slopeMap.size();
 	int height = slopeMap[0].size();
-	for (int i = 0; i < width; i++)
+	for (int i = 0; i < height; i++)
 	{
-		for (int j = 0; j < height; j++)
+		for (int j = 0; j < width; j++)
 		{
 			outputFile 
 				<< static_cast<int>(i) << ","
