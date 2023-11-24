@@ -276,6 +276,26 @@ bool CPlantsSimulation::LoadInputHeightMap()
 			short mesh2Value = mesh2HeightMapShort4096[x][y];
 			short pcValue = pcHeightMapShort4096[x][y];
 			short l1Value = l1HeightMapShort4096[x][y];
+			/*if ((meshValue > 0) && (meshValue < 1000))
+			{
+				meshValue = 1000;
+				meshHeightMapShort4096[x][y] = 1000;
+			}
+			if ((mesh2Value > 0) && (mesh2Value < 1000))
+			{
+				mesh2Value = 1000;
+				mesh2HeightMapShort4096[x][y] = 1000;
+			}
+			if ((pcValue > 0) && (pcValue < 1000))
+			{
+				pcValue = 1000;
+				pcHeightMapShort4096[x][y] = 1000;
+			}
+			if ((l1Value > 0) && (l1Value < 1000))
+			{
+				l1Value = 1000;
+				l1HeightMapShort4096[x][y] = 1000;
+			}*/
 			//short value = std::max(meshValue, pcValue);
 			//short value = FindMaxIn3(meshValue, mesh2Value, pcValue);
 			short value = FindMaxIn4(meshValue, mesh2Value, pcValue, l1Value);
@@ -394,11 +414,11 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	ExportShortHeightMap(l1HeightMapShort4096, l1_heightmap_raw_export, 0x0000FF00, true);
 	ExportShortHeightMap(heightMapShort4096, short_height_map_export, 0x000000FF, true);
 #else
-	ExportShortHeightMap(meshHeightMapShort4096, mesh_heightmap_raw_export, 0x00FF0000, false, true);
-	ExportShortHeightMap(mesh2HeightMapShort4096, mesh2_heightmap_raw_export, 0x00FF0000, false, true);
-	ExportShortHeightMap(pcHeightMapShort4096, pc_heightmap_raw_export, 0x0000FF00, false, true);
-	ExportShortHeightMap(l1HeightMapShort4096, l1_heightmap_raw_export, 0x0000FF00, false, true);
-	ExportShortHeightMap(heightMapShort4096, short_height_map_export, 0x000000FF, false, true);
+	ExportShortHeightMapWithMask(meshHeightMapShort4096, meshHeightMasksShort4096, mesh_heightmap_raw_export, 0x00FF0000, false, true);
+	ExportShortHeightMapWithMask(mesh2HeightMapShort4096, mesh2HeightMasksShort4096, mesh2_heightmap_raw_export,  0x00FF0000, false, true);
+	ExportShortHeightMapWithMask(pcHeightMapShort4096, pcHeightMasksShort4096, pc_heightmap_raw_export, 0x0000FF00, false, true);
+	ExportShortHeightMapWithMask(l1HeightMapShort4096, l1HeightMasksShort4096, l1_heightmap_raw_export, 0x0000FF00, false, true);
+	ExportShortHeightMapWithMask(heightMapShort4096, heightMapShort4096, short_height_map_export, 0x000000FF, false, true);
 #endif
 	ExportDoubleHeightMap(heightMapDouble4096, double_height_map_exportout, 0x00FFFF00, false);
 	ExportShortHeightSlopeMap(slopeShort4096, height_slope_map_exportout, 0x0000FF00, false);
@@ -507,6 +527,113 @@ bool CPlantsSimulation::ExportShortHeightMap(std::vector<std::vector<short>>& he
 #endif
 			}
 			
+		}
+	}
+
+	outputFile.close();
+
+	return true;
+}
+
+bool CPlantsSimulation::ExportShortHeightMapWithMask(std::vector<std::vector<short>>& heightMap, std::vector<std::vector<short>>& masks, const string& outputPath, int rgbColor, bool hasHeader, bool withRatio)
+{
+	if (!m_topLayerMeta)
+	{
+		return false;
+	}
+	std::ofstream outputFile(outputPath);
+	if (!outputFile.is_open()) {
+		std::cerr << "Error: Unable to open export short height map file " << outputPath << std::endl;
+		return false;
+	}
+
+	// Write header row
+	if (hasHeader)
+	{
+		outputFile << "X,Y,Z,Red,Green,Blue" << std::endl;
+	}
+
+	// Write data rows
+	int redColor = (rgbColor >> 16) & 0xFF;
+	int greenColor = (rgbColor >> 8) & 0xFF;
+	int blueColor = rgbColor & 0xFF;
+
+	double xRatio = m_topLayerMeta->xRatio;
+	double yRatio = m_topLayerMeta->yRatio;
+	double batch_min_x = m_topLayerMeta->batch_min_x;
+	double batch_min_y = m_topLayerMeta->batch_min_y;
+	double x0 = m_topLayerMeta->x0;
+	double y0 = m_topLayerMeta->y0;
+	int mapWidth = heightMap.size();
+	int mapHeight = heightMap[0].size();
+	int width = heightMap.size();
+	int height = heightMap[0].size();
+	if (withRatio) {
+		//width = static_cast<int>(mapWidth * xRatio);
+		//height = static_cast<int>(mapHeight * yRatio);
+	}
+
+	std::cout << "ExportShortHeightMap file is " << outputPath << ", width " << width << ", height = " << height << std::endl;
+
+	for (int i = 0; i < height; i++)
+	{
+		for (int j = 0; j < width; j++)
+		{
+			if (withRatio)
+			{
+				//int raw = clamp(static_cast<int>(width / xRatio), 0, mapWidth - 1);
+				//int col = clamp(static_cast<int>(width / xRatio), 0, mapWidth - 1);
+				short value = (static_cast<short>(heightMap[i][j]));
+				if (value != 0)
+				{
+					//std::cout << "height map value is not 0 :  value : " << value << ", i = " << i << " , j = " << j << std::endl;
+				}
+#if USE_OUTPUT_ONLY_POSITIVE_HEIGHT
+				if (value >= 0)
+				{
+#endif
+					double posX = static_cast<double>(i * xRatio);
+					double posY = static_cast<double>(j * yRatio);
+					double fullPosX = batch_min_x + x0 + posX;
+					double fullPoxY = batch_min_y + y0 + posY;
+					outputFile
+						<< fullPosX << ","
+						<< fullPoxY << ","
+						//<< heightMap[raw][col] << ","
+						<< value << ","
+						<< redColor << ","
+						<< greenColor << ","
+						<< blueColor << std::endl;
+#if USE_OUTPUT_ONLY_POSITIVE_HEIGHT
+				}
+#endif
+			}
+			else
+			{
+				if (masks[i][j] > 0)
+				{
+					short value = static_cast<short>(heightMap[i][j] / xRatio);
+					if (value != 0)
+					{
+						//std::cout << "height map value is not 0 :  value : " << value << ", i = " << i << " , j = " << j << std::endl;
+					}
+#if USE_OUTPUT_ONLY_POSITIVE_HEIGHT
+					if (value >= 0)
+					{
+#endif
+						outputFile
+							<< i << ","
+							<< j << ","
+							<< value << ","
+							<< redColor << ","
+							<< greenColor << ","
+							<< blueColor << std::endl;
+#if USE_OUTPUT_ONLY_POSITIVE_HEIGHT
+					}
+#endif
+				}
+			}
+
 		}
 	}
 
