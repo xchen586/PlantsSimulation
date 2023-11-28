@@ -51,8 +51,8 @@ std::vector<std::vector<short>> Read2DShortArray(const std::string& filePath, in
             {
                 throw std::runtime_error("Failed to read data from file");
             }
-
-            short value = (static_cast<unsigned short>(bytes[1]) << 8) | bytes[0];
+            short value = (static_cast<unsigned char>(bytes[1]) << 8) | static_cast<unsigned char>(bytes[0]);
+            //short value = (static_cast<unsigned short>(bytes[1]) << 8) | bytes[0];
             minHeight = std::min(minHeight, value);
             maxHeight = std::max(maxHeight, value);
             array[y][x] = value;  //mirror issue !!!!!!!

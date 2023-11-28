@@ -418,7 +418,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	ExportShortHeightMapWithMask(mesh2HeightMapShort4096, mesh2HeightMasksShort4096, mesh2_heightmap_raw_export,  0x00FF0000, false, true);
 	ExportShortHeightMapWithMask(pcHeightMapShort4096, pcHeightMasksShort4096, pc_heightmap_raw_export, 0x0000FF00, false, true);
 	ExportShortHeightMapWithMask(l1HeightMapShort4096, l1HeightMasksShort4096, l1_heightmap_raw_export, 0x0000FF00, false, true);
-	ExportShortHeightMapWithMask(heightMapShort4096, heightMapShort4096, short_height_map_export, 0x000000FF, false, true);
+	ExportShortHeightMapWithMask(heightMapShort4096, heightMasksShort4096, short_height_map_export, 0x000000FF, false, true);
 #endif
 	ExportDoubleHeightMap(heightMapDouble4096, double_height_map_exportout, 0x00FFFF00, false);
 	ExportShortHeightSlopeMap(slopeShort4096, height_slope_map_exportout, 0x0000FF00, false);
@@ -579,39 +579,40 @@ bool CPlantsSimulation::ExportShortHeightMapWithMask(std::vector<std::vector<sho
 	{
 		for (int j = 0; j < width; j++)
 		{
-			if (withRatio)
+			if (masks[i][j] > 0)
 			{
-				//int raw = clamp(static_cast<int>(width / xRatio), 0, mapWidth - 1);
-				//int col = clamp(static_cast<int>(width / xRatio), 0, mapWidth - 1);
-				short value = (static_cast<short>(heightMap[i][j]));
-				if (value != 0)
+				if (withRatio)
 				{
-					//std::cout << "height map value is not 0 :  value : " << value << ", i = " << i << " , j = " << j << std::endl;
-				}
+					//int raw = clamp(static_cast<int>(width / xRatio), 0, mapWidth - 1);
+					//int col = clamp(static_cast<int>(width / xRatio), 0, mapWidth - 1);
+					short value = (static_cast<short>(heightMap[i][j]));
+					if (value != 0)
+					{
+						//std::cout << "height map value is not 0 :  value : " << value << ", i = " << i << " , j = " << j << std::endl;
+					}
 #if USE_OUTPUT_ONLY_POSITIVE_HEIGHT
-				if (value >= 0)
-				{
+					if (value >= 0)
+					{
 #endif
-					double posX = static_cast<double>(i * xRatio);
-					double posY = static_cast<double>(j * yRatio);
-					double fullPosX = batch_min_x + x0 + posX;
-					double fullPoxY = batch_min_y + y0 + posY;
-					outputFile
-						<< fullPosX << ","
-						<< fullPoxY << ","
-						//<< heightMap[raw][col] << ","
-						<< value << ","
-						<< redColor << ","
-						<< greenColor << ","
-						<< blueColor << std::endl;
+						double posX = static_cast<double>(i * xRatio);
+						double posY = static_cast<double>(j * yRatio);
+						double fullPosX = batch_min_x + x0 + posX;
+						double fullPoxY = batch_min_y + y0 + posY;
+						outputFile
+							<< fullPosX << ","
+							<< fullPoxY << ","
+							//<< heightMap[raw][col] << ","
+							<< value << ","
+							<< redColor << ","
+							<< greenColor << ","
+							<< blueColor << std::endl;
 #if USE_OUTPUT_ONLY_POSITIVE_HEIGHT
-				}
+					}
 #endif
-			}
-			else
-			{
-				if (masks[i][j] > 0)
+				}
+				else
 				{
+
 					short value = static_cast<short>(heightMap[i][j] / xRatio);
 					if (value != 0)
 					{
@@ -633,7 +634,6 @@ bool CPlantsSimulation::ExportShortHeightMapWithMask(std::vector<std::vector<sho
 #endif
 				}
 			}
-
 		}
 	}
 

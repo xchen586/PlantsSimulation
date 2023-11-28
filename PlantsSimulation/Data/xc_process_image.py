@@ -76,6 +76,6 @@ tiles = 10
 x = 8
 y = 5
 
-process_file_image(api, project_id, folder_id, entity_type_OrthoImagery, f'D:\\Downloads\\ProcgrenAssets\\output-dev\\points_{tiles}_{x}_{y}_toplevel.xyz.jpg', f'D:\\Downloads\\ProcgrenAssets\\output-dev\\points_{tiles}_{x}_{y}_toplevel.xyz.jgw', f'image_{tiles}_{x}_{y}-{version}', version=version, color=True)
-#process_file_image(api, project_id, folder_id, entity_type_IndexedOrthoImagery, f'D:\\Downloads\\ProcgrenAssets\\output-dev\\points_{tiles}_{x}_{y}_toplevel.xyz.jpg', f'IdxImage_{tiles}_{x}_{y}-{version}', version=version, color=True)
+#process_file_image(api, project_id, folder_id, entity_type_OrthoImagery, f'D:\\Downloads\\ProcgrenAssets\\output-dev\\points_{tiles}_{x}_{y}_toplevel.xyz.jpg', f'D:\\Downloads\\ProcgrenAssets\\output-dev\\points_{tiles}_{x}_{y}_toplevel.xyz.jgw', f'image_{tiles}_{x}_{y}-{version}', version=version, color=True)
+process_file_image(api, project_id, folder_id, entity_type_IndexedOrthoImagery, f'D:\\Downloads\\ProcgrenAssets\\output-dev\\points_{tiles}_{x}_{y}_toplevel.xyz.jpg', f'D:\\Downloads\\ProcgrenAssets\\output-dev\\points_{tiles}_{x}_{y}_toplevel.xyz.jgw', f'IdxImage_{tiles}_{x}_{y}-{version}', version=version, color=True)
 

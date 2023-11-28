@@ -4,7 +4,7 @@ import os
 
 import subprocess
 
-def process_files_point_cloud(api : voxelfarmclient.rest, project_id, folder_id, entity_type, folder_path, name : str, version : int, color : bool):
+def process_files_point_cloud(api : voxelfarmclient.rest, project_id, folder_id, raw_entity_type, entity_type, folder_path, name : str, version : int, color : bool):
 
     if not os.path.exists(folder_path):
         print(f'File {folder_path} does not exist')
@@ -21,7 +21,8 @@ def process_files_point_cloud(api : voxelfarmclient.rest, project_id, folder_id,
     crs = result.crs
     
     result = api.create_entity_raw(project=project_id, 
-        type=api.entity_type.RawPointCloud, 
+        type = raw_entity_type,
+        #type=api.entity_type.RawPointCloud, 
         #type=entity_type,
         name=f'{name}', 
         fields={
@@ -78,7 +79,7 @@ tiles = 10
 x = 8
 y = 5
 
-#process_files_point_cloud(api, project_id, folder_id, entity_type_IndexedPointCloud, f'D:\\Downloads\\PlantsSimulation\\output\\instanceoutput', f'instances_{tiles}_{x}_{y}-{version}', version=version, color=True)
-#process_files_point_cloud(api, project_id, folder_id, entity_type_IndexedPointCloud, f'D:\\Downloads\\PlantsSimulation\\output\\instanceoutputwithoutoffeset', f'instances_without_offset_{tiles}_{x}_{y}-{version}', version=version, color=True)
-process_files_point_cloud(api, project_id, folder_id, entity_type_IndexedPointCloud, f'D:\\Downloads\\PlantsSimulation\\output\\instanceoutput', f'instances_lod8_{tiles}_{x}_{y}-{version}', version=version, color=True)
-#process_files_point_cloud(api, project_id, folder_id, entity_type_IndexedPointCloud, f'D:\\Downloads\\PlantsSimulation\\output\\instanceoutputwithoutoffeset', f'instances_lod8_without_offset_{tiles}_{x}_{y}-{version}', version=version, color=True)
+#process_files_point_cloud(api, project_id, folder_id, api.entity_type.RawPointCloud, entity_type_IndexedPointCloud, f'D:\\Downloads\\PlantsSimulation\\output\\instanceoutput', f'instances_{tiles}_{x}_{y}-{version}', version=version, color=True)
+#process_files_point_cloud(api, project_id, folder_id, api.entity_type.RawPointCloud, entity_type_IndexedPointCloud, f'D:\\Downloads\\PlantsSimulation\\output\\instanceoutputwithoutoffeset', f'instances_without_offset_{tiles}_{x}_{y}-{version}', version=version, color=True)
+process_files_point_cloud(api, project_id, folder_id, api.entity_type.RawPointCloud, entity_type_IndexedPointCloud, f'D:\\Downloads\\PlantsSimulation\\output\\instanceoutput', f'instances_lod8_{tiles}_{x}_{y}-{version}', version=version, color=True)
+#process_files_point_cloud(api, project_id, folder_id, api.entity_type.RawPointCloud, entity_type_IndexedPointCloud, f'D:\\Downloads\\PlantsSimulation\\output\\instanceoutputwithoutoffeset', f'instances_lod8_without_offset_{tiles}_{x}_{y}-{version}', version=version, color=True)

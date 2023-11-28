@@ -516,7 +516,10 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 	unsigned int mostDistantVariant = static_cast<unsigned int>(PointType::Point_MostDistant);
 	bool getMostDistantPoint = loadPointInstanceFromCSV(m_mostDistantPointFilePath, outputSubsDir, outputMap, mostDistantVariant, transform, cellSize, m_lod);
 
-	bool outputAll = OutputAllInstance(outputSubsDir, outputMap);
+	std::filesystem::path outputSubsDirPath = outputSubsDir;
+	std::filesystem::path outputDirPath = outputSubsDirPath.parent_path();
+
+	bool outputAll = OutputAllInstance(outputDirPath.string(), outputMap);
 
 	std::vector<std::thread> workers;
 	for (const auto& pair : outputMap)
