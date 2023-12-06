@@ -111,6 +111,32 @@ bool CPlantsSimulation::LoadInputImage()
 		delete m_topLayerImage->input_image_data;
 		m_topLayerImage->input_image_data = nullptr;
 	}
+
+	int rows = m_pCellTable->size();
+	int cols = m_pCellTable[0].size();
+	std::vector<std::vector<byte>> humity4K(rows, std::vector<byte>(cols));
+	for (int i = 0; i < rows; i++)
+	{
+		for (int j = 0; j < cols; j++)
+		{
+			humity4K[i][j] = static_cast<byte>(GetValueFromInvertedNormalized((*m_pCellTable)[i][j]->GetMoisture(), 0, 255));
+		}
+	}
+	std::vector<std::vector<byte>> humity600 = ScaleArray(humity4K, 600, 600);
+	
+	const int MAX_PATH = 250;
+	char byte_humity_map_raw[MAX_PATH];
+	memset(byte_humity_map_raw, 0, sizeof(char) * MAX_PATH);
+#if __APPLE_
+	//snprintf(byte_humity_map_raw, MAX_PATH, "%s/4096_byte_humity_map_raw.raw", m_outputDir.c_str());
+	//snprintf(byte_humity_map_raw, MAX_PATH, "%s/1000_byte_humity_map_raw.raw", m_outputDir.c_str());
+	snprintf(byte_humity_map_raw, MAX_PATH, "%s/600_byte_humity_map_raw.raw", m_outputDir.c_str());
+#else
+	//sprintf_s(byte_humity_map_raw, MAX_PATH, "%s\\4096_byte_humity_map_raw.raw", m_outputDir.c_str());
+	//sprintf_s(byte_humity_map_raw, MAX_PATH, "%s\\1000_byte_humity_map_raw.raw", m_outputDir.c_str());
+	sprintf_s(byte_humity_map_raw, MAX_PATH, "%s\\600_byte_humity_map_raw.raw", m_outputDir.c_str());
+#endif
+	bool outputHumityMap = Output2DVectorToRawFile(humity600, byte_humity_map_raw);
 	return true;
 }
 
@@ -314,6 +340,12 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	std::vector<std::vector<double>> heightMapDouble4096 = ConvertShortMatrixToDouble1(heightMapShort4096);
 	std::vector<std::vector<unsigned short>> heightMapUShort4096 = ConvertShortMatrixToUShort(heightMapShort4096);
 
+	std::vector<std::vector<short>> heightMapShort1000 = ScaleArray(heightMapShort4096, 1000, 1000);
+	std::vector<std::vector<unsigned short>> heightMapUShort1000 = ConvertShortMatrixToUShort(heightMapShort1000);
+
+	std::vector<std::vector<short>> heightMapShort600 = ScaleArray(heightMapShort4096, 600, 600);
+	std::vector<std::vector<unsigned short>> heightMapUShort600 = ConvertShortMatrixToUShort(heightMapShort600);
+
 	double ratio = 7.32673;
 #if USE_MAX_SLOPE_ANGLE
 	std::vector<std::vector<double>> slopeDouble4096 = ComputeAbsMaxSlopeAngle(heightMapDouble4096, ratio);
@@ -399,9 +431,13 @@ bool CPlantsSimulation::LoadInputHeightMap()
 #endif
 
 #if __APPLE_
-	snprintf(ushort_height_map_raw, MAX_PATH, "%s/4k_ushort_height_map_raw.raw", m_outputDir.c_str());
+	//snprintf(ushort_height_map_raw, MAX_PATH, "%s/4096_ushort_height_map_raw.raw", m_outputDir.c_str());
+	//snprintf(ushort_height_map_raw, MAX_PATH, "%s/1000_ushort_height_map_raw.raw", m_outputDir.c_str());
+	snprintf(ushort_height_map_raw, MAX_PATH, "%s/600_ushort_height_map_raw.raw", m_outputDir.c_str());
 #else
-	sprintf_s(ushort_height_map_raw, MAX_PATH, "%s\\4k_ushort_height_map_raw.raw", m_outputDir.c_str());
+	//sprintf_s(ushort_height_map_raw, MAX_PATH, "%s\\4096_ushort_height_map_raw.raw", m_outputDir.c_str());
+	//sprintf_s(ushort_height_map_raw, MAX_PATH, "%s\\1000_ushort_height_map_raw.raw", m_outputDir.c_str());
+	sprintf_s(ushort_height_map_raw, MAX_PATH, "%s\\600_ushort_height_map_raw.raw", m_outputDir.c_str());
 #endif
 
 #if USE_EXPORT_HEIGHT_MAP
@@ -425,8 +461,9 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	ExportAngleSlopeMap(slopeDouble4096, angle_slope_map_exportout, 0x00FF0000, false);
 #endif
 
-	bool outputHeightMap = Output2DVectorToRawFile(heightMapUShort4096, ushort_height_map_raw);
-
+	//bool outputHeightMap = Output2DVectorToRawFile(heightMapUShort4096, ushort_height_map_raw);
+	//bool outputHeightMap = Output2DVectorToRawFile(heightMapUShort1000, ushort_height_map_raw);
+	bool outputHeightMap = Output2DVectorToRawFile(heightMapUShort600, ushort_height_map_raw);
 	return true;
 }
 

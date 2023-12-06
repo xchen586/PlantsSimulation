@@ -83,13 +83,17 @@ bool Write2DShortArrayAsRaw(const std::string& filePath, std::vector<std::vector
 
 double BilinearInterpolation(double x, double y, const std::vector<std::vector<short>>& inputArray);
 double BilinearInterpolation2(double x, double y, const std::vector<std::vector<short>>& inputArray);
-double BilinearInterpolation3(double x, double y, const std::vector<std::vector<short>>& inputArray);
+//double BilinearInterpolation3(double x, double y, const std::vector<std::vector<short>>& inputArray);
+
+//std::vector<std::vector<short>> ScaleArray(const std::vector<std::vector<short>>& inputArray, int p, int q);
 
 double GetNormalLinearAttribute(double value, double min, double max);
 double GetInvertLinearAttribute(double value, double min, double max);
 double GetColorLinearNormallizedAttribute(short value);
+double GetValueFromNormalized(double normalized, double min, double max);
+double GetValueFromInvertedNormalized(double invertedNormalized, double min, double max);
 
-std::vector<std::vector<short>> ScaleArray(const std::vector<std::vector<short>>& inputArray, int p, int q);
+
 
 std::vector<std::vector<short>> ComputeSlopeMap(const std::vector<std::vector<short>>& heightmap);
 std::vector<std::vector<short>> ComputeAbsMaxHeightSlopeMap(const std::vector<std::vector<short>>& heightmap);
@@ -199,4 +203,59 @@ bool Output2DVectorToRawFile(const std::vector<std::vector<T>>& data, const std:
 
 	outputFile.close();
 	return true;
+}
+
+template <typename T>
+T BilinearInterpolation3(double x, double y, const std::vector<std::vector<T>>& inputArray)
+{
+	int x0 = static_cast<int>(x);
+	int y0 = static_cast<int>(y);
+	int x1 = x0 + 1;
+	int y1 = y0 + 1;
+
+	double dx = x - x0;
+	double dy = y - y0;
+
+	if (x0 >= 0 && x1 < inputArray.size() && y0 >= 0 && y1 < inputArray[0].size())
+	{
+		double f00 = static_cast<double>(inputArray[x0][y0]);
+		double f01 = static_cast<double>(inputArray[x0][y1]);
+		double f10 = static_cast<double>(inputArray[x1][y0]);
+		double f11 = static_cast<double>(inputArray[x1][y1]);
+
+		double interpolatedDouble = ((1.0 - dx) * (1.0 - dy) * f00 +
+			dx * (1.0 - dy) * f10 +
+			(1.0 - dx) * dy * f01 +
+			dx * dy * f11);
+		T interpolatedValue = static_cast<T>(interpolatedDouble);
+
+		return interpolatedValue;
+	}
+
+	return static_cast<T>(0); // Handle out-of-bounds cases gracefully
+}
+
+template <typename T>
+std::vector<std::vector<T>> ScaleArray(const std::vector<std::vector<T>>& inputArray, int p, int q)
+{
+	int rows = inputArray.size();
+	int cols = inputArray[0].size();
+
+	std::vector<std::vector<T>> scaledArray(p, std::vector<T>(q));
+
+	double scaleX = static_cast<double>(rows) / p;
+	double scaleY = static_cast<double>(cols) / q;
+
+	for (int x = 0; x < p; x++)
+	{
+		for (int y = 0; y < q; y++)
+		{
+			double originalX = x * scaleX;
+			double originalY = y * scaleY;
+
+			scaledArray[x][y] = BilinearInterpolation3<T>(originalX, originalY, inputArray);
+		}
+	}
+
+	return scaledArray;
 }
