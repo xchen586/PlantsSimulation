@@ -183,6 +183,11 @@ class TreeClass
 public:
 	TreeClass() :
 		type(PlantType::TREE_OAK),
+		radius(20, 60),
+		//xRadius(0, 60),
+		//yRadius(0, 60),
+		//zRadius(0, 60),
+
 		color(0x00000000),
 		angleStrength(0.6, 0.6), 
 		pipeRatio(0.45, 0.45), 

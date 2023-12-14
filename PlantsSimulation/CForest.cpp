@@ -159,7 +159,7 @@ void CForest::loadGlobalMasks()
 void CForest::generate(float forestAge, int iterations)
 {
 	// allocate grid
-	//int gridDelta = 5;
+	//int gridDelta = 8;
 	int gridDelta = 30;
 	int gridXSize = xSize/gridDelta;
 	int gridZSize = zSize/gridDelta;
@@ -243,6 +243,8 @@ void CForest::generate(float forestAge, int iterations)
 		}
 	*/
 
+	int xLimit = xo + xSize;
+	int zLimit = zo + zSize;
 	double timeSlice = forestAge/iterations;
 	for (int iteration = 0; iteration < iterations; iteration++)
 	{
@@ -255,8 +257,7 @@ void CForest::generate(float forestAge, int iterations)
 			{
 				if (rand() > RAND_MAX / 10)
 					continue;
-
-
+				
 				int gridX = (x - xo) / gridDelta;
 				int gridZ = (z - zo) / gridDelta;
 				int gridIndex = gridXSize * gridZ + gridX;
@@ -336,8 +337,26 @@ void CForest::generate(float forestAge, int iterations)
 					CTreeInstance& t = instances[instanceIndex];
 					t.treeClass = chosen;
 					t.bday = time - min(timeSlice, (float)rand() * chosen->matureAge / RAND_MAX);
-					t.x = x;
-					t.z = z;
+					//t.x = x;
+					//t.z = z;
+					t.x = x + GenerateRandomDouble(-gridDelta, gridDelta);
+					if (t.x >= xLimit)
+					{
+						t.x = x - GenerateRandomDouble(0, gridDelta);
+					}
+					if (t.x <= xo)
+					{
+						t.x = x + GenerateRandomDouble(0, gridDelta);
+					}
+					t.z = z + GenerateRandomDouble(-gridDelta, gridDelta);
+					if (t.z >= zLimit)
+					{
+						t.z = z - GenerateRandomDouble(0, gridDelta);
+					}
+					if (t.z <= zo)
+					{
+						t.z = z + GenerateRandomDouble(0, gridDelta);
+					}
 					t.dead = false;
 					t.mature = false;
 
