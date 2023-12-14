@@ -111,6 +111,17 @@ std::vector<std::vector<unsigned short>> ConvertShortMatrixToUShort(const std::v
 
 double GenerateRandomDouble(double min, double max);
 
+template <typename T>
+T GenerateRandomT(T min, T max) {
+	// Initialize a random number generator
+	std::random_device rd;  // Seed generator
+	std::mt19937 gen(rd()); // Mersenne Twister engine
+	std::uniform_real_distribution<T> distribution(min, max);
+
+	// Generate a random double within the specified range and return it
+	return distribution(gen);
+}
+
 bool RemoveAllFilesInFolder(const std::string& folderPath);
 
 template <typename T>
