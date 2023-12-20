@@ -114,27 +114,27 @@ bool CPlantsSimulation::LoadInputImage()
 
 	int rows = m_pCellTable->size();
 	int cols = m_pCellTable[0].size();
-	std::vector<std::vector<byte>> humity4K(rows, std::vector<byte>(cols));
+	std::vector<std::vector<byte>> humidity4K(rows, std::vector<byte>(cols));
 	for (int i = 0; i < rows; i++)
 	{
 		for (int j = 0; j < cols; j++)
 		{
-			humity4K[i][j] = static_cast<byte>(GetValueFromNormalized((*m_pCellTable)[i][j]->GetMoisture(), 0, 255));
+			humidity4K[i][j] = static_cast<byte>(GetValueFromNormalized((*m_pCellTable)[i][j]->GetMoisture(), 0, 255));
 		}
 	}
 	int exportX = 600;
 	int exportY = 600;
-	std::vector<std::vector<byte>> humityExport = ScaleArray(humity4K, exportX, exportY);
+	std::vector<std::vector<byte>> humidityExport = ScaleArray(humidity4K, exportX, exportY);
 	
 	const int MAX_PATH = 250;
-	char byte_humity_map_raw[MAX_PATH];
-	memset(byte_humity_map_raw, 0, sizeof(char) * MAX_PATH);
+	char byte_humidity_map_raw[MAX_PATH];
+	memset(byte_humidity_map_raw, 0, sizeof(char) * MAX_PATH);
 #if __APPLE_
-	snprintf(byte_humity_map_raw, MAX_PATH, "%s/%d_%d_%d_%d_%d_600_byte_humity_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, exportX, exportY);
+	snprintf(byte_humidity_map_raw, MAX_PATH, "%s/%d_%d_%d_%d_%d_600_byte_humidity_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, exportX, exportY);
 #else
-	sprintf_s(byte_humity_map_raw, MAX_PATH, "%s\\%d_%d_%d_%d_%d_byte_humity_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, exportX, exportY);
+	sprintf_s(byte_humidity_map_raw, MAX_PATH, "%s\\%d_%d_%d_%d_%d_byte_humidity_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, exportX, exportY);
 #endif
-	bool outputHumityMap = Output2DVectorToRawFile(humityExport, byte_humity_map_raw);
+	bool outputHumidityMap = Output2DVectorToRawFile(humidityExport, byte_humidity_map_raw);
 	return true;
 }
 
