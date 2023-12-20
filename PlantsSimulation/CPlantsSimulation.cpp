@@ -395,49 +395,49 @@ bool CPlantsSimulation::LoadInputHeightMap()
 
 #if __APPLE__
 #if USE_OUTPUT_HEIGHT_MAP_CSV
-	snprintf(mesh_heightmap_raw_export, MAX_PATH, "%s/mesh_heightmap_raw_export.csv", m_outputDir.c_str());
-	snprintf(mesh2_heightmap_raw_export, MAX_PATH, "%s/mesh2_heightmap_raw_export.csv", m_outputDir.c_str());
-	snprintf(pc_heightmap_raw_export, MAX_PATH, "%s/pc_heightmap_raw_export.csv", m_outputDir.c_str());
-	snprintf(l1_heightmap_raw_export, MAX_PATH, "%s/l1_heightmap_raw_export.csv", m_outputDir.c_str());
-	snprintf(short_height_map_export, MAX_PATH, "%s/short_height_map_export.csv", m_outputDir.c_str());
+	snprintf(mesh_heightmap_raw_export, MAX_PATH, "%s/%d_%d_%d_mesh_heightmap_raw_export.csv", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	snprintf(mesh2_heightmap_raw_export, MAX_PATH, "%s/%d_%d_%d_mesh2_heightmap_raw_export.csv", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	snprintf(pc_heightmap_raw_export, MAX_PATH, "%s/%d_%d_%d_pc_heightmap_raw_export.csv", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	snprintf(l1_heightmap_raw_export, MAX_PATH, "%s/%d_%d_%d_l1_heightmap_raw_export.csv", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	snprintf(short_height_map_export, MAX_PATH, "%s/%d_%d_%d_short_height_map_export.csv", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 #else
-	snprintf(mesh_heightmap_raw_export, MAX_PATH, "%s/mesh_heightmap_raw_export.xyz", m_outputDir.c_str());
-	snprintf(mesh2_heightmap_raw_export, MAX_PATH, "%s/mesh2_heightmap_raw_export.xyz", m_outputDir.c_str());
-	snprintf(pc_heightmap_raw_export, MAX_PATH, "%s/pc_heightmap_raw_export.xyz", m_outputDir.c_str());
-	snprintf(l1_heightmap_raw_export, MAX_PATH, "%s/11_heightmap_raw_export.xyz", m_outputDir.c_str());
-	snprintf(short_height_map_export, MAX_PATH, "%s/short_height_map_export.xyz", m_outputDir.c_str());
+	snprintf(mesh_heightmap_raw_export, MAX_PATH, "%s/%d_%d_%d_mesh_heightmap_raw_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	snprintf(mesh2_heightmap_raw_export, MAX_PATH, "%s/%d_%d_%d_mesh2_heightmap_raw_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	snprintf(pc_heightmap_raw_export, MAX_PATH, "%s/%d_%d_%d_pc_heightmap_raw_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	snprintf(l1_heightmap_raw_export, MAX_PATH, "%s/%d_%d_%d_11_heightmap_raw_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	snprintf(short_height_map_export, MAX_PATH, "%s/%d_%d_%d_short_height_map_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 #endif
-	snprintf(double_height_map_exportout, MAX_PATH, "%s/double_height_map_exportout.xyz", m_outputDir.c_str());
-	snprintf(height_slope_map_exportout, MAX_PATH, "%s/height_slope_map_exportout.xyz", m_outputDir.c_str());
-	snprintf(angle_slope_map_exportout, MAX_PATH, "%s/angle_slope_map_exportout.xyz", m_outputDir.c_str());
+	snprintf(double_height_map_exportout, MAX_PATH, "%s/%d_%d_%d_double_height_map_exportout.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	snprintf(height_slope_map_exportout, MAX_PATH, "%s/%d_%d_%d_height_slope_map_exportout.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	snprintf(angle_slope_map_exportout, MAX_PATH, "%s/%d_%d_%d_angle_slope_map_exportout.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 	
 #else
 #if USE_OUTPUT_HEIGHT_MAP_CSV
-	sprintf_s(mesh_heightmap_raw_export, MAX_PATH, "%s\\mesh_heightmap_raw_export.csv", m_outputDir.c_str());
-	sprintf_s(mesh2_heightmap_raw_export, MAX_PATH, "%s\\mesh2_heightmap_raw_export.csv", m_outputDir.c_str());
-	sprintf_s(pc_heightmap_raw_export, MAX_PATH, "%s\\pc_heightmap_raw_export.csv", m_outputDir.c_str());
-	sprintf_s(l1_heightmap_raw_export, MAX_PATH, "%s\\1l_heightmap_raw_export.csv", m_outputDir.c_str());
-	sprintf_s(short_height_map_export, MAX_PATH, "%s\\short_height_map_export.csv", m_outputDir.c_str());
+	sprintf_s(mesh_heightmap_raw_export, MAX_PATH, "%s\\%d_%d_%d_mesh_heightmap_raw_export.csv", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	sprintf_s(mesh2_heightmap_raw_export, MAX_PATH, "%s\\%d_%d_%d_mesh2_heightmap_raw_export.csv", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	sprintf_s(pc_heightmap_raw_export, MAX_PATH, "%s\\%d_%d_%d_pc_heightmap_raw_export.csv", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	sprintf_s(l1_heightmap_raw_export, MAX_PATH, "%s\\%d_%d_%d_1l_heightmap_raw_export.csv", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	sprintf_s(short_height_map_export, MAX_PATH, "%s\\%d_%d_%d_short_height_map_export.csv", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 #else
-	sprintf_s(mesh_heightmap_raw_export, MAX_PATH, "%s\\mesh_heightmap_raw_export.xyz", m_outputDir.c_str());
-	sprintf_s(mesh2_heightmap_raw_export, MAX_PATH, "%s\\mesh2_heightmap_raw_export.xyz", m_outputDir.c_str());
-	sprintf_s(pc_heightmap_raw_export, MAX_PATH, "%s\\pc_heightmap_raw_export.xyz", m_outputDir.c_str());
-	sprintf_s(l1_heightmap_raw_export, MAX_PATH, "%s\\l1_heightmap_raw_export.xyz", m_outputDir.c_str());
-	sprintf_s(short_height_map_export, MAX_PATH, "%s\\short_height_map_export.xyz", m_outputDir.c_str());
+	sprintf_s(mesh_heightmap_raw_export, MAX_PATH, "%s\\%d_%d_%d_mesh_heightmap_raw_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	sprintf_s(mesh2_heightmap_raw_export, MAX_PATH, "%s\\%d_%d_%d_mesh2_heightmap_raw_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	sprintf_s(pc_heightmap_raw_export, MAX_PATH, "%s\\%d_%d_%d_pc_heightmap_raw_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	sprintf_s(l1_heightmap_raw_export, MAX_PATH, "%s\\%d_%d_%d_l1_heightmap_raw_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	sprintf_s(short_height_map_export, MAX_PATH, "%s\\%d_%d_%d_short_height_map_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 #endif
-	sprintf_s(double_height_map_exportout, MAX_PATH, "%s\\double_height_map_exportout.xyz", m_outputDir.c_str());
-	sprintf_s(height_slope_map_exportout, MAX_PATH, "%s\\height_slope_map_exportout.xyz", m_outputDir.c_str());
-	sprintf_s(angle_slope_map_exportout, MAX_PATH, "%s\\angle_slope_map_exportout.xyz", m_outputDir.c_str());
+	sprintf_s(double_height_map_exportout, MAX_PATH, "%s\\%d_%d_%d_double_height_map_exportout.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	sprintf_s(height_slope_map_exportout, MAX_PATH, "%s\\%d_%d_%d_height_slope_map_exportout.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	sprintf_s(angle_slope_map_exportout, MAX_PATH, "%s\\%d_%d_%d_angle_slope_map_exportout.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 #endif
 
 #if __APPLE_
-	//snprintf(ushort_height_map_raw, MAX_PATH, "%s/4096_ushort_height_map_raw.raw", m_outputDir.c_str());
-	//snprintf(ushort_height_map_raw, MAX_PATH, "%s/1000_ushort_height_map_raw.raw", m_outputDir.c_str());
-	snprintf(ushort_height_map_raw, MAX_PATH, "%s/600_ushort_height_map_raw.raw", m_outputDir.c_str());
+	//snprintf(ushort_height_map_raw, MAX_PATH, "%s/%d_%d_%d_4096_ushort_height_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	//snprintf(ushort_height_map_raw, MAX_PATH, "%s/1000_ushort_height_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	snprintf(ushort_height_map_raw, MAX_PATH, "%s/%d_%d_%d_600_ushort_height_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 #else
-	//sprintf_s(ushort_height_map_raw, MAX_PATH, "%s\\4096_ushort_height_map_raw.raw", m_outputDir.c_str());
-	//sprintf_s(ushort_height_map_raw, MAX_PATH, "%s\\1000_ushort_height_map_raw.raw", m_outputDir.c_str());
-	sprintf_s(ushort_height_map_raw, MAX_PATH, "%s\\600_ushort_height_map_raw.raw", m_outputDir.c_str());
+	//sprintf_s(ushort_height_map_raw, MAX_PATH, "%s\\%d_%d_%d_4096_ushort_height_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	//sprintf_s(ushort_height_map_raw, MAX_PATH, "%s\\%d_%d_%d_1000_ushort_height_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	sprintf_s(ushort_height_map_raw, MAX_PATH, "%s\\%d_%d_%d_600_ushort_height_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 #endif
 
 #if USE_EXPORT_HEIGHT_MAP
