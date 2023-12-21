@@ -96,22 +96,11 @@ bool OutputCSVFileForSubInstances(const string& filePath, std::shared_ptr<Instan
 	return true;
 }
 
-bool OutputAllInstance(string outputDir, const InstanceSubOutputMap& allInstances)
+bool OutputAllInstance(string outputFilePath, const InstanceSubOutputMap& allInstances)
 {
-	const int MAX_PATH = 250;
-	char allinstances_file[MAX_PATH];
-	string allinstance_name = "10_8_5_0_allinstances.csv";
-	memset(allinstances_file, 0, sizeof(char) * MAX_PATH);
-#if __APPLE__
-	snprintf(allinstances_file, MAX_PATH, "%s/%s", outputDir.c_str(), allinstance_name.c_str());
-#else
-	sprintf_s(allinstances_file, MAX_PATH, "%s\\%s", outputDir.c_str(), allinstance_name.c_str());
-#endif
-
-	string filePath = allinstances_file;
-	std::ofstream outputFile(filePath);
+	std::ofstream outputFile(outputFilePath);
 	if (!outputFile.is_open()) {
-		std::cerr << "Error: Unable to open the sub csv file " << filePath << std::endl;
+		std::cerr << "Error: Unable to open the sub csv file " << outputFilePath << std::endl;
 		return false;
 	}
 
@@ -519,7 +508,16 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 	std::filesystem::path outputSubsDirPath = outputSubsDir;
 	std::filesystem::path outputDirPath = outputSubsDirPath.parent_path();
 
-	bool outputAll = OutputAllInstance(outputDirPath.string(), outputMap);
+	const int MAX_PATH = 250;
+	char allinstances_file[MAX_PATH];
+	memset(allinstances_file, 0, sizeof(char) * MAX_PATH);
+#if __APPLE__
+	snprintf(allinstances_file, MAX_PATH, "%s/%d_%d_%d_allinstances.csv", outputDirPath.c_str(), , m_tiles, m_tileIndexX, m_tileIndexY);
+#else
+	sprintf_s(allinstances_file, MAX_PATH, "%s\\%d_%d_%d_allinstances.csv", outputDirPath.c_str(), m_tiles, m_tileIndexX, m_tileIndexY);
+#endif
+
+	bool outputAll = OutputAllInstance(allinstances_file, outputMap);
 
 	std::vector<std::thread> workers;
 	for (const auto& pair : outputMap)

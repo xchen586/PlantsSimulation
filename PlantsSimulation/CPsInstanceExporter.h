@@ -39,6 +39,12 @@ public:
 	{
 		m_lod = lod;
 	}
+	void setTilesInfo(int t, int x, int y)
+	{
+		m_tiles = t;
+		m_tileIndexX = x;
+		m_tileIndexY = y;
+	}
 	bool loadPointInstanceFromCSV(const string& filePath, const string& outputSubDir, InstanceSubOutputMap& outputMap, unsigned int variant, CAffineTransform transform, double voxelSize, int32_t lod);
 	bool outputSubfiles(const std::string& outputSubsDir);
 protected:
@@ -48,5 +54,8 @@ protected:
 	string m_mostDistantPointFilePath;
 	vector<TreeInstanceFullOutput> * m_pFullTreeOutputs;
 	int32_t m_lod; 
+	int m_tiles;
+	int m_tileIndexX;
+	int m_tileIndexY;
 };
 
