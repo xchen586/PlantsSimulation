@@ -46,5 +46,5 @@ x = 8
 
 y = 5
 
-update_attach_files_for_entity(api, project_id, entity_id, f'D:\\Downloads\\PlantsSimulation\\output\\instanceoutput', f'instances_lod8_{tiles}_{x}_{y}-{version}', version=version, color=True)
+update_attach_files_for_entity(api, project_id, entity_id, f'D:\\Downloads\\PlantsSimulation\\output\\{tiles}_{x}_{y}\\instanceoutput', f'instances_lod8_{tiles}_{x}_{y}-{version}', version=version, color=True)
 
