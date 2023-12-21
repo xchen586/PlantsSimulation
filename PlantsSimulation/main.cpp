@@ -56,6 +56,7 @@ int main(int argc, const char* argv[])
 
     const int MAX_PATH = 250;
 
+    char assets_final_path[MAX_PATH];
     char output_final_path[MAX_PATH];
     char input_image_file[MAX_PATH];
     char input_meta_file[MAX_PATH];
@@ -72,6 +73,7 @@ int main(int argc, const char* argv[])
     char output_file[MAX_PATH];
     char fullOutput_file[MAX_PATH];
     char pcFullOutput_file[MAX_PATH];
+    memset(assets_final_path, 0, sizeof(char) * MAX_PATH);
     memset(output_final_path, 0, sizeof(char) * MAX_PATH);
     memset(input_image_file, 0, sizeof(char) * MAX_PATH);
     memset(mesh_heightmap_raw_file, 0, sizeof(char) * MAX_PATH);
@@ -89,36 +91,38 @@ int main(int argc, const char* argv[])
     memset(pcFullOutput_file, 0, sizeof(char) * MAX_PATH);
 
 #if __APPLE__
+    snprintf(assets_final_path, MAX_PATH, "%s/%d_%d_%d", assets_path, tiles, tileX, tileY);
     snprintf(output_final_path, MAX_PATH, "%s/%d_%d_%d", output_path, tiles, tileX, tileY);
-    snprintf(input_image_file, MAX_PATH, "%s/%s", assets_path, input_image_name);
-    snprintf(input_meta_file, MAX_PATH, "%s/%s", assets_path, input_meta_name);
-    snprintf(mesh_heightmap_raw_file, MAX_PATH, "%s/%s", assets_path, mesh_heightmap_raw_name);
-    snprintf(mesh2_heightmap_raw_file, MAX_PATH, "%s/%s", assets_path, mesh2_heightmap_raw_name);
-    snprintf(pc_heightmap_raw_file, MAX_PATH, "%s/%s", assets_path, pc_heightmap_raw_name);
-    snprintf(l1_heightmap_raw_file, MAX_PATH, "%s/%s", assets_path, l1_heightmap_raw_name);
-    snprintf(mesh_heightmap_masks_file, MAX_PATH, "%s/%s", assets_path, mesh_heightmap_masks_name);
-    snprintf(mesh2_heightmap_masks_file, MAX_PATH, "%s/%s", assets_path, mesh2_heightmap_masks_name);
-    snprintf(pc_heightmap_masks_file, MAX_PATH, "%s/%s", assets_path, pc_heightmap_masks_name);
-    snprintf(l1_heightmap_masks_file, MAX_PATH, "%s/%s", assets_path, l1_heightmap_masks_name);
-    snprintf(point_most_travelled_file, MAX_PATH, "%s/%s", assets_path, point_most_distant_name);
-    snprintf(point_most_distant_file, MAX_PATH, "%s/%s", assets_path, l1_heightmap_masks_name);
+    snprintf(input_image_file, MAX_PATH, "%s/%s", assets_final_path, input_image_name);
+    snprintf(input_meta_file, MAX_PATH, "%s/%s", assets_final_path, input_meta_name);
+    snprintf(mesh_heightmap_raw_file, MAX_PATH, "%s/%s", assets_final_path, mesh_heightmap_raw_name);
+    snprintf(mesh2_heightmap_raw_file, MAX_PATH, "%s/%s", assets_final_path, mesh2_heightmap_raw_name);
+    snprintf(pc_heightmap_raw_file, MAX_PATH, "%s/%s", assets_final_path, pc_heightmap_raw_name);
+    snprintf(l1_heightmap_raw_file, MAX_PATH, "%s/%s", assets_final_path, l1_heightmap_raw_name);
+    snprintf(mesh_heightmap_masks_file, MAX_PATH, "%s/%s", assets_final_path, mesh_heightmap_masks_name);
+    snprintf(mesh2_heightmap_masks_file, MAX_PATH, "%s/%s", assets_final_path, mesh2_heightmap_masks_name);
+    snprintf(pc_heightmap_masks_file, MAX_PATH, "%s/%s", assets_final_path, pc_heightmap_masks_name);
+    snprintf(l1_heightmap_masks_file, MAX_PATH, "%s/%s", assets_final_path, l1_heightmap_masks_name);
+    snprintf(point_most_travelled_file, MAX_PATH, "%s/%s", assets_final_path, point_most_distant_name);
+    snprintf(point_most_distant_file, MAX_PATH, "%s/%s", assets_final_path, l1_heightmap_masks_name);
     snprintf(output_file, MAX_PATH, "%s/%d_%d_%d_plants.csv", output_final_path, tiles, tileX, tileY);
     snprintf(fullOutput_file, MAX_PATH, "%s/%d_%d_%d_plantsfulloutput.csv", output_final_path, tiles, tileX, tileY);
     snprintf(pcFullOutput_file, MAX_PATH, "%s/points_%d_%d_%d_tree.xyz", output_final_path, tiles, tileX, tileY);
 #else
+    sprintf_s(assets_final_path, MAX_PATH, "%s\\%d_%d_%d", assets_path, tiles, tileX, tileY);
     sprintf_s(output_final_path, MAX_PATH, "%s\\%d_%d_%d", output_path, tiles, tileX, tileY);
-    sprintf_s(input_image_file, MAX_PATH, "%s\\%s", assets_path, input_image_name);
-    sprintf_s(input_meta_file, MAX_PATH, "%s\\%s", assets_path, input_meta_name);
-    sprintf_s(mesh_heightmap_raw_file, MAX_PATH, "%s\\%s", assets_path, mesh_heightmap_raw_name);
-    sprintf_s(mesh2_heightmap_raw_file, MAX_PATH, "%s\\%s", assets_path, mesh2_heightmap_raw_name);
-    sprintf_s(pc_heightmap_raw_file, MAX_PATH, "%s\\%s", assets_path, pc_heightmap_raw_name);
-    sprintf_s(l1_heightmap_raw_file, MAX_PATH, "%s\\%s", assets_path, l1_heightmap_raw_name);
-    sprintf_s(mesh_heightmap_masks_file, MAX_PATH, "%s\\%s", assets_path, mesh_heightmap_masks_name);
-    sprintf_s(mesh2_heightmap_masks_file, MAX_PATH, "%s\\%s", assets_path, mesh_heightmap_masks_name);
-    sprintf_s(pc_heightmap_masks_file, MAX_PATH, "%s\\%s", assets_path, pc_heightmap_masks_name);
-    sprintf_s(l1_heightmap_masks_file, MAX_PATH, "%s\\%s", assets_path, l1_heightmap_masks_name);
-    sprintf_s(point_most_travelled_file, MAX_PATH, "%s\\%s", assets_path, point_most_travelled_name);
-    sprintf_s(point_most_distant_file, MAX_PATH, "%s\\%s", assets_path, point_most_distant_name);
+    sprintf_s(input_image_file, MAX_PATH, "%s\\%s", assets_final_path, input_image_name);
+    sprintf_s(input_meta_file, MAX_PATH, "%s\\%s", assets_final_path, input_meta_name);
+    sprintf_s(mesh_heightmap_raw_file, MAX_PATH, "%s\\%s", assets_final_path, mesh_heightmap_raw_name);
+    sprintf_s(mesh2_heightmap_raw_file, MAX_PATH, "%s\\%s", assets_final_path, mesh2_heightmap_raw_name);
+    sprintf_s(pc_heightmap_raw_file, MAX_PATH, "%s\\%s", assets_final_path, pc_heightmap_raw_name);
+    sprintf_s(l1_heightmap_raw_file, MAX_PATH, "%s\\%s", assets_final_path, l1_heightmap_raw_name);
+    sprintf_s(mesh_heightmap_masks_file, MAX_PATH, "%s\\%s", assets_final_path, mesh_heightmap_masks_name);
+    sprintf_s(mesh2_heightmap_masks_file, MAX_PATH, "%s\\%s", assets_final_path, mesh_heightmap_masks_name);
+    sprintf_s(pc_heightmap_masks_file, MAX_PATH, "%s\\%s", assets_final_path, pc_heightmap_masks_name);
+    sprintf_s(l1_heightmap_masks_file, MAX_PATH, "%s\\%s", assets_final_path, l1_heightmap_masks_name);
+    sprintf_s(point_most_travelled_file, MAX_PATH, "%s\\%s", assets_final_path, point_most_travelled_name);
+    sprintf_s(point_most_distant_file, MAX_PATH, "%s\\%s", assets_final_path, point_most_distant_name);
     sprintf_s(output_file, MAX_PATH, "%s\\%d_%d_%d_plants.csv", output_final_path, tiles, tileX, tileY);
     sprintf_s(fullOutput_file, MAX_PATH, "%s\\%d_%d_%d_plantsfulloutput.csv", output_final_path, tiles, tileX, tileY);
     sprintf_s(pcFullOutput_file, MAX_PATH, "%s\\points_%d_%d_%d_tree.xyz", output_final_path, tiles, tileX, tileY);
@@ -127,6 +131,12 @@ int main(int argc, const char* argv[])
     // Check if the directory exists, and if not, create it
     if (!std::filesystem::exists(assets_path)) {
         if (!std::filesystem::create_directory(assets_path)) {
+            std::cerr << "Failed to create the directory of assets_path!" << std::endl;
+            return -1;
+        }
+    }
+    if (!std::filesystem::exists(assets_final_path)) {
+        if (!std::filesystem::create_directory(assets_final_path)) {
             std::cerr << "Failed to create the directory of assets_path!" << std::endl;
             return -1;
         }
