@@ -99,10 +99,10 @@ bool OutputCSVFileForSubInstances(const string& filePath, std::shared_ptr<Instan
 bool OutputAllInstance(string outputFilePath, const InstanceSubOutputMap& allInstances)
 {
 	std::ofstream outputFile(outputFilePath);
-	if (!outputFile.is_open()) {
+	/*if (!outputFile.is_open()) {
 		std::cerr << "Error: Unable to open the sub csv file " << outputFilePath << std::endl;
 		return false;
-	}
+	}*/
 
 	outputFile << "xworld, yworld,zworld,ScaleX,ScaleY,ScaleZ,RoationX,RotationY,RotaionZ,InstanceType,Variant,Age, idString" << std::endl;
 

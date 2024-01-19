@@ -203,6 +203,7 @@ bool CPlantsSimulation::LoadImageMetaFile()
 
 bool CPlantsSimulation::LoadInputHeightMap()
 {
+	bool needMaskPositive = true;
 	if (!m_topLayerImage || !m_pCellTable)
 	{
 		return false;
@@ -224,10 +225,21 @@ bool CPlantsSimulation::LoadInputHeightMap()
 			short mesh2Value = mesh2HeightMasksShort4096[x][y];
 			short pcValue = pcHeightMasksShort4096[x][y];
 			short l1Value = l1HeightMasksShort4096[x][y];
+			if (needMaskPositive)
+			{
+				
+			}
 			//short value = std::max(meshValue, pcValue);
 			//short value = FindMaxIn3(meshValue, mesh2Value, pcValue);
 			short value = FindMaxIn4(meshValue, mesh2Value, pcValue, l1Value);
 			heightMasksShort4096[x][y] = value;
+			if (needMaskPositive)
+			{
+				if (value < 0)
+				{
+					heightMasksShort4096[x][y] = 0;
+				}
+			}
 		}
 	}
 
@@ -306,7 +318,10 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	std::vector<std::vector<short>> heightMapShort4096(width, std::vector<short>(height));
 	std::vector<std::vector<short>> heightMapAdjust1Short4096(width, std::vector<short>(height));
 	std::vector<std::vector<short>> heightMapAdjust2Short4096(width, std::vector<short>(height));
+	std::vector<std::vector<short>> heightMapAdjust3Short4096(width, std::vector<short>(height));
 	
+	bool needHeightPositive = true;
+
 	short minHeight = std::numeric_limits<short>::max();
 	short maxHeight = std::numeric_limits<short>::min();
 	for (int x = 0; x < width; x++)
@@ -340,20 +355,30 @@ bool CPlantsSimulation::LoadInputHeightMap()
 			//short value = std::max(meshValue, pcValue);
 			//short value = FindMaxIn3(meshValue, mesh2Value, pcValue);
 			short value = FindMaxIn4(meshValue, mesh2Value, pcValue, l1Value);
+			if (needHeightPositive && (value < 0))
+			{
+				value = 0;
+			}
 			heightMapShort4096[x][y] = value;
 			short valueAdjust1 = FindMaxIn3(meshValue, mesh2Value, pcValue);
-			if (valueAdjust1 < 0)
+			if (needHeightPositive && (valueAdjust1 < 0))
 			{
 				valueAdjust1 = 0;
 			}
 			heightMapAdjust1Short4096[x][y] = valueAdjust1;
 			short valueAdjust2 = std::max(meshValue, pcValue);
-			if (valueAdjust2 < 0)
+			if (needHeightPositive && (valueAdjust2 < 0))
 			{
 				valueAdjust2 = 0;
 			}
 			heightMapAdjust2Short4096[x][y] = valueAdjust2;
-			
+			short valueAdjust3 = pcValue;
+			if (needHeightPositive && (valueAdjust3 < 0))
+			{
+				valueAdjust3 = 0;
+			}
+			heightMapAdjust3Short4096[x][y] = valueAdjust3;
+
 			if (heightMasksShort4096[x][y] > 0)
 			{
 				minHeight = std::min(minHeight, value);
@@ -373,11 +398,11 @@ bool CPlantsSimulation::LoadInputHeightMap()
 
 	int exportHeightMapLowRawX = 300;
 	int exportHeightMapLowRawY = 300;
-	std::vector<std::vector<short>> heightMapExportLowRawShort = ScaleArray(heightMapAdjust2Short4096, exportHeightMapLowRawX, exportHeightMapLowRawY);
+	std::vector<std::vector<short>> heightMapExportLowRawShort = ScaleArray(heightMapAdjust3Short4096, exportHeightMapLowRawX, exportHeightMapLowRawY);
 	std::vector<std::vector<unsigned short>> heightMapExportLowRawUShort = ConvertShortMatrixToUShort(heightMapExportLowRawShort);
 	int exportHeightMapHighRawX = 600;
 	int exportHeightMapHighRawY = 600;
-	std::vector<std::vector<short>> heightMapExportHighRawShort = ScaleArray(heightMapAdjust2Short4096, exportHeightMapHighRawX, exportHeightMapHighRawY);
+	std::vector<std::vector<short>> heightMapExportHighRawShort = ScaleArray(heightMapAdjust3Short4096, exportHeightMapHighRawX, exportHeightMapHighRawY);
 	std::vector<std::vector<unsigned short>> heightMapExportHighRawUShort = ConvertShortMatrixToUShort(heightMapExportHighRawShort);
 
 	double ratio = 7.32673;
@@ -951,9 +976,12 @@ bool CPlantsSimulation::BuildForest()
 	string title = "Build Forest";
 	CTimeCounter timeCounter(title);
 
-	float forestAge = 500;
-	//int iteration = 25;
-	int iteration = 100;
+	//float forestAge = 500;
+	//int iteration = 100;
+
+	float forestAge = 250;
+	int iteration = 50;
+
 	cout << "Forest Age is : " << forestAge << endl;
 	cout << "Toatal iteration count is : " << iteration << endl;
 	m_pForest->generate(forestAge, iteration);
