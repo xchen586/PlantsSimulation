@@ -231,7 +231,11 @@ bool CPlantsSimulation::LoadInputHeightMap()
 			}
 			//short value = std::max(meshValue, pcValue);
 			//short value = FindMaxIn3(meshValue, mesh2Value, pcValue);
+#if USE_WITH_BASEMESHES_LEVEL1
 			short value = FindMaxIn4(meshValue, mesh2Value, pcValue, l1Value);
+#else
+			short value = FindMaxIn3(meshValue, pcValue, l1Value);
+#endif // USE_WITH_BASEMESHES_LEVEL1
 			heightMasksShort4096[x][y] = value;
 			if (needMaskPositive)
 			{
@@ -320,7 +324,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	std::vector<std::vector<short>> heightMapAdjust2Short4096(width, std::vector<short>(height));
 	std::vector<std::vector<short>> heightMapAdjust3Short4096(width, std::vector<short>(height));
 	
-	bool needHeightPositive = true;
+	bool needHeightPositive = false;
 
 	short minHeight = std::numeric_limits<short>::max();
 	short maxHeight = std::numeric_limits<short>::min();
@@ -332,29 +336,11 @@ bool CPlantsSimulation::LoadInputHeightMap()
 			short mesh2Value = mesh2HeightMapShort4096[x][y];
 			short pcValue = pcHeightMapShort4096[x][y];
 			short l1Value = l1HeightMapShort4096[x][y];
-			/*if ((meshValue > 0) && (meshValue < 1000))
-			{
-				meshValue = 1000;
-				meshHeightMapShort4096[x][y] = 1000;
-			}
-			if ((mesh2Value > 0) && (mesh2Value < 1000))
-			{
-				mesh2Value = 1000;
-				mesh2HeightMapShort4096[x][y] = 1000;
-			}
-			if ((pcValue > 0) && (pcValue < 1000))
-			{
-				pcValue = 1000;
-				pcHeightMapShort4096[x][y] = 1000;
-			}
-			if ((l1Value > 0) && (l1Value < 1000))
-			{
-				l1Value = 1000;
-				l1HeightMapShort4096[x][y] = 1000;
-			}*/
-			//short value = std::max(meshValue, pcValue);
-			//short value = FindMaxIn3(meshValue, mesh2Value, pcValue);
+#if USE_WITH_BASEMESHES_LEVEL1
 			short value = FindMaxIn4(meshValue, mesh2Value, pcValue, l1Value);
+#else
+			short value = FindMaxIn3(meshValue, pcValue, l1Value);
+#endif
 			if (needHeightPositive && (value < 0))
 			{
 				value = 0;
