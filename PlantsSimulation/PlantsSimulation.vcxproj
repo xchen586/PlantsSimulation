@@ -127,7 +127,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <Optimization>Disabled</Optimization>
+      <Optimization>MaxSpeed</Optimization>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -154,6 +154,7 @@
     <ClInclude Include="..\Common\Include\Instance.h" />
     <ClInclude Include="..\Common\Include\PointInstance.h" />
     <ClInclude Include="..\Common\Include\PsHelper.h" />
+    <ClInclude Include="..\Common\Include\PsIniParser.h" />
     <ClInclude Include="..\Common\Include\PsMarco.h" />
     <ClInclude Include="..\Common\Include\stb_image.h" />
     <ClInclude Include="..\Common\Include\stb_image_write.h" />

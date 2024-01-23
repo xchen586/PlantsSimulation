@@ -49,7 +49,7 @@
 #endif
 
 #ifndef USE_WITH_BASEMESHES_LEVEL1 
-#define USE_WITH_BASEMESHES_LEVEL1 0
+#define USE_WITH_BASEMESHES_LEVEL1 1
 #endif
 
 #ifndef PI

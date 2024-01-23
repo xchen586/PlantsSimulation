@@ -116,5 +116,8 @@
     <ClInclude Include="CPsInstanceExporter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\Common\Include\PsIniParser.h">
+      <Filter>Common</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
