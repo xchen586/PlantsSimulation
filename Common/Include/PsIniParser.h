@@ -48,6 +48,15 @@ private:
             token = line;
         }
 
+        commentPos = line.find('#');
+        if (commentPos != std::string::npos) {
+            // Remove the comment part
+            token = line.substr(0, commentPos);
+        }
+        else {
+            token = line;
+        }
+
         // Trim leading and trailing whitespaces
         size_t firstChar = token.find_first_not_of(" \t\r\n");
         size_t lastChar = token.find_last_not_of(" \t\r\n");
