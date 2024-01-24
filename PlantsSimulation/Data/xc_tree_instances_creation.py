@@ -1,4 +1,5 @@
 import os
+import shutil
 import subprocess
 from zipfile import ZipFile
 import glob
@@ -10,6 +11,53 @@ import configparser
 from voxelfarm import workflow_lambda
 from voxelfarm import process_lambda
 from distutils.dir_util import copy_tree
+
+def copy_files(src_folder, dest_folder):
+    # Ensure that the destination folder exists
+    if not os.path.exists(dest_folder):
+        os.makedirs(dest_folder)
+
+    # Iterate over files in the source folder
+    for filename in os.listdir(src_folder):
+        src_filepath = os.path.join(src_folder, filename)
+        dest_filepath = os.path.join(dest_folder, filename)
+
+        # Copy the file to the destination folder, replacing if it already exists
+        shutil.copy2(src_filepath, dest_filepath)
+        print(f"File '{filename}' copied to '{dest_folder}'")
+
+def is_exe_file(file_path):
+    _, file_extension = os.path.splitext(file_path.lower())
+    return file_extension == '.exe'
+
+def save_data_to_file(data, file_path):
+    if is_exe_file(file_path):
+        print(f"The file at {file_path} is an executable (.exe) file. can not download it")
+        return
+    # Extract the directory path from the file_path
+    directory = os.path.dirname(file_path)
+
+    # Check if the directory exists, create it if not
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+    # Determine the mode based on the type of data
+    if isinstance(data, str):
+        mode = 'w'
+    elif isinstance(data, bytes):
+        mode = 'wb'
+    else:
+        raise ValueError("Unsupported data type. Only str and bytes are supported.")
+
+    # Save the data to the file
+    with open(file_path, mode) as file:
+        if isinstance(data, str):
+            file.write(data)
+        elif isinstance(data, bytes):
+            file.write(data)
+
+    print(f"Data saved successfully to: {file_path}")
+
 
 def create_or_update_ini_file(file_path, section, key, value):
     # Check if the INI file exists
@@ -144,11 +192,13 @@ section_output = 'Output'
 section_others = 'Others'
 
 file_list = api.get_file_list(project_id, basemeshes_entity_id)
-file_test = api.get_file(project_id, basemeshes_entity_id, file_list[0])
-'''
-lambda_host = process_lambda.process_lambda_host()
-data_path = lambda_host.download_entity_files(basemeshes_entity_id)
-'''
+for index, file_name in enumerate(file_list):
+    print(f"Index: {index}, File Path: {file_name}")
+    file_data = api.get_file(project_id, basemeshes_entity_id, file_name)
+    file_path = f'{basemeshes_asset_download_folder}\\{file_name}'
+    save_data_to_file(file_data, file_path)
+
+copy_files(basemeshes_asset_download_folder, qtree_assert_folder)
 
 create_or_update_ini_file(tree_ini_path, section_tiles, 'Tiles_Count', tiles_count)
 create_or_update_ini_file(tree_ini_path, section_tiles, 'Tiles_X_Index', tiles_x)
