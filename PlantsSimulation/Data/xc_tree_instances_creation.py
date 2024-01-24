@@ -12,6 +12,10 @@ from voxelfarm import workflow_lambda
 from voxelfarm import process_lambda
 from distutils.dir_util import copy_tree
 
+def launch_process(command):
+    result = subprocess.run(command, shell=True, check=True)
+    return result.returncode
+
 def copy_files(src_folder, dest_folder):
     # Ensure that the destination folder exists
     if not os.path.exists(dest_folder):
@@ -141,11 +145,14 @@ tree_lod = 8
 basemeshes_exe_folder = 'D:\\xWork\\VoxelFarm\\Voxel-Farm-WorldGen\\WorldGen.vstudio\\x64\\Release'
 tree_exe_folder = 'D:\\xWork\\VoxelFarm\\PlantsSimulation\\PlantsSimulation\\x64\\Release'
 road_output_folder = 'D:\\xWork\\VoxelFarm\\ProcgenNPC\\NPCTest2\\bin\\Release\\net6.0'
-qtree_assert_folder = 'D:\\Downloads\\ProcgrenAssets'
-basemeshes_heightmap_folder = qtree_assert_folder
-smoothlayer_output_parent_folder = f'{qtree_assert_folder}\\output'
+qtree_assets_folder = 'D:\\Downloads\\ProcgrenAssets'
+basemeshes_heightmap_folder = qtree_assets_folder
+smoothlayer_output_parent_folder = f'{qtree_assets_folder}\\output'
 tree_ini_path = 'D:\\Downloads\\PlantsSimulation\\TreesInstancesAbsolutePathWin.ini'
 tree_output_parent_folder = 'D:\\Downloads\\PlantsSimulation\\output'
+basemeshes_assets_folder = qtree_assets_folder
+basemeshes_db_folder = 'D:\\Downloads\\ProcgrenAssets\\db'
+basemeshes_cache_folder = 'D:\\Downloads\\ProcgrenAssets\\db'
 
 basemeshes_exe_name = "BaseMeshVoxelizer.exe"
 basemeshes_exe_path = f'{basemeshes_exe_folder}\\{basemeshes_exe_name}' 
@@ -158,7 +165,7 @@ most_distant_points_name = 'Most Distant Points.csv'
 most_travelled_points_path = f'{road_output_folder}\\{most_travelled_points_name}'
 most_distant_points_path = f'{road_output_folder}\\{most_distant_points_name}'
 
-basemeshes_asset_download_parent_folder = f'{qtree_assert_folder}\\BaseMeshes_Versions'
+basemeshes_asset_download_parent_folder = f'{qtree_assets_folder}\\BaseMeshes_Versions'
 basemeshes_asset_download_folder = f'{basemeshes_asset_download_parent_folder}\\{basemeshes_entity_id}'
 
 basemeshes_0_heightmap_name = f'{basemeshes_heightmap_folder}\\{tiles_count}_{tiles_x}_{tiles_y}_{basemeshes_level0}_heightarray.bin'
@@ -198,7 +205,21 @@ for index, file_name in enumerate(file_list):
     file_path = f'{basemeshes_asset_download_folder}\\{file_name}'
     save_data_to_file(file_data, file_path)
 
-copy_files(basemeshes_asset_download_folder, qtree_assert_folder)
+copy_files(basemeshes_asset_download_folder, qtree_assets_folder)
+
+basemeshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_folder} {basemeshes_debug_level}'
+return_code_basemash1 = launch_process(basemeshvoxelizer1_command)
+if return_code_basemash1 == 0:
+    print("Process ({basemeshvoxelizer1_command}) executed successfully.")
+else:
+    print(f"Error: The process ({basemeshvoxelizer1_command}) returned a non-zero exit code ({return_code_basemash1}).")
+
+basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_folder} {basemeshes_debug_level}'
+return_code_basemash0 = launch_process(basemeshvoxelizer0_command)
+if return_code_basemash0 == 0:
+    print("Process ({basemeshvoxelizer0_command}) executed successfully.")
+else:
+    print(f"Error: The process ({basemeshvoxelizer0_command}) returned a non-zero exit code ({return_code_basemash0}).")
 
 create_or_update_ini_file(tree_ini_path, section_tiles, 'Tiles_Count', tiles_count)
 create_or_update_ini_file(tree_ini_path, section_tiles, 'Tiles_X_Index', tiles_x)
@@ -220,8 +241,13 @@ create_or_update_ini_file(tree_ini_path, section_input, 'Most_Distant_Points', m
 create_or_update_ini_file(tree_ini_path, section_output, 'Output_Dir', tree_output_parent_folder)
 create_or_update_ini_file(tree_ini_path, section_others, 'Lod', tree_lod)
 
+tree_exe_command = f'{tree_exe_path} {tree_ini_path}'
+return_code_tree = launch_process(tree_exe_command)
+if return_code_tree == 0:
+    print("Process ({tree_exe_command}) executed successfully.")
+else:
+    print(f"Error: The process ({tree_exe_command}) returned a non-zero exit code ({return_code_tree}).")
 
-
-#update_attach_files_for_entity(api, project_id, tree_entity_id, tree_instance_output_folder, f'instances_lod8_{tiles_count}_{tiles_x}_{tiles_y}-{version}', version=version, color=True)
+update_attach_files_for_entity(api, project_id, tree_entity_id, tree_instance_output_folder, f'instances_lod8_{tiles_count}_{tiles_x}_{tiles_y}-{version}', version=version, color=True)
 
 
