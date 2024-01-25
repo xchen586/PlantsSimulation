@@ -16,6 +16,19 @@ def launch_process(command):
     result = subprocess.run(command, shell=True, check=True)
     return result.returncode
 
+def create_or_overwrite_empty_file(file_path):
+    # Check if the file exists
+    if os.path.exists(file_path):
+        # If the file exists, open it with 'w' mode to overwrite it with an empty file
+        with open(file_path, 'w'):
+            pass  # Using 'pass' as no content needs to be written
+        print(f"File '{file_path}' overwritten as an empty file.")
+    else:
+        # If the file does not exist, create it with 'w' mode
+        with open(file_path, 'w'):
+            pass  # Using 'pass' as no content needs to be written
+        print(f"File '{file_path}' created as an empty file.")
+
 def copy_files(src_folder, dest_folder):
     # Ensure that the destination folder exists
     if not os.path.exists(dest_folder):
@@ -72,6 +85,7 @@ def create_or_update_ini_file(file_path, section, key, value):
     
     # Read the existing INI file
     config = configparser.ConfigParser()
+    config.optionxform = str
 
     # Use the 'with' statement to ensure proper resource management
     with open(file_path, 'r') as configfile:
@@ -101,6 +115,27 @@ def read_ini_value(file_path, section, key, default=None, value_type=str):
         return value_type(config.get(section, key))
     else:
         return default
+    
+def clear_all_sections(file_path):
+    # Check if the INI file exists
+    if not os.path.exists(file_path):
+        # If not, create the INI file
+        with open(file_path, 'w') as configfile:
+            configfile.write('')
+
+    config = configparser.ConfigParser()
+
+    # Read the existing INI file
+    config.read(file_path)
+
+    # Remove all sections from the configuration
+    for section in config.sections():
+        config.remove_section(section)
+
+    # Write the changes back to the INI file
+    with open(file_path, 'w') as configfile:
+        config.write(configfile)
+
 
 def update_attach_files_for_entity(api : voxelfarmclient.rest, project_id, entity_id, folder_path, name : str, version : int, color : bool):
 
@@ -168,10 +203,10 @@ most_distant_points_path = f'{road_output_folder}\\{most_distant_points_name}'
 basemeshes_asset_download_parent_folder = f'{qtree_assets_folder}\\BaseMeshes_Versions'
 basemeshes_asset_download_folder = f'{basemeshes_asset_download_parent_folder}\\{basemeshes_entity_id}'
 
-basemeshes_0_heightmap_name = f'{basemeshes_heightmap_folder}\\{tiles_count}_{tiles_x}_{tiles_y}_{basemeshes_level0}_heightarray.bin'
-basemeshes_1_heightmap_name = f'{basemeshes_heightmap_folder}\\{tiles_count}_{tiles_x}_{tiles_y}_{basemeshes_level1}_heightarray.bin'
-basemeshes_0_heightmap_mask_name = f'{basemeshes_heightmap_folder}\\{tiles_count}_{tiles_x}_{tiles_y}_{basemeshes_level0}_heightmasks.bin'
-basemeshes_1_heightmap_mask_name = f'{basemeshes_heightmap_folder}\\{tiles_count}_{tiles_x}_{tiles_y}_{basemeshes_level1}_heightmasks.bin'
+basemeshes_0_heightmap_name = f'{tiles_count}_{tiles_x}_{tiles_y}_{basemeshes_level0}_heightarray.bin'
+basemeshes_1_heightmap_name = f'{tiles_count}_{tiles_x}_{tiles_y}_{basemeshes_level1}_heightarray.bin'
+basemeshes_0_heightmap_mask_name = f'{tiles_count}_{tiles_x}_{tiles_y}_{basemeshes_level0}_heightmasks.bin'
+basemeshes_1_heightmap_mask_name = f'{tiles_count}_{tiles_x}_{tiles_y}_{basemeshes_level1}_heightmasks.bin'
 basemeshes_0_heightmap_path = f'{basemeshes_heightmap_folder}\\{basemeshes_0_heightmap_name}'
 basemeshes_1_heightmap_path = f'{basemeshes_heightmap_folder}\\{basemeshes_1_heightmap_name}'
 basemeshes_0_heightmap_mask_path = f'{basemeshes_heightmap_folder}\\{basemeshes_0_heightmap_mask_name}'
@@ -179,7 +214,7 @@ basemeshes_1_heightmap_mask_path = f'{basemeshes_heightmap_folder}\\{basemeshes_
 
 smoothlayer_output_folder = f'{smoothlayer_output_parent_folder}\\{tiles_count}_{tiles_x}_{tiles_y}'
 toplayer_image_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.jpg'
-toplayer_image_meta_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.jpw'
+toplayer_image_meta_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.jgw'
 toplayer_heightmap_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.height.raw'
 toplayer_heightmap_mask_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.height.masks.raw'
 level1_heightmap_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_level1.xyz.height.raw'
@@ -198,6 +233,7 @@ section_input = 'Input'
 section_output = 'Output'
 section_others = 'Others'
 
+##### Download BaseMeshes(version) assets from Cloud!
 file_list = api.get_file_list(project_id, basemeshes_entity_id)
 for index, file_name in enumerate(file_list):
     print(f"Index: {index}, File Path: {file_name}")
@@ -205,8 +241,10 @@ for index, file_name in enumerate(file_list):
     file_path = f'{basemeshes_asset_download_folder}\\{file_name}'
     save_data_to_file(file_data, file_path)
 
+##### Copy BaseMeshes(version) assets to BaseMeshes asset folder!
 copy_files(basemeshes_asset_download_folder, qtree_assets_folder)
 
+##### Generate the height map from level 1 of BaseMeshes.  
 basemeshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_folder} {basemeshes_cache_folder} {basemeshes_debug_level}'
 return_code_basemash1 = launch_process(basemeshvoxelizer1_command)
 if return_code_basemash1 == 0:
@@ -214,12 +252,17 @@ if return_code_basemash1 == 0:
 else:
     print(f"Error: The process ({basemeshvoxelizer1_command}) returned a non-zero exit code ({return_code_basemash1}).")
 
+##### Generate the height map from level 0 of BaseMeshes.  
 basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_folder} {basemeshes_cache_folder} {basemeshes_debug_level}'
 return_code_basemash0 = launch_process(basemeshvoxelizer0_command)
 if return_code_basemash0 == 0:
     print("Process ({basemeshvoxelizer0_command}) executed successfully.")
 else:
     print(f"Error: The process ({basemeshvoxelizer0_command}) returned a non-zero exit code ({return_code_basemash0}).")
+
+##### Make ini config file for tree exe.
+#clear_all_sections(tree_ini_path)
+create_or_overwrite_empty_file(tree_ini_path)
 
 create_or_update_ini_file(tree_ini_path, section_tiles, 'Tiles_Count', tiles_count)
 create_or_update_ini_file(tree_ini_path, section_tiles, 'Tiles_X_Index', tiles_x)
@@ -241,6 +284,7 @@ create_or_update_ini_file(tree_ini_path, section_input, 'Most_Distant_Points', m
 create_or_update_ini_file(tree_ini_path, section_output, 'Output_Dir', tree_output_parent_folder)
 create_or_update_ini_file(tree_ini_path, section_others, 'Lod', tree_lod)
 
+##### Run tree exe to generate to tree instances.
 tree_exe_command = f'{tree_exe_path} {tree_ini_path}'
 return_code_tree = launch_process(tree_exe_command)
 if return_code_tree == 0:
@@ -248,6 +292,7 @@ if return_code_tree == 0:
 else:
     print(f"Error: The process ({tree_exe_command}) returned a non-zero exit code ({return_code_tree}).")
 
+##### Update the tree instance files of tree entity.
 update_attach_files_for_entity(api, project_id, tree_entity_id, tree_instance_output_folder, f'instances_lod8_{tiles_count}_{tiles_x}_{tiles_y}-{version}', version=version, color=True)
 
 
