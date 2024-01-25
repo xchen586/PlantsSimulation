@@ -184,6 +184,8 @@ def tree_instances_generation(config_path):
 
     basemeshes_exe_folder = read_ini_value(config_path, section_input, 'basemeshes_exe_folder')
     basemeshes_exe_name = read_ini_value(config_path, section_input, 'basemeshes_exe_name')
+    worldgen_exe_folder = read_ini_value(config_path, section_input, 'worldgen_exe_folder')
+    worldgen_exe_name = read_ini_value(config_path, section_input, 'worldgen_exe_name')
     tree_exe_folder = read_ini_value(config_path, section_input, 'tree_exe_folder')
     tree_exe_name = read_ini_value(config_path, section_input, 'tree_exe_name')
     qtree_assets_folder = read_ini_value(config_path, section_input, 'qtree_assets_folder')
@@ -199,6 +201,7 @@ def tree_instances_generation(config_path):
     tree_lod = read_ini_value(config_path, section_others, 'tree_lod', value_type=int)
 
     run_update_basemeshes_assets = read_ini_value(config_path, section_run, 'run_update_basemeshes_assets', value_type=bool)
+    run_worldgen_road = read_ini_value(config_path, section_run, 'run_worldgen_road', value_type=bool)
     run_make_basemeshes = read_ini_value(config_path, section_run, 'run_make_basemeshes', value_type=bool)
     run_make_tree_instances = read_ini_value(config_path, section_run, 'run_make_tree_instances', value_type=bool)
     run_upload_tree_instances = read_ini_value(config_path, section_run, 'run_upload_tree_instances', value_type=bool)
@@ -255,6 +258,17 @@ def tree_instances_generation(config_path):
         ##### Copy BaseMeshes(version) assets to BaseMeshes asset folder!
         copy_files(basemeshes_asset_download_folder, qtree_assets_folder)
    
+    worldgen_exe_path = f'{worldgen_exe_folder}\\{worldgen_exe_name}' 
+    worldgen_level = 5
+    worldgen_command =  f'{worldgen_exe_path} {tiles_count} {tiles_x} {tiles_y} {worldgen_level} {qtree_assets_folder} {smoothlayer_output_base_folder}'
+    if run_worldgen_road:
+        ##### Generate the height map and image for smooth layer. 
+        return_code_worldgen_road = launch_process(worldgen_command)
+        if return_code_worldgen_road == 0:
+            print(f'Process ({worldgen_command}) executed successfully.')
+        else:
+            print(f'Error: The process ({worldgen_command}) returned a non-zero exit code ({return_code_worldgen_road}).')
+    
     basemeshes_exe_path = f'{basemeshes_exe_folder}\\{basemeshes_exe_name}' 
     basemeshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_debug_level} {basemeshes_heightmap_folder}'
     basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_debug_level} {basemeshes_heightmap_folder}'
