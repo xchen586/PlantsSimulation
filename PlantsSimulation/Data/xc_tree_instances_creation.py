@@ -207,14 +207,14 @@ for index, file_name in enumerate(file_list):
 
 copy_files(basemeshes_asset_download_folder, qtree_assets_folder)
 
-basemeshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_folder} {basemeshes_debug_level}'
+basemeshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_folder} {basemeshes_cache_folder} {basemeshes_debug_level}'
 return_code_basemash1 = launch_process(basemeshvoxelizer1_command)
 if return_code_basemash1 == 0:
     print("Process ({basemeshvoxelizer1_command}) executed successfully.")
 else:
     print(f"Error: The process ({basemeshvoxelizer1_command}) returned a non-zero exit code ({return_code_basemash1}).")
 
-basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_folder} {basemeshes_debug_level}'
+basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_folder} {basemeshes_cache_folder} {basemeshes_debug_level}'
 return_code_basemash0 = launch_process(basemeshvoxelizer0_command)
 if return_code_basemash0 == 0:
     print("Process ({basemeshvoxelizer0_command}) executed successfully.")
