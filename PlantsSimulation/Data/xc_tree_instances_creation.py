@@ -196,8 +196,11 @@ def tree_instances_generation(config_path):
     tree_exe_name = read_ini_value(config_path, section_input, 'tree_exe_name')
     qtree_assets_folder = read_ini_value(config_path, section_input, 'qtree_assets_folder')
 
+    road_output_folder = read_ini_value(config_path, section_output, 'road_output_folder')
+    smoothlayer_output_base_folder = read_ini_value(config_path, section_output, 'smoothlayer_output_base_folder')
     basemeshes_db_base_folder = read_ini_value(config_path, section_output, 'basemeshes_db_base_folder')
     basemeshes_cache_base_folder = read_ini_value(config_path, section_output, 'basemeshes_cache_base_folder')
+    basemeshes_heightmap_folder = read_ini_value(config_path, section_output, 'basemeshes_heightmap_folder')
     tree_output_base_folder = read_ini_value(config_path, section_output, 'tree_output_base_folder')
 
     basemeshes_debug_level = read_ini_value(config_path, section_others, 'basemeshes_debug_level', value_type=int)
@@ -207,20 +210,17 @@ def tree_instances_generation(config_path):
     basemeshes_level1 = 1
     version = 80
 
-    road_output_folder = 'D:\\xWork\\VoxelFarm\\ProcgenNPC\\NPCTest2\\bin\\Release\\net6.0'
+    most_travelled_points_path = f'{road_output_folder}\\{tiles_count}_{tiles_x}_{tiles_y}_Most_Travelled_Points.csv'
+    most_distant_points_path = f'{road_output_folder}\\{tiles_count}_{tiles_x}_{tiles_y}_Most_Distant_Points.csv'
     
-    basemeshes_heightmap_folder = qtree_assets_folder
-    smoothlayer_output_parent_folder = f'{qtree_assets_folder}\\output'
-    tree_ini_folder = 'D:\\Downloads\\PlantsSimulation'
+    #tree_ini_folder = 'D:\\Downloads\\PlantsSimulation'
+    tree_ini_folder = f'{tree_output_base_folder}\\{tiles_count}_{tiles_x}_{tiles_y}'
     tree_ini_name = 'TreesInstancesAbsolutePathWin.ini'
     tree_ini_path = f'{tree_ini_folder}\\{tree_ini_name}'
+    if not os.path.exists(tree_ini_folder):
+        os.makedirs(tree_ini_folder)
+
     basemeshes_assets_folder = qtree_assets_folder
-
-    most_travelled_points_name = 'Most Travelled Points.csv'
-    most_distant_points_name = 'Most Distant Points.csv'
-    most_travelled_points_path = f'{road_output_folder}\\{most_travelled_points_name}'
-    most_distant_points_path = f'{road_output_folder}\\{most_distant_points_name}'
-
     basemeshes_0_heightmap_name = f'{tiles_count}_{tiles_x}_{tiles_y}_{basemeshes_level0}_heightarray.bin'
     basemeshes_1_heightmap_name = f'{tiles_count}_{tiles_x}_{tiles_y}_{basemeshes_level1}_heightarray.bin'
     basemeshes_0_heightmap_mask_name = f'{tiles_count}_{tiles_x}_{tiles_y}_{basemeshes_level0}_heightmasks.bin'
@@ -230,7 +230,7 @@ def tree_instances_generation(config_path):
     basemeshes_0_heightmap_mask_path = f'{basemeshes_heightmap_folder}\\{basemeshes_0_heightmap_mask_name}'
     basemeshes_1_heightmap_mask_path = f'{basemeshes_heightmap_folder}\\{basemeshes_0_heightmap_mask_name}'
 
-    smoothlayer_output_folder = f'{smoothlayer_output_parent_folder}\\{tiles_count}_{tiles_x}_{tiles_y}'
+    smoothlayer_output_folder = f'{smoothlayer_output_base_folder}\\{tiles_count}_{tiles_x}_{tiles_y}'
     toplayer_image_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.jpg'
     toplayer_image_meta_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.jgw'
     toplayer_heightmap_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.height.raw'
@@ -245,6 +245,7 @@ def tree_instances_generation(config_path):
     level1_heightmap_mask_path = f'{smoothlayer_output_folder}\\{level1_heightmap_mask_name}'
 
     api = voxelfarmclient.rest(cloud_url)
+    
     ##### Download BaseMeshes(version) assets from Cloud!
     basemeshes_asset_download_parent_folder = f'{qtree_assets_folder}\\BaseMeshes_Versions'
     basemeshes_asset_download_folder = f'{basemeshes_asset_download_parent_folder}\\{basemeshes_entity_id}'
@@ -260,7 +261,7 @@ def tree_instances_generation(config_path):
 
     basemeshes_exe_path = f'{basemeshes_exe_folder}\\{basemeshes_exe_name}' 
     ##### Generate the height map from level 1 of BaseMeshes.  
-    basemeshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_debug_level}'
+    basemeshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_debug_level} {basemeshes_heightmap_folder}'
     return_code_basemash1 = launch_process(basemeshvoxelizer1_command)
     if return_code_basemash1 == 0:
         print(f'Process ({basemeshvoxelizer1_command}) executed successfully.')
@@ -268,7 +269,7 @@ def tree_instances_generation(config_path):
         print(f'Error: The process ({basemeshvoxelizer1_command}) returned a non-zero exit code ({return_code_basemash1}).')
 
     ##### Generate the height map from level 0 of BaseMeshes.  
-    basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_debug_level}'
+    basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_debug_level} {basemeshes_heightmap_folder}'
     return_code_basemash0 = launch_process(basemeshvoxelizer0_command)
     if return_code_basemash0 == 0:
         print(f'Process ({basemeshvoxelizer0_command}) executed successfully.')
