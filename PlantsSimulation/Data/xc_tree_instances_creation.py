@@ -161,9 +161,6 @@ def tree_instances_generation(config_path):
     if not os.path.exists(config_path):
         print(f'Config File {config_path} does not exist')
         return
-    
-    #config = configparser.ConfigParser()
-    #config.read(config_path)
 
     section_main = 'Main'
     section_tiles = 'Tiles'
@@ -213,7 +210,6 @@ def tree_instances_generation(config_path):
     most_travelled_points_path = f'{road_output_folder}\\{tiles_count}_{tiles_x}_{tiles_y}_Most_Travelled_Points.csv'
     most_distant_points_path = f'{road_output_folder}\\{tiles_count}_{tiles_x}_{tiles_y}_Most_Distant_Points.csv'
     
-    #tree_ini_folder = 'D:\\Downloads\\PlantsSimulation'
     tree_ini_folder = f'{tree_output_base_folder}\\{tiles_count}_{tiles_x}_{tiles_y}'
     tree_ini_name = 'TreesInstancesAbsolutePathWin.ini'
     tree_ini_path = f'{tree_ini_folder}\\{tree_ini_name}'
@@ -246,10 +242,10 @@ def tree_instances_generation(config_path):
 
     api = voxelfarmclient.rest(cloud_url)
     
-    ##### Download BaseMeshes(version) assets from Cloud!
     basemeshes_asset_download_parent_folder = f'{qtree_assets_folder}\\BaseMeshes_Versions'
     basemeshes_asset_download_folder = f'{basemeshes_asset_download_parent_folder}\\{basemeshes_entity_id}'
     if run_update_basemeshes_assets:
+        ##### Download BaseMeshes(version) assets from Cloud!
         file_list = api.get_file_list(project_id, basemeshes_entity_id)
         for index, file_name in enumerate(file_list):
             print(f"Index: {index}, File Path: {file_name}")
@@ -259,7 +255,6 @@ def tree_instances_generation(config_path):
         ##### Copy BaseMeshes(version) assets to BaseMeshes asset folder!
         copy_files(basemeshes_asset_download_folder, qtree_assets_folder)
    
-
     basemeshes_exe_path = f'{basemeshes_exe_folder}\\{basemeshes_exe_name}' 
     basemeshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_debug_level} {basemeshes_heightmap_folder}'
     basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_debug_level} {basemeshes_heightmap_folder}'
