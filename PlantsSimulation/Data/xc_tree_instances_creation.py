@@ -1,16 +1,21 @@
 import os
+from os import path
+import sys
+
 import shutil
 import subprocess
-from zipfile import ZipFile
-import glob
-from timeit import default_timer as timer
+import argparse
 from datetime import timedelta
-from voxelfarm import voxelfarmclient
-from os import path
+from timeit import default_timer as timer
+from distutils.dir_util import copy_tree
+
+import glob
 import configparser
+from zipfile import ZipFile
+
+from voxelfarm import voxelfarmclient
 from voxelfarm import workflow_lambda
 from voxelfarm import process_lambda
-from distutils.dir_util import copy_tree
 
 def launch_process(command):
     result = subprocess.run(command, shell=True, check=True)
@@ -248,17 +253,17 @@ copy_files(basemeshes_asset_download_folder, qtree_assets_folder)
 basemeshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_folder} {basemeshes_cache_folder} {basemeshes_debug_level}'
 return_code_basemash1 = launch_process(basemeshvoxelizer1_command)
 if return_code_basemash1 == 0:
-    print("Process ({basemeshvoxelizer1_command}) executed successfully.")
+    print(f'Process ({basemeshvoxelizer1_command}) executed successfully.')
 else:
-    print(f"Error: The process ({basemeshvoxelizer1_command}) returned a non-zero exit code ({return_code_basemash1}).")
+    print(f'Error: The process ({basemeshvoxelizer1_command}) returned a non-zero exit code ({return_code_basemash1}).')
 
 ##### Generate the height map from level 0 of BaseMeshes.  
 basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_folder} {basemeshes_cache_folder} {basemeshes_debug_level}'
 return_code_basemash0 = launch_process(basemeshvoxelizer0_command)
 if return_code_basemash0 == 0:
-    print("Process ({basemeshvoxelizer0_command}) executed successfully.")
+    print(f'Process ({basemeshvoxelizer0_command}) executed successfully.')
 else:
-    print(f"Error: The process ({basemeshvoxelizer0_command}) returned a non-zero exit code ({return_code_basemash0}).")
+    print(f'Error: The process ({basemeshvoxelizer0_command}) returned a non-zero exit code ({return_code_basemash0}).')
 
 ##### Make ini config file for tree exe.
 #clear_all_sections(tree_ini_path)
@@ -288,9 +293,9 @@ create_or_update_ini_file(tree_ini_path, section_others, 'Lod', tree_lod)
 tree_exe_command = f'{tree_exe_path} {tree_ini_path}'
 return_code_tree = launch_process(tree_exe_command)
 if return_code_tree == 0:
-    print("Process ({tree_exe_command}) executed successfully.")
+    print(f'Process ({tree_exe_command}) executed successfully.')
 else:
-    print(f"Error: The process ({tree_exe_command}) returned a non-zero exit code ({return_code_tree}).")
+    print(f'Error: The process ({tree_exe_command}) returned a non-zero exit code ({return_code_tree}).')
 
 ##### Update the tree instance files of tree entity.
 update_attach_files_for_entity(api, project_id, tree_entity_id, tree_instance_output_folder, f'instances_lod8_{tiles_count}_{tiles_x}_{tiles_y}-{version}', version=version, color=True)
