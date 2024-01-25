@@ -162,142 +162,160 @@ def update_attach_files_for_entity(api : voxelfarmclient.rest, project_id, entit
             api.attach_files(project=project_id, id=entity_id, files={'file': file})
 
 ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
+def tree_instances_generation(config_path):
+    
+    if not os.path.exists(config_path):
+        print(f'Config File {config_path} does not exist')
+        return
+    
+    #config = configparser.ConfigParser()
+    #config.read(config_path)
 
-api = voxelfarmclient.rest('http://52.226.195.5/')
-workflow_api = workflow_lambda.workflow_lambda_host()
+    section_main = 'Main'
+    section_tiles = 'Tiles'
+    section_input = 'Input'
+    section_output = 'Output'
+    section_others = 'Others'
+    
+    cloud_url = read_ini_value(config_path, section_main, 'cloud_url')
+    project_id = read_ini_value(config_path, section_main, 'project_id')
+    folder_id = read_ini_value(config_path, section_main, 'folder_id')
+    #tree_entity_id = 'E0070AD37D4543FCB9E70D60AE47541D' # cosmin new
+    #tree_entity_id = "536674D5E8D440D9A7EFCD1D879AD57A" # cosmin old
+    #tree_entity_id = "3A3CFEBA226B4692A8719C78335470DD"  #xc tesst
+    tree_entity_id = read_ini_value(config_path, section_main, 'tree_entity_id')
+    basemeshes_entity_id = read_ini_value(config_path, section_main, 'basemeshes_entity_id')
+    
+    tiles_count = read_ini_value(config_path, section_tiles, 'tiles_count', value_type=int)
+    tiles_x = read_ini_value(config_path, section_tiles, 'tiles_x', value_type=int)
+    tiles_y = read_ini_value(config_path, section_tiles, 'tiles_y', value_type=int)
 
-project_id = '1D4CBBD1D957477E8CC3FF376FB87470'
-folder_id = '90F6348AD5D94FCEA85C7C1CD081CE97'
-#tree_entity_id = 'E0070AD37D4543FCB9E70D60AE47541D' # cosmin new
-#tree_entity_id = "536674D5E8D440D9A7EFCD1D879AD57A" # cosmin old
-tree_entity_id = "3A3CFEBA226B4692A8719C78335470DD"  #xc tesst
-basemeshes_entity_id = '543FB5F2F22341708A4B876907884ECB'
-version = 80
+    basemeshes_exe_folder = read_ini_value(config_path, section_input, 'basemeshes_exe_folder')
+    basemeshes_exe_name = read_ini_value(config_path, section_input, 'basemeshes_exe_name')
+    tree_exe_folder = read_ini_value(config_path, section_input, 'tree_exe_folder')
+    tree_exe_name = read_ini_value(config_path, section_input, 'tree_exe_name')
+    qtree_assets_folder = read_ini_value(config_path, section_input, 'qtree_assets_folder')
 
-tiles_count = 10
-tiles_x = 8
-tiles_y = 5
-basemeshes_level0 = 0
-basemeshes_level1 = 1
-basemeshes_debug_level = 6
-tree_lod = 8
+    basemeshes_db_folder = read_ini_value(config_path, section_output, 'basemeshes_db_folder')
+    basemeshes_cache_folder = read_ini_value(config_path, section_output, 'basemeshes_cache_folder')
 
-basemeshes_exe_folder = 'D:\\xWork\\VoxelFarm\\Voxel-Farm-WorldGen\\WorldGen.vstudio\\x64\\Release'
-tree_exe_folder = 'D:\\xWork\\VoxelFarm\\PlantsSimulation\\PlantsSimulation\\x64\\Release'
-road_output_folder = 'D:\\xWork\\VoxelFarm\\ProcgenNPC\\NPCTest2\\bin\\Release\\net6.0'
-qtree_assets_folder = 'D:\\Downloads\\ProcgrenAssets'
-basemeshes_heightmap_folder = qtree_assets_folder
-smoothlayer_output_parent_folder = f'{qtree_assets_folder}\\output'
-tree_ini_path = 'D:\\Downloads\\PlantsSimulation\\TreesInstancesAbsolutePathWin.ini'
-tree_output_parent_folder = 'D:\\Downloads\\PlantsSimulation\\output'
-basemeshes_assets_folder = qtree_assets_folder
-basemeshes_db_folder = 'D:\\Downloads\\ProcgrenAssets\\db'
-basemeshes_cache_folder = 'D:\\Downloads\\ProcgrenAssets\\db'
+    basemeshes_debug_level = read_ini_value(config_path, section_others, 'basemeshes_debug_level', value_type=int)
+    tree_lod = read_ini_value(config_path, section_others, 'tree_lod', value_type=int)
 
-basemeshes_exe_name = "BaseMeshVoxelizer.exe"
-basemeshes_exe_path = f'{basemeshes_exe_folder}\\{basemeshes_exe_name}' 
+    basemeshes_level0 = 0
+    basemeshes_level1 = 1
+    version = 80
 
-tree_exe_name = 'PlantsSimulation.exe'
-tree_exe_path = f'{tree_exe_folder}\\{tree_exe_name}'
+    road_output_folder = 'D:\\xWork\\VoxelFarm\\ProcgenNPC\\NPCTest2\\bin\\Release\\net6.0'
+    
+    basemeshes_heightmap_folder = qtree_assets_folder
+    smoothlayer_output_parent_folder = f'{qtree_assets_folder}\\output'
+    tree_ini_folder = 'D:\\Downloads\\PlantsSimulation'
+    tree_ini_name = 'TreesInstancesAbsolutePathWin.ini'
+    tree_ini_path = f'{tree_ini_folder}\\{tree_ini_name}'
+    tree_output_parent_folder = 'D:\\Downloads\\PlantsSimulation\\output'
+    basemeshes_assets_folder = qtree_assets_folder
 
-most_travelled_points_name = 'Most Travelled Points.csv'
-most_distant_points_name = 'Most Distant Points.csv'
-most_travelled_points_path = f'{road_output_folder}\\{most_travelled_points_name}'
-most_distant_points_path = f'{road_output_folder}\\{most_distant_points_name}'
+    most_travelled_points_name = 'Most Travelled Points.csv'
+    most_distant_points_name = 'Most Distant Points.csv'
+    most_travelled_points_path = f'{road_output_folder}\\{most_travelled_points_name}'
+    most_distant_points_path = f'{road_output_folder}\\{most_distant_points_name}'
 
-basemeshes_asset_download_parent_folder = f'{qtree_assets_folder}\\BaseMeshes_Versions'
-basemeshes_asset_download_folder = f'{basemeshes_asset_download_parent_folder}\\{basemeshes_entity_id}'
+    basemeshes_0_heightmap_name = f'{tiles_count}_{tiles_x}_{tiles_y}_{basemeshes_level0}_heightarray.bin'
+    basemeshes_1_heightmap_name = f'{tiles_count}_{tiles_x}_{tiles_y}_{basemeshes_level1}_heightarray.bin'
+    basemeshes_0_heightmap_mask_name = f'{tiles_count}_{tiles_x}_{tiles_y}_{basemeshes_level0}_heightmasks.bin'
+    basemeshes_1_heightmap_mask_name = f'{tiles_count}_{tiles_x}_{tiles_y}_{basemeshes_level1}_heightmasks.bin'
+    basemeshes_0_heightmap_path = f'{basemeshes_heightmap_folder}\\{basemeshes_0_heightmap_name}'
+    basemeshes_1_heightmap_path = f'{basemeshes_heightmap_folder}\\{basemeshes_1_heightmap_name}'
+    basemeshes_0_heightmap_mask_path = f'{basemeshes_heightmap_folder}\\{basemeshes_0_heightmap_mask_name}'
+    basemeshes_1_heightmap_mask_path = f'{basemeshes_heightmap_folder}\\{basemeshes_0_heightmap_mask_name}'
 
-basemeshes_0_heightmap_name = f'{tiles_count}_{tiles_x}_{tiles_y}_{basemeshes_level0}_heightarray.bin'
-basemeshes_1_heightmap_name = f'{tiles_count}_{tiles_x}_{tiles_y}_{basemeshes_level1}_heightarray.bin'
-basemeshes_0_heightmap_mask_name = f'{tiles_count}_{tiles_x}_{tiles_y}_{basemeshes_level0}_heightmasks.bin'
-basemeshes_1_heightmap_mask_name = f'{tiles_count}_{tiles_x}_{tiles_y}_{basemeshes_level1}_heightmasks.bin'
-basemeshes_0_heightmap_path = f'{basemeshes_heightmap_folder}\\{basemeshes_0_heightmap_name}'
-basemeshes_1_heightmap_path = f'{basemeshes_heightmap_folder}\\{basemeshes_1_heightmap_name}'
-basemeshes_0_heightmap_mask_path = f'{basemeshes_heightmap_folder}\\{basemeshes_0_heightmap_mask_name}'
-basemeshes_1_heightmap_mask_path = f'{basemeshes_heightmap_folder}\\{basemeshes_0_heightmap_mask_name}'
+    smoothlayer_output_folder = f'{smoothlayer_output_parent_folder}\\{tiles_count}_{tiles_x}_{tiles_y}'
+    toplayer_image_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.jpg'
+    toplayer_image_meta_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.jgw'
+    toplayer_heightmap_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.height.raw'
+    toplayer_heightmap_mask_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.height.masks.raw'
+    level1_heightmap_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_level1.xyz.height.raw'
+    level1_heightmap_mask_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_level1.xyz.height.masks.raw'
+    toplayer_image_path = f'{smoothlayer_output_folder}\\{toplayer_image_name}'
+    toplayer_image_meta_path = f'{smoothlayer_output_folder}\\{toplayer_image_meta_name}'
+    toplayer_heightmap_path = f'{smoothlayer_output_folder}\\{toplayer_heightmap_name}'
+    toplayer_heightmap_mask_path = f'{smoothlayer_output_folder}\\{toplayer_heightmap_mask_name}'
+    level1_heightmap_path = f'{smoothlayer_output_folder}\\{level1_heightmap_name}'
+    level1_heightmap_mask_path = f'{smoothlayer_output_folder}\\{level1_heightmap_mask_name}'
 
-smoothlayer_output_folder = f'{smoothlayer_output_parent_folder}\\{tiles_count}_{tiles_x}_{tiles_y}'
-toplayer_image_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.jpg'
-toplayer_image_meta_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.jgw'
-toplayer_heightmap_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.height.raw'
-toplayer_heightmap_mask_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.height.masks.raw'
-level1_heightmap_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_level1.xyz.height.raw'
-level1_heightmap_mask_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_level1.xyz.height.masks.raw'
-toplayer_image_path = f'{smoothlayer_output_folder}\\{toplayer_image_name}'
-toplayer_image_meta_path = f'{smoothlayer_output_folder}\\{toplayer_image_meta_name}'
-toplayer_heightmap_path = f'{smoothlayer_output_folder}\\{toplayer_heightmap_name}'
-toplayer_heightmap_mask_path = f'{smoothlayer_output_folder}\\{toplayer_heightmap_mask_name}'
-level1_heightmap_path = f'{smoothlayer_output_folder}\\{level1_heightmap_name}'
-level1_heightmap_mask_path = f'{smoothlayer_output_folder}\\{level1_heightmap_mask_name}'
+    ##### Download BaseMeshes(version) assets from Cloud!
+    basemeshes_asset_download_parent_folder = f'{qtree_assets_folder}\\BaseMeshes_Versions'
+    basemeshes_asset_download_folder = f'{basemeshes_asset_download_parent_folder}\\{basemeshes_entity_id}'
+    file_list = api.get_file_list(project_id, basemeshes_entity_id)
+    for index, file_name in enumerate(file_list):
+        print(f"Index: {index}, File Path: {file_name}")
+        file_data = api.get_file(project_id, basemeshes_entity_id, file_name)
+        file_path = f'{basemeshes_asset_download_folder}\\{file_name}'
+        save_data_to_file(file_data, file_path)
 
-tree_instance_output_folder = f'{tree_output_parent_folder}\\{tiles_count}_{tiles_x}_{tiles_y}\\instanceoutput'
+    ##### Copy BaseMeshes(version) assets to BaseMeshes asset folder!
+    copy_files(basemeshes_asset_download_folder, qtree_assets_folder)
 
-section_tiles = 'Tiles'
-section_input = 'Input'
-section_output = 'Output'
-section_others = 'Others'
+    basemeshes_exe_path = f'{basemeshes_exe_folder}\\{basemeshes_exe_name}' 
+    ##### Generate the height map from level 1 of BaseMeshes.  
+    basemeshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_folder} {basemeshes_cache_folder} {basemeshes_debug_level}'
+    return_code_basemash1 = launch_process(basemeshvoxelizer1_command)
+    if return_code_basemash1 == 0:
+        print(f'Process ({basemeshvoxelizer1_command}) executed successfully.')
+    else:
+        print(f'Error: The process ({basemeshvoxelizer1_command}) returned a non-zero exit code ({return_code_basemash1}).')
 
-##### Download BaseMeshes(version) assets from Cloud!
-file_list = api.get_file_list(project_id, basemeshes_entity_id)
-for index, file_name in enumerate(file_list):
-    print(f"Index: {index}, File Path: {file_name}")
-    file_data = api.get_file(project_id, basemeshes_entity_id, file_name)
-    file_path = f'{basemeshes_asset_download_folder}\\{file_name}'
-    save_data_to_file(file_data, file_path)
+    ##### Generate the height map from level 0 of BaseMeshes.  
+    basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_folder} {basemeshes_cache_folder} {basemeshes_debug_level}'
+    return_code_basemash0 = launch_process(basemeshvoxelizer0_command)
+    if return_code_basemash0 == 0:
+        print(f'Process ({basemeshvoxelizer0_command}) executed successfully.')
+    else:
+        print(f'Error: The process ({basemeshvoxelizer0_command}) returned a non-zero exit code ({return_code_basemash0}).')
 
-##### Copy BaseMeshes(version) assets to BaseMeshes asset folder!
-copy_files(basemeshes_asset_download_folder, qtree_assets_folder)
+    ##### Make ini config file for tree exe.
+    #clear_all_sections(tree_ini_path)
+    create_or_overwrite_empty_file(tree_ini_path)
 
-##### Generate the height map from level 1 of BaseMeshes.  
-basemeshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_folder} {basemeshes_cache_folder} {basemeshes_debug_level}'
-return_code_basemash1 = launch_process(basemeshvoxelizer1_command)
-if return_code_basemash1 == 0:
-    print(f'Process ({basemeshvoxelizer1_command}) executed successfully.')
-else:
-    print(f'Error: The process ({basemeshvoxelizer1_command}) returned a non-zero exit code ({return_code_basemash1}).')
+    create_or_update_ini_file(tree_ini_path, section_tiles, 'Tiles_Count', tiles_count)
+    create_or_update_ini_file(tree_ini_path, section_tiles, 'Tiles_X_Index', tiles_x)
+    create_or_update_ini_file(tree_ini_path, section_tiles, 'Tiles_Y_Index', tiles_y)
 
-##### Generate the height map from level 0 of BaseMeshes.  
-basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_folder} {basemeshes_cache_folder} {basemeshes_debug_level}'
-return_code_basemash0 = launch_process(basemeshvoxelizer0_command)
-if return_code_basemash0 == 0:
-    print(f'Process ({basemeshvoxelizer0_command}) executed successfully.')
-else:
-    print(f'Error: The process ({basemeshvoxelizer0_command}) returned a non-zero exit code ({return_code_basemash0}).')
+    create_or_update_ini_file(tree_ini_path, section_input, 'Toplayer_Image', toplayer_image_path)
+    create_or_update_ini_file(tree_ini_path, section_input, 'Toplayer_Image_Meta', toplayer_image_meta_path)
+    create_or_update_ini_file(tree_ini_path, section_input, 'BaseMeshes_Level_0_HeightMap', basemeshes_0_heightmap_path)
+    create_or_update_ini_file(tree_ini_path, section_input, 'BaseMeshes_Level_1_HeightMap', basemeshes_1_heightmap_path)
+    create_or_update_ini_file(tree_ini_path, section_input, 'TopLayer_HeightMap', toplayer_heightmap_path)
+    create_or_update_ini_file(tree_ini_path, section_input, 'Level1Layer_heightMap', level1_heightmap_path)
+    create_or_update_ini_file(tree_ini_path, section_input, 'BaseMeshes_Level_0_HeightMap_Mask', basemeshes_0_heightmap_mask_path)
+    create_or_update_ini_file(tree_ini_path, section_input, 'BaseMeshes_Level_1_HeightMap_Mask', basemeshes_1_heightmap_mask_path)
+    create_or_update_ini_file(tree_ini_path, section_input, 'TopLayer_HeightMap_Mask', toplayer_heightmap_mask_path)
+    create_or_update_ini_file(tree_ini_path, section_input, 'Level1Layer_heightMap_Mask', level1_heightmap_mask_path)
+    create_or_update_ini_file(tree_ini_path, section_input, 'Most_Travelled_Points', most_travelled_points_path)
+    create_or_update_ini_file(tree_ini_path, section_input, 'Most_Distant_Points', most_distant_points_path)
 
-##### Make ini config file for tree exe.
-#clear_all_sections(tree_ini_path)
-create_or_overwrite_empty_file(tree_ini_path)
+    create_or_update_ini_file(tree_ini_path, section_output, 'Output_Dir', tree_output_parent_folder)
+    create_or_update_ini_file(tree_ini_path, section_others, 'Lod', tree_lod)
 
-create_or_update_ini_file(tree_ini_path, section_tiles, 'Tiles_Count', tiles_count)
-create_or_update_ini_file(tree_ini_path, section_tiles, 'Tiles_X_Index', tiles_x)
-create_or_update_ini_file(tree_ini_path, section_tiles, 'Tiles_Y_Index', tiles_y)
+    ##### Run tree exe to generate to tree instances.
+    tree_exe_path = f'{tree_exe_folder}\\{tree_exe_name}'
+    tree_exe_command = f'{tree_exe_path} {tree_ini_path}'
+    return_code_tree = launch_process(tree_exe_command)
+    if return_code_tree == 0:
+        print(f'Process ({tree_exe_command}) executed successfully.')
+    else:
+        print(f'Error: The process ({tree_exe_command}) returned a non-zero exit code ({return_code_tree}).')
 
-create_or_update_ini_file(tree_ini_path, section_input, 'Toplayer_Image', toplayer_image_path)
-create_or_update_ini_file(tree_ini_path, section_input, 'Toplayer_Image_Meta', toplayer_image_meta_path)
-create_or_update_ini_file(tree_ini_path, section_input, 'BaseMeshes_Level_0_HeightMap', basemeshes_0_heightmap_path)
-create_or_update_ini_file(tree_ini_path, section_input, 'BaseMeshes_Level_1_HeightMap', basemeshes_1_heightmap_path)
-create_or_update_ini_file(tree_ini_path, section_input, 'TopLayer_HeightMap', toplayer_heightmap_path)
-create_or_update_ini_file(tree_ini_path, section_input, 'Level1Layer_heightMap', level1_heightmap_path)
-create_or_update_ini_file(tree_ini_path, section_input, 'BaseMeshes_Level_0_HeightMap_Mask', basemeshes_0_heightmap_mask_path)
-create_or_update_ini_file(tree_ini_path, section_input, 'BaseMeshes_Level_1_HeightMap_Mask', basemeshes_1_heightmap_mask_path)
-create_or_update_ini_file(tree_ini_path, section_input, 'TopLayer_HeightMap_Mask', toplayer_heightmap_mask_path)
-create_or_update_ini_file(tree_ini_path, section_input, 'Level1Layer_heightMap_Mask', level1_heightmap_mask_path)
-create_or_update_ini_file(tree_ini_path, section_input, 'Most_Travelled_Points', most_travelled_points_path)
-create_or_update_ini_file(tree_ini_path, section_input, 'Most_Distant_Points', most_distant_points_path)
+    ##### Update the tree instance files of tree entity.
+    api = voxelfarmclient.rest('http://52.226.195.5/')
+    workflow_api = workflow_lambda.workflow_lambda_host()
+    tree_instance_output_folder = f'{tree_output_parent_folder}\\{tiles_count}_{tiles_x}_{tiles_y}\\instanceoutput'
+    update_attach_files_for_entity(api, project_id, tree_entity_id, tree_instance_output_folder, f'instances_lod8_{tiles_count}_{tiles_x}_{tiles_y}-{version}', version=version, color=True)
+    return
 
-create_or_update_ini_file(tree_ini_path, section_output, 'Output_Dir', tree_output_parent_folder)
-create_or_update_ini_file(tree_ini_path, section_others, 'Lod', tree_lod)
-
-##### Run tree exe to generate to tree instances.
-tree_exe_command = f'{tree_exe_path} {tree_ini_path}'
-return_code_tree = launch_process(tree_exe_command)
-if return_code_tree == 0:
-    print(f'Process ({tree_exe_command}) executed successfully.')
-else:
-    print(f'Error: The process ({tree_exe_command}) returned a non-zero exit code ({return_code_tree}).')
-
-##### Update the tree instance files of tree entity.
-update_attach_files_for_entity(api, project_id, tree_entity_id, tree_instance_output_folder, f'instances_lod8_{tiles_count}_{tiles_x}_{tiles_y}-{version}', version=version, color=True)
-
-
+params = sys.argv[1:]
+configfile_path = params[0]
+#configfile_path = 'D:\\xWork\\VoxelFarm\\PlantsSimulation\\PlantsSimulation\\Data\\TreeInstancesCreationConfig.ini'
+print(f'Tree instance generation config file : {configfile_path}')
+tree_instances_generation(configfile_path)
