@@ -38,12 +38,10 @@ def copy_files(src_folder, dest_folder):
     # Ensure that the destination folder exists
     if not os.path.exists(dest_folder):
         os.makedirs(dest_folder)
-
     # Iterate over files in the source folder
     for filename in os.listdir(src_folder):
         src_filepath = os.path.join(src_folder, filename)
         dest_filepath = os.path.join(dest_folder, filename)
-
         # Copy the file to the destination folder, replacing if it already exists
         shutil.copy2(src_filepath, dest_filepath)
         print(f"File '{filename}' copied to '{dest_folder}'")
@@ -58,11 +56,9 @@ def save_data_to_file(data, file_path):
         return
     # Extract the directory path from the file_path
     directory = os.path.dirname(file_path)
-
     # Check if the directory exists, create it if not
     if not os.path.exists(directory):
         os.makedirs(directory)
-
     # Determine the mode based on the type of data
     if isinstance(data, str):
         mode = 'w'
@@ -70,16 +66,13 @@ def save_data_to_file(data, file_path):
         mode = 'wb'
     else:
         raise ValueError("Unsupported data type. Only str and bytes are supported.")
-
     # Save the data to the file
     with open(file_path, mode) as file:
         if isinstance(data, str):
             file.write(data)
         elif isinstance(data, bytes):
             file.write(data)
-
     print(f"Data saved successfully to: {file_path}")
-
 
 def create_or_update_ini_file(file_path, section, key, value):
     # Check if the INI file exists
@@ -87,60 +80,61 @@ def create_or_update_ini_file(file_path, section, key, value):
         # If not, create the INI file
         with open(file_path, 'w') as configfile:
             configfile.write('')
-    
     # Read the existing INI file
     config = configparser.ConfigParser()
+    # Make it not only uppercase
     config.optionxform = str
-
     # Use the 'with' statement to ensure proper resource management
     with open(file_path, 'r') as configfile:
         config.read_file(configfile)
-
     # Check if the section exists, create it if not
     if not config.has_section(section):
         config.add_section(section)
-
     # Check if the key exists, update it if so, add it if not
     config.set(section, key, str(value))  # Convert value to string before setting
-
     # Write the changes back to the INI file
     with open(file_path, 'w') as configfile:
         config.write(configfile)
 
 def read_ini_value(file_path, section, key, default=None, value_type=str):
     config = configparser.ConfigParser()
-
     # Use the 'with' statement to ensure proper resource management
     with open(file_path, 'r') as configfile:
         config.read_file(configfile)
-
     # Check if the section and key exist
     if config.has_section(section) and config.has_option(section, key):
-        # Read the value and convert it to the specified type
-        return value_type(config.get(section, key))
+        # Read the value
+        value = config.get(section, key)
+        # Convert the value to the specified type
+        if value_type == bool:
+            # Convert common string representations of boolean values to bool
+            if value.lower() in ('true', 'yes', 'on', '1'):
+                return True
+            elif value.lower() in ('false', 'no', 'off', '0'):
+                return False
+            else:
+                # Return default if value is not recognized
+                return default
+        else:
+            return value_type(value)
     else:
         return default
-    
+
 def clear_all_sections(file_path):
     # Check if the INI file exists
     if not os.path.exists(file_path):
         # If not, create the INI file
         with open(file_path, 'w') as configfile:
             configfile.write('')
-
     config = configparser.ConfigParser()
-
     # Read the existing INI file
     config.read(file_path)
-
     # Remove all sections from the configuration
     for section in config.sections():
         config.remove_section(section)
-
     # Write the changes back to the INI file
     with open(file_path, 'w') as configfile:
         config.write(configfile)
-
 
 def update_attach_files_for_entity(api : voxelfarmclient.rest, project_id, entity_id, folder_path, name : str, version : int, color : bool):
 
@@ -175,6 +169,7 @@ def tree_instances_generation(config_path):
     section_tiles = 'Tiles'
     section_input = 'Input'
     section_output = 'Output'
+    section_run = 'Run'
     section_others = 'Others'
     
     cloud_url = read_ini_value(config_path, section_main, 'cloud_url')
@@ -205,6 +200,11 @@ def tree_instances_generation(config_path):
 
     basemeshes_debug_level = read_ini_value(config_path, section_others, 'basemeshes_debug_level', value_type=int)
     tree_lod = read_ini_value(config_path, section_others, 'tree_lod', value_type=int)
+
+    run_update_basemeshes_assets = read_ini_value(config_path, section_run, 'run_update_basemeshes_assets', value_type=bool)
+    run_make_basemeshes = read_ini_value(config_path, section_run, 'run_make_basemeshes', value_type=bool)
+    run_make_tree_instances = read_ini_value(config_path, section_run, 'run_make_tree_instances', value_type=bool)
+    run_upload_tree_instances = read_ini_value(config_path, section_run, 'run_upload_tree_instances', value_type=bool)
 
     basemeshes_level0 = 0
     basemeshes_level1 = 1
@@ -249,32 +249,33 @@ def tree_instances_generation(config_path):
     ##### Download BaseMeshes(version) assets from Cloud!
     basemeshes_asset_download_parent_folder = f'{qtree_assets_folder}\\BaseMeshes_Versions'
     basemeshes_asset_download_folder = f'{basemeshes_asset_download_parent_folder}\\{basemeshes_entity_id}'
-    file_list = api.get_file_list(project_id, basemeshes_entity_id)
-    for index, file_name in enumerate(file_list):
-        print(f"Index: {index}, File Path: {file_name}")
-        file_data = api.get_file(project_id, basemeshes_entity_id, file_name)
-        file_path = f'{basemeshes_asset_download_folder}\\{file_name}'
-        save_data_to_file(file_data, file_path)
-
-    ##### Copy BaseMeshes(version) assets to BaseMeshes asset folder!
-    copy_files(basemeshes_asset_download_folder, qtree_assets_folder)
+    if run_update_basemeshes_assets:
+        file_list = api.get_file_list(project_id, basemeshes_entity_id)
+        for index, file_name in enumerate(file_list):
+            print(f"Index: {index}, File Path: {file_name}")
+            file_data = api.get_file(project_id, basemeshes_entity_id, file_name)
+            file_path = f'{basemeshes_asset_download_folder}\\{file_name}'
+            save_data_to_file(file_data, file_path)
+        ##### Copy BaseMeshes(version) assets to BaseMeshes asset folder!
+        copy_files(basemeshes_asset_download_folder, qtree_assets_folder)
+   
 
     basemeshes_exe_path = f'{basemeshes_exe_folder}\\{basemeshes_exe_name}' 
-    ##### Generate the height map from level 1 of BaseMeshes.  
     basemeshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_debug_level} {basemeshes_heightmap_folder}'
-    return_code_basemash1 = launch_process(basemeshvoxelizer1_command)
-    if return_code_basemash1 == 0:
-        print(f'Process ({basemeshvoxelizer1_command}) executed successfully.')
-    else:
-        print(f'Error: The process ({basemeshvoxelizer1_command}) returned a non-zero exit code ({return_code_basemash1}).')
-
-    ##### Generate the height map from level 0 of BaseMeshes.  
     basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_debug_level} {basemeshes_heightmap_folder}'
-    return_code_basemash0 = launch_process(basemeshvoxelizer0_command)
-    if return_code_basemash0 == 0:
-        print(f'Process ({basemeshvoxelizer0_command}) executed successfully.')
-    else:
-        print(f'Error: The process ({basemeshvoxelizer0_command}) returned a non-zero exit code ({return_code_basemash0}).')
+    if run_make_basemeshes:
+        ##### Generate the height map from level 1 of BaseMeshes. 
+        return_code_basemash1 = launch_process(basemeshvoxelizer1_command)
+        if return_code_basemash1 == 0:
+            print(f'Process ({basemeshvoxelizer1_command}) executed successfully.')
+        else:
+            print(f'Error: The process ({basemeshvoxelizer1_command}) returned a non-zero exit code ({return_code_basemash1}).')
+        ##### Generate the height map from level 0 of BaseMeshes.  
+        return_code_basemash0 = launch_process(basemeshvoxelizer0_command)
+        if return_code_basemash0 == 0:
+            print(f'Process ({basemeshvoxelizer0_command}) executed successfully.')
+        else:
+            print(f'Error: The process ({basemeshvoxelizer0_command}) returned a non-zero exit code ({return_code_basemash0}).')
 
     ##### Make ini config file for tree exe.
     #clear_all_sections(tree_ini_path)
@@ -300,19 +301,21 @@ def tree_instances_generation(config_path):
     create_or_update_ini_file(tree_ini_path, section_output, 'Output_Dir', tree_output_base_folder)
     create_or_update_ini_file(tree_ini_path, section_others, 'Lod', tree_lod)
 
-    ##### Run tree exe to generate to tree instances.
     tree_exe_path = f'{tree_exe_folder}\\{tree_exe_name}'
     tree_exe_command = f'{tree_exe_path} {tree_ini_path}'
-    return_code_tree = launch_process(tree_exe_command)
-    if return_code_tree == 0:
-        print(f'Process ({tree_exe_command}) executed successfully.')
-    else:
-        print(f'Error: The process ({tree_exe_command}) returned a non-zero exit code ({return_code_tree}).')
+    if run_make_tree_instances:
+        ##### Run tree exe to generate to tree instances.
+        return_code_tree = launch_process(tree_exe_command)
+        if return_code_tree == 0:
+            print(f'Process ({tree_exe_command}) executed successfully.')
+        else:
+            print(f'Error: The process ({tree_exe_command}) returned a non-zero exit code ({return_code_tree}).')
 
     ##### Update the tree instance files of tree entity.
     workflow_api = workflow_lambda.workflow_lambda_host()
     tree_instance_output_folder = f'{tree_output_base_folder}\\{tiles_count}_{tiles_x}_{tiles_y}\\instanceoutput'
-    update_attach_files_for_entity(api, project_id, tree_entity_id, tree_instance_output_folder, f'instances_lod8_{tiles_count}_{tiles_x}_{tiles_y}-{version}', version=version, color=True)
+    if run_upload_tree_instances:
+        update_attach_files_for_entity(api, project_id, tree_entity_id, tree_instance_output_folder, f'instances_lod8_{tiles_count}_{tiles_x}_{tiles_y}-{version}', version=version, color=True)
     return
 
 params = sys.argv[1:]
