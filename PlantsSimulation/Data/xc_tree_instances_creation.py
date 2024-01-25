@@ -244,6 +244,7 @@ def tree_instances_generation(config_path):
     level1_heightmap_path = f'{smoothlayer_output_folder}\\{level1_heightmap_name}'
     level1_heightmap_mask_path = f'{smoothlayer_output_folder}\\{level1_heightmap_mask_name}'
 
+    api = voxelfarmclient.rest('http://52.226.195.5/')
     ##### Download BaseMeshes(version) assets from Cloud!
     basemeshes_asset_download_parent_folder = f'{qtree_assets_folder}\\BaseMeshes_Versions'
     basemeshes_asset_download_folder = f'{basemeshes_asset_download_parent_folder}\\{basemeshes_entity_id}'
@@ -308,7 +309,6 @@ def tree_instances_generation(config_path):
         print(f'Error: The process ({tree_exe_command}) returned a non-zero exit code ({return_code_tree}).')
 
     ##### Update the tree instance files of tree entity.
-    api = voxelfarmclient.rest('http://52.226.195.5/')
     workflow_api = workflow_lambda.workflow_lambda_host()
     tree_instance_output_folder = f'{tree_output_parent_folder}\\{tiles_count}_{tiles_x}_{tiles_y}\\instanceoutput'
     update_attach_files_for_entity(api, project_id, tree_entity_id, tree_instance_output_folder, f'instances_lod8_{tiles_count}_{tiles_x}_{tiles_y}-{version}', version=version, color=True)
