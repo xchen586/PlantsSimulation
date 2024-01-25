@@ -196,8 +196,9 @@ def tree_instances_generation(config_path):
     tree_exe_name = read_ini_value(config_path, section_input, 'tree_exe_name')
     qtree_assets_folder = read_ini_value(config_path, section_input, 'qtree_assets_folder')
 
-    basemeshes_db_folder = read_ini_value(config_path, section_output, 'basemeshes_db_folder')
-    basemeshes_cache_folder = read_ini_value(config_path, section_output, 'basemeshes_cache_folder')
+    basemeshes_db_base_folder = read_ini_value(config_path, section_output, 'basemeshes_db_base_folder')
+    basemeshes_cache_base_folder = read_ini_value(config_path, section_output, 'basemeshes_cache_base_folder')
+    tree_output_base_folder = read_ini_value(config_path, section_output, 'tree_output_base_folder')
 
     basemeshes_debug_level = read_ini_value(config_path, section_others, 'basemeshes_debug_level', value_type=int)
     tree_lod = read_ini_value(config_path, section_others, 'tree_lod', value_type=int)
@@ -213,7 +214,6 @@ def tree_instances_generation(config_path):
     tree_ini_folder = 'D:\\Downloads\\PlantsSimulation'
     tree_ini_name = 'TreesInstancesAbsolutePathWin.ini'
     tree_ini_path = f'{tree_ini_folder}\\{tree_ini_name}'
-    tree_output_parent_folder = 'D:\\Downloads\\PlantsSimulation\\output'
     basemeshes_assets_folder = qtree_assets_folder
 
     most_travelled_points_name = 'Most Travelled Points.csv'
@@ -244,7 +244,7 @@ def tree_instances_generation(config_path):
     level1_heightmap_path = f'{smoothlayer_output_folder}\\{level1_heightmap_name}'
     level1_heightmap_mask_path = f'{smoothlayer_output_folder}\\{level1_heightmap_mask_name}'
 
-    api = voxelfarmclient.rest('http://52.226.195.5/')
+    api = voxelfarmclient.rest(cloud_url)
     ##### Download BaseMeshes(version) assets from Cloud!
     basemeshes_asset_download_parent_folder = f'{qtree_assets_folder}\\BaseMeshes_Versions'
     basemeshes_asset_download_folder = f'{basemeshes_asset_download_parent_folder}\\{basemeshes_entity_id}'
@@ -260,7 +260,7 @@ def tree_instances_generation(config_path):
 
     basemeshes_exe_path = f'{basemeshes_exe_folder}\\{basemeshes_exe_name}' 
     ##### Generate the height map from level 1 of BaseMeshes.  
-    basemeshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_folder} {basemeshes_cache_folder} {basemeshes_debug_level}'
+    basemeshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_debug_level}'
     return_code_basemash1 = launch_process(basemeshvoxelizer1_command)
     if return_code_basemash1 == 0:
         print(f'Process ({basemeshvoxelizer1_command}) executed successfully.')
@@ -268,7 +268,7 @@ def tree_instances_generation(config_path):
         print(f'Error: The process ({basemeshvoxelizer1_command}) returned a non-zero exit code ({return_code_basemash1}).')
 
     ##### Generate the height map from level 0 of BaseMeshes.  
-    basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_folder} {basemeshes_cache_folder} {basemeshes_debug_level}'
+    basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_debug_level}'
     return_code_basemash0 = launch_process(basemeshvoxelizer0_command)
     if return_code_basemash0 == 0:
         print(f'Process ({basemeshvoxelizer0_command}) executed successfully.')
@@ -296,7 +296,7 @@ def tree_instances_generation(config_path):
     create_or_update_ini_file(tree_ini_path, section_input, 'Most_Travelled_Points', most_travelled_points_path)
     create_or_update_ini_file(tree_ini_path, section_input, 'Most_Distant_Points', most_distant_points_path)
 
-    create_or_update_ini_file(tree_ini_path, section_output, 'Output_Dir', tree_output_parent_folder)
+    create_or_update_ini_file(tree_ini_path, section_output, 'Output_Dir', tree_output_base_folder)
     create_or_update_ini_file(tree_ini_path, section_others, 'Lod', tree_lod)
 
     ##### Run tree exe to generate to tree instances.
@@ -310,7 +310,7 @@ def tree_instances_generation(config_path):
 
     ##### Update the tree instance files of tree entity.
     workflow_api = workflow_lambda.workflow_lambda_host()
-    tree_instance_output_folder = f'{tree_output_parent_folder}\\{tiles_count}_{tiles_x}_{tiles_y}\\instanceoutput'
+    tree_instance_output_folder = f'{tree_output_base_folder}\\{tiles_count}_{tiles_x}_{tiles_y}\\instanceoutput'
     update_attach_files_for_entity(api, project_id, tree_entity_id, tree_instance_output_folder, f'instances_lod8_{tiles_count}_{tiles_x}_{tiles_y}-{version}', version=version, color=True)
     return
 
