@@ -168,6 +168,7 @@ def tree_instances_generation(config_path):
     section_output = 'Output'
     section_run = 'Run'
     section_others = 'Others'
+    section_road = 'Road'
     
     cloud_url = read_ini_value(config_path, section_main, 'cloud_url')
     project_id = read_ini_value(config_path, section_main, 'project_id')
@@ -182,6 +183,9 @@ def tree_instances_generation(config_path):
     tiles_x = read_ini_value(config_path, section_tiles, 'tiles_x', value_type=int)
     tiles_y = read_ini_value(config_path, section_tiles, 'tiles_y', value_type=int)
 
+    road_exe_folder = read_ini_value(config_path, section_input, 'road_exe_folder')
+    road_exe_name = read_ini_value(config_path, section_input, 'road_exe_name')
+    road_input_folder = read_ini_value(config_path, section_input, 'road_input_folder')
     basemeshes_exe_folder = read_ini_value(config_path, section_input, 'basemeshes_exe_folder')
     basemeshes_exe_name = read_ini_value(config_path, section_input, 'basemeshes_exe_name')
     worldgen_exe_folder = read_ini_value(config_path, section_input, 'worldgen_exe_folder')
@@ -197,14 +201,18 @@ def tree_instances_generation(config_path):
     basemeshes_heightmap_folder = read_ini_value(config_path, section_output, 'basemeshes_heightmap_folder')
     tree_output_base_folder = read_ini_value(config_path, section_output, 'tree_output_base_folder')
 
-    basemeshes_debug_level = read_ini_value(config_path, section_others, 'basemeshes_debug_level', value_type=int)
-    tree_lod = read_ini_value(config_path, section_others, 'tree_lod', value_type=int)
-
     run_update_basemeshes_assets = read_ini_value(config_path, section_run, 'run_update_basemeshes_assets', value_type=bool)
+    run_road_exe = read_ini_value(config_path, section_run, 'run_road_exe', value_type=bool)
     run_worldgen_road = read_ini_value(config_path, section_run, 'run_worldgen_road', value_type=bool)
     run_make_basemeshes = read_ini_value(config_path, section_run, 'run_make_basemeshes', value_type=bool)
     run_make_tree_instances = read_ini_value(config_path, section_run, 'run_make_tree_instances', value_type=bool)
     run_upload_tree_instances = read_ini_value(config_path, section_run, 'run_upload_tree_instances', value_type=bool)
+
+    road_Heightmap_width = read_ini_value(config_path, section_road, 'road_Heightmap_width', value_type=int)
+    road_heightmap_height = read_ini_value(config_path, section_road, 'road_heightmap_height', value_type=int)
+
+    basemeshes_debug_level = read_ini_value(config_path, section_others, 'basemeshes_debug_level', value_type=int)
+    tree_lod = read_ini_value(config_path, section_others, 'tree_lod', value_type=int)
 
     basemeshes_level0 = 0
     basemeshes_level1 = 1
@@ -258,6 +266,17 @@ def tree_instances_generation(config_path):
         ##### Copy BaseMeshes(version) assets to BaseMeshes asset folder!
         copy_files(basemeshes_asset_download_folder, qtree_assets_folder)
    
+    road_exe_path = f'{road_exe_folder}\\{road_exe_name}'
+    dont_run_road_game = 1
+    road_exe_command = f'{road_exe_path} {tiles_count} {tiles_x} {tiles_y} {road_Heightmap_width} {road_heightmap_height} {road_input_folder} {road_output_folder} {dont_run_road_game}'
+    if run_road_exe:
+        ##### Generate the road obj and image for smooth layer. 
+        return_code_road = launch_process(road_exe_command)
+        if return_code_road == 0:
+            print(f'Process ({road_exe_command}) executed successfully.')
+        else:
+            print(f'Error: The process ({road_exe_command}) returned a non-zero exit code ({run_road_exe}).')
+
     worldgen_exe_path = f'{worldgen_exe_folder}\\{worldgen_exe_name}' 
     worldgen_level = 5
     worldgen_command =  f'{worldgen_exe_path} {tiles_count} {tiles_x} {tiles_y} {worldgen_level} {qtree_assets_folder} {smoothlayer_output_base_folder}'
@@ -328,7 +347,7 @@ def tree_instances_generation(config_path):
     return
 
 params = sys.argv[1:]
-configfile_path = params[0]
-#configfile_path = 'D:\\xWork\\VoxelFarm\\PlantsSimulation\\PlantsSimulation\\Data\\TreeInstancesCreationConfig.ini'
+#configfile_path = params[0]
+configfile_path = 'D:\\xWork\\VoxelFarm\\PlantsSimulation\\PlantsSimulation\\Data\\TreeInstancesCreationConfig.ini'
 print(f'Tree instance generation config file : {configfile_path}')
 tree_instances_generation(configfile_path)
