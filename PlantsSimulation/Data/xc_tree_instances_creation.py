@@ -1,6 +1,7 @@
 import os
 from os import path
 import sys
+import time
 
 import shutil
 import subprocess
@@ -279,7 +280,7 @@ def tree_instances_generation(config_path):
 
     worldgen_exe_path = f'{worldgen_exe_folder}\\{worldgen_exe_name}' 
     worldgen_level = 5
-    worldgen_command =  f'{worldgen_exe_path} {tiles_count} {tiles_x} {tiles_y} {worldgen_level} {qtree_assets_folder} {smoothlayer_output_base_folder}'
+    worldgen_command =  f'{worldgen_exe_path} {tiles_count} {tiles_x} {tiles_y} {worldgen_level} {qtree_assets_folder} {smoothlayer_output_base_folder} {road_output_folder}'
     if run_worldgen_road:
         ##### Generate the height map and image for smooth layer. 
         return_code_worldgen_road = launch_process(worldgen_command)
@@ -346,8 +347,26 @@ def tree_instances_generation(config_path):
         update_attach_files_for_entity(api, project_id, tree_entity_id, tree_instance_output_folder, f'instances_lod8_{tiles_count}_{tiles_x}_{tiles_y}-{version}', version=version, color=True)
     return
 
+start_time = time.time()
+
 params = sys.argv[1:]
-#configfile_path = params[0]
 configfile_path = 'D:\\xWork\\VoxelFarm\\PlantsSimulation\\PlantsSimulation\\Data\\TreeInstancesCreationConfig.ini'
+configfile_path = params[0]
 print(f'Tree instance generation config file : {configfile_path}')
 tree_instances_generation(configfile_path)
+
+end_time = time.time()
+
+execution_time_seconds = end_time - start_time
+
+# Convert seconds to days, hours, minutes, seconds, and milliseconds
+milliseconds = int(execution_time_seconds * 1000)
+seconds, milliseconds = divmod(milliseconds, 1000)
+minutes, seconds = divmod(seconds, 60)
+hours, minutes = divmod(minutes, 60)
+days, hours = divmod(hours, 24)
+
+# Format the execution time
+formatted_time = "{:02}:{:02}:{:02}:{:02}:{:03}".format(days, hours, minutes, seconds, milliseconds)
+
+print("Whole Execution time :", formatted_time)
