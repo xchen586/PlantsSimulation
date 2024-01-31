@@ -150,7 +150,6 @@ def update_attach_files_for_entity(api : voxelfarmclient.rest, project_id, entit
     file_paths = [os.path.join(folder_path, file_name) for file_name in file_names]    
     print(file_paths)
 
-    
     print(f'Attaching file {file_paths} to entity {entity_id}')
     for file_path in file_paths:
         with open(file_path, "rb") as file:
@@ -184,15 +183,11 @@ def tree_instances_generation(config_path):
     tiles_x = read_ini_value(config_path, section_tiles, 'tiles_x', value_type=int)
     tiles_y = read_ini_value(config_path, section_tiles, 'tiles_y', value_type=int)
 
-    road_exe_folder = read_ini_value(config_path, section_input, 'road_exe_folder')
-    road_exe_name = read_ini_value(config_path, section_input, 'road_exe_name')
     road_input_folder = read_ini_value(config_path, section_input, 'road_input_folder')
-    basemeshes_exe_folder = read_ini_value(config_path, section_input, 'basemeshes_exe_folder')
-    basemeshes_exe_name = read_ini_value(config_path, section_input, 'basemeshes_exe_name')
-    worldgen_exe_folder = read_ini_value(config_path, section_input, 'worldgen_exe_folder')
-    worldgen_exe_name = read_ini_value(config_path, section_input, 'worldgen_exe_name')
-    tree_exe_folder = read_ini_value(config_path, section_input, 'tree_exe_folder')
-    tree_exe_name = read_ini_value(config_path, section_input, 'tree_exe_name')
+    road_exe_path = read_ini_value(config_path, section_input, 'road_exe_path')
+    worldgen_exe_path = read_ini_value(config_path, section_input, 'worldgen_exe_path')
+    basemeshes_exe_path = read_ini_value(config_path, section_input, 'basemeshes_exe_path')
+    tree_exe_path = read_ini_value(config_path, section_input, 'tree_exe_path')
     qtree_assets_folder = read_ini_value(config_path, section_input, 'qtree_assets_folder')
 
     road_output_folder = read_ini_value(config_path, section_output, 'road_output_folder')
@@ -267,7 +262,6 @@ def tree_instances_generation(config_path):
         ##### Copy BaseMeshes(version) assets to BaseMeshes asset folder!
         copy_files(basemeshes_asset_download_folder, qtree_assets_folder)
    
-    road_exe_path = f'{road_exe_folder}\\{road_exe_name}'
     dont_run_road_game = 1
     road_exe_command = f'{road_exe_path} {tiles_count} {tiles_x} {tiles_y} {road_Heightmap_width} {road_heightmap_height} {road_input_folder} {road_output_folder} {dont_run_road_game}'
     if run_road_exe:
@@ -277,8 +271,7 @@ def tree_instances_generation(config_path):
             print(f'Process ({road_exe_command}) executed successfully.')
         else:
             print(f'Error: The process ({road_exe_command}) returned a non-zero exit code ({run_road_exe}).')
-
-    worldgen_exe_path = f'{worldgen_exe_folder}\\{worldgen_exe_name}' 
+    
     worldgen_level = 5
     worldgen_command =  f'{worldgen_exe_path} {tiles_count} {tiles_x} {tiles_y} {worldgen_level} {qtree_assets_folder} {smoothlayer_output_base_folder} {road_output_folder}'
     if run_worldgen_road:
@@ -289,7 +282,6 @@ def tree_instances_generation(config_path):
         else:
             print(f'Error: The process ({worldgen_command}) returned a non-zero exit code ({return_code_worldgen_road}).')
     
-    basemeshes_exe_path = f'{basemeshes_exe_folder}\\{basemeshes_exe_name}' 
     basemeshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_debug_level} {basemeshes_heightmap_folder}'
     basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_debug_level} {basemeshes_heightmap_folder}'
     if run_make_basemeshes:
@@ -330,7 +322,6 @@ def tree_instances_generation(config_path):
     create_or_update_ini_file(tree_ini_path, section_output, 'Output_Dir', tree_output_base_folder)
     create_or_update_ini_file(tree_ini_path, section_others, 'Lod', tree_lod)
 
-    tree_exe_path = f'{tree_exe_folder}\\{tree_exe_name}'
     tree_exe_command = f'{tree_exe_path} {tree_ini_path}'
     if run_make_tree_instances:
         ##### Run tree exe to generate to tree instances.
