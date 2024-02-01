@@ -372,11 +372,11 @@ def tree_config_creation(ini_path):
     create_or_update_ini_file(ini_path, section_output, 'tree_output_base_folder', tree_output_base_folder)
 
     create_or_update_ini_file(ini_path, section_run, 'run_update_basemeshes_assets', True)
-    create_or_update_ini_file(ini_path, section_run, 'run_update_basemeshes_assets', True)
-    create_or_update_ini_file(ini_path, section_run, 'run_update_basemeshes_assets', True)
-    create_or_update_ini_file(ini_path, section_run, 'run_update_basemeshes_assets', True)
-    create_or_update_ini_file(ini_path, section_run, 'run_update_basemeshes_assets', True)
-    create_or_update_ini_file(ini_path, section_run, 'run_update_basemeshes_assets', False)
+    create_or_update_ini_file(ini_path, section_run, 'run_road_exe', True)
+    create_or_update_ini_file(ini_path, section_run, 'run_worldgen_road', True)
+    create_or_update_ini_file(ini_path, section_run, 'run_make_basemeshes', True)
+    create_or_update_ini_file(ini_path, section_run, 'run_make_tree_instances', True)
+    create_or_update_ini_file(ini_path, section_run, 'run_upload_tree_instances', False)
 
     create_or_update_ini_file(ini_path, section_road, 'road_Heightmap_width', 300)
     create_or_update_ini_file(ini_path, section_road, 'road_heightmap_height', 300)
