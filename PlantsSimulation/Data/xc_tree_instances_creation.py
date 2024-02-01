@@ -339,7 +339,7 @@ def tree_config_creation(ini_path):
     tree_exe_path = f'{Tools_folder}\PlantsSimulation.exe'
     qtree_assets_folder = Data_folder
 
-    road_output_folder =f'{Data_folder}\\\RoadObjInfo'
+    road_output_folder =f'{Data_folder}\\RoadObjInfo'
     smoothlayer_output_base_folder = f'{Data_folder}\\sommothlayer_output'
     basemeshes_db_base_folder =f'{Data_folder}\\db'
     basemeshes_cache_base_folder = f'{Data_folder}\\cache'
@@ -398,8 +398,8 @@ section_run = 'Run'
 section_others = 'Others'
 section_road = 'Road'
 
-Data_folder = 'D:\Downloads\TreeCreation'
-Tools_folder = 'D:\Downloads\TreeCreation'
+Data_folder = 'D:\Dowloads\TreeCreation'
+Tools_folder = 'D:\Dowloads\TreeCreation\Tools'
 Cloud_url = 'http://52.226.195.5/'
 Project_id = '1D4CBBD1D957477E8CC3FF376FB87470'
 Folder_id = '90F6348AD5D94FCEA85C7C1CD081CE97' 

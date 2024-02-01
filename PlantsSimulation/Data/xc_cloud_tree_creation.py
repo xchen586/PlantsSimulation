@@ -339,7 +339,7 @@ def tree_config_creation(ini_path):
     tree_exe_path = f'{Tools_folder}\PlantsSimulation.exe'
     qtree_assets_folder = Data_folder
 
-    road_output_folder =f'{Data_folder}\\\RoadObjInfo'
+    road_output_folder =f'{Data_folder}\\RoadObjInfo'
     smoothlayer_output_base_folder = f'{Data_folder}\\sommothlayer_output'
     basemeshes_db_base_folder =f'{Data_folder}\\db'
     basemeshes_cache_base_folder = f'{Data_folder}\\cache'
@@ -398,9 +398,35 @@ section_run = 'Run'
 section_others = 'Others'
 section_road = 'Road'
 
-Data_folder = 'D:\Downloads\TreeCreation'
-Tools_folder = 'D:\Downloads\TreeCreation'
-Cloud_url = 'http://52.226.195.5/'
+
+lambda_host = process_lambda.process_lambda_host()
+lambda_host.progress(0, 'Starting Lambda...')
+scrap_folder= lambda_host.get_scrap_folder()
+lambda_host.log(f'scrap_folder: {scrap_folder}')
+print(f'scrap_folder: {scrap_folder}')
+tools = lambda_host.get_tools_folder()
+lambda_host.log(f'system tools: {tools}\n')
+print(f'system tools: {tools}\n')
+project_id = lambda_host.input_string('project_id', 'Project Id', '')
+print(f'project_id: {project_id}\n')
+entity_id = lambda_host.input_string('entity_id', 'Entity Id', '')
+print(f'entity_id: {entity_id}\n')
+output_id = lambda_host.input_string('output_id', 'Output Id', '')
+print(f'output_id: {output_id}\n')
+tile_size = lambda_host.input_string('tile_size', 'Tile Size', '')
+print(f'tile_size: {tile_size}\n')
+tile_x = lambda_host.input_string('tile_x', 'Tile X', '')
+print(f'tile_x: {tile_x}\n')
+tile_y = lambda_host.input_string('tile_y', 'Tile Y', '')
+print(f'tile_y: {tile_y}\n')
+level = lambda_host.input_string('level', 'Level', '')
+print(f'level: {level}\n')
+entity_folder = lambda_host.get_entity_folder()
+print(f'entity_folder: {entity_folder}\n')
+
+Data_folder = 'c:\data\scrap\TreeCreation'
+Tools_folder = 'c:\data\scrap\TreeCreation\Tools'
+Cloud_url = 'http://localhost/'
 Project_id = '1D4CBBD1D957477E8CC3FF376FB87470'
 Folder_id = '90F6348AD5D94FCEA85C7C1CD081CE97' 
 #tree_entity_id = E0070AD37D4543FCB9E70D60AE47541D
@@ -414,8 +440,8 @@ configfile_path = f'{Data_folder}\\TreeInstancesCreationConfig.ini'
 #configfile_path = params[0]
 print(f'Tree instance generation config file : {configfile_path}')
 
-tree_config_creation(configfile_path)
-tree_instances_generation(configfile_path)
+#tree_config_creation(configfile_path)
+#tree_instances_generation(configfile_path)
 
 end_time = time.time()
 
