@@ -161,14 +161,6 @@ def tree_instances_generation(config_path):
     if not os.path.exists(config_path):
         print(f'Config File {config_path} does not exist')
         return
-
-    section_main = 'Main'
-    section_tiles = 'Tiles'
-    section_input = 'Input'
-    section_output = 'Output'
-    section_run = 'Run'
-    section_others = 'Others'
-    section_road = 'Road'
     
     cloud_url = read_ini_value(config_path, section_main, 'cloud_url')
     project_id = read_ini_value(config_path, section_main, 'project_id')
@@ -338,12 +330,90 @@ def tree_instances_generation(config_path):
         update_attach_files_for_entity(api, project_id, tree_entity_id, tree_instance_output_folder, f'instances_lod8_{tiles_count}_{tiles_x}_{tiles_y}-{version}', version=version, color=True)
     return
 
+def tree_config_creation(ini_path):
+    road_input_folder = f'{Data_folder}\\RoadRawInit'
+    road_exe_path = f'{Tools_folder}\\NPCTest2.exe'
+    basemeshes_exe_path = f'{Tools_folder}\\BaseMeshVoxelizer.exe'
+    worldgen_exe_path = f'{Tools_folder}\\WorldGen.exe'
+    tree_exe_path = f'{Tools_folder}\PlantsSimulation.exe'
+    qtree_assets_folder = Data_folder
+
+    road_output_folder =f'{Data_folder}\\\RoadObjInfo'
+    smoothlayer_output_base_folder = f'{Data_folder}\\sommothlayer_output'
+    basemeshes_db_base_folder =f'{Data_folder}\\db'
+    basemeshes_cache_base_folder = f'{Data_folder}\\cache'
+    basemeshes_heightmap_folder = f'{Data_folder}\\heightmap'
+    tree_output_base_folder = f'{Data_folder}\\tree_output'
+
+    create_or_overwrite_empty_file(ini_path)
+
+    create_or_update_ini_file(ini_path, section_main, 'cloud_url', Cloud_url)
+    create_or_update_ini_file(ini_path, section_main, 'project_id', Project_id)
+    create_or_update_ini_file(ini_path, section_main, 'folder_id', Folder_id)
+    create_or_update_ini_file(ini_path, section_main, 'tree_entity_id', Tree_entity_id)
+    create_or_update_ini_file(ini_path, section_main, 'basemeshes_entity_id', Basemeshes_entity_id)
+
+    create_or_update_ini_file(ini_path, section_tiles, 'tiles_count', Tiles_size)
+    create_or_update_ini_file(ini_path, section_tiles, 'tiles_x', Tiles_x)
+    create_or_update_ini_file(ini_path, section_tiles, 'tiles_y', Tiles_y)
+
+    create_or_update_ini_file(ini_path, section_input, 'road_input_folder', road_input_folder)
+    create_or_update_ini_file(ini_path, section_input, 'road_exe_path', road_exe_path)
+    create_or_update_ini_file(ini_path, section_input, 'basemeshes_exe_path', basemeshes_exe_path)
+    create_or_update_ini_file(ini_path, section_input, 'worldgen_exe_path', worldgen_exe_path)
+    create_or_update_ini_file(ini_path, section_input, 'tree_exe_path', tree_exe_path)
+    create_or_update_ini_file(ini_path, section_input, 'qtree_assets_folder', qtree_assets_folder)
+
+    create_or_update_ini_file(ini_path, section_output, 'road_output_folder', road_output_folder)
+    create_or_update_ini_file(ini_path, section_output, 'smoothlayer_output_base_folder', smoothlayer_output_base_folder)
+    create_or_update_ini_file(ini_path, section_output, 'basemeshes_db_base_folder', basemeshes_db_base_folder)
+    create_or_update_ini_file(ini_path, section_output, 'basemeshes_cache_base_folder', basemeshes_cache_base_folder)
+    create_or_update_ini_file(ini_path, section_output, 'basemeshes_heightmap_folder', basemeshes_heightmap_folder)
+    create_or_update_ini_file(ini_path, section_output, 'tree_output_base_folder', tree_output_base_folder)
+
+    create_or_update_ini_file(ini_path, section_run, 'run_update_basemeshes_assets', True)
+    create_or_update_ini_file(ini_path, section_run, 'run_update_basemeshes_assets', True)
+    create_or_update_ini_file(ini_path, section_run, 'run_update_basemeshes_assets', True)
+    create_or_update_ini_file(ini_path, section_run, 'run_update_basemeshes_assets', True)
+    create_or_update_ini_file(ini_path, section_run, 'run_update_basemeshes_assets', True)
+    create_or_update_ini_file(ini_path, section_run, 'run_update_basemeshes_assets', False)
+
+    create_or_update_ini_file(ini_path, section_road, 'road_Heightmap_width', 300)
+    create_or_update_ini_file(ini_path, section_road, 'road_heightmap_height', 300)
+
+    create_or_update_ini_file(ini_path, section_others, 'basemeshes_debug_level', Basemeshes_debug_level)
+    create_or_update_ini_file(ini_path, section_others, 'tree_lod', 8)
+    return
+
 start_time = time.time()
 
 params = sys.argv[1:]
-configfile_path = 'D:\\xWork\\VoxelFarm\\PlantsSimulation\\PlantsSimulation\\Data\\TreeInstancesCreationConfig.ini'
-configfile_path = params[0]
+
+section_main = 'Main'
+section_tiles = 'Tiles'
+section_input = 'Input'
+section_output = 'Output'
+section_run = 'Run'
+section_others = 'Others'
+section_road = 'Road'
+
+Data_folder = 'D:\Downloads\TreeCreation'
+Tools_folder = 'D:\Downloads\TreeCreation'
+Cloud_url = 'http://52.226.195.5/'
+Project_id = '1D4CBBD1D957477E8CC3FF376FB87470'
+Folder_id = '90F6348AD5D94FCEA85C7C1CD081CE97' 
+#tree_entity_id = E0070AD37D4543FCB9E70D60AE47541D
+Tree_entity_id = '3A3CFEBA226B4692A8719C78335470DD'  
+Basemeshes_entity_id = '4A59F80631E745E39557D23CED145732'
+Tiles_size = 10
+Tiles_x = 8
+Tiles_y = 5
+Basemeshes_debug_level = 6
+configfile_path = f'{Data_folder}\\TreeInstancesCreationConfig.ini'
+#configfile_path = params[0]
 print(f'Tree instance generation config file : {configfile_path}')
+
+tree_config_creation(configfile_path)
 tree_instances_generation(configfile_path)
 
 end_time = time.time()
