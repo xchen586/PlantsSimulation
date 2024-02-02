@@ -1,6 +1,14 @@
 from voxelfarm import workflow_lambda
 from voxelfarm import voxelfarmclient
 
+
+def road_data_on_receive_data(
+        vf_api : voxelfarmclient.rest, 
+        request : workflow_lambda.request, 
+        lambda_host : workflow_lambda.workflow_lambda_host):
+    lambda_host.log('Received road data')
+    return {'success': True, 'complete': True, 'error_info': 'None'}
+
 def base_meshes_on_receive_data(
         vf_api : voxelfarmclient.rest, 
         request : workflow_lambda.request, 
@@ -22,11 +30,11 @@ def quadtree_on_receive_data(
     lambda_host.log('Received quadtree')
     return {'success': True, 'complete': True, 'error_info': 'None'}
 
-def world_generation_on_receive_data(
+def tree_generation_on_receive_data(
         vf : voxelfarmclient.rest, 
         request : workflow_lambda.request, 
         lambda_host : workflow_lambda.workflow_lambda_host):
-    lambda_host.log('Received world generation data')
+    lambda_host.log('Received tree generation data')
     request.properties['my_property'] = 'my_value'
 
     result = lambda_host.process_lambda_entity(
@@ -36,13 +44,13 @@ def world_generation_on_receive_data(
             'project_id': request.project_id,
             'msg': 'Hello world'
         },
-        code='lambda-process.py',
-        files=['lambdas/lambda-process.py'],
+        code='xc_cloud_tree_creation.py',
+        files=['xc_cloud_tree_creation.py'],
         update_type='msg')
 
     return {'success': True, 'complete': False, 'error_info': ''}
 
-def world_generation_on_stage_complete(
+def tree_generation_on_stage_complete(
         vf_api : voxelfarmclient.rest,
         request : workflow_lambda.request,
         lambda_host : workflow_lambda.workflow_lambda_host):
@@ -50,7 +58,7 @@ def world_generation_on_stage_complete(
     update_type = request.update_type
     lambda_host.log(f'update_type: {update_type}')
     if update_type == 'msg':
-        lambda_host.log('World generation stage complete')
+        lambda_host.log('Tree generation stage complete')
         return {'success': True, 'complete': True, 'error_info': 'None'}
 
     return {'success': True, 'complete': False, 'error_info': 'None'}
@@ -62,13 +70,21 @@ lambda_host.set_workflow_definition(
         'name': 'Pangea Next',
         'icon': 'mesh',
         'description': 'Pangea workflow',
-        'tracks': [
+        'tracks': 
+        [
             {
                 'id': 'ASSETS',
                 'name': 'Assets',
                 'description': 'The assets to be used in generation',
                 'icon': 'mesh',
                 'tracks': [
+                    {
+                        'id': 'ROAD_DATA',
+                        'name': 'Road Data',
+                        'description': 'A Input data for generate road',
+                        'icon': 'mesh',
+                        'on_receive_data': road_data_on_receive_data,
+                    },
                     {
                         'id': 'BASE_MESHES',
                         'name': 'Base Meshes',
@@ -93,12 +109,12 @@ lambda_host.set_workflow_definition(
                 ]
             },
             {
-                'id': 'WORLD_GENERATION',
-                'name': 'World Generation',
-                'description': 'The generation of the world',
+                'id': 'TREE_GENERATION',
+                'name': 'Tree Generation',
+                'description': 'The generation of the tree',
                 'icon': 'mesh',
-                'on_receive_data': world_generation_on_receive_data,
-                'on_stage_done': world_generation_on_stage_complete,
+                'on_receive_data': tree_generation_on_receive_data,
+                'on_stage_done': tree_generation_on_stage_complete,
             }
         ],
     }
