@@ -127,7 +127,7 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <Optimization>Disabled</Optimization>
+      <Optimization>MaxSpeed</Optimization>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -136,8 +136,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(TargetPath)" "D:\Downloads\TreeCreation"
-copy "$(TargetPath)" "D:\Downloads\TreeCreation_bak"</Command>
+      <Command>copy "$(TargetPath)" "D:\Downloads\TreeCreation\Tools"
+copy "$(TargetPath)" "D:\Downloads\TreeCreation_bak\Tools"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
