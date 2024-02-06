@@ -30,6 +30,13 @@ def quadtree_on_receive_data(
     lambda_host.log('Received quadtree')
     return {'success': True, 'complete': True, 'error_info': 'None'}
 
+def tools_on_receive_data(
+        vf_api : voxelfarmclient.rest, 
+        request : workflow_lambda.request, 
+        lambda_host : workflow_lambda.workflow_lambda_host):
+    lambda_host.log('Received quadtree')
+    return {'success': True, 'complete': True, 'error_info': 'None'}
+
 def tree_generation_on_receive_data(
         vf : voxelfarmclient.rest, 
         request : workflow_lambda.request, 
@@ -66,10 +73,10 @@ def tree_generation_on_stage_complete(
 lambda_host = workflow_lambda.workflow_lambda_host()
 lambda_host.set_workflow_definition(
     {
-        'id': 'PANGEA',
-        'name': 'Pangea Next',
+        'id': 'PANGEA_Tree',
+        'name': 'Pangea Next Tree',
         'icon': 'mesh',
-        'description': 'Pangea workflow',
+        'description': 'Pangea Tree workflow',
         'tracks': 
         [
             {
@@ -106,6 +113,14 @@ lambda_host.set_workflow_definition(
                         'icon': 'mesh',
                         'on_receive_data': quadtree_on_receive_data,
                     },
+                    {
+                        'id': 'TOOLS',
+                        'name': 'Tools',
+                        'description': 'The collection of tools for tree creation',
+                        'icon': 'mesh',
+                        'on_receive_data': tools_on_receive_data,
+                    },
+                    
                 ]
             },
             {
