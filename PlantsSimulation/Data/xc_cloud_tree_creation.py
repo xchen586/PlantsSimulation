@@ -372,12 +372,12 @@ def tree_config_creation(ini_path):
     create_or_update_ini_file(ini_path, section_output, 'basemeshes_heightmap_folder', basemeshes_heightmap_folder)
     create_or_update_ini_file(ini_path, section_output, 'tree_output_base_folder', tree_output_base_folder)
 
-    create_or_update_ini_file(ini_path, section_run, 'run_update_basemeshes_assets', True)
+    create_or_update_ini_file(ini_path, section_run, 'run_update_basemeshes_assets', False)
     create_or_update_ini_file(ini_path, section_run, 'run_road_exe', True)
     create_or_update_ini_file(ini_path, section_run, 'run_worldgen_road', True)
     create_or_update_ini_file(ini_path, section_run, 'run_make_basemeshes', True)
     create_or_update_ini_file(ini_path, section_run, 'run_make_tree_instances', True)
-    create_or_update_ini_file(ini_path, section_run, 'run_upload_tree_instances', False)
+    create_or_update_ini_file(ini_path, section_run, 'run_upload_tree_instances', True)
 
     create_or_update_ini_file(ini_path, section_road, 'road_Heightmap_width', 300)
     create_or_update_ini_file(ini_path, section_road, 'road_heightmap_height', 300)
@@ -398,8 +398,9 @@ section_run = 'Run'
 section_others = 'Others'
 section_road = 'Road'
 
-
+request = workflow_lambda.request()
 lambda_host = process_lambda.process_lambda_host()
+
 lambda_host.progress(0, 'Starting Lambda...')
 scrap_folder= lambda_host.get_scrap_folder()
 lambda_host.log(f'scrap_folder: {scrap_folder}')
@@ -424,24 +425,44 @@ print(f'level: {level}\n')
 entity_folder = lambda_host.get_entity_folder()
 print(f'entity_folder: {entity_folder}\n')
 
-Data_folder = 'c:\data\scrap\TreeCreation'
-Tools_folder = 'c:\data\scrap\TreeCreation\Tools'
+
+roaddata_active_version_property = request.get_product_property('ROAD_DATA', 'property')
+basemeshes_active_version_property = request.get_product_property('BASE_MESHES', 'property')
+displacement_active_version_property = request.get_product_property('DISPLACEMENT_MAPS', 'property')
+qtree_active_version_property = request.get_product_property('QUADTREE', 'property')
+tools_active_version_property = request.get_product_property('TOOLS', 'property')
+
+roaddata_data_path = lambda_host.download_entity_files(roaddata_active_version_property)
+basemeshes_data_path = lambda_host.download_entity_files(basemeshes_active_version_property)
+displacement_data_path = lambda_host.download_entity_files(displacement_active_version_property)
+qtree_data_path = lambda_host.download_entity_files(qtree_active_version_property)
+tools_data_path = lambda_host.download_entity_files(tools_active_version_property)
+
+Data_folder = os.path.join(scrap_folder, f'Tree_Instances_Creation')
+Tools_folder = os.path.join(Data_folder, tools)
+
+copy_files(roaddata_data_path, Data_folder)
+copy_files(basemeshes_data_path, Data_folder)
+copy_files(displacement_data_path, Data_folder)
+copy_files(qtree_data_path, Data_folder)
+copy_files(tools_data_path, Tools_folder)
+
 Cloud_url = 'http://localhost/'
 Project_id = '1D4CBBD1D957477E8CC3FF376FB87470'
 Folder_id = '90F6348AD5D94FCEA85C7C1CD081CE97' 
 #tree_entity_id = E0070AD37D4543FCB9E70D60AE47541D
 Tree_entity_id = '3A3CFEBA226B4692A8719C78335470DD'  
 Basemeshes_entity_id = '4A59F80631E745E39557D23CED145732'
-Tiles_size = 10
-Tiles_x = 8
-Tiles_y = 5
+Tiles_size = tile_size
+Tiles_x = tile_x
+Tiles_y = tile_y
 Basemeshes_debug_level = 6
 configfile_path = f'{Data_folder}\\TreeInstancesCreationConfig.ini'
 #configfile_path = params[0]
 print(f'Tree instance generation config file : {configfile_path}')
 
-#tree_config_creation(configfile_path)
-#tree_instances_generation(configfile_path)
+tree_config_creation(configfile_path)
+tree_instances_generation(configfile_path)
 
 end_time = time.time()
 

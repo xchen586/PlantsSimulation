@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 
 print('Publishing Tree Workflow Code')
 
-project_id = '6AD1C8742B0C414E835C14F1F5573A2F'
+project_id = '0B0B6CCD4F56423C8196B7E9EA690E97'
 workflow_path = 'D:\\xWork\\VoxelFarm\\PlantsSimulation\\PlantsSimulation\\Data\\WorkFlow'
 workflow_code = 'workflow-tree.py'
 #vf_api = 'http://52.226.195.5/'
