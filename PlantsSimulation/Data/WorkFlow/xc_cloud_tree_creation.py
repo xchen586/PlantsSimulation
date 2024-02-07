@@ -407,24 +407,24 @@ scrap_folder= lambda_host.get_scrap_folder()
 lambda_host.log(f'scrap_folder: {scrap_folder}')
 print(f'scrap_folder: {scrap_folder}')
 tools = lambda_host.get_tools_folder()
-lambda_host.log(f'system tools: {tools}\n')
+lambda_host.log(f'system tools: {tools}')
 print(f'system tools: {tools}\n')
 project_id = lambda_host.input_string('project_id', 'Project Id', '')
-lambda_host.log(f'project_id: {project_id}\n')
+lambda_host.log(f'project_id: {project_id}')
 entity_id = lambda_host.input_string('entity_id', 'Entity Id', '')
-lambda_host.log(f'entity_id: {entity_id}\n')
+lambda_host.log(f'entity_id: {entity_id}')
 output_id = lambda_host.input_string('output_id', 'Output Id', '')
-lambda_host.log(f'output_id: {output_id}\n')
+lambda_host.log(f'output_id: {output_id}')
 tile_size = lambda_host.input_string('tile_size', 'Tile Size', '')
-lambda_host.log(f'tile_size: {tile_size}\n')
+lambda_host.log(f'tile_size: {tile_size}')
 tile_x = lambda_host.input_string('tile_x', 'Tile X', '')
-lambda_host.log(f'tile_x: {tile_x}\n')
+lambda_host.log(f'tile_x: {tile_x}')
 tile_y = lambda_host.input_string('tile_y', 'Tile Y', '')
-lambda_host.log(f'tile_y: {tile_y}\n')
+lambda_host.log(f'tile_y: {tile_y}')
 level = lambda_host.input_string('level', 'Level', '')
-lambda_host.log(f'level: {level}\n')
+lambda_host.log(f'level: {level}')
 entity_folder = lambda_host.get_entity_folder()
-lambda_host.log(f'entity_folder: {entity_folder}\n')
+lambda_host.log(f'entity_folder: {entity_folder}')
 
 roaddata_active_version_property = lambda_host.input_string('roaddata_active_version_property', 'roaddata_active_version_property', '')
 basemeshes_active_version_property = lambda_host.input_string('basemeshes_active_version_property', 'basemeshes_active_version_property', '')
@@ -452,8 +452,13 @@ lambda_host.log('tools_data_path: ' + tools_data_path)
 
 Data_folder = os.path.join(scrap_folder, f'Tree_Instances_Creation')
 lambda_host.log(f'Data_folder: {Data_folder}')
-Tools_folder = os.path.join(Data_folder, tools)
+if not os.path.exists(Data_folder):
+    os.makedirs(Data_folder)
+#Tools_folder = os.path.join(Data_folder, 'Tools')
+Tools_folder = f'{Data_folder}\\Tools'
 lambda_host.log(f'Tools_folder: {Tools_folder}')
+if not os.path.exists(Tools_folder):
+    os.makedirs(Tools_folder)
 
 copy_files(roaddata_data_path, Data_folder)
 copy_files(basemeshes_data_path, Data_folder)
@@ -467,9 +472,12 @@ Folder_id = '90F6348AD5D94FCEA85C7C1CD081CE97'
 #tree_entity_id = E0070AD37D4543FCB9E70D60AE47541D
 Tree_entity_id = '3A3CFEBA226B4692A8719C78335470DD'  
 Basemeshes_entity_id = '4A59F80631E745E39557D23CED145732'
-Tiles_size = tile_size
-Tiles_x = tile_x
-Tiles_y = tile_y
+Tiles_size = tile_size if tile_size else 10
+Tiles_x = tile_x if tile_x else 8
+Tiles_y = tile_y if tile_y else 5
+lambda_host.log(f'Tiles_size: {Tiles_size}')
+lambda_host.log(f'Tiles_x: {Tiles_x}')
+lambda_host.log(f'Tiles_y: {Tiles_y}')
 Basemeshes_debug_level = 6
 configfile_path = f'{Data_folder}\\TreeInstancesCreationConfig.ini'
 #configfile_path = params[0]
