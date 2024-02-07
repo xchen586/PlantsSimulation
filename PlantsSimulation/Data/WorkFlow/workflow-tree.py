@@ -3,38 +3,138 @@ from voxelfarm import voxelfarmclient
 
 
 def road_data_on_receive_data(
-        vf_api : voxelfarmclient.rest, 
+        vf : voxelfarmclient.rest, 
         request : workflow_lambda.request, 
         lambda_host : workflow_lambda.workflow_lambda_host):
     lambda_host.log('Received road data')
+
+    entity_id = request.raw_entity_id
+    project_id = request.project_id
+    folder_id = request.version_folder_id
+
+    lambda_host.log('Updating raw entity...') 
+    result = vf.update_entity(
+        id= entity_id,
+        project=project_id, 
+        fields={
+            'file_type' : vf.entity_type.RawMesh,
+            'name' : 'Input files', 
+            'file_folder' : folder_id
+        })
+    if not result.success:
+        return {'success': False, 'error_info': result.error_info}
+    
+    # Save the entity ID that has the input files in the request properties
+    request.properties['raw_data'] = result.id
+
     return {'success': True, 'complete': True, 'error_info': 'None'}
 
 def base_meshes_on_receive_data(
-        vf_api : voxelfarmclient.rest, 
+        vf : voxelfarmclient.rest, 
         request : workflow_lambda.request, 
         lambda_host : workflow_lambda.workflow_lambda_host):
     lambda_host.log('Received base meshes')
+
+    entity_id = request.raw_entity_id
+    project_id = request.project_id
+    folder_id = request.version_folder_id
+
+    lambda_host.log('Updating raw entity...') 
+    result = vf.update_entity(
+        id= entity_id,
+        project=project_id, 
+        fields={
+            'file_type' : vf.entity_type.RawMesh,
+            'name' : 'Input files', 
+            'file_folder' : folder_id
+        })
+    if not result.success:
+        return {'success': False, 'error_info': result.error_info}
+    
+    # Save the entity ID that has the input files in the request properties
+    request.properties['raw_data'] = result.id
+
     return {'success': True, 'complete': True, 'error_info': 'None'}
 
 def displacement_maps_on_receive_data(
-        vf_api : voxelfarmclient.rest, 
+        vf : voxelfarmclient.rest, 
         request : workflow_lambda.request, 
         lambda_host : workflow_lambda.workflow_lambda_host):
     lambda_host.log('Received displacement maps')
+
+    entity_id = request.raw_entity_id
+    project_id = request.project_id
+    folder_id = request.version_folder_id
+
+    lambda_host.log('Updating raw entity...') 
+    result = vf.update_entity(
+        id= entity_id,
+        project=project_id, 
+        fields={
+            'file_type' : vf.entity_type.RawMesh,
+            'name' : 'Input files', 
+            'file_folder' : folder_id
+        })
+    if not result.success:
+        return {'success': False, 'error_info': result.error_info}
+    
+    # Save the entity ID that has the input files in the request properties
+    request.properties['raw_data'] = result.id
+
     return {'success': True, 'complete': True, 'error_info': 'None'}
 
 def quadtree_on_receive_data(
-        vf_api : voxelfarmclient.rest, 
+        vf : voxelfarmclient.rest, 
         request : workflow_lambda.request, 
         lambda_host : workflow_lambda.workflow_lambda_host):
     lambda_host.log('Received quadtree')
+
+    entity_id = request.raw_entity_id
+    project_id = request.project_id
+    folder_id = request.version_folder_id
+
+    lambda_host.log('Updating raw entity...') 
+    result = vf.update_entity(
+        id= entity_id,
+        project=project_id, 
+        fields={
+            'file_type' : vf.entity_type.RawMesh,
+            'name' : 'Input files', 
+            'file_folder' : folder_id
+        })
+    if not result.success:
+        return {'success': False, 'error_info': result.error_info}
+    
+    # Save the entity ID that has the input files in the request properties
+    request.properties['raw_data'] = result.id
+    
     return {'success': True, 'complete': True, 'error_info': 'None'}
 
 def tools_on_receive_data(
-        vf_api : voxelfarmclient.rest, 
+        vf : voxelfarmclient.rest, 
         request : workflow_lambda.request, 
         lambda_host : workflow_lambda.workflow_lambda_host):
     lambda_host.log('Received quadtree')
+
+    entity_id = request.raw_entity_id
+    project_id = request.project_id
+    folder_id = request.version_folder_id
+
+    lambda_host.log('Updating raw entity...') 
+    result = vf.update_entity(
+        id= entity_id,
+        project=project_id, 
+        fields={
+            'file_type' : vf.entity_type.RawMesh,
+            'name' : 'Input files', 
+            'file_folder' : folder_id
+        })
+    if not result.success:
+        return {'success': False, 'error_info': result.error_info}
+    
+    # Save the entity ID that has the input files in the request properties
+    request.properties['raw_data'] = result.id
+
     return {'success': True, 'complete': True, 'error_info': 'None'}
 
 def tree_generation_on_receive_data(
@@ -44,12 +144,22 @@ def tree_generation_on_receive_data(
     lambda_host.log('Received tree generation data')
     request.properties['my_property'] = 'my_value'
 
+    roaddata_active_version_property = request.get_product_property('ROAD_DATA', 'raw_data')
+    basemeshes_active_version_property = request.get_product_property('BASE_MESHES', 'raw_data')
+    displacement_active_version_property = request.get_product_property('DISPLACEMENT_MAPS', 'raw_data')
+    qtree_active_version_property = request.get_product_property('QUADTREE', 'raw_data')
+    tools_active_version_property = request.get_product_property('TOOLS', 'raw_data')
+
     result = lambda_host.process_lambda_entity(
         workflow_request=request,
         name="Lambda",
         inputs={
             'project_id': request.project_id,
-            'msg': 'Hello world'
+            'roaddata_active_version_property': roaddata_active_version_property,
+            'basemeshes_active_version_property': basemeshes_active_version_property,
+            'displacement_active_version_property': displacement_active_version_property,
+            'qtree_active_version_property': qtree_active_version_property,
+            'tools_active_version_property': tools_active_version_property,
         },
         code='xc_cloud_tree_creation.py',
         files=['xc_cloud_tree_creation.py'],
@@ -86,25 +196,11 @@ lambda_host.set_workflow_definition(
                 'icon': 'mesh',
                 'tracks': [
                     {
-                        'id': 'ROAD_DATA',
-                        'name': 'Road Data',
-                        'description': 'A Input data for generate road',
+                        'id': 'TOOLS',
+                        'name': 'Tools',
+                        'description': 'The collection of tools for tree creation',
                         'icon': 'mesh',
-                        'on_receive_data': road_data_on_receive_data,
-                    },
-                    {
-                        'id': 'BASE_MESHES',
-                        'name': 'Base Meshes',
-                        'description': 'A collection of OBJ meshes',
-                        'icon': 'mesh',
-                        'on_receive_data': base_meshes_on_receive_data,
-                    },
-                    {
-                        'id': 'DISPLACEMENT_MAPS',
-                        'name': 'Displacement Maps',
-                        'description': 'A collection of PNG heightmaps',
-                        'icon': 'mesh',
-                        'on_receive_data': displacement_maps_on_receive_data,
+                        'on_receive_data': tools_on_receive_data,
                     },
                     {
                         'id': 'QUADTREE',
@@ -114,13 +210,26 @@ lambda_host.set_workflow_definition(
                         'on_receive_data': quadtree_on_receive_data,
                     },
                     {
-                        'id': 'TOOLS',
-                        'name': 'Tools',
-                        'description': 'The collection of tools for tree creation',
+                        'id': 'ROAD_DATA',
+                        'name': 'Road Data',
+                        'description': 'A Input data for generate road',
                         'icon': 'mesh',
-                        'on_receive_data': tools_on_receive_data,
+                        'on_receive_data': road_data_on_receive_data,
                     },
-                    
+                    {
+                        'id': 'DISPLACEMENT_MAPS',
+                        'name': 'Displacement Maps',
+                        'description': 'A collection of PNG heightmaps',
+                        'icon': 'mesh',
+                        'on_receive_data': displacement_maps_on_receive_data,
+                    },
+                    {
+                        'id': 'BASE_MESHES',
+                        'name': 'Base Meshes',
+                        'description': 'A collection of OBJ meshes',
+                        'icon': 'mesh',
+                        'on_receive_data': base_meshes_on_receive_data,
+                    },
                 ]
             },
             {

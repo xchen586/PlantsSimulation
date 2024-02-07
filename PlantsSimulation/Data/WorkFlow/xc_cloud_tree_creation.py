@@ -332,6 +332,7 @@ def tree_instances_generation(config_path):
 
 def tree_config_creation(ini_path):
     #road_input_folder = f'{Data_folder}\\RoadRawInit'
+    lambda_host.log(f'start to create tree_config_creation : {ini_path}')
     road_input_folder = f'{Data_folder}'
     road_exe_path = f'{Tools_folder}\\NPCTest2.exe'
     basemeshes_exe_path = f'{Tools_folder}\\BaseMeshVoxelizer.exe'
@@ -384,6 +385,7 @@ def tree_config_creation(ini_path):
 
     create_or_update_ini_file(ini_path, section_others, 'basemeshes_debug_level', Basemeshes_debug_level)
     create_or_update_ini_file(ini_path, section_others, 'tree_lod', 8)
+    lambda_host.log(f'end to create tree_config_creation : {ini_path}')
     return
 
 start_time = time.time()
@@ -398,7 +400,6 @@ section_run = 'Run'
 section_others = 'Others'
 section_road = 'Road'
 
-request = workflow_lambda.request()
 lambda_host = process_lambda.process_lambda_host()
 
 lambda_host.progress(0, 'Starting Lambda...')
@@ -409,28 +410,33 @@ tools = lambda_host.get_tools_folder()
 lambda_host.log(f'system tools: {tools}\n')
 print(f'system tools: {tools}\n')
 project_id = lambda_host.input_string('project_id', 'Project Id', '')
-print(f'project_id: {project_id}\n')
+lambda_host.log(f'project_id: {project_id}\n')
 entity_id = lambda_host.input_string('entity_id', 'Entity Id', '')
-print(f'entity_id: {entity_id}\n')
+lambda_host.log(f'entity_id: {entity_id}\n')
 output_id = lambda_host.input_string('output_id', 'Output Id', '')
-print(f'output_id: {output_id}\n')
+lambda_host.log(f'output_id: {output_id}\n')
 tile_size = lambda_host.input_string('tile_size', 'Tile Size', '')
-print(f'tile_size: {tile_size}\n')
+lambda_host.log(f'tile_size: {tile_size}\n')
 tile_x = lambda_host.input_string('tile_x', 'Tile X', '')
-print(f'tile_x: {tile_x}\n')
+lambda_host.log(f'tile_x: {tile_x}\n')
 tile_y = lambda_host.input_string('tile_y', 'Tile Y', '')
-print(f'tile_y: {tile_y}\n')
+lambda_host.log(f'tile_y: {tile_y}\n')
 level = lambda_host.input_string('level', 'Level', '')
-print(f'level: {level}\n')
+lambda_host.log(f'level: {level}\n')
 entity_folder = lambda_host.get_entity_folder()
-print(f'entity_folder: {entity_folder}\n')
+lambda_host.log(f'entity_folder: {entity_folder}\n')
 
+roaddata_active_version_property = lambda_host.input_string('roaddata_active_version_property', 'roaddata_active_version_property', '')
+basemeshes_active_version_property = lambda_host.input_string('basemeshes_active_version_property', 'basemeshes_active_version_property', '')
+displacement_active_version_property = lambda_host.input_string('displacement_active_version_property', 'displacement_active_version_property', '')
+qtree_active_version_property = lambda_host.input_string('qtree_active_version_property', 'qtree_active_version_property', '')
+tools_active_version_property = lambda_host.input_string('tools_active_version_property', 'tools_active_version_property', '')
 
-roaddata_active_version_property = request.get_product_property('ROAD_DATA', 'property')
-basemeshes_active_version_property = request.get_product_property('BASE_MESHES', 'property')
-displacement_active_version_property = request.get_product_property('DISPLACEMENT_MAPS', 'property')
-qtree_active_version_property = request.get_product_property('QUADTREE', 'property')
-tools_active_version_property = request.get_product_property('TOOLS', 'property')
+lambda_host.log('roaddata_active_version_property: ' + roaddata_active_version_property)
+lambda_host.log('basemeshes_active_version_property: ' + basemeshes_active_version_property)
+lambda_host.log('displacement_active_version_property: ' + displacement_active_version_property)
+lambda_host.log('qtree_active_version_property: ' + qtree_active_version_property)
+lambda_host.log('tools_active_version_property: ' + tools_active_version_property)
 
 roaddata_data_path = lambda_host.download_entity_files(roaddata_active_version_property)
 basemeshes_data_path = lambda_host.download_entity_files(basemeshes_active_version_property)
@@ -438,8 +444,16 @@ displacement_data_path = lambda_host.download_entity_files(displacement_active_v
 qtree_data_path = lambda_host.download_entity_files(qtree_active_version_property)
 tools_data_path = lambda_host.download_entity_files(tools_active_version_property)
 
+lambda_host.log('roaddata_data_path: ' + roaddata_data_path)
+lambda_host.log('basemeshes_data_path: ' + basemeshes_data_path)
+lambda_host.log('displacement_data_path: ' + displacement_data_path)
+lambda_host.log('qtree_data_path: ' + qtree_data_path)
+lambda_host.log('tools_data_path: ' + tools_data_path)
+
 Data_folder = os.path.join(scrap_folder, f'Tree_Instances_Creation')
+lambda_host.log(f'Data_folder: {Data_folder}')
 Tools_folder = os.path.join(Data_folder, tools)
+lambda_host.log(f'Tools_folder: {Tools_folder}')
 
 copy_files(roaddata_data_path, Data_folder)
 copy_files(basemeshes_data_path, Data_folder)
@@ -459,9 +473,10 @@ Tiles_y = tile_y
 Basemeshes_debug_level = 6
 configfile_path = f'{Data_folder}\\TreeInstancesCreationConfig.ini'
 #configfile_path = params[0]
+lambda_host.log(f'Tree instance generation configfile_path: {configfile_path}')
 print(f'Tree instance generation config file : {configfile_path}')
 
-tree_config_creation(configfile_path)
+#tree_config_creation(configfile_path)
 tree_instances_generation(configfile_path)
 
 end_time = time.time()
@@ -477,5 +492,5 @@ days, hours = divmod(hours, 24)
 
 # Format the execution time
 formatted_time = "{:02}:{:02}:{:02}:{:02}:{:03}".format(days, hours, minutes, seconds, milliseconds)
-
+lambda_host.log(f'Tree instance generation Whole Execution time : {formatted_time}')
 print("Whole Execution time :", formatted_time)
