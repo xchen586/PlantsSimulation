@@ -484,7 +484,7 @@ configfile_path = f'{Data_folder}\\TreeInstancesCreationConfig.ini'
 lambda_host.log(f'Tree instance generation configfile_path: {configfile_path}')
 print(f'Tree instance generation config file : {configfile_path}')
 
-#tree_config_creation(configfile_path)
+tree_config_creation(configfile_path)
 tree_instances_generation(configfile_path)
 
 end_time = time.time()
