@@ -333,6 +333,7 @@ def tree_instances_generation(config_path):
     lambda_host.log(f'step for to run_road_exe : {road_exe_command}')
     if run_road_exe:
         ##### Generate the road obj and image for smooth layer. 
+        #return_code_road = launch_process(road_exe_command)
         return_code_road = run_tool(road_exe_command, 1, 20)
         if return_code_road == 0:
             lambda_host.log(f'Process ({road_exe_command}) executed successfully.')
@@ -344,6 +345,7 @@ def tree_instances_generation(config_path):
     lambda_host.log(f'step for to run_worldgen_road : {worldgen_command}')
     if run_worldgen_road:
         ##### Generate the height map and image for smooth layer. 
+        #return_code_worldgen_road = launch_process(worldgen_command)
         return_code_worldgen_road = run_tool(worldgen_command, 21, 40)
         if return_code_worldgen_road == 0:
             lambda_host.log(f'Process ({worldgen_command}) executed successfully.')
@@ -356,6 +358,7 @@ def tree_instances_generation(config_path):
     lambda_host.log(f'step for to run_make_basemeshes : {basemeshvoxelizer0_command}')
     if run_make_basemeshes:
         ##### Generate the height map from level 1 of BaseMeshes. 
+        #return_code_basemash1 = launch_process(basemeshvoxelizer1_command)
         return_code_basemash1 = run_tool(basemeshvoxelizer1_command, 41, 60)
         if return_code_basemash1 == 0:
             lambda_host.log(f'Process ({basemeshvoxelizer1_command}) executed successfully.')
@@ -364,6 +367,7 @@ def tree_instances_generation(config_path):
             exit_code(2)
             return -1
         ##### Generate the height map from level 0 of BaseMeshes.  
+        #return_code_basemash0 = launch_process(basemeshvoxelizer0_command)
         return_code_basemash0 = run_tool(basemeshvoxelizer0_command, 61, 80)
         if return_code_basemash0 == 0:
             lambda_host.log(f'Process ({basemeshvoxelizer0_command}) executed successfully.')
@@ -375,6 +379,7 @@ def tree_instances_generation(config_path):
     lambda_host.log(f'step for to run_make_tree_instances : {tree_exe_command}')
     if run_make_tree_instances:
         ##### Run tree exe to generate to tree instances.
+        #return_code_tree = launch_process(tree_exe_command)
         return_code_tree = run_tool(tree_exe_command, 81, 100)
         if return_code_tree == 0:
             lambda_host.log(f'Process ({tree_exe_command}) executed successfully.')
