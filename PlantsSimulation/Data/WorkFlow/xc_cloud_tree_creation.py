@@ -155,13 +155,50 @@ def update_attach_files_for_entity(api : voxelfarmclient.rest, project_id, entit
         with open(file_path, "rb") as file:
             api.attach_files(project=project_id, id=entity_id, files={'file': file})
 
-''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
-def tree_instances_generation(config_path):
+def run_tool(tool_path, progress_start, progress_end):    
     
+    lambda_host.log(f'run tree tool_path:\n{tool_path}')
+    start = progress_start
+    end = progress_end
+    scale = (end - start) / 100
+
+    tool_process = subprocess.Popen(tool_path, stdout=subprocess.PIPE, stderr=None, text=True)
+    while True:
+        realtime_output = tool_process.stdout.readline()
+        if realtime_output:
+            tokens = realtime_output.split()
+            progress = -1
+            if len(tokens) > 2:
+                if tokens[0] == 'progress':
+                    tool_progress = float(tokens[1])
+                    progress = start + tool_progress * scale
+                    message = ""
+                    for token in tokens[2:]:                   
+                        message += token + " "
+                    lambda_host.progress(progress, message)
+            if progress == -1:
+                lambda_host.log(realtime_output.replace('\n', ''))
+        else: 
+            poll = tool_process.poll() 
+            if poll is not None:
+                break
+    return tool_process.returncode 
+
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+def exit_code(code):
+    lambda_host.set_exit_code(code)
+
+def tree_instances_generation(config_path):
+    lambda_host.log(f'start for step tree_instances_generation')
+
     if not os.path.exists(config_path):
         print(f'Config File {config_path} does not exist')
-        return
+        lambda_host.log(f'Config File {config_path} does not exist')
+        return -1
     
+    lambda_host.log(f'Start to read value from {config_path}')
+
     cloud_url = read_ini_value(config_path, section_main, 'cloud_url')
     project_id = read_ini_value(config_path, section_main, 'project_id')
     folder_id = read_ini_value(config_path, section_main, 'folder_id')
@@ -202,6 +239,9 @@ def tree_instances_generation(config_path):
     basemeshes_debug_level = read_ini_value(config_path, section_others, 'basemeshes_debug_level', value_type=int)
     tree_lod = read_ini_value(config_path, section_others, 'tree_lod', value_type=int)
 
+    lambda_host.log(f'End to read value from {config_path}')
+
+    lambda_host.log(f'Start to prepare input data parameter for TreesInstancesAbsolutePathWin.ini')
     basemeshes_level0 = 0
     basemeshes_level1 = 1
     version = 80
@@ -239,65 +279,29 @@ def tree_instances_generation(config_path):
     level1_heightmap_path = f'{smoothlayer_output_folder}\\{level1_heightmap_name}'
     level1_heightmap_mask_path = f'{smoothlayer_output_folder}\\{level1_heightmap_mask_name}'
 
+    lambda_host.log(f'End to to prepare input data parameter for TreesInstancesAbsolutePathWin.ini')
+
+    lambda_host.log(f'Start to prepare command line for programs')
+
     api = voxelfarmclient.rest(cloud_url)
-    
     basemeshes_asset_download_parent_folder = f'{qtree_assets_folder}\\BaseMeshes_Versions'
     basemeshes_asset_download_folder = f'{basemeshes_asset_download_parent_folder}\\{basemeshes_entity_id}'
-    if run_update_basemeshes_assets:
-        ##### Download BaseMeshes(version) assets from Cloud!
-        file_list = api.get_file_list(project_id, basemeshes_entity_id)
-        for index, file_name in enumerate(file_list):
-            print(f"Index: {index}, File Path: {file_name}")
-            file_data = api.get_file(project_id, basemeshes_entity_id, file_name)
-            file_path = f'{basemeshes_asset_download_folder}\\{file_name}'
-            save_data_to_file(file_data, file_path)
-        ##### Copy BaseMeshes(version) assets to BaseMeshes asset folder!
-        copy_files(basemeshes_asset_download_folder, qtree_assets_folder)
-   
     dont_run_road_game = 1
     road_exe_command = f'{road_exe_path} {tiles_count} {tiles_x} {tiles_y} {road_Heightmap_width} {road_heightmap_height} {road_input_folder} {road_output_folder} {dont_run_road_game}'
-    if run_road_exe:
-        ##### Generate the road obj and image for smooth layer. 
-        return_code_road = launch_process(road_exe_command)
-        if return_code_road == 0:
-            print(f'Process ({road_exe_command}) executed successfully.')
-        else:
-            print(f'Error: The process ({road_exe_command}) returned a non-zero exit code ({run_road_exe}).')
-    
     worldgen_level = 5
     worldgen_command =  f'{worldgen_exe_path} {tiles_count} {tiles_x} {tiles_y} {worldgen_level} {qtree_assets_folder} {smoothlayer_output_base_folder} {road_output_folder}'
-    if run_worldgen_road:
-        ##### Generate the height map and image for smooth layer. 
-        return_code_worldgen_road = launch_process(worldgen_command)
-        if return_code_worldgen_road == 0:
-            print(f'Process ({worldgen_command}) executed successfully.')
-        else:
-            print(f'Error: The process ({worldgen_command}) returned a non-zero exit code ({return_code_worldgen_road}).')
-    
     basemeshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_debug_level} {basemeshes_heightmap_folder}'
     basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_debug_level} {basemeshes_heightmap_folder}'
-    if run_make_basemeshes:
-        ##### Generate the height map from level 1 of BaseMeshes. 
-        return_code_basemash1 = launch_process(basemeshvoxelizer1_command)
-        if return_code_basemash1 == 0:
-            print(f'Process ({basemeshvoxelizer1_command}) executed successfully.')
-        else:
-            print(f'Error: The process ({basemeshvoxelizer1_command}) returned a non-zero exit code ({return_code_basemash1}).')
-        ##### Generate the height map from level 0 of BaseMeshes.  
-        return_code_basemash0 = launch_process(basemeshvoxelizer0_command)
-        if return_code_basemash0 == 0:
-            print(f'Process ({basemeshvoxelizer0_command}) executed successfully.')
-        else:
-            print(f'Error: The process ({basemeshvoxelizer0_command}) returned a non-zero exit code ({return_code_basemash0}).')
+    tree_exe_command = f'{tree_exe_path} {tree_ini_path}'
 
+    lambda_host.log(f'End to prepare command line for programs')
     ##### Make ini config file for tree exe.
     #clear_all_sections(tree_ini_path)
+    lambda_host.log(f'Start to write tree instance ini files : {tree_ini_path}')
     create_or_overwrite_empty_file(tree_ini_path)
-
     create_or_update_ini_file(tree_ini_path, section_tiles, 'Tiles_Count', tiles_count)
     create_or_update_ini_file(tree_ini_path, section_tiles, 'Tiles_X_Index', tiles_x)
     create_or_update_ini_file(tree_ini_path, section_tiles, 'Tiles_Y_Index', tiles_y)
-
     create_or_update_ini_file(tree_ini_path, section_input, 'Toplayer_Image', toplayer_image_path)
     create_or_update_ini_file(tree_ini_path, section_input, 'Toplayer_Image_Meta', toplayer_image_meta_path)
     create_or_update_ini_file(tree_ini_path, section_input, 'BaseMeshes_Level_0_HeightMap', basemeshes_0_heightmap_path)
@@ -310,25 +314,85 @@ def tree_instances_generation(config_path):
     create_or_update_ini_file(tree_ini_path, section_input, 'Level1Layer_heightMap_Mask', level1_heightmap_mask_path)
     create_or_update_ini_file(tree_ini_path, section_input, 'Most_Travelled_Points', most_travelled_points_path)
     create_or_update_ini_file(tree_ini_path, section_input, 'Most_Distant_Points', most_distant_points_path)
-
     create_or_update_ini_file(tree_ini_path, section_output, 'Output_Dir', tree_output_base_folder)
     create_or_update_ini_file(tree_ini_path, section_others, 'Lod', tree_lod)
+    lambda_host.log(f'End to write tree instance ini files : {tree_ini_path}')
 
-    tree_exe_command = f'{tree_exe_path} {tree_ini_path}'
+    lambda_host.log(f'step for to run_update_basemeshes_assets')
+    if run_update_basemeshes_assets:
+        ##### Download BaseMeshes(version) assets from Cloud!
+        file_list = api.get_file_list(project_id, basemeshes_entity_id)
+        for index, file_name in enumerate(file_list):
+            lambda_host.log(f"Index: {index}, File Path: {file_name}")
+            file_data = api.get_file(project_id, basemeshes_entity_id, file_name)
+            file_path = f'{basemeshes_asset_download_folder}\\{file_name}'
+            save_data_to_file(file_data, file_path)
+        ##### Copy BaseMeshes(version) assets to BaseMeshes asset folder!
+        copy_files(basemeshes_asset_download_folder, qtree_assets_folder)
+  
+    lambda_host.log(f'step for to run_road_exe : {road_exe_command}')
+    if run_road_exe:
+        ##### Generate the road obj and image for smooth layer. 
+        return_code_road = run_tool(road_exe_command, 1, 20)
+        if return_code_road == 0:
+            lambda_host.log(f'Process ({road_exe_command}) executed successfully.')
+        else:
+            lambda_host.log(f'Error: The process ({road_exe_command}) returned a non-zero exit code ({run_road_exe}).')
+            exit_code(2)
+            return -1
+    
+    lambda_host.log(f'step for to run_worldgen_road : {worldgen_command}')
+    if run_worldgen_road:
+        ##### Generate the height map and image for smooth layer. 
+        return_code_worldgen_road = run_tool(worldgen_command, 21, 40)
+        if return_code_worldgen_road == 0:
+            lambda_host.log(f'Process ({worldgen_command}) executed successfully.')
+        else:
+            lambda_host.log(f'Error: The process ({worldgen_command}) returned a non-zero exit code ({return_code_worldgen_road}).')
+            exit_code(2)
+            return -1
+    
+    lambda_host.log(f'step for to run_make_basemeshes : {basemeshvoxelizer1_command}')
+    lambda_host.log(f'step for to run_make_basemeshes : {basemeshvoxelizer0_command}')
+    if run_make_basemeshes:
+        ##### Generate the height map from level 1 of BaseMeshes. 
+        return_code_basemash1 = run_tool(basemeshvoxelizer1_command, 41, 60)
+        if return_code_basemash1 == 0:
+            lambda_host.log(f'Process ({basemeshvoxelizer1_command}) executed successfully.')
+        else:
+            lambda_host.log(f'Error: The process ({basemeshvoxelizer1_command}) returned a non-zero exit code ({return_code_basemash1}).')
+            exit_code(2)
+            return -1
+        ##### Generate the height map from level 0 of BaseMeshes.  
+        return_code_basemash0 = run_tool(basemeshvoxelizer0_command, 61, 80)
+        if return_code_basemash0 == 0:
+            lambda_host.log(f'Process ({basemeshvoxelizer0_command}) executed successfully.')
+        else:
+            lambda_host.log(f'Error: The process ({basemeshvoxelizer0_command}) returned a non-zero exit code ({return_code_basemash0}).')
+            exit_code(2)
+            return -1
+        
+    lambda_host.log(f'step for to run_make_tree_instances : {tree_exe_command}')
     if run_make_tree_instances:
         ##### Run tree exe to generate to tree instances.
-        return_code_tree = launch_process(tree_exe_command)
+        return_code_tree = run_tool(tree_exe_command, 81, 100)
         if return_code_tree == 0:
-            print(f'Process ({tree_exe_command}) executed successfully.')
+            lambda_host.log(f'Process ({tree_exe_command}) executed successfully.')
         else:
-            print(f'Error: The process ({tree_exe_command}) returned a non-zero exit code ({return_code_tree}).')
+            lambda_host.log(f'Error: The process ({tree_exe_command}) returned a non-zero exit code ({return_code_tree}).')
+            exit_code(2)
+            return -1
 
+    lambda_host.log(f'step for to run_update_basemeshes_assets')
     ##### Update the tree instance files of tree entity.
     workflow_api = workflow_lambda.workflow_lambda_host()
     tree_instance_output_folder = f'{tree_output_base_folder}\\{tiles_count}_{tiles_x}_{tiles_y}\\instanceoutput'
     if run_upload_tree_instances:
         update_attach_files_for_entity(api, project_id, tree_entity_id, tree_instance_output_folder, f'instances_lod8_{tiles_count}_{tiles_x}_{tiles_y}-{version}', version=version, color=True)
-    return
+        lambda_host.log(f'update_attach_files_for_entity for {tree_entity_id}')
+
+    lambda_host.log(f'end for step tree_instances_generation')
+    return 0
 
 def tree_config_creation(ini_path):
     #road_input_folder = f'{Data_folder}\\RoadRawInit'
@@ -460,11 +524,21 @@ lambda_host.log(f'Tools_folder: {Tools_folder}')
 if not os.path.exists(Tools_folder):
     os.makedirs(Tools_folder)
 
+lambda_host.log(f'start to copy from {roaddata_data_path} to {Data_folder}')
 copy_files(roaddata_data_path, Data_folder)
+lambda_host.log(f'end to copy from {roaddata_data_path} to {Data_folder}')
+lambda_host.log(f'start to copy from {basemeshes_data_path} to {Data_folder}')
 copy_files(basemeshes_data_path, Data_folder)
+lambda_host.log(f'end to copy from {basemeshes_data_path} to {Data_folder}')
+lambda_host.log(f'start to copy from {displacement_data_path} to {Data_folder}')
 copy_files(displacement_data_path, Data_folder)
+lambda_host.log(f'end to copy from {displacement_data_path} to {Data_folder}')
+lambda_host.log(f'start to copy from {qtree_data_path} to {Data_folder}')
 copy_files(qtree_data_path, Data_folder)
+lambda_host.log(f'end to copy from {qtree_data_path} to {Data_folder}')
+lambda_host.log(f'start to copy from {tools_data_path} to {Tools_folder}')
 copy_files(tools_data_path, Tools_folder)
+lambda_host.log(f'end to copy from {tools_data_path} to {Tools_folder}')
 
 Cloud_url = 'http://localhost/'
 Project_id = '1D4CBBD1D957477E8CC3FF376FB87470'
@@ -484,21 +558,32 @@ configfile_path = f'{Data_folder}\\TreeInstancesCreationConfig.ini'
 lambda_host.log(f'Tree instance generation configfile_path: {configfile_path}')
 print(f'Tree instance generation config file : {configfile_path}')
 
+run_result = 0
+
+lambda_host.log(f'start tree_config_creation: {configfile_path}')
 tree_config_creation(configfile_path)
-tree_instances_generation(configfile_path)
+lambda_host.log(f'end tree_config_creation: {configfile_path}')
+lambda_host.log(f'start tree_instances_generation: {configfile_path}')
+run_result = tree_instances_generation(configfile_path)
+lambda_host.log(f'end tree_instances_generation: {configfile_path}')
 
 end_time = time.time()
-
 execution_time_seconds = end_time - start_time
-
 # Convert seconds to days, hours, minutes, seconds, and milliseconds
 milliseconds = int(execution_time_seconds * 1000)
 seconds, milliseconds = divmod(milliseconds, 1000)
 minutes, seconds = divmod(seconds, 60)
 hours, minutes = divmod(minutes, 60)
 days, hours = divmod(hours, 24)
-
 # Format the execution time
 formatted_time = "{:02}:{:02}:{:02}:{:02}:{:03}".format(days, hours, minutes, seconds, milliseconds)
 lambda_host.log(f'Tree instance generation Whole Execution time : {formatted_time}')
 print("Whole Execution time :", formatted_time)
+
+if run_result == 0:
+    lambda_host.progress(100, 'QuadTree lambda finished')
+    exit_code(0)
+else:
+    lambda_host.progress(100, 'QuadTree lambda failed')
+
+#exit()
