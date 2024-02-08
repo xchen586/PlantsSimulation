@@ -965,8 +965,8 @@ bool CPlantsSimulation::BuildForest()
 	//float forestAge = 500;
 	//int iteration = 100;
 
-	float forestAge = 250;
-	int iteration = 50;
+	float forestAge = 300;
+	int iteration = 100;
 
 	cout << "Forest Age is : " << forestAge << endl;
 	cout << "Toatal iteration count is : " << iteration << endl;

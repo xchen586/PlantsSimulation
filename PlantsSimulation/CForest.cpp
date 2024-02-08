@@ -368,6 +368,7 @@ void CForest::generate(float forestAge, int iterations)
 		}
 		int currentCount = instanceIndex;
 		cout << "Current iteration : " << iteration << " has current instance count : " << currentCount << endl;
+		cout << "progress " << iteration << " has current instance count : " << currentCount << endl;
 		//Decide the dominated plants.
 		for (int iTree = 0; iTree < currentCount; ++iTree)
 		{
