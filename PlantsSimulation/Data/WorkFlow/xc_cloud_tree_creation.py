@@ -334,7 +334,7 @@ def tree_instances_generation(config_path):
     if run_road_exe:
         ##### Generate the road obj and image for smooth layer. 
         #return_code_road = launch_process(road_exe_command)
-        return_code_road = run_tool(road_exe_command, 1, 20)
+        return_code_road = run_tool(road_exe_command, 21, 40)
         if return_code_road == 0:
             lambda_host.log(f'Process ({road_exe_command}) executed successfully.')
         else:
@@ -346,7 +346,7 @@ def tree_instances_generation(config_path):
     if run_worldgen_road:
         ##### Generate the height map and image for smooth layer. 
         #return_code_worldgen_road = launch_process(worldgen_command)
-        return_code_worldgen_road = run_tool(worldgen_command, 21, 40)
+        return_code_worldgen_road = run_tool(worldgen_command, 41, 60)
         if return_code_worldgen_road == 0:
             lambda_host.log(f'Process ({worldgen_command}) executed successfully.')
         else:
@@ -359,7 +359,7 @@ def tree_instances_generation(config_path):
     if run_make_basemeshes:
         ##### Generate the height map from level 1 of BaseMeshes. 
         #return_code_basemash1 = launch_process(basemeshvoxelizer1_command)
-        return_code_basemash1 = run_tool(basemeshvoxelizer1_command, 41, 60)
+        return_code_basemash1 = run_tool(basemeshvoxelizer1_command, 61, 75)
         if return_code_basemash1 == 0:
             lambda_host.log(f'Process ({basemeshvoxelizer1_command}) executed successfully.')
         else:
@@ -368,7 +368,7 @@ def tree_instances_generation(config_path):
             return -1
         ##### Generate the height map from level 0 of BaseMeshes.  
         #return_code_basemash0 = launch_process(basemeshvoxelizer0_command)
-        return_code_basemash0 = run_tool(basemeshvoxelizer0_command, 61, 80)
+        return_code_basemash0 = run_tool(basemeshvoxelizer0_command, 76, 90)
         if return_code_basemash0 == 0:
             lambda_host.log(f'Process ({basemeshvoxelizer0_command}) executed successfully.')
         else:
@@ -380,7 +380,7 @@ def tree_instances_generation(config_path):
     if run_make_tree_instances:
         ##### Run tree exe to generate to tree instances.
         #return_code_tree = launch_process(tree_exe_command)
-        return_code_tree = run_tool(tree_exe_command, 81, 100)
+        return_code_tree = run_tool(tree_exe_command, 91, 100)
         if return_code_tree == 0:
             lambda_host.log(f'Process ({tree_exe_command}) executed successfully.')
         else:
@@ -507,6 +507,7 @@ lambda_host.log('displacement_active_version_property: ' + displacement_active_v
 lambda_host.log('qtree_active_version_property: ' + qtree_active_version_property)
 lambda_host.log('tools_active_version_property: ' + tools_active_version_property)
 
+lambda_host.progress(1, 'Start to download files')
 roaddata_data_path = lambda_host.download_entity_files(roaddata_active_version_property)
 basemeshes_data_path = lambda_host.download_entity_files(basemeshes_active_version_property)
 displacement_data_path = lambda_host.download_entity_files(displacement_active_version_property)
@@ -529,6 +530,7 @@ lambda_host.log(f'Tools_folder: {Tools_folder}')
 if not os.path.exists(Tools_folder):
     os.makedirs(Tools_folder)
 
+lambda_host.progress(5, 'Start to copy files')
 lambda_host.log(f'start to copy from {roaddata_data_path} to {Data_folder}')
 copy_files(roaddata_data_path, Data_folder)
 lambda_host.log(f'end to copy from {roaddata_data_path} to {Data_folder}')
@@ -538,9 +540,11 @@ lambda_host.log(f'end to copy from {basemeshes_data_path} to {Data_folder}')
 lambda_host.log(f'start to copy from {displacement_data_path} to {Data_folder}')
 copy_files(displacement_data_path, Data_folder)
 lambda_host.log(f'end to copy from {displacement_data_path} to {Data_folder}')
+lambda_host.progress(10, 'Start to copy big files')
 lambda_host.log(f'start to copy from {qtree_data_path} to {Data_folder}')
 copy_files(qtree_data_path, Data_folder)
 lambda_host.log(f'end to copy from {qtree_data_path} to {Data_folder}')
+lambda_host.progress(15, 'Start to download tools files')
 lambda_host.log(f'start to copy from {tools_data_path} to {Tools_folder}')
 copy_files(tools_data_path, Tools_folder)
 lambda_host.log(f'end to copy from {tools_data_path} to {Tools_folder}')
@@ -565,6 +569,7 @@ print(f'Tree instance generation config file : {configfile_path}')
 
 run_result = 0
 
+lambda_host.progress(20, 'Start to config files')
 lambda_host.log(f'start tree_config_creation: {configfile_path}')
 tree_config_creation(configfile_path)
 lambda_host.log(f'end tree_config_creation: {configfile_path}')
