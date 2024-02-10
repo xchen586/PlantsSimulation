@@ -545,11 +545,12 @@ lambda_host.progress(10, 'Start to copy big files')
 lambda_host.log(f'start to copy from {qtree_data_path} to {Data_folder}')
 copy_files(qtree_data_path, Data_folder)
 lambda_host.log(f'end to copy from {qtree_data_path} to {Data_folder}')
-lambda_host.progress(15, 'Start to download tools files')
-lambda_host.log(f'start to copy from {tools_data_path} to {Tools_folder}')
+#lambda_host.progress(15, 'Start to download tools files')
+#lambda_host.log(f'start to copy from {tools_data_path} to {Tools_folder}')
 #copy_files(tools_data_path, Tools_folder)
-lambda_host.log(f'end to copy from {tools_data_path} to {Tools_folder}')
+#lambda_host.log(f'end to copy from {tools_data_path} to {Tools_folder}')
 
+lambda_host.progress(15, 'Start to get input parameters')
 Cloud_url = 'http://localhost/'
 Project_id = '1D4CBBD1D957477E8CC3FF376FB87470'
 Folder_id = '90F6348AD5D94FCEA85C7C1CD081CE97' 
