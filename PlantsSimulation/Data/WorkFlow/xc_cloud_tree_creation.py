@@ -525,7 +525,8 @@ lambda_host.log(f'Data_folder: {Data_folder}')
 if not os.path.exists(Data_folder):
     os.makedirs(Data_folder)
 #Tools_folder = os.path.join(Data_folder, 'Tools')
-Tools_folder = f'{Data_folder}\\Tools'
+#Tools_folder = f'{Data_folder}\\Tools'
+Tools_folder = tools_data_path
 lambda_host.log(f'Tools_folder: {Tools_folder}')
 if not os.path.exists(Tools_folder):
     os.makedirs(Tools_folder)
@@ -546,7 +547,7 @@ copy_files(qtree_data_path, Data_folder)
 lambda_host.log(f'end to copy from {qtree_data_path} to {Data_folder}')
 lambda_host.progress(15, 'Start to download tools files')
 lambda_host.log(f'start to copy from {tools_data_path} to {Tools_folder}')
-copy_files(tools_data_path, Tools_folder)
+#copy_files(tools_data_path, Tools_folder)
 lambda_host.log(f'end to copy from {tools_data_path} to {Tools_folder}')
 
 Cloud_url = 'http://localhost/'
