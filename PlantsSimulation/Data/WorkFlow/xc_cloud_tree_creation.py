@@ -563,7 +563,8 @@ Tiles_y = tile_y if tile_y else 5
 lambda_host.log(f'Tiles_size: {Tiles_size}')
 lambda_host.log(f'Tiles_x: {Tiles_x}')
 lambda_host.log(f'Tiles_y: {Tiles_y}')
-Basemeshes_debug_level = 6
+Basemeshes_debug_level = level if level else 6
+lambda_host.log(f'Basemeshes_debug_level: {Basemeshes_debug_level}')
 configfile_path = f'{Data_folder}\\TreeInstancesCreationConfig.ini'
 #configfile_path = params[0]
 lambda_host.log(f'Tree instance generation configfile_path: {configfile_path}')
