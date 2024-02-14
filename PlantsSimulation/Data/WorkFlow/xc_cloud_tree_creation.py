@@ -155,6 +155,13 @@ def update_attach_files_for_entity(api : voxelfarmclient.rest, project_id, entit
         with open(file_path, "rb") as file:
             api.attach_files(project=project_id, id=entity_id, files={'file': file})
 
+def is_convertible_to_float(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
+    
 def run_tool(tool_path, progress_start, progress_end):    
     
     lambda_host.log(f'run tree tool_path:\n{tool_path}')
@@ -171,7 +178,7 @@ def run_tool(tool_path, progress_start, progress_end):
             if len(tokens) > 2:
                 if tokens[0] == 'progress':
                     progress_string = tokens[1]
-                    tool_progress = progress_string.isdigit() if float(progress_string) else 0
+                    tool_progress = is_convertible_to_float(progress_string) if float(progress_string) else 0
                     progress = start + tool_progress * scale
                     message = ""
                     for token in tokens[2:]:                   
