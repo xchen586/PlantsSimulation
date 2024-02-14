@@ -170,7 +170,8 @@ def run_tool(tool_path, progress_start, progress_end):
             progress = -1
             if len(tokens) > 2:
                 if tokens[0] == 'progress':
-                    tool_progress = float(tokens[1])
+                    progress_string = tokens[1]
+                    tool_progress = progress_string.isdigit() if float(progress_string) else 0
                     progress = start + tool_progress * scale
                     message = ""
                     for token in tokens[2:]:                   
