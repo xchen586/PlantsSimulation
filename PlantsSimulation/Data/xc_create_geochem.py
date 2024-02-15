@@ -20,6 +20,19 @@ from voxelfarm import process_lambda
 
 import pandas as pd
 
+def create_or_overwrite_empty_file(file_path):
+    # Check if the file exists
+    if os.path.exists(file_path):
+        # If the file exists, open it with 'w' mode to overwrite it with an empty file
+        with open(file_path, 'w'):
+            pass  # Using 'pass' as no content needs to be written
+        print(f"File '{file_path}' overwritten as an empty file.")
+    else:
+        # If the file does not exist, create it with 'w' mode
+        with open(file_path, 'w'):
+            pass  # Using 'pass' as no content needs to be written
+        print(f"File '{file_path}' created as an empty file.")
+
 def create_or_update_ini_file(file_path, section, key, value):
     # Check if the INI file exists
     if not os.path.exists(file_path):
@@ -129,7 +142,7 @@ def add_extra_column_to_csv(input_file, output_file, extra_column_name):
     # Assign unique IDs to corresponding rows and update index variables
     def update_id(row):
         nonlocal current_tree_id, current_poi_id
-        instance_type = row['InstanceType']
+        instance_type = row[InstanceType_Attribute]
         if instance_type == TREE_INSTANCE:
             extra_id = current_tree_id
             current_tree_id += 1
@@ -145,9 +158,57 @@ def add_extra_column_to_csv(input_file, output_file, extra_column_name):
     # Write the updated DataFrame to a new CSV file
     merged_df.to_csv(output_file, index=False)
 
+def xc_process_files_entity(api : voxelfarmclient.rest, project_id, folder_id, raw_entity_type, entity_type, folder_path, name : str, version : int, color : bool):
+
+    if not os.path.exists(folder_path):
+        print(f'File {folder_path} does not exist')
+        return
+    
+    # Use the os.listdir() function to get a list of filenames in the folder
+    file_names = os.listdir(folder_path)
+
+    # Create a list of file paths by joining the folder path with each file name
+    file_paths = [os.path.join(folder_path, file_name) for file_name in file_names]    
+    print(file_paths)
+
+    result = api.get_project_crs(project_id)
+    crs = result.crs
+    
+    result = api.create_entity_raw(project=project_id, 
+        type = raw_entity_type,
+        name=f'{name}', 
+        fields={
+            'file_folder': folder_id,
+        }, crs = crs)
+    entity_id = result.id
+    print(f'Attaching file {file_paths} to entity {entity_id}')
+    #api.attach_files(project=project_id, id=entity_id, files={'file': file})
+    for file_path in file_paths:
+        with open(file_path, "rb") as file:
+            api.attach_files(project=project_id, id=entity_id, files={'file': file})
+
+    result = api.create_entity_processed(project=project_id, 
+        type = entity_type,
+        name=f'{name}', 
+        fields={
+            'source': entity_id,
+            'source_type': raw_entity_type,
+            'file_folder': folder_id,
+            #'source_ortho' if color else '_source_ortho': entity_id
+        }, crs = crs)
+    print(f'--------Created entity {result.id} for {name} {version}--------')
+
+
+
+
+    
 csvfiles_folder_path = 'D:\\Downloads\\XCTreeCreation\\tree_output\\10_8_5\\instanceoutput'
-merged_csv_path = 'D:\\Downloads\\XCTreeCreation\\tree_output\\10_8_5\\merged.csv'
-columns_to_merge = ['X', 'Y', 'Z', 'InstanceType', 'Variant']  # Specify the columns you want to merge
+geo_chemical_folder = 'D:\\Downloads\\XCTreeCreation\\tree_output\\10_8_5\\GeoChemical'
+merged_csv_name = 'geo_merged.csv'
+merged_csv_path = os.path.join(geo_chemical_folder, merged_csv_name)
+InstanceType_Attribute = 'InstanceType'
+Variant_Attribute = 'Variant'
+columns_to_merge = ['X', 'Y', 'Z', InstanceType_Attribute, Variant_Attribute]  # Specify the columns you want to merge
 extra_column_name = 'Id'
 
 print('Start to Merge the csv files {csvfiles_folder_path} to {merged_csv_path}')
@@ -156,6 +217,48 @@ print('Start to Add Id field to  the csv file {merged_csv_path}')
 add_extra_column_to_csv(merged_csv_path, merged_csv_path, extra_column_name)
 print('End with raw data file {merged_csv_path}')
 
+geo_meta_name = 'process.meta'
+geo_meta_path = os.path.join(geo_chemical_folder, geo_meta_name)
+section_config = 'Configuration'
 
+print('Start with geochem meta file {geo_meta_path}')
+
+create_or_overwrite_empty_file(geo_meta_path)
+create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile', merged_csv_name)
+create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_ID', 5)
+create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_X', 0)
+create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Y', 1)
+create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Z', 2)
+create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Attribute_Columns', 2)
+create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Attribute_Column0_Index', 3)
+create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Attribute_Column0_Name', InstanceType_Attribute)
+create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Attribute_Column0_Type', 0)
+create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Attribute_Column1_Index', 4)
+create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Attribute_Column1_Name', Variant_Attribute)
+create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Attribute_Column1_Type', 0)
+
+Cloud_url = 'http://52.226.195.5/'
+api = voxelfarmclient.rest(Cloud_url)
+project_id = '1D4CBBD1D957477E8CC3FF376FB87470'
+folder_id = '36F2FD37D03B4DDE8C2151438AA47804'
+Tiles_size = 10
+Tiles_x = 8
+Tiles_y = 5
+
+project_entity = api.get_entity(project_id)
+version = int(project_entity['version']) + 1 if 'version' in project_entity else 1
+api.update_entity(project=project_id, id=project_id, fields={'version': version})
+result = api.create_folder(project=project_id, name=f'Version {version}', folder=folder_id)
+if not result.success:
+    print(f'Failed to create folder for version!')
+    exit(4)
+folder_id = result.id
+print(f'-----------------Successful to create folder {folder_id} for version!-----------------')
+
+print('Start with create geo chem entity')
+
+xc_process_files_entity(api, project_id, folder_id, api.entity_type.RawGeoChem, api.entity_type.GeoChem, geo_chemical_folder, f'GeoChemical_instances_{Tiles_size}_{Tiles_x}_{Tiles_y}-{version}', version=version, color=True)
+
+print('End with create geo chem entity')
 
 
