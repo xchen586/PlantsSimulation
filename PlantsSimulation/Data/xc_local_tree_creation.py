@@ -372,7 +372,7 @@ def tree_config_creation(ini_path):
     create_or_update_ini_file(ini_path, section_output, 'basemeshes_heightmap_folder', basemeshes_heightmap_folder)
     create_or_update_ini_file(ini_path, section_output, 'tree_output_base_folder', tree_output_base_folder)
 
-    create_or_update_ini_file(ini_path, section_run, 'run_update_basemeshes_assets', True)
+    create_or_update_ini_file(ini_path, section_run, 'run_update_basemeshes_assets', False)
     create_or_update_ini_file(ini_path, section_run, 'run_road_exe', True)
     create_or_update_ini_file(ini_path, section_run, 'run_worldgen_road', True)
     create_or_update_ini_file(ini_path, section_run, 'run_make_basemeshes', True)
@@ -398,34 +398,40 @@ section_run = 'Run'
 section_others = 'Others'
 section_road = 'Road'
 
-
-lambda_host = process_lambda.process_lambda_host()
-lambda_host.progress(0, 'Starting Lambda...')
-scrap_folder= lambda_host.get_scrap_folder()
-lambda_host.log(f'scrap_folder: {scrap_folder}')
+scrap_folder= 'D:\\Downloads'
 print(f'scrap_folder: {scrap_folder}')
-tools = lambda_host.get_tools_folder()
-lambda_host.log(f'system tools: {tools}\n')
-print(f'system tools: {tools}\n')
-project_id = lambda_host.input_string('project_id', 'Project Id', '')
-print(f'project_id: {project_id}\n')
-entity_id = lambda_host.input_string('entity_id', 'Entity Id', '')
-print(f'entity_id: {entity_id}\n')
-output_id = lambda_host.input_string('output_id', 'Output Id', '')
-print(f'output_id: {output_id}\n')
-tile_size = lambda_host.input_string('tile_size', 'Tile Size', '')
-print(f'tile_size: {tile_size}\n')
-tile_x = lambda_host.input_string('tile_x', 'Tile X', '')
-print(f'tile_x: {tile_x}\n')
-tile_y = lambda_host.input_string('tile_y', 'Tile Y', '')
-print(f'tile_y: {tile_y}\n')
-level = lambda_host.input_string('level', 'Level', '')
-print(f'level: {level}\n')
-entity_folder = lambda_host.get_entity_folder()
+entity_folder = f'{scrap_folder}\\XCTreeWorkFlow'
 print(f'entity_folder: {entity_folder}\n')
+Data_folder = f'{scrap_folder}\\XCTreeCreation'
+print(f'Data_folder: {Data_folder}\n')
+Tools_folder = f'{entity_folder}\\Tools'
+print(f'Tools_folder: {Tools_folder}\n')
 
-Data_folder = 'D:\\Downloads\\TreeCreation'
-Tools_folder = 'D:\\Downloads\\TreeCreation\Tools'
+roaddata_data_path = f'{entity_folder}\\RoadData'
+basemeshes_data_path = f'{entity_folder}\\BaseMeshes'
+displacement_data_path = f'{entity_folder}\\DisplacementMaps'
+qtree_data_path = f'{entity_folder}\\QTree'
+tools_data_path = Tools_folder
+
+print('roaddata_data_path: ' + roaddata_data_path)
+print('basemeshes_data_path: ' + basemeshes_data_path)
+print('displacement_data_path: ' + displacement_data_path)
+print('qtree_data_path: ' + qtree_data_path)
+print('tools_data_path: ' + tools_data_path)
+
+print(f'start to copy from {roaddata_data_path} to {Data_folder}')
+copy_files(roaddata_data_path, Data_folder)
+print(f'end to copy from {roaddata_data_path} to {Data_folder}')
+print(f'start to copy from {basemeshes_data_path} to {Data_folder}')
+copy_files(basemeshes_data_path, Data_folder)
+print(f'end to copy from {basemeshes_data_path} to {Data_folder}')
+print(f'start to copy from {displacement_data_path} to {Data_folder}')
+copy_files(displacement_data_path, Data_folder)
+print(f'end to copy from {displacement_data_path} to {Data_folder}')
+print(f'start to copy from {qtree_data_path} to {Data_folder}')
+copy_files(qtree_data_path, Data_folder)
+print(f'end to copy from {qtree_data_path} to {Data_folder}')
+
 Cloud_url = 'http://52.226.195.5/'
 Project_id = '1D4CBBD1D957477E8CC3FF376FB87470'
 Folder_id = '90F6348AD5D94FCEA85C7C1CD081CE97' 
@@ -440,8 +446,8 @@ configfile_path = f'{Data_folder}\\TreeInstancesCreationConfig.ini'
 #configfile_path = params[0]
 print(f'Tree instance generation config file : {configfile_path}')
 
-#tree_config_creation(configfile_path)
-#tree_instances_generation(configfile_path)
+tree_config_creation(configfile_path)
+tree_instances_generation(configfile_path)
 
 end_time = time.time()
 
