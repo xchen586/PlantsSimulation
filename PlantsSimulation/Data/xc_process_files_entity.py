@@ -43,7 +43,7 @@ def process_files_entity(api : voxelfarmclient.rest, project_id, folder_id, raw_
         name=f'{name}', 
         fields={
             'source': entity_id,
-            'source_type': 'RAWPC',
+            'source_type': raw_entity_type,
             'file_folder': folder_id,
             #'source_ortho' if color else '_source_ortho': entity_id
         }, crs = crs)
