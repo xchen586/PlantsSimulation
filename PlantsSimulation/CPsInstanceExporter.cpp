@@ -25,9 +25,9 @@ bool OutputCSVFileForSubInstances(const string& filePath, std::shared_ptr<Instan
 		return false;
 	}
 #if !USE_OUTPUT_INSTANCE_IDSTRING
-	outputFile << "X,Y,Z,ScaleX,ScaleY,ScaleZ,RoationX,RotationY,RotaionZ,InstanceType,Variant,Age, xworld, yworld, zworld" << std::endl;
+	outputFile << "X,Y,Z,ScaleX,ScaleY,ScaleZ,RotationX,RotationY,RotaionZ,InstanceType,Variant,Age,XWorld,YWorld,ZWorld" << std::endl;
 #else
-	outputFile << "X,Y,Z,ScaleX,ScaleY,ScaleZ,RoationX,RotationY,RotaionZ,InstanceType,Variant,Age, xworld, yworld, zworld, idString" << std::endl;
+	outputFile << "X,Y,Z,ScaleX,ScaleY,ScaleZ,RotationX,RotationY,RotaionZ,InstanceType,Variant,Age,XWorld,YWorld,ZWorld, idString" << std::endl;
 #endif
 	int fullOutputItemCount = 15;
 
@@ -104,7 +104,7 @@ bool OutputAllInstance(string outputFilePath, const InstanceSubOutputMap& allIns
 		return false;
 	}*/
 
-	outputFile << "xworld, yworld,zworld,ScaleX,ScaleY,ScaleZ,RoationX,RotationY,RotaionZ,InstanceType,Variant,Age, idString" << std::endl;
+	outputFile << "XWorld,YWorld,ZWorld,ScaleX,ScaleY,ScaleZ,RotationX,RotationY,RotaionZ,InstanceType,Variant,Age,idString" << std::endl;
 
 	for (auto pair : allInstances)
 	{
@@ -437,6 +437,17 @@ bool CPsInstanceExporter::loadPointInstanceFromCSV(const string& filePath, const
 
 	file.close();
     return true;
+}
+
+bool CPsInstanceExporter::outputGeoChemCSV(const std::string& outputCsv)
+{
+	if (!m_pFullTreeOutputs)
+	{
+		return false;
+	}
+
+
+	return true;
 }
 
 bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
