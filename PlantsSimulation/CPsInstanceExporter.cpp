@@ -237,6 +237,10 @@ void SetupInstanceSubOutput2(double posX, double posY, double posZ, const CAffin
 	sub->posY = posY;
 	sub->posZ = posZ;
 	
+	sub->vX = vfPosition.X;
+	sub->vY = vfPosition.Y;
+	sub->vZ = vfPosition.Z;
+
 	sub->cellId = VoxelFarm::packCellId(lod, cellX, cellY, cellZ);
 }
 
@@ -322,6 +326,42 @@ std::string GetKeyStringForInstance(const string& outputDir, int intXIdx, int in
 #endif
 	string ret = subFilePath;
 	return ret;
+}
+
+bool CPsInstanceExporter::OutputAllInstanceGeoChem(string outputFilePath, const InstanceSubOutputMap& allInstances)
+{
+	std::ofstream outputFile(outputFilePath);
+	double batch_min_x = m_pMetaInfo->batch_min_x;
+	double batch_min_y = m_pMetaInfo->batch_min_y;
+	double x0 = m_pMetaInfo->x0;
+	double y0 = m_pMetaInfo->y0;
+
+	outputFile << "VX,VY,VZ,InstanceType,Variant" << std::endl;
+
+	for (auto pair : allInstances)
+	{
+		std::shared_ptr<InstanceSubOutputVector> subVector = pair.second;
+		for (const std::shared_ptr<InstanceSubOutput>& sub : *subVector)
+		{
+			if (sub->posZ > 0)
+			{
+				int outputItemCount = sub->outputItemCount;
+				outputFile
+#if 0
+					<< sub->vX << ","
+					<< sub->vY << ","
+					<< sub->vZ << ","
+#endif
+					<< sub->posX << ","
+					<< sub->posY << ","
+					<< sub->posZ << ","
+					<< sub->instanceType << ","
+					<< sub->variant << std::endl;
+			}
+		}
+	}
+	outputFile.close();
+	return true;
 }
 
 bool CPsInstanceExporter::loadPointInstanceFromCSV(const string& filePath, const string& outputSubDir, InstanceSubOutputMap& outputMap, unsigned int variant, CAffineTransform transform, double cellSize, int32_t lod)
@@ -439,17 +479,6 @@ bool CPsInstanceExporter::loadPointInstanceFromCSV(const string& filePath, const
     return true;
 }
 
-bool CPsInstanceExporter::outputGeoChemCSV(const std::string& outputCsv)
-{
-	if (!m_pFullTreeOutputs)
-	{
-		return false;
-	}
-
-
-	return true;
-}
-
 bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 {
 	if (!m_pFullTreeOutputs)
@@ -479,8 +508,6 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 		}, voxelSize, CAffineTransform::eTransformMode::TM_YZ_ROTATE);
 	auto worldOriginVF = transform.WC_TO_VF(CAffineTransform::sAffineVector{ 0.0, 0.0, 0.0 });
 
-	InstanceSubOutputMap outputMap;
-
 	int negativeHeightCount = 0;
 	for (const TreeInstanceFullOutput& instance : (*m_pFullTreeOutputs))
 	{
@@ -501,37 +528,32 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 		sub->MakeIdString();
 
 		string keyString = GetKeyStringForInstance(outputSubsDir, sub->cellXIdx, sub->cellZIdx);
-		InstanceSubOutputMap::iterator iter = outputMap.find(keyString);
-		if (outputMap.end() == iter)
+		InstanceSubOutputMap::iterator iter = m_outputMap.find(keyString);
+		if (m_outputMap.end() == iter)
 		{
-			outputMap[keyString] = std::make_shared<InstanceSubOutputVector>();
+			m_outputMap[keyString] = std::make_shared<InstanceSubOutputVector>();
 		}
 
-		std::shared_ptr<InstanceSubOutputVector> subVector = outputMap[keyString];
+		std::shared_ptr<InstanceSubOutputVector> subVector = m_outputMap[keyString];
 		subVector->push_back(sub);
 	}
 	std::cout << "The trees of negative height count is : " << negativeHeightCount << std::endl;
 	unsigned int mostTravelledVariant = static_cast<unsigned int>(PointType::Point_MostTravelled);
-	bool getMostTravelledPoint = loadPointInstanceFromCSV(m_mostTravelledPointFilePath, outputSubsDir, outputMap, mostTravelledVariant, transform, cellSize, m_lod);
+	bool getMostTravelledPoint = loadPointInstanceFromCSV(m_mostTravelledPointFilePath, outputSubsDir, m_outputMap, mostTravelledVariant, transform, cellSize, m_lod);
 	unsigned int mostDistantVariant = static_cast<unsigned int>(PointType::Point_MostDistant);
-	bool getMostDistantPoint = loadPointInstanceFromCSV(m_mostDistantPointFilePath, outputSubsDir, outputMap, mostDistantVariant, transform, cellSize, m_lod);
+	bool getMostDistantPoint = loadPointInstanceFromCSV(m_mostDistantPointFilePath, outputSubsDir, m_outputMap, mostDistantVariant, transform, cellSize, m_lod);
 
 	std::filesystem::path outputSubsDirPath = outputSubsDir;
 	std::filesystem::path outputDirPath = outputSubsDirPath.parent_path();
 
-	const int MAX_PATH = 250;
-	char allinstances_file[MAX_PATH];
-	memset(allinstances_file, 0, sizeof(char) * MAX_PATH);
-#if __APPLE__
-	snprintf(allinstances_file, MAX_PATH, "%s/%d_%d_%d_allinstances.csv", outputDirPath.c_str(), , m_tiles, m_tileIndexX, m_tileIndexY);
-#else
-	sprintf_s(allinstances_file, MAX_PATH, "%s\\%d_%d_%d_allinstances.csv", outputDirPath.c_str(), m_tiles, m_tileIndexX, m_tileIndexY);
-#endif
-
-	bool outputAll = OutputAllInstance(allinstances_file, outputMap);
+	string geofolder = "GeoChemical";
+	std::string allinstances_file = std::format("{}\\{}_{}_{}_allinstances.csv", outputDirPath.string(), m_tiles, m_tileIndexX, m_tileIndexY);
+	std::string allinstancesGeo_folder = std::format("{}\\{}", outputDirPath.string(), geofolder);
+	std::string allinstancesGeo_Csv = std::format("{}\\{}\\{}_{}_{}_geo_merged.csv", outputDirPath.string(), geofolder, m_tiles, m_tileIndexX, m_tileIndexY);
+	bool outputAll = OutputAllInstance(allinstances_file, m_outputMap);
 
 	std::vector<std::thread> workers;
-	for (const auto& pair : outputMap)
+	for (const auto& pair : m_outputMap)
 	{
 		workers.emplace_back(std::thread(OutputCSVFileForSubInstances, pair.first, pair.second));
 	}
@@ -559,7 +581,18 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 		}
 	}
 
-	return allOk;
+	if (!std::filesystem::exists(allinstancesGeo_folder)) {
+		if (!std::filesystem::create_directory(allinstancesGeo_folder)) {
+			std::cerr << "Failed to create the directory of allinstancesGeo_folder: " << allinstancesGeo_folder << std::endl;
+			return false;
+		}
+	}
+	std::cout << "Start OutputAllInstanceGeoChem : " << allinstancesGeo_Csv << std::endl;
+	bool outputGeo = true;
+	outputGeo = OutputAllInstanceGeoChem(allinstancesGeo_Csv, m_outputMap);
+	std::cout << "Start OutputAllInstanceGeoChem : " << allinstancesGeo_Csv << std::endl;
+
+	return allOk && outputGeo; 
 	/*std::ofstream outputFile(subFilePath);
 	if (!outputFile.is_open()) {
 		std::cerr << "Error: Unable to open the subFilePath file " << subFilePath << std::endl;

@@ -47,13 +47,15 @@ public:
 	}
 	bool loadPointInstanceFromCSV(const string& filePath, const string& outputSubDir, InstanceSubOutputMap& outputMap, unsigned int variant, CAffineTransform transform, double voxelSize, int32_t lod);
 	bool outputSubfiles(const std::string& outputSubsDir);
-	bool outputGeoChemCSV(const std::string& outputCsv);
+	bool OutputAllInstanceGeoChem(string outputFilePath, const InstanceSubOutputMap& allInstances);
+	
 protected:
 	std::vector<std::vector<CCellInfo*>>* m_pCellTable;
 	InputImageMetaInfo* m_pMetaInfo;
 	string m_mostTravelledPointFilePath;
 	string m_mostDistantPointFilePath;
 	vector<TreeInstanceFullOutput> * m_pFullTreeOutputs;
+	InstanceSubOutputMap m_outputMap;
 	int32_t m_lod; 
 	int m_tiles;
 	int m_tileIndexX;
