@@ -20,6 +20,9 @@ struct InstanceSubOutput
 	double posX;
 	double posY;
 	double posZ;
+	double vX;
+	double vY;
+	double vZ;
 	double scaleX;
 	double scaleY;
 	double scaleZ;
@@ -46,6 +49,9 @@ struct InstanceSubOutput
 		, posX(0.0)
 		, posY(0.0)
 		, posZ(0.0)
+		, vX(0.0)
+		, vY(0.0)
+		, vZ(0.0)
 		, scaleX(1.0)
 		, scaleY(1.0)
 		, scaleZ(1.0)

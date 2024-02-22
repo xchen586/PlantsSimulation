@@ -343,7 +343,7 @@ bool CPsInstanceExporter::OutputAllInstanceGeoChem(string outputFilePath, const 
 		std::shared_ptr<InstanceSubOutputVector> subVector = pair.second;
 		for (const std::shared_ptr<InstanceSubOutput>& sub : *subVector)
 		{
-			if (sub->posZ > 0)
+			//if (sub->posZ > 0)
 			{
 				int outputItemCount = sub->outputItemCount;
 				outputFile

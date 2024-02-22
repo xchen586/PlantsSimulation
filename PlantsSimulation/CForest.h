@@ -66,7 +66,7 @@ public:
 	map<string, I2DMask*> masks;
 	map<string, DensityMap*> globalMasks;
 	vector<CTreeInstance> trees;
-	vector<TreeInstanceOutput> outputs;
+	vector<TreeInstanceOutput> treeoutputs;
 	vector<TreeInstanceFullOutput> fullOutputs;
 	
 	int xo;

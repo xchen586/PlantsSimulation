@@ -694,7 +694,7 @@ bool CForest::exportTreeInstanceFullOutput(const std::vector<TreeInstanceFullOut
 
 bool CForest::outputTreeInstanceResults(const std::string& fileName, bool hasHeader)
 {
-	outputs.clear();
+	treeoutputs.clear();
 	map<PlantType, int> plants;
 	for (const CTreeInstance& instance : trees)
 	{
@@ -711,7 +711,7 @@ bool CForest::outputTreeInstanceResults(const std::string& fileName, bool hasHea
 		}
 		TreeInstanceOutput output = TreeInstanceOutput(instance);
 		//TreeInstanceOutput output = GetTreeOutputFromInstance(instance);
-		outputs.push_back(output);
+		treeoutputs.push_back(output);
 	}
 
 	for (map<PlantType, int>::iterator it = plants.begin(); it != plants.end(); ++it)
@@ -721,7 +721,7 @@ bool CForest::outputTreeInstanceResults(const std::string& fileName, bool hasHea
 		cout << typeString << " count are " << count << endl;
 	}
 
-	bool exportCSV = exportTreeInstanceOutput(outputs, fileName, hasHeader);
+	bool exportCSV = exportTreeInstanceOutput(treeoutputs, fileName, hasHeader);
 	return exportCSV;
 }
 
@@ -741,7 +741,7 @@ bool CForest::outputFullTreeInstanceResults(const std::string& fileName, bool ha
 {
 	if ((!m_pCellTable)
 		|| (!m_pMetaInfo)
-		|| (!outputs.size())
+		|| (!treeoutputs.size())
 		)
 	{
 		return false;
@@ -756,7 +756,7 @@ bool CForest::outputFullTreeInstanceResults(const std::string& fileName, bool ha
 	double yRatio = m_pMetaInfo->yRatio;
 	unsigned int index = 0;
 
-	for (const TreeInstanceOutput& tree : outputs)
+	for (const TreeInstanceOutput& tree : treeoutputs)
 	{
 	
 		int rowIdx = static_cast<int>(tree.x / xRatio);
@@ -771,7 +771,12 @@ bool CForest::outputFullTreeInstanceResults(const std::string& fileName, bool ha
 		{
 			index++;
 			TreeInstanceFullOutput output = TreeInstanceFullOutput(tree, pCell, m_pMetaInfo, index);
-			fullOutputs.push_back(output);
+#if USE_OUTPUT_ONLY_POSITIVE_HEIGHT
+			if (output.posZ >= 0)
+#endif
+			{
+				fullOutputs.push_back(output);
+			}
 		}
 		else {
 			std::cout << "Can not find the Cell Data at X : " << tree.x << ", at Y : " << tree.y << ", at rowIdx : " << rowIdx << ", at colIdx : " << colIdx << std::endl;
