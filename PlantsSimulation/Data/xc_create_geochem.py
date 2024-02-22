@@ -200,19 +200,28 @@ def xc_process_files_entity(api : voxelfarmclient.rest, project_id, folder_id, r
 
 
 
-
+Cloud_url = 'http://52.226.195.5/'
+api = voxelfarmclient.rest(Cloud_url)
+project_id = '1D4CBBD1D957477E8CC3FF376FB87470'
+folder_id = '36F2FD37D03B4DDE8C2151438AA47804'
+Tiles_size = 10
+Tiles_x = 8
+Tiles_y = 5
     
 csvfiles_folder_path = 'D:\\Downloads\\XCTreeCreation\\tree_output\\10_8_5\\instanceoutput'
 geo_chemical_folder = 'D:\\Downloads\\XCTreeCreation\\tree_output\\10_8_5\\GeoChemical'
-merged_csv_name = 'geo_merged.csv'
+merged_csv_name = f'{Tiles_size}_{Tiles_x}_{Tiles_y}_geo_merged.csv'
 merged_csv_path = os.path.join(geo_chemical_folder, merged_csv_name)
+X_Attribute = 'XWorld'
+Y_Attribute = 'YWorld'
+Z_Attribute = 'ZWorld'
 InstanceType_Attribute = 'InstanceType'
 Variant_Attribute = 'Variant'
-columns_to_merge = ['X', 'Y', 'Z', InstanceType_Attribute, Variant_Attribute]  # Specify the columns you want to merge
+columns_to_merge = [X_Attribute, Y_Attribute, Z_Attribute, InstanceType_Attribute, Variant_Attribute]  # Specify the columns you want to merge
 extra_column_name = 'Id'
 
-print('Start to Merge the csv files {csvfiles_folder_path} to {merged_csv_path}')
-merge_csv_files(csvfiles_folder_path, merged_csv_path, columns_to_merge)
+#print('Start to Merge the csv files {csvfiles_folder_path} to {merged_csv_path}')
+#merge_csv_files(csvfiles_folder_path, merged_csv_path, columns_to_merge)
 print('Start to Add Id field to  the csv file {merged_csv_path}')
 add_extra_column_to_csv(merged_csv_path, merged_csv_path, extra_column_name)
 print('End with raw data file {merged_csv_path}')
@@ -236,14 +245,6 @@ create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Attribute_C
 create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Attribute_Column1_Index', 4)
 create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Attribute_Column1_Name', Variant_Attribute)
 create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Attribute_Column1_Type', 0)
-
-Cloud_url = 'http://52.226.195.5/'
-api = voxelfarmclient.rest(Cloud_url)
-project_id = '1D4CBBD1D957477E8CC3FF376FB87470'
-folder_id = '36F2FD37D03B4DDE8C2151438AA47804'
-Tiles_size = 10
-Tiles_x = 8
-Tiles_y = 5
 
 project_entity = api.get_entity(project_id)
 version = int(project_entity['version']) + 1 if 'version' in project_entity else 1
