@@ -14,6 +14,8 @@ import glob
 import configparser
 from zipfile import ZipFile
 
+import pandas as pd
+
 from voxelfarm import voxelfarmclient
 from voxelfarm import workflow_lambda
 from voxelfarm import process_lambda
@@ -155,7 +157,7 @@ def update_attach_files_for_entity(api : voxelfarmclient.rest, project_id, entit
         with open(file_path, "rb") as file:
             api.attach_files(project=project_id, id=entity_id, files={'file': file})
 
-def is_convertible_to_float(s):
+def is_valid_float_string(s):
     try:
         float(s)
         return True
@@ -178,7 +180,12 @@ def run_tool(tool_path, progress_start, progress_end):
             if len(tokens) > 2:
                 if tokens[0] == 'progress':
                     progress_string = tokens[1]
-                    tool_progress = is_convertible_to_float(progress_string) if float(progress_string) else 0
+                    if is_valid_float_string(progress_string):
+                        tool_progress = float(progress_string)
+                        # Continue with further processing using float_value
+                    else:
+                        tool_progress = 0
+                        lambda_host.log("Cannot convert input progress tokens[1] to float:", progress_string)
                     progress = start + tool_progress * scale
                     message = ""
                     for token in tokens[2:]:                   
@@ -191,6 +198,140 @@ def run_tool(tool_path, progress_start, progress_end):
             if poll is not None:
                 break
     return tool_process.returncode 
+
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+TREE_INSTANCE = 1
+POI_INSTANCE = 2
+InstanceType_Attribute = 'InstanceType'
+Variant_Attribute = 'Variant'
+
+def calculate_id_for_instance(instance_type, tree_index, poi_index):
+    # Calculate the extra column value based on the instance type and indices
+    instance_string = 'Others'
+    index = 0
+
+    if instance_type == TREE_INSTANCE:
+        instance_string = 'Tree'
+        index = tree_index
+    elif instance_type == POI_INSTANCE:
+        instance_string = 'POI'
+        index = poi_index
+    
+    extra_value = f'{instance_string} {index}'
+    return extra_value
+
+def add_extra_column_to_csv(input_file, output_file, extra_column_name):
+    # Read the CSV file
+    merged_df = pd.read_csv(input_file)
+
+    # Initialize index variables
+    current_tree_id = 1
+    current_poi_id = 1
+
+    # Assign unique IDs to corresponding rows and update index variables
+    def update_id(row):
+        nonlocal current_tree_id, current_poi_id
+        instance_type = row[InstanceType_Attribute]
+        if instance_type == TREE_INSTANCE:
+            extra_id = current_tree_id
+            current_tree_id += 1
+        elif instance_type == POI_INSTANCE:
+            extra_id = current_poi_id
+            current_poi_id += 1
+        else:
+            extra_id = 0
+        return calculate_id_for_instance(instance_type, extra_id, extra_id)
+    
+    merged_df[extra_column_name] = merged_df.apply(update_id, axis=1)
+
+    # Write the updated DataFrame to a new CSV file
+    merged_df.to_csv(output_file, index=False)
+
+def xc_process_files_entity(api : voxelfarmclient.rest, project_id, folder_id, raw_entity_type, entity_type, folder_path, name : str, version : int, color : bool):
+
+    if not os.path.exists(folder_path):
+        print(f'File {folder_path} does not exist')
+        return
+    
+    # Use the os.listdir() function to get a list of filenames in the folder
+    file_names = os.listdir(folder_path)
+
+    # Create a list of file paths by joining the folder path with each file name
+    file_paths = [os.path.join(folder_path, file_name) for file_name in file_names]    
+    print(file_paths)
+
+    result = api.get_project_crs(project_id)
+    crs = result.crs
+    
+    result = api.create_entity_raw(project=project_id, 
+        type = raw_entity_type,
+        name=f'{name}', 
+        fields={
+            'file_folder': folder_id,
+        }, crs = crs)
+    entity_id = result.id
+    print(f'Attaching file {file_paths} to entity {entity_id}')
+    #api.attach_files(project=project_id, id=entity_id, files={'file': file})
+    for file_path in file_paths:
+        with open(file_path, "rb") as file:
+            api.attach_files(project=project_id, id=entity_id, files={'file': file})
+
+    result = api.create_entity_processed(project=project_id, 
+        type = entity_type,
+        name=f'{name}', 
+        fields={
+            'source': entity_id,
+            'source_type': raw_entity_type,
+            'file_folder': folder_id,
+            #'source_ortho' if color else '_source_ortho': entity_id
+        }, crs = crs)
+    print(f'--------Created entity {result.id} for {name} {version}--------')
+
+def create_geochem_tree_entity(api, geo_chemical_folder):
+    extra_column_name = 'Id'
+    geochems_folder_id = '36F2FD37D03B4DDE8C2151438AA47804'
+
+    merged_csv_name = f'{Tiles_size}_{Tiles_x}_{Tiles_y}_geo_merged.csv'
+    merged_csv_path = os.path.join(geo_chemical_folder, merged_csv_name)
+    geo_meta_name = 'process.meta'
+    geo_meta_path = os.path.join(geo_chemical_folder, geo_meta_name)
+
+    lambda_host.log('Start to Add Id field to  the csv file {merged_csv_path}')
+    add_extra_column_to_csv(merged_csv_path, merged_csv_path, extra_column_name)
+    lambda_host.log('End with raw data file {merged_csv_path}')
+
+    lambda_host.log('Start with geochem meta file {geo_meta_path}')
+
+    create_or_overwrite_empty_file(geo_meta_path)
+    create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile', merged_csv_name)
+    create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_ID', 5)
+    create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_X', 0)
+    create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Y', 1)
+    create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Z', 2)
+    create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Attribute_Columns', 2)
+    create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Attribute_Column0_Index', 3)
+    create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Attribute_Column0_Name', InstanceType_Attribute)
+    create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Attribute_Column0_Type', 0)
+    create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Attribute_Column1_Index', 4)
+    create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Attribute_Column1_Name', Variant_Attribute)
+    create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Attribute_Column1_Type', 0)
+
+    project_entity = api.get_entity(project_id)
+    version = int(project_entity['version']) + 1 if 'version' in project_entity else 1
+    api.update_entity(project=project_id, id=project_id, fields={'version': version})
+    result = api.create_folder(project=project_id, name=f'Version {version}', folder=geochems_folder_id)
+    if not result.success:
+        lambda_host.log(f'Failed to create folder for version!')
+        exit(4)
+    geochems_folder_id = result.id
+    lambda_host.log(f'-----------------Successful to create folder {geochems_folder_id} for version!-----------------')
+
+    lambda_host.log('Start with create geo chem entity')
+
+    xc_process_files_entity(api, project_id, geochems_folder_id, api.entity_type.RawGeoChem, api.entity_type.GeoChem, geo_chemical_folder, f'GeoChemical_instances_{Tiles_size}_{Tiles_x}_{Tiles_y}-{version}', version=version, color=True)
+
+    lambda_host.log('End with create geo chem entity')
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -240,6 +381,7 @@ def tree_instances_generation(config_path):
     run_make_basemeshes = read_ini_value(config_path, section_run, 'run_make_basemeshes', value_type=bool)
     run_make_tree_instances = read_ini_value(config_path, section_run, 'run_make_tree_instances', value_type=bool)
     run_upload_tree_instances = read_ini_value(config_path, section_run, 'run_upload_tree_instances', value_type=bool)
+    run_create_geochem_entity = read_ini_value(config_path, section_run, 'run_create_geochem_entity', value_type=bool)
 
     road_Heightmap_width = read_ini_value(config_path, section_road, 'road_Heightmap_width', value_type=int)
     road_heightmap_height = read_ini_value(config_path, section_road, 'road_heightmap_height', value_type=int)
@@ -404,6 +546,11 @@ def tree_instances_generation(config_path):
         update_attach_files_for_entity(api, project_id, tree_entity_id, tree_instance_output_folder, f'instances_lod8_{tiles_count}_{tiles_x}_{tiles_y}-{version}', version=version, color=True)
         lambda_host.log(f'update_attach_files_for_entity for {tree_entity_id}')
 
+    geo_chemical_folder = f'{tree_output_base_folder}\\{tiles_count}_{tiles_x}_{tiles_y}\\GeoChemical'
+    if run_create_geochem_entity:
+        create_geochem_tree_entity(api, geo_chemical_folder)
+        lambda_host.log(f'create_geochem_tree_entity for {geo_chemical_folder}')
+
     lambda_host.log(f'end for step tree_instances_generation')
     return 0
 
@@ -456,6 +603,7 @@ def tree_config_creation(ini_path):
     create_or_update_ini_file(ini_path, section_run, 'run_make_basemeshes', True)
     create_or_update_ini_file(ini_path, section_run, 'run_make_tree_instances', True)
     create_or_update_ini_file(ini_path, section_run, 'run_upload_tree_instances', True)
+    create_or_update_ini_file(ini_path, section_run, 'run_create_geochem_entity', True)
 
     create_or_update_ini_file(ini_path, section_road, 'road_Heightmap_width', 300)
     create_or_update_ini_file(ini_path, section_road, 'road_heightmap_height', 300)
@@ -476,6 +624,8 @@ section_output = 'Output'
 section_run = 'Run'
 section_others = 'Others'
 section_road = 'Road'
+
+section_config = 'Configuration'
 
 lambda_host = process_lambda.process_lambda_host()
 
