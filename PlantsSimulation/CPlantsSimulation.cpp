@@ -58,6 +58,42 @@ void CPlantsSimulation::DeInitialize()
 	}
 }
 
+bool CPlantsSimulation::parseTreeListCsv()
+{
+	if (!std::filesystem::exists(m_inputTreeListCsv)) {
+		return false;
+	}
+
+	std::ifstream file(m_inputTreeListCsv);
+	if (!file.is_open()) {
+		std::cerr << "Failed to open the tree list csv file :" << m_inputTreeListCsv << std::endl;
+		return false;
+	}
+
+	std::string header;
+	std::getline(file, header);
+	std::string line;
+
+	while (std::getline(file, line)) {
+		std::cout << line << std::endl;
+
+		std::stringstream lineStream(line);
+		std::string cell;
+		std::vector<std::string> row;
+		while (std::getline(lineStream, cell, ','))
+		{
+			row.push_back(cell);
+		}
+		// This checks for a trailing comma with no data after it.
+		if (!lineStream && cell.empty())
+		{
+			// If there was a trailing comma then add an empty element.
+			row.push_back("");
+		}
+	}
+	return false;
+}
+
 bool CPlantsSimulation::LoadInputImage()
 {
 	try

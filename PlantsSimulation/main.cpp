@@ -34,6 +34,10 @@ int commandlineMain(int argc, const char* argv[])
     const char* point_most_distant_name = argv[17];
     const char* lod_str = argv[18];
 
+    const char* tree_list_csv_name = argv[19];
+
+    string tree_list_csv = tree_list_csv_name ? tree_list_csv_name : "";
+
     std::string lod_string = lod_str;
     int lod = std::stoi(lod_string);
 
@@ -162,7 +166,7 @@ int commandlineMain(int argc, const char* argv[])
         }
     }
 
-    CPlantsSimulation ps(output_final_path, input_image_file, input_meta_file, mesh_heightmap_raw_file, mesh2_heightmap_raw_file, pc_heightmap_raw_file, l1_heightmap_raw_file
+    CPlantsSimulation ps(output_final_path, tree_list_csv, input_image_file, input_meta_file, mesh_heightmap_raw_file, mesh2_heightmap_raw_file, pc_heightmap_raw_file, l1_heightmap_raw_file
         , mesh_heightmap_masks_file, mesh2_heightmap_masks_file, pc_heightmap_masks_file, l1_heightmap_masks_file
         , point_most_travelled_file, point_most_distant_file, output_file, fullOutput_file, pcFullOutput_file, lod, tiles, tileX, tileY);
     
@@ -216,6 +220,9 @@ int iniRelativePathMain(int argc, const char* argv[])
     const char* l1_heightmap_masks_name = GetIniValue(iniParser, Input_Section, "Level1Layer_heightMap_Mask");
     const char* point_most_travelled_name = GetIniValue(iniParser, Input_Section, "Most_Travelled_Points");
     const char* point_most_distant_name = GetIniValue(iniParser, Input_Section, "Most_Distant_Points");
+    const char* tree_list_csv_name = GetIniValue(iniParser, Others_Section, "Tree_List");
+    string tree_list_csv = tree_list_csv_name ? tree_list_csv_name : "";
+
     const char* lod_str = GetIniValue(iniParser, Others_Section, "Lod");
 
     const int t = atoi(t_str);
@@ -351,7 +358,7 @@ int iniRelativePathMain(int argc, const char* argv[])
         }
     }
 
-    CPlantsSimulation ps(output_final_path, input_image_file, input_meta_file, mesh_heightmap_raw_file, mesh2_heightmap_raw_file, pc_heightmap_raw_file, l1_heightmap_raw_file
+    CPlantsSimulation ps(output_final_path, tree_list_csv, input_image_file, input_meta_file, mesh_heightmap_raw_file, mesh2_heightmap_raw_file, pc_heightmap_raw_file, l1_heightmap_raw_file
         , mesh_heightmap_masks_file, mesh2_heightmap_masks_file, pc_heightmap_masks_file, l1_heightmap_masks_file
         , point_most_travelled_file, point_most_distant_file, output_file, fullOutput_file, pcFullOutput_file, lod, tiles, tileX, tileY);
 
@@ -424,8 +431,12 @@ int iniAbsolutePathMain(int argc, const char* argv[])
     const char* l1_heightmap_masks_name = GetIniValue(iniParser, Input_Section, "Level1Layer_heightMap_Mask");
     const char* point_most_travelled_name = GetIniValue(iniParser, Input_Section, "Most_Travelled_Points");
     const char* point_most_distant_name = GetIniValue(iniParser, Input_Section, "Most_Distant_Points");
-    const char* lod_str = GetIniValue(iniParser, Others_Section, "Lod");
+    const char* tree_list_csv_name = GetIniValue(iniParser, Others_Section, "Tree_List");
 
+    string tree_list_csv = tree_list_csv_name ? tree_list_csv_name : "";
+
+    const char* lod_str = GetIniValue(iniParser, Others_Section, "Lod");
+    
     const int t = atoi(t_str);
     const int x = atoi(x_str);
     const int y = atoi(y_str);
@@ -493,7 +504,7 @@ int iniAbsolutePathMain(int argc, const char* argv[])
         }
     }
 
-    CPlantsSimulation ps(output_final_path, input_image_name, input_meta_name, mesh_heightmap_raw_name, mesh2_heightmap_raw_name, pc_heightmap_raw_name, l1_heightmap_raw_name
+    CPlantsSimulation ps(output_final_path, tree_list_csv, input_image_name, input_meta_name, mesh_heightmap_raw_name, mesh2_heightmap_raw_name, pc_heightmap_raw_name, l1_heightmap_raw_name
         , mesh_heightmap_masks_name, mesh2_heightmap_masks_name, pc_heightmap_masks_name, l1_heightmap_masks_name
         , point_most_travelled_name, point_most_distant_name, output_file, fullOutput_file, pcFullOutput_file, lod, tiles, tileX, tileY);
 
