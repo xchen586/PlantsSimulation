@@ -1,6 +1,32 @@
 from voxelfarm import workflow_lambda
 from voxelfarm import voxelfarmclient
 
+def tree_list_on_receive_data(
+        vf : voxelfarmclient.rest, 
+        request : workflow_lambda.request, 
+        lambda_host : workflow_lambda.workflow_lambda_host):
+    lambda_host.log('Received Tree list')
+
+    entity_id = request.raw_entity_id
+    project_id = request.project_id
+    folder_id = request.version_folder_id
+
+    lambda_host.log('Updating Tree list raw entity...') 
+    result = vf.update_entity(
+        id= entity_id,
+        project=project_id, 
+        fields={
+            'file_type' : vf.entity_type.RawMesh,
+            'name' : 'Input files', 
+            'file_folder' : folder_id
+        })
+    if not result.success:
+        return {'success': False, 'error_info': result.error_info}
+    
+    # Save the entity ID that has the input files in the request properties
+    request.properties['raw_data'] = result.id
+
+    return {'success': True, 'complete': True, 'error_info': 'None'}
 
 def road_data_on_receive_data(
         vf : voxelfarmclient.rest, 
@@ -12,7 +38,7 @@ def road_data_on_receive_data(
     project_id = request.project_id
     folder_id = request.version_folder_id
 
-    lambda_host.log('Updating raw entity...') 
+    lambda_host.log('Updating road data raw entity...') 
     result = vf.update_entity(
         id= entity_id,
         project=project_id, 
@@ -39,7 +65,7 @@ def base_meshes_on_receive_data(
     project_id = request.project_id
     folder_id = request.version_folder_id
 
-    lambda_host.log('Updating raw entity...') 
+    lambda_host.log('Updating base meshes raw entity...') 
     result = vf.update_entity(
         id= entity_id,
         project=project_id, 
@@ -66,7 +92,7 @@ def displacement_maps_on_receive_data(
     project_id = request.project_id
     folder_id = request.version_folder_id
 
-    lambda_host.log('Updating raw entity...') 
+    lambda_host.log('Updating displacement maps raw entity...') 
     result = vf.update_entity(
         id= entity_id,
         project=project_id, 
@@ -93,7 +119,7 @@ def quadtree_on_receive_data(
     project_id = request.project_id
     folder_id = request.version_folder_id
 
-    lambda_host.log('Updating raw entity...') 
+    lambda_host.log('Updating quadtree raw entity...') 
     result = vf.update_entity(
         id= entity_id,
         project=project_id, 
@@ -114,13 +140,13 @@ def tools_on_receive_data(
         vf : voxelfarmclient.rest, 
         request : workflow_lambda.request, 
         lambda_host : workflow_lambda.workflow_lambda_host):
-    lambda_host.log('Received quadtree')
+    lambda_host.log('Received tools')
 
     entity_id = request.raw_entity_id
     project_id = request.project_id
     folder_id = request.version_folder_id
 
-    lambda_host.log('Updating raw entity...') 
+    lambda_host.log('Updating tools raw entity...') 
     result = vf.update_entity(
         id= entity_id,
         project=project_id, 
@@ -144,6 +170,7 @@ def tree_generation_on_receive_data(
     lambda_host.log('Received tree generation data')
     request.properties['my_property'] = 'my_value'
 
+    treelist_active_version_property = request.get_product_property('TREE_LIST', 'raw_data')
     roaddata_active_version_property = request.get_product_property('ROAD_DATA', 'raw_data')
     basemeshes_active_version_property = request.get_product_property('BASE_MESHES', 'raw_data')
     displacement_active_version_property = request.get_product_property('DISPLACEMENT_MAPS', 'raw_data')
@@ -233,6 +260,13 @@ lambda_host.set_workflow_definition(
                         'description': 'A collection of OBJ meshes',
                         'icon': 'mesh',
                         'on_receive_data': base_meshes_on_receive_data,
+                    },
+                    {
+                        'id': 'TREE_LIST',
+                        'name': 'Tree List',
+                        'description': 'A collection of tree classes',
+                        'icon': 'mesh',
+                        'on_receive_data': tree_list_on_receive_data,
                     },
                 ]
             },
