@@ -185,7 +185,7 @@ def run_tool(tool_path, progress_start, progress_end):
                         # Continue with further processing using float_value
                     else:
                         tool_progress = 0
-                        lambda_host.log("Cannot convert input progress tokens[1] to float:", progress_string)
+                        lambda_host.log(f'Cannot convert input progress tokens[1] {progress_string} to float:')
                     progress = start + tool_progress * scale
                     message = ""
                     for token in tokens[2:]:                   
@@ -290,6 +290,7 @@ def xc_process_files_entity(api : voxelfarmclient.rest, project_id, folder_id, r
 
 def create_geochem_tree_entity(api, geo_chemical_folder):
     extra_column_name = 'Id'
+    geochems_project_id = '1D4CBBD1D957477E8CC3FF376FB87470'
     geochems_folder_id = '36F2FD37D03B4DDE8C2151438AA47804'
 
     merged_csv_name = f'{Tiles_size}_{Tiles_x}_{Tiles_y}_geo_merged.csv'
@@ -317,10 +318,10 @@ def create_geochem_tree_entity(api, geo_chemical_folder):
     create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Attribute_Column1_Name', Variant_Attribute)
     create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Attribute_Column1_Type', 0)
 
-    project_entity = api.get_entity(project_id)
-    version = int(project_entity['version']) + 1 if 'version' in project_entity else 1
-    api.update_entity(project=project_id, id=project_id, fields={'version': version})
-    result = api.create_folder(project=project_id, name=f'Version {version}', folder=geochems_folder_id)
+    geochems_project_entity = api.get_entity(geochems_project_id)
+    version = int(geochems_project_entity['version']) + 1 if 'version' in geochems_project_entity else 1
+    api.update_entity(project=geochems_project_id, id=geochems_project_id, fields={'version': version})
+    result = api.create_folder(project=geochems_project_id, name=f'Version {version}', folder=geochems_folder_id)
     if not result.success:
         lambda_host.log(f'Failed to create folder for version!')
         exit(4)
@@ -329,7 +330,7 @@ def create_geochem_tree_entity(api, geo_chemical_folder):
 
     lambda_host.log('Start with create geo chem entity')
 
-    xc_process_files_entity(api, project_id, geochems_folder_id, api.entity_type.RawGeoChem, api.entity_type.GeoChem, geo_chemical_folder, f'GeoChemical_instances_{Tiles_size}_{Tiles_x}_{Tiles_y}-{version}', version=version, color=True)
+    xc_process_files_entity(api, geochems_project_id, geochems_folder_id, api.entity_type.RawGeoChem, api.entity_type.GeoChem, geo_chemical_folder, f'GeoChemical_instances_{Tiles_size}_{Tiles_x}_{Tiles_y}-{version}', version=version, color=True)
 
     lambda_host.log('End with create geo chem entity')
 
