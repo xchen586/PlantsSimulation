@@ -36,6 +36,10 @@ public:
 	void loadTreeClasses();
 	void loadMasks();
 	void loadGlobalMasks();
+
+	void loadDefaultTreeClasses();
+	void loadDefaultMasks();
+	void loadDefaultGlobalMasks();
 	
 	void setCellTable(std::vector<std::vector<CCellInfo*>>* pCellTable) {
 		m_pCellTable = pCellTable;

@@ -47,6 +47,13 @@ void CForest::loadTreeClasses()
 	}
 	classes.clear();
 
+	loadDefaultTreeClasses();
+
+	return;
+}
+
+void CForest::loadDefaultTreeClasses()
+{
 	TreeClass* treeClassOak = new COakTreeClass();
 	TreeClass* treeClassMaple = new CMapleTreeClass();
 	TreeClass* treeClassBirch = new CBirchTreeClass();
@@ -56,8 +63,6 @@ void CForest::loadTreeClasses()
 	classes.push_back(treeClassMaple);
 	//classes.push_back(treeClassBirch);
 	//classes.push_back(treeClassFir);
-
-	return;
 }
 
 void CForest::loadMasks()
@@ -73,6 +78,13 @@ void CForest::loadMasks()
 	}
 	masks.clear();
 
+	loadDefaultMasks();
+
+	return;
+}
+
+void CForest::loadDefaultMasks()
+{
 	double xRatio = m_pMetaInfo->xRatio;
 	double yRatio = m_pMetaInfo->yRatio;
 
@@ -99,7 +111,7 @@ void CForest::loadMasks()
 	pair<string, I2DMask*> treeBirchMoisturePair = GetI2DMaskKeyPairFromPlantTypeWithDensityMapType(PlantType::TREE_BIRCH, DensityMapType::DensityMap_Moisture, pMoistureI2DMask);
 	pair<string, I2DMask*> treeBrichRoughnessPair = GetI2DMaskKeyPairFromPlantTypeWithDensityMapType(PlantType::TREE_BIRCH, DensityMapType::DensityMap_Roughness, pRoughnessI2DMask);
 	pair<string, I2DMask*> treeBirchRoadAttributePair = GetI2DMaskKeyPairFromPlantTypeWithDensityMapType(PlantType::TREE_BIRCH, DensityMapType::DensityMap_RoadAttribute, pRoadAttributeI2DMask);
-	
+
 	pair<string, I2DMask*> treeFirHeightPair = GetI2DMaskKeyPairFromPlantTypeWithDensityMapType(PlantType::TREE_FIR, DensityMapType::DensityMap_Height, pHeightI2DMask);
 	pair<string, I2DMask*> treeFirSlopePair = GetI2DMaskKeyPairFromPlantTypeWithDensityMapType(PlantType::TREE_FIR, DensityMapType::DensityMap_Slope, pSlopeI2DMask);
 	pair<string, I2DMask*> treeFirMoisturePair = GetI2DMaskKeyPairFromPlantTypeWithDensityMapType(PlantType::TREE_FIR, DensityMapType::DensityMap_Moisture, pMoistureI2DMask);
@@ -129,8 +141,6 @@ void CForest::loadMasks()
 	masks.insert(treeFirMoisturePair);
 	masks.insert(treeFirRoughnessPair);
 	masks.insert(treeFirRoadAttributePair);
-
-	return;
 }
 
 void CForest::loadGlobalMasks()
@@ -143,6 +153,13 @@ void CForest::loadGlobalMasks()
 
 	return;
 
+	loadDefaultGlobalMasks();
+
+	return;
+}
+
+void CForest::loadDefaultGlobalMasks()
+{
 	for (vector<TreeClass*>::iterator i = classes.begin(); i != classes.end(); ++i) {
 		TreeClass* tree = *i;
 		for (map<string, DensityMap*>::iterator iMap = tree->masks.begin(); iMap != tree->masks.end(); ++iMap)
@@ -152,8 +169,6 @@ void CForest::loadGlobalMasks()
 			globalMasks.insert(deepCopyPair);
 		}
 	}
-
-	return;
 }
 
 void CForest::generate(float forestAge, int iterations)
