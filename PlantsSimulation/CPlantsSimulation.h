@@ -91,7 +91,6 @@ public:
 
 private:
 	void DeInitialize();
-	bool parseTreeListCsv();
 	bool LoadInputImage();
 	bool LoadInputHeightMap();
 	bool LoadImageMetaFile();

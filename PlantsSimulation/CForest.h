@@ -33,13 +33,17 @@ public:
 	~CForest(void);
 public:
 	void generate(float forestAge, int iterations);
-	void loadTreeClasses();
-	void loadMasks();
-	void loadGlobalMasks();
-
 	void loadDefaultTreeClasses();
 	void loadDefaultMasks();
 	void loadDefaultGlobalMasks();
+
+	void doLoadDefaultTreeClasses();
+	void doLoadDefaultMasks();
+	void doLoadDefaultGlobalMasks();
+
+	void resetTreeClasses();
+	void resetMasks();
+	void resetGlobalMasks();
 	
 	void setCellTable(std::vector<std::vector<CCellInfo*>>* pCellTable) {
 		m_pCellTable = pCellTable;
@@ -64,6 +68,7 @@ public:
 	bool outputCSVFullTreeInstanceResultsWithRatio(const std::string& fileName);
 	bool outputPointsCloudFullTreeInstanceResults(const std::string& fileName);
 	bool outputPointsCloudFullTreeInstanceResultsWithRatio(const std::string& fileName);
+	bool parseTreeListCsv(const string& inputTreeListCsv);
 
 public:
 	vector<TreeClass*> classes;

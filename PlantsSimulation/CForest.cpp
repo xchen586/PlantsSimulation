@@ -39,20 +39,25 @@ CForest::~CForest(void)
 }
 
 #define SEED_MAX 16*1024*1024
-void CForest::loadTreeClasses()
+void CForest::loadDefaultTreeClasses()
+{
+	
+	resetTreeClasses();
+	doLoadDefaultTreeClasses();
+
+	return;
+}
+
+void CForest::resetTreeClasses()
 {
 	for (vector<TreeClass*>::iterator i = classes.begin(); i != classes.end(); ++i) {
 		TreeClass* tree = *i;
 		delete tree;
 	}
 	classes.clear();
-
-	loadDefaultTreeClasses();
-
-	return;
 }
 
-void CForest::loadDefaultTreeClasses()
+void CForest::doLoadDefaultTreeClasses()
 {
 	TreeClass* treeClassOak = new COakTreeClass();
 	TreeClass* treeClassMaple = new CMapleTreeClass();
@@ -65,25 +70,30 @@ void CForest::loadDefaultTreeClasses()
 	//classes.push_back(treeClassFir);
 }
 
-void CForest::loadMasks()
+void CForest::loadDefaultMasks()
 {
 	if (!m_pMetaInfo)
 	{
 		std::cout << "Meta info is not available in CForest::loadMasks()" << std::endl;
 		return;
 	}
+	
+	resetMasks();
+	doLoadDefaultMasks();
+
+	return;
+}
+
+void CForest::resetMasks()
+{
 	for (map<string, I2DMask*>::iterator iMask = masks.begin(); iMask != masks.end(); ++iMask) {
 		I2DMask* i2DMask = iMask->second;
 		delete i2DMask;
 	}
 	masks.clear();
-
-	loadDefaultMasks();
-
-	return;
 }
 
-void CForest::loadDefaultMasks()
+void CForest::doLoadDefaultMasks()
 {
 	double xRatio = m_pMetaInfo->xRatio;
 	double yRatio = m_pMetaInfo->yRatio;
@@ -143,22 +153,27 @@ void CForest::loadDefaultMasks()
 	masks.insert(treeFirRoadAttributePair);
 }
 
-void CForest::loadGlobalMasks()
+void CForest::loadDefaultGlobalMasks()
+{
+	resetGlobalMasks();
+
+	return;
+
+	doLoadDefaultGlobalMasks();
+
+	return;
+}
+
+void CForest::resetGlobalMasks()
 {
 	for (map<string, DensityMap*>::iterator imap = globalMasks.begin(); imap != globalMasks.end(); ++imap) {
 		DensityMap* density = imap->second;
 		delete density;
 	}
 	globalMasks.clear();
-
-	return;
-
-	loadDefaultGlobalMasks();
-
-	return;
 }
 
-void CForest::loadDefaultGlobalMasks()
+void CForest::doLoadDefaultGlobalMasks()
 {
 	for (vector<TreeClass*>::iterator i = classes.begin(); i != classes.end(); ++i) {
 		TreeClass* tree = *i;
@@ -169,6 +184,52 @@ void CForest::loadDefaultGlobalMasks()
 			globalMasks.insert(deepCopyPair);
 		}
 	}
+}
+
+bool CForest::parseTreeListCsv(const string& inputTreeListCsv)
+{
+	if (!std::filesystem::exists(inputTreeListCsv)) {
+		return false;
+	}
+
+	std::ifstream file(inputTreeListCsv);
+	if (!file.is_open()) {
+		std::cerr << "Failed to open the tree list csv file :" << inputTreeListCsv << std::endl;
+		return false;
+	}
+
+	if (!m_pMetaInfo)
+	{
+		std::cout << "Meta info is not available in CForest::loadMasks()" << std::endl;
+		return false;
+	}
+
+	resetTreeClasses();
+	resetMasks();
+	resetGlobalMasks();
+
+	std::string header;
+	std::getline(file, header);
+	std::string line;
+
+	while (std::getline(file, line)) {
+		std::cout << line << std::endl;
+
+		std::stringstream lineStream(line);
+		std::string cell;
+		std::vector<std::string> row;
+		while (std::getline(lineStream, cell, ','))
+		{
+			row.push_back(cell);
+		}
+		// This checks for a trailing comma with no data after it.
+		if (!lineStream && cell.empty())
+		{
+			// If there was a trailing comma then add an empty element.
+			row.push_back("");
+		}
+	}
+	return false;
 }
 
 void CForest::generate(float forestAge, int iterations)

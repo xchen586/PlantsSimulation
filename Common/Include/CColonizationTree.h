@@ -137,6 +137,18 @@ public:
 	}
 };
 
+enum struct TreeList_CSV_Columns {
+	TL_Name,
+	TL_ID,
+	TL_InfluenceR,
+	TL_Height,
+	TL_ElevationMin,
+	TL_ElevationMax,
+	TL_HumidityMin,
+	TL_HumidityMax,
+	TL_Enum_Count
+};
+
 enum class PlantType {
 	TREE_OAK,
 	TREE_MAPLE,
