@@ -194,7 +194,7 @@ class TreeClass
 {
 public:
 	TreeClass() :
-		type(PlantType::TREE_OAK),
+		typeId(static_cast<unsigned int>(PlantType::TREE_OAK)),
 		radius(20, 60),
 		//xRadius(0, 60),
 		//yRadius(0, 60),
@@ -255,7 +255,7 @@ public:
 	TreeParamRange rootWidth;
 	TreeParamRange rootPipeRatio;
 
-	PlantType type;
+	unsigned int typeId;
 	int color;
 	double matureAge;
 	double maxAge;

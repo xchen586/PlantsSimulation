@@ -658,7 +658,7 @@ TreeInstanceOutput CForest::GetTreeOutputFromInstance(const CTreeInstance& insta
 	output.green = green;
 	output.blue = blue;
 
-	output.treeType = static_cast<unsigned int>(instance.treeClass->type);
+	output.treeType = static_cast<unsigned int>(instance.treeClass->typeId);
 	return output;
 }
 
@@ -771,11 +771,14 @@ bool CForest::exportTreeInstanceFullOutput(const std::vector<TreeInstanceFullOut
 bool CForest::outputTreeInstanceResults(const std::string& fileName, bool hasHeader)
 {
 	treeoutputs.clear();
-	map<PlantType, int> plants;
+	//map<PlantType, int> plants;
+	map<unsigned int, int> plants;
 	for (const CTreeInstance& instance : trees)
 	{
-		PlantType pt = instance.treeClass->type;
-		map<PlantType, int>::iterator it = plants.find(pt);
+		//PlantType pt = instance.treeClass->typeId;
+		//map<PlantType, int>::iterator it = plants.find(pt);
+		unsigned int pt = instance.treeClass->typeId;
+		map<unsigned int, int>::iterator it = plants.find(pt);
 		if (it != plants.end())
 		{
 			int count = it->second;
@@ -790,9 +793,10 @@ bool CForest::outputTreeInstanceResults(const std::string& fileName, bool hasHea
 		treeoutputs.push_back(output);
 	}
 
-	for (map<PlantType, int>::iterator it = plants.begin(); it != plants.end(); ++it)
+	//for (map<PlantType, int>::iterator it = plants.begin(); it != plants.end(); ++it)
+	for (map<unsigned int, int>::iterator it = plants.begin(); it != plants.end(); ++it)
 	{
-		string typeString = PlantTypeToString(it->first);
+		string typeString = PlantTypeToString(static_cast<PlantType>(it->first));
 		int count = it->second;
 		cout << typeString << " count are " << count << endl;
 	}

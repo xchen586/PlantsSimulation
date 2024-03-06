@@ -64,7 +64,7 @@ struct TreeInstanceOutput {
 		green = greenColor;
 		blue = blueColor;
 
-		treeType = static_cast<unsigned int>(instance.treeClass->type);
+		treeType = static_cast<unsigned int>(instance.treeClass->typeId);
 		age = instance.age;
 		maxAge = instance.treeClass->maxAge;
 	}
