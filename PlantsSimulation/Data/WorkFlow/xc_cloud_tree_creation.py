@@ -368,6 +368,7 @@ def tree_instances_generation(config_path):
     basemeshes_exe_path = read_ini_value(config_path, section_input, 'basemeshes_exe_path')
     tree_exe_path = read_ini_value(config_path, section_input, 'tree_exe_path')
     qtree_assets_folder = read_ini_value(config_path, section_input, 'qtree_assets_folder')
+    tree_list = read_ini_value(config_path, section_input, 'treelist_data_path')
 
     road_output_folder = read_ini_value(config_path, section_output, 'road_output_folder')
     smoothlayer_output_base_folder = read_ini_value(config_path, section_output, 'smoothlayer_output_base_folder')
@@ -389,6 +390,8 @@ def tree_instances_generation(config_path):
 
     basemeshes_debug_level = read_ini_value(config_path, section_others, 'basemeshes_debug_level', value_type=int)
     tree_lod = read_ini_value(config_path, section_others, 'tree_lod', value_type=int)
+    forest_age = read_ini_value(config_path, section_others, 'forest_age', value_type=int)
+    tree_iteration = read_ini_value(config_path, section_others, 'tree_lod', value_type=int)
 
     lambda_host.log(f'End to read value from {config_path}')
 
@@ -414,7 +417,7 @@ def tree_instances_generation(config_path):
     basemeshes_0_heightmap_path = f'{basemeshes_heightmap_folder}\\{basemeshes_0_heightmap_name}'
     basemeshes_1_heightmap_path = f'{basemeshes_heightmap_folder}\\{basemeshes_1_heightmap_name}'
     basemeshes_0_heightmap_mask_path = f'{basemeshes_heightmap_folder}\\{basemeshes_0_heightmap_mask_name}'
-    basemeshes_1_heightmap_mask_path = f'{basemeshes_heightmap_folder}\\{basemeshes_0_heightmap_mask_name}'
+    basemeshes_1_heightmap_mask_path = f'{basemeshes_heightmap_folder}\\{basemeshes_1_heightmap_mask_name}'
 
     smoothlayer_output_folder = f'{smoothlayer_output_base_folder}\\{tiles_count}_{tiles_x}_{tiles_y}'
     toplayer_image_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.jpg'
@@ -465,8 +468,12 @@ def tree_instances_generation(config_path):
     create_or_update_ini_file(tree_ini_path, section_input, 'Level1Layer_heightMap_Mask', level1_heightmap_mask_path)
     create_or_update_ini_file(tree_ini_path, section_input, 'Most_Travelled_Points', most_travelled_points_path)
     create_or_update_ini_file(tree_ini_path, section_input, 'Most_Distant_Points', most_distant_points_path)
+    create_or_update_ini_file(tree_ini_path, section_input, 'Tree_List', tree_list)
+    
     create_or_update_ini_file(tree_ini_path, section_output, 'Output_Dir', tree_output_base_folder)
     create_or_update_ini_file(tree_ini_path, section_others, 'Lod', tree_lod)
+    create_or_update_ini_file(tree_ini_path, section_others, 'Forest_Age', forest_age)
+    create_or_update_ini_file(tree_ini_path, section_others, 'Tree_Iteration', tree_iteration)
     lambda_host.log(f'End to write tree instance ini files : {tree_ini_path}')
 
     lambda_host.log(f'step for to run_update_basemeshes_assets')
@@ -590,6 +597,7 @@ def tree_config_creation(ini_path):
     create_or_update_ini_file(ini_path, section_input, 'worldgen_exe_path', worldgen_exe_path)
     create_or_update_ini_file(ini_path, section_input, 'tree_exe_path', tree_exe_path)
     create_or_update_ini_file(ini_path, section_input, 'qtree_assets_folder', qtree_assets_folder)
+    create_or_update_ini_file(ini_path, section_input, 'treelist_data_path', treelist_data_path)
 
     create_or_update_ini_file(ini_path, section_output, 'road_output_folder', road_output_folder)
     create_or_update_ini_file(ini_path, section_output, 'smoothlayer_output_base_folder', smoothlayer_output_base_folder)
@@ -611,6 +619,9 @@ def tree_config_creation(ini_path):
 
     create_or_update_ini_file(ini_path, section_others, 'basemeshes_debug_level', Basemeshes_debug_level)
     create_or_update_ini_file(ini_path, section_others, 'tree_lod', 8)
+    create_or_update_ini_file(ini_path, section_others, 'forest_age', 300)
+    create_or_update_ini_file(ini_path, section_others, 'tree_iteration', 100)
+    
     lambda_host.log(f'end to create tree_config_creation : {ini_path}')
     return
 
@@ -654,12 +665,14 @@ lambda_host.log(f'level: {level}')
 entity_folder = lambda_host.get_entity_folder()
 lambda_host.log(f'entity_folder: {entity_folder}')
 
+treelist_active_version_property = lambda_host.input_string('treelist_active_version_property', 'treelist_active_version_property', '') 
 roaddata_active_version_property = lambda_host.input_string('roaddata_active_version_property', 'roaddata_active_version_property', '')
 basemeshes_active_version_property = lambda_host.input_string('basemeshes_active_version_property', 'basemeshes_active_version_property', '')
 displacement_active_version_property = lambda_host.input_string('displacement_active_version_property', 'displacement_active_version_property', '')
 qtree_active_version_property = lambda_host.input_string('qtree_active_version_property', 'qtree_active_version_property', '')
 tools_active_version_property = lambda_host.input_string('tools_active_version_property', 'tools_active_version_property', '')
 
+lambda_host.log('treelist_active_version_property: ' + treelist_active_version_property)
 lambda_host.log('roaddata_active_version_property: ' + roaddata_active_version_property)
 lambda_host.log('basemeshes_active_version_property: ' + basemeshes_active_version_property)
 lambda_host.log('displacement_active_version_property: ' + displacement_active_version_property)
@@ -667,12 +680,14 @@ lambda_host.log('qtree_active_version_property: ' + qtree_active_version_propert
 lambda_host.log('tools_active_version_property: ' + tools_active_version_property)
 
 lambda_host.progress(1, 'Start to download files')
+treelist_data_path = lambda_host.download_entity_files(treelist_active_version_property)
 roaddata_data_path = lambda_host.download_entity_files(roaddata_active_version_property)
 basemeshes_data_path = lambda_host.download_entity_files(basemeshes_active_version_property)
 displacement_data_path = lambda_host.download_entity_files(displacement_active_version_property)
 qtree_data_path = lambda_host.download_entity_files(qtree_active_version_property)
 tools_data_path = lambda_host.download_entity_files(tools_active_version_property)
 
+lambda_host.log('treelist_data_path: ' + treelist_data_path)
 lambda_host.log('roaddata_data_path: ' + roaddata_data_path)
 lambda_host.log('basemeshes_data_path: ' + basemeshes_data_path)
 lambda_host.log('displacement_data_path: ' + displacement_data_path)
@@ -691,6 +706,9 @@ if not os.path.exists(Tools_folder):
     os.makedirs(Tools_folder)
 
 lambda_host.progress(5, 'Start to copy files')
+lambda_host.log(f'start to copy from {treelist_data_path} to {Data_folder}')
+copy_files(treelist_data_path, Data_folder)
+lambda_host.log(f'end to copy from {treelist_data_path} to {Data_folder}')
 lambda_host.log(f'start to copy from {roaddata_data_path} to {Data_folder}')
 copy_files(roaddata_data_path, Data_folder)
 lambda_host.log(f'end to copy from {roaddata_data_path} to {Data_folder}')
