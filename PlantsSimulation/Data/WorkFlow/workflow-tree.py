@@ -182,6 +182,7 @@ def tree_generation_on_receive_data(
         name="Lambda",
         inputs={
             'project_id': request.project_id,
+            'treelist_active_version_property': treelist_active_version_property,
             'roaddata_active_version_property': roaddata_active_version_property,
             'basemeshes_active_version_property': basemeshes_active_version_property,
             'displacement_active_version_property': displacement_active_version_property,
