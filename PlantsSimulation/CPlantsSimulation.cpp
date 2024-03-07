@@ -372,6 +372,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 			}	
 		}
 	}
+	m_maxHeight = maxHeight;
 	std::cout << "Final Short Height Map minHeight = " << minHeight << " , maxHeight = " << maxHeight << std::endl;
 
 	//std::vector<std::vector<short>> slopeShort4096 = ComputeAbsMaxHeightSlopeMap(heightMapShort4096);
@@ -922,7 +923,7 @@ bool CPlantsSimulation::LoadForest()
 	m_pForest->zSize = static_cast<int>(forestZSize * m_topLayerMeta->yRatio);
 	m_pForest->xo = 0;
 	m_pForest->zo = 0;
-
+	m_pForest->maxHeight = m_maxHeight;
 	cout << "Forest xSize is : " << m_pForest->xSize << endl;
 	cout << "Forest zSize is : " << m_pForest->zSize << endl;
 

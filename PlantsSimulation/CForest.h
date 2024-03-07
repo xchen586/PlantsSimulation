@@ -87,7 +87,7 @@ public:
 	int xSize;
 	int zSize;
 	int* grid;
-
+	int maxHeight;
 protected:
 	std::vector<std::vector<CCellInfo*>>* m_pCellTable;
 	InputImageMetaInfo* m_pMetaInfo;

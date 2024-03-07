@@ -47,6 +47,7 @@ public:
 		, m_tileX(tileX)
 		, m_tileY(tileY)
 		, m_hasTreeListCsv(false)
+		, m_maxHeight(10000)
 	{
 		
 	}
@@ -86,6 +87,8 @@ private:
 	CForest* m_pForest;
 	CPsInstanceExporter* m_pInstanceExporter;
 	bool m_hasTreeListCsv;
+
+	int m_maxHeight;
 public:
 	
 

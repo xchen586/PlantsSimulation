@@ -22,6 +22,7 @@
 CForest::CForest(void)
 {
 	grid = NULL;
+	maxHeight = 10000;
 }
 
 CForest::~CForest(void)
@@ -304,8 +305,8 @@ TreeClass* CForest::getTreeClassFromStringVector(const std::vector<std::string>&
 	unsigned int typeId = std::stoul(idString);
 	double influenceR = std::stod(influenceRString);
 	double height = std::stod(heightString);
-	double elevationMin = std::stod(elevationMinString);
-	double elevationMax = std::stod(elevationMaxString);
+	double elevationMin = std::stod(elevationMinString) * maxHeight / 100.0;
+	double elevationMax = std::stod(elevationMaxString) * maxHeight / 100.0;
 	double humidityMin = std::stod(humidityMinString);
 	double humidityMax = std::stod(humidityMaxString);
 	double packing = std::stod(packingString);
@@ -326,6 +327,7 @@ TreeClass* CForest::getTreeClassFromStringVector(const std::vector<std::string>&
 	DensityMap* heightmapDensity = new CHeightDensityMap();
 	heightmapDensity->minval = elevationMin;
 	heightmapDensity->maxval = elevationMax;
+	heightmapDensity->ease = 50;
 	pair<string, DensityMap*> heightmapDensityPair = GetDensityKeyPairFromTreeClassWithDensityMapType(tree, heightmapDensity->type, heightmapDensity);
 	tree->masks.insert(heightmapDensityPair);
 
@@ -562,8 +564,11 @@ void CForest::generate(float forestAge, int iterations)
 			}
 		}
 		int currentCount = instanceIndex;
+		double currentProgressDouble = 100.0 * iteration / iterations;
+		int currentProgressInt = static_cast<int>(currentProgressDouble);
+		cout << "Current iteration count is : " << iteration << endl;
 		cout << "Current iteration : " << iteration << " has current instance count : " << currentCount << endl;
-		cout << "progress " << iteration << " has current instance count : " << currentCount << endl;
+		cout << "progress " << currentProgressInt << " has current instance count : " << currentCount << endl;
 		//Decide the dominated plants.
 		for (int iTree = 0; iTree < currentCount; ++iTree)
 		{
