@@ -19,6 +19,7 @@ struct InputImageMetaInfo;
 pair<string, I2DMask*> GetI2DMaskKeyPairFromPlantTypeWithIndex(PlantType type, int index, I2DMask* i2dMask);
 pair<string, I2DMask*> GetI2DMaskKeyPairFromPlantTypeWithDensityMapType(PlantType plantType, DensityMapType densityType, I2DMask* pI2dMask);
 pair<string, I2DMask*> GetI2DMaskKeyPairFromPlantTypeWithDensityMapTypeIndex(PlantType plantType, DensityMapType densityType, I2DMask* pI2dMask);
+pair<string, I2DMask*> GetI2DMaskKeyPairFromTreeClassWithDensityMapType(TreeClass * treeClass, DensityMapType densityType, I2DMask* pI2dMask);
 
 struct ClassStrength
 {
@@ -44,6 +45,7 @@ public:
 	void resetTreeClasses();
 	void resetMasks();
 	void resetGlobalMasks();
+	void resetRawI2DMasks();
 	
 	void setCellTable(std::vector<std::vector<CCellInfo*>>* pCellTable) {
 		m_pCellTable = pCellTable;
@@ -69,11 +71,13 @@ public:
 	bool outputPointsCloudFullTreeInstanceResults(const std::string& fileName);
 	bool outputPointsCloudFullTreeInstanceResultsWithRatio(const std::string& fileName);
 	bool parseTreeListCsv(const string& inputTreeListCsv);
+	TreeClass* getTreeClassFromStringVector(const std::vector<std::string>& row);
 
 public:
 	vector<TreeClass*> classes;
 	map<string, I2DMask*> masks;
 	map<string, DensityMap*> globalMasks;
+	map<DensityMapType, I2DMask*> rawI2DMasks;
 	vector<CTreeInstance> trees;
 	vector<TreeInstanceOutput> treeoutputs;
 	vector<TreeInstanceFullOutput> fullOutputs;

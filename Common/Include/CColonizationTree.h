@@ -180,14 +180,18 @@ enum class PlantType {
 	LAST_PLANT_TYPE, 
 };
 
+class TreeClass;
+
 string PlantTypeToString(PlantType type);
 string DensityMapTypeToString(DensityMapType type);
 string PlantTypeWithIndexToMaskString(PlantType type, int index);
 string PlantTypeWithDensityMapTypeToMaskString(PlantType plantType, DensityMapType densityMapType);
 string PlantTypeWithDensityMapTypeIndexToMaskString(PlantType plantType, DensityMapType densityMapType);
+string TreeClassWithDensityMapTypeToMaskString(TreeClass* treeClass, DensityMapType densityMapType);
 pair<string, DensityMap*> GetDensityKeyPairFromPlantTypeWithIndex(PlantType type, int index, DensityMap* density);
 pair<string, DensityMap*> GetDensityKeyPairFromPlantTypeWithDensityMapType(PlantType plantType, DensityMapType densityMapType, DensityMap* density);
 pair<string, DensityMap*> GetDensityKeyPairFromPlantTypeWithDensityMapTypeIndex(PlantType plantType, DensityMapType densityMapType, DensityMap* density);
+pair<string, DensityMap*> GetDensityKeyPairFromTreeClassWithDensityMapType(TreeClass* treeClass, DensityMapType densityMapType, DensityMap* density);
 PlantType RandomPlantType();
 
 class TreeClass
@@ -256,6 +260,7 @@ public:
 	TreeParamRange rootPipeRatio;
 
 	unsigned int typeId;
+	string treeTypeName;
 	int color;
 	double matureAge;
 	double maxAge;
@@ -312,6 +317,9 @@ public:
 		maxAge = other.maxAge;
 
 		masks = other.masks;
+
+		typeId = other.typeId;
+		treeTypeName = other.treeTypeName;
 
 		return *this;
 	}

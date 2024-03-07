@@ -99,6 +99,14 @@ string PlantTypeWithDensityMapTypeIndexToMaskString(PlantType plantType, Density
     return ret;
 }
 
+string TreeClassWithDensityMapTypeToMaskString(TreeClass* treeClass, DensityMapType densityMapType)
+{
+    string plantTypeName = treeClass->treeTypeName;
+    string densityMapTypeName = DensityMapTypeToString(densityMapType);
+    string ret = plantTypeName + "_" + densityMapTypeName;
+    return ret;
+}
+
 pair<string, DensityMap*> GetDensityKeyPairFromPlantTypeWithIndex(PlantType type, int index, DensityMap* density)
 {
     string keyString = PlantTypeWithIndexToMaskString(type, index);
@@ -116,6 +124,13 @@ pair<string, DensityMap*> GetDensityKeyPairFromPlantTypeWithDensityMapType(Plant
 pair<string, DensityMap*> GetDensityKeyPairFromPlantTypeWithDensityMapTypeIndex(PlantType plantType, DensityMapType densityMapType, DensityMap* density)
 {
     string keyString = PlantTypeWithDensityMapTypeIndexToMaskString(plantType, densityMapType);
+    pair<string, DensityMap*> ret(keyString, density);
+    return ret;
+}
+
+pair<string, DensityMap*> GetDensityKeyPairFromTreeClassWithDensityMapType(TreeClass* treeClass, DensityMapType densityMapType, DensityMap* density)
+{
+    string keyString = TreeClassWithDensityMapTypeToMaskString(treeClass, densityMapType);
     pair<string, DensityMap*> ret(keyString, density);
     return ret;
 }

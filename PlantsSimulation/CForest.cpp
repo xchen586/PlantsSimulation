@@ -173,6 +173,15 @@ void CForest::resetGlobalMasks()
 	globalMasks.clear();
 }
 
+void CForest::resetRawI2DMasks()
+{
+	for (auto it = rawI2DMasks.begin(); it != rawI2DMasks.end(); ++it)
+	{
+		delete it->second;
+	}
+	rawI2DMasks.clear();
+}
+
 void CForest::doLoadDefaultGlobalMasks()
 {
 	for (vector<TreeClass*>::iterator i = classes.begin(); i != classes.end(); ++i) {
@@ -207,6 +216,7 @@ bool CForest::parseTreeListCsv(const string& inputTreeListCsv)
 	resetTreeClasses();
 	resetMasks();
 	resetGlobalMasks();
+	resetRawI2DMasks();
 
 	std::string header;
 	std::getline(file, header);
@@ -228,9 +238,41 @@ bool CForest::parseTreeListCsv(const string& inputTreeListCsv)
 			// If there was a trailing comma then add an empty element.
 			row.push_back("");
 		}
+		TreeClass* treeClass = getTreeClassFromStringVector(row);
+		classes.push_back(treeClass);
+
 	}
+
+	double xRatio = m_pMetaInfo->xRatio;
+	double yRatio = m_pMetaInfo->yRatio;
+
+	I2DMask* pHeightI2DMask = new CCellHeightI2DMask(m_pCellTable, xRatio, yRatio);
+	I2DMask* pSlopeI2DMask = new CCellSlopeI2DMask(m_pCellTable, xRatio, yRatio);
+	I2DMask* pMoistureI2DMask = new CCellMoistureI2DMask(m_pCellTable, xRatio, yRatio);
+	I2DMask* pRoughnessI2DMask = new CCellRoughnessI2DMask(m_pCellTable, xRatio, yRatio);
+	I2DMask* pRoadAttributeI2DMask = new CCellRoadAttributeI2DMask(m_pCellTable, xRatio, yRatio);
+
+	for (vector<TreeClass*>::iterator i = classes.begin(); i != classes.end(); ++i) {
+		TreeClass* tree = *i;
+		for (auto it = tree->masks.begin(); it != tree->masks.end(); ++it) {
+			DensityMapType densityType = it->second->type;
+			auto rawMaskIt = rawI2DMasks.find(densityType);
+			I2DMask* mask = rawMaskIt->second;
+			pair<string, I2DMask*> i2dMaskPair = GetI2DMaskKeyPairFromTreeClassWithDensityMapType(tree, densityType, mask);
+			masks.insert(i2dMaskPair);
+		}
+	}
+
+	//doLoadDefaultGlobalMasks();
+
 	return false;
 }
+
+TreeClass* CForest::getTreeClassFromStringVector(const std::vector<std::string>& row)
+{
+	return nullptr;
+}
+
 
 void CForest::generate(float forestAge, int iterations)
 {
@@ -907,6 +949,13 @@ pair<string, I2DMask*> GetI2DMaskKeyPairFromPlantTypeWithDensityMapType(PlantTyp
 pair<string, I2DMask*> GetI2DMaskKeyPairFromPlantTypeWithDensityMapTypeIndex(PlantType plantType, DensityMapType densityType, I2DMask* pI2dMask)
 {
 	string keyString = PlantTypeWithDensityMapTypeIndexToMaskString(plantType, densityType);
+	pair<string, I2DMask*> ret(keyString, pI2dMask);
+	return ret;
+}
+
+pair<string, I2DMask*> GetI2DMaskKeyPairFromTreeClassWithDensityMapType(TreeClass* treeClass, DensityMapType densityType, I2DMask* pI2dMask)
+{
+	string keyString = TreeClassWithDensityMapTypeToMaskString(treeClass, densityType);
 	pair<string, I2DMask*> ret(keyString, pI2dMask);
 	return ret;
 }
