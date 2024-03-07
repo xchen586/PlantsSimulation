@@ -139,14 +139,20 @@ public:
 
 enum struct TreeList_CSV_Columns {
 	TL_Name,
-	TL_ID,
-	TL_InfluenceR,
-	TL_Height,
-	TL_ElevationMin,
+	TL_TypeId,
+	TL_InfluenceR, //Seed Range
+	TL_Height,   //Tree height
+	TL_ElevationMin, //Heightmap height
 	TL_ElevationMax,
-	TL_HumidityMin,
+	TL_HumidityMin, //Moisture
 	TL_HumidityMax,
-	TL_Enum_Count
+	TL_Packing, //Packing
+	TL_MatureAge, //Tree mature age
+	TL_RoadCloseMin,
+	TL_RoadCloseMax,
+	TL_RoughnessMin,
+	TL_RoughnessMax,
+	TL_Enum_Count,
 };
 
 enum class PlantType {

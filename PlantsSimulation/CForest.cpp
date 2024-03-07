@@ -4,6 +4,7 @@
 #include <fstream>
 #include <filesystem> 
 #include <thread>
+#include <cassert>
 
 #include "TreeClasses.h"
 #include "CCellI2DMask.h"
@@ -213,6 +214,8 @@ bool CForest::parseTreeListCsv(const string& inputTreeListCsv)
 		return false;
 	}
 
+	std::cout << "Start to parseTreeListCsv : " << inputTreeListCsv << std::endl;
+
 	resetTreeClasses();
 	resetMasks();
 	resetGlobalMasks();
@@ -252,25 +255,99 @@ bool CForest::parseTreeListCsv(const string& inputTreeListCsv)
 	I2DMask* pRoughnessI2DMask = new CCellRoughnessI2DMask(m_pCellTable, xRatio, yRatio);
 	I2DMask* pRoadAttributeI2DMask = new CCellRoadAttributeI2DMask(m_pCellTable, xRatio, yRatio);
 
+	pair<DensityMapType, I2DMask*> heightPair(DensityMapType::DensityMap_Height, pHeightI2DMask);
+	rawI2DMasks.insert(heightPair);
+	pair<DensityMapType, I2DMask*> slopePair(DensityMapType::DensityMap_Slope, pSlopeI2DMask);
+	rawI2DMasks.insert(slopePair);
+	pair<DensityMapType, I2DMask*> moisturePair(DensityMapType::DensityMap_Moisture, pMoistureI2DMask);
+	rawI2DMasks.insert(moisturePair);
+	pair<DensityMapType, I2DMask*> roughnessPair(DensityMapType::DensityMap_Roughness, pRoughnessI2DMask);
+	rawI2DMasks.insert(roughnessPair);
+	pair<DensityMapType, I2DMask*> roadPair(DensityMapType::DensityMap_RoadAttribute, pRoadAttributeI2DMask);
+	rawI2DMasks.insert(roadPair);
+
 	for (vector<TreeClass*>::iterator i = classes.begin(); i != classes.end(); ++i) {
 		TreeClass* tree = *i;
 		for (auto it = tree->masks.begin(); it != tree->masks.end(); ++it) {
 			DensityMapType densityType = it->second->type;
 			auto rawMaskIt = rawI2DMasks.find(densityType);
 			I2DMask* mask = rawMaskIt->second;
+			assert(mask != nullptr);
 			pair<string, I2DMask*> i2dMaskPair = GetI2DMaskKeyPairFromTreeClassWithDensityMapType(tree, densityType, mask);
 			masks.insert(i2dMaskPair);
 		}
 	}
 
 	//doLoadDefaultGlobalMasks();
+	std::cout << "End to parseTreeListCsv : " << inputTreeListCsv << std::endl;
 
-	return false;
+	return true;
 }
 
 TreeClass* CForest::getTreeClassFromStringVector(const std::vector<std::string>& row)
 {
-	return nullptr;
+	std::string nameString = row[static_cast<size_t>(TreeList_CSV_Columns::TL_Name)];
+	std::string idString = row[static_cast<size_t>(TreeList_CSV_Columns::TL_TypeId)];
+	std::string influenceRString = row[static_cast<size_t>(TreeList_CSV_Columns::TL_InfluenceR)];
+	std::string heightString = row[static_cast<size_t>(TreeList_CSV_Columns::TL_Height)];
+	std::string elevationMinString = row[static_cast<size_t>(TreeList_CSV_Columns::TL_ElevationMin)];
+	std::string elevationMaxString = row[static_cast<size_t>(TreeList_CSV_Columns::TL_ElevationMax)];
+	std::string humidityMinString = row[static_cast<size_t>(TreeList_CSV_Columns::TL_HumidityMin)];
+	std::string humidityMaxString = row[static_cast<size_t>(TreeList_CSV_Columns::TL_HumidityMax)];
+	std::string packingString = row[static_cast<size_t>(TreeList_CSV_Columns::TL_Packing)];
+	std::string matureAgeString = row[static_cast<size_t>(TreeList_CSV_Columns::TL_MatureAge)];
+	std::string roadCloseMinString = row[static_cast<size_t>(TreeList_CSV_Columns::TL_RoadCloseMin)];
+	std::string roadCloseMaxString = row[static_cast<size_t>(TreeList_CSV_Columns::TL_RoadCloseMax)];
+	std::string roughnessMinString = row[static_cast<size_t>(TreeList_CSV_Columns::TL_RoughnessMin)];
+	std::string roughnessMaxString = row[static_cast<size_t>(TreeList_CSV_Columns::TL_RoughnessMax)];
+
+	unsigned int typeId = std::stoul(idString);
+	double influenceR = std::stod(influenceRString);
+	double height = std::stod(heightString);
+	double elevationMin = std::stod(elevationMinString);
+	double elevationMax = std::stod(elevationMaxString);
+	double humidityMin = std::stod(humidityMinString);
+	double humidityMax = std::stod(humidityMaxString);
+	double packing = std::stod(packingString);
+	double matureAge = std::stod(matureAgeString);
+	double roadCloseMin = std::stod(roadCloseMinString);
+	double roadCloseMax = std::stod(roadCloseMaxString);
+	double roughnessMin = std::stod(roughnessMinString);
+	double roughnessMax = std::stod(roughnessMaxString);
+
+	TreeClass* tree = new TreeClass();
+	tree->treeTypeName = nameString;
+	tree->typeId = typeId;
+	tree->matureAge = matureAge;
+	tree->radius = TreeParamRange(0, influenceR);
+	tree->seedRange = packing;
+	tree->maxAge = 360;
+
+	DensityMap* heightmapDensity = new CHeightDensityMap();
+	heightmapDensity->minval = elevationMin;
+	heightmapDensity->maxval = elevationMax;
+	pair<string, DensityMap*> heightmapDensityPair = GetDensityKeyPairFromTreeClassWithDensityMapType(tree, heightmapDensity->type, heightmapDensity);
+	tree->masks.insert(heightmapDensityPair);
+
+	DensityMap* moistureDensity = new CMoistureDensityMap();
+	moistureDensity->minval = humidityMin;
+	moistureDensity->maxval = humidityMax;
+	pair<string, DensityMap*> moistureDensityPair = GetDensityKeyPairFromTreeClassWithDensityMapType(tree, moistureDensity->type, moistureDensity);
+	tree->masks.insert(moistureDensityPair);
+#if 0
+	DensityMap* roadDensity = new CRoadAttributeDensityMap();
+	roadDensity->minval = roadCloseMin;
+	roadDensity->maxval = roadCloseMax;
+	pair<string, DensityMap*> roadDensityPair = GetDensityKeyPairFromTreeClassWithDensityMapType(tree, roadDensity->type, roadDensity);
+	tree->masks.insert(roadDensityPair);
+
+	DensityMap* roughnessDensity = new CRoughnessDensityMap();
+	roughnessDensity->minval = roughnessMin;
+	roughnessDensity->maxval = roughnessMax;
+	pair<string, DensityMap*> roughnessDensityPair = GetDensityKeyPairFromTreeClassWithDensityMapType(tree, roughnessDensity->type, roughnessDensity);
+	tree->masks.insert(roughnessDensityPair);
+#endif
+	return tree;
 }
 
 
@@ -814,13 +891,13 @@ bool CForest::outputTreeInstanceResults(const std::string& fileName, bool hasHea
 {
 	treeoutputs.clear();
 	//map<PlantType, int> plants;
-	map<unsigned int, int> plants;
+	map<std::string, int> plants;
 	for (const CTreeInstance& instance : trees)
 	{
 		//PlantType pt = instance.treeClass->typeId;
 		//map<PlantType, int>::iterator it = plants.find(pt);
-		unsigned int pt = instance.treeClass->typeId;
-		map<unsigned int, int>::iterator it = plants.find(pt);
+		std::string pt = instance.treeClass->treeTypeName;
+		map<std::string, int>::iterator it = plants.find(pt);
 		if (it != plants.end())
 		{
 			int count = it->second;
@@ -836,9 +913,10 @@ bool CForest::outputTreeInstanceResults(const std::string& fileName, bool hasHea
 	}
 
 	//for (map<PlantType, int>::iterator it = plants.begin(); it != plants.end(); ++it)
-	for (map<unsigned int, int>::iterator it = plants.begin(); it != plants.end(); ++it)
+	for (map<std::string, int>::iterator it = plants.begin(); it != plants.end(); ++it)
 	{
-		string typeString = PlantTypeToString(static_cast<PlantType>(it->first));
+		//string typeString = PlantTypeToString(static_cast<PlantType>(it->first));
+		std::string typeString = it->first;
 		int count = it->second;
 		cout << typeString << " count are " << count << endl;
 	}
