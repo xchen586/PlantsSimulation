@@ -355,6 +355,7 @@ def tree_instances_generation(config_path):
     #tree_entity_id = 'E0070AD37D4543FCB9E70D60AE47541D' # cosmin new
     #tree_entity_id = "536674D5E8D440D9A7EFCD1D879AD57A" # cosmin old
     #tree_entity_id = "3A3CFEBA226B4692A8719C78335470DD"  #xc tesst
+    
     tree_entity_id = read_ini_value(config_path, section_main, 'tree_entity_id')
     basemeshes_entity_id = read_ini_value(config_path, section_main, 'basemeshes_entity_id')
     
@@ -391,7 +392,7 @@ def tree_instances_generation(config_path):
     basemeshes_debug_level = read_ini_value(config_path, section_others, 'basemeshes_debug_level', value_type=int)
     tree_lod = read_ini_value(config_path, section_others, 'tree_lod', value_type=int)
     forest_age = read_ini_value(config_path, section_others, 'forest_age', value_type=int)
-    tree_iteration = read_ini_value(config_path, section_others, 'tree_lod', value_type=int)
+    tree_iteration = read_ini_value(config_path, section_others, 'tree_iteration', value_type=int)
 
     lambda_host.log(f'End to read value from {config_path}')
 
@@ -619,7 +620,7 @@ def tree_config_creation(ini_path):
 
     create_or_update_ini_file(ini_path, section_others, 'basemeshes_debug_level', Basemeshes_debug_level)
     create_or_update_ini_file(ini_path, section_others, 'tree_lod', 8)
-    create_or_update_ini_file(ini_path, section_others, 'forest_age', 300)
+    create_or_update_ini_file(ini_path, section_others, 'forest_age', 500)
     create_or_update_ini_file(ini_path, section_others, 'tree_iteration', 100)
     
     lambda_host.log(f'end to create tree_config_creation : {ini_path}')
@@ -680,14 +681,15 @@ lambda_host.log('qtree_active_version_property: ' + qtree_active_version_propert
 lambda_host.log('tools_active_version_property: ' + tools_active_version_property)
 
 lambda_host.progress(1, 'Start to download files')
-treelist_data_path = lambda_host.download_entity_files(treelist_active_version_property)
+treelist_data_folder = lambda_host.download_entity_files(treelist_active_version_property)
+#treelist_data_path = os.path.join(treelist_data_folder, 'TreeList.csv')
 roaddata_data_path = lambda_host.download_entity_files(roaddata_active_version_property)
 basemeshes_data_path = lambda_host.download_entity_files(basemeshes_active_version_property)
 displacement_data_path = lambda_host.download_entity_files(displacement_active_version_property)
 qtree_data_path = lambda_host.download_entity_files(qtree_active_version_property)
 tools_data_path = lambda_host.download_entity_files(tools_active_version_property)
 
-lambda_host.log('treelist_data_path: ' + treelist_data_path)
+lambda_host.log('treelist_data_folder: ' + treelist_data_folder)
 lambda_host.log('roaddata_data_path: ' + roaddata_data_path)
 lambda_host.log('basemeshes_data_path: ' + basemeshes_data_path)
 lambda_host.log('displacement_data_path: ' + displacement_data_path)
@@ -706,9 +708,10 @@ if not os.path.exists(Tools_folder):
     os.makedirs(Tools_folder)
 
 lambda_host.progress(5, 'Start to copy files')
-lambda_host.log(f'start to copy from {treelist_data_path} to {Data_folder}')
-copy_files(treelist_data_path, Data_folder)
-lambda_host.log(f'end to copy from {treelist_data_path} to {Data_folder}')
+lambda_host.log(f'start to copy from {treelist_data_folder} to {Data_folder}')
+copy_files(treelist_data_folder, Data_folder)
+lambda_host.log(f'end to copy from {treelist_data_folder} to {Data_folder}')
+treelist_data_path = os.path.join(Data_folder, 'TreeList.csv')
 lambda_host.log(f'start to copy from {roaddata_data_path} to {Data_folder}')
 copy_files(roaddata_data_path, Data_folder)
 lambda_host.log(f'end to copy from {roaddata_data_path} to {Data_folder}')
@@ -732,7 +735,7 @@ Cloud_url = 'http://localhost/'
 Project_id = '1D4CBBD1D957477E8CC3FF376FB87470'
 Folder_id = '90F6348AD5D94FCEA85C7C1CD081CE97' 
 Tree_entity_id = 'E0070AD37D4543FCB9E70D60AE47541D'
-Tree_entity_id = '3A3CFEBA226B4692A8719C78335470DD'  
+#Tree_entity_id = '3A3CFEBA226B4692A8719C78335470DD'  
 Basemeshes_entity_id = '4A59F80631E745E39557D23CED145732'
 Tiles_size = tile_size if tile_size else 10
 Tiles_x = tile_x if tile_x else 8
