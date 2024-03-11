@@ -619,9 +619,9 @@ def tree_config_creation(ini_path):
     create_or_update_ini_file(ini_path, section_road, 'road_heightmap_height', 300)
 
     create_or_update_ini_file(ini_path, section_others, 'basemeshes_debug_level', Basemeshes_debug_level)
-    create_or_update_ini_file(ini_path, section_others, 'tree_lod', 8)
-    create_or_update_ini_file(ini_path, section_others, 'forest_age', 500)
-    create_or_update_ini_file(ini_path, section_others, 'tree_iteration', 100)
+    create_or_update_ini_file(ini_path, section_others, 'tree_lod', Tree_load)
+    create_or_update_ini_file(ini_path, section_others, 'forest_age', Forest_age)
+    create_or_update_ini_file(ini_path, section_others, 'tree_iteration', Tree_iteration)
     
     lambda_host.log(f'end to create tree_config_creation : {ini_path}')
     return
@@ -666,11 +666,19 @@ lambda_host.log(f'level: {level}')
 entity_folder = lambda_host.get_entity_folder()
 lambda_host.log(f'entity_folder: {entity_folder}')
 
+Tree_load = lambda_host.input_string('tree_lod', 'tree_lod', '')
+lambda_host.log(f'Tree_load: {Tree_load}')
+Forest_age = lambda_host.input_string('forest_age', 'forest_age', '')
+lambda_host.log(f'foreForest_agest_age: {Forest_age}')
+Tree_iteration = lambda_host.input_string('tree_iteration', 'tree_iteration', '')
+lambda_host.log(f'Tree_iteration: {Tree_iteration}')
+
 treelist_active_version_property = lambda_host.input_string('treelist_active_version_property', 'treelist_active_version_property', '') 
 roaddata_active_version_property = lambda_host.input_string('roaddata_active_version_property', 'roaddata_active_version_property', '')
 basemeshes_active_version_property = lambda_host.input_string('basemeshes_active_version_property', 'basemeshes_active_version_property', '')
 displacement_active_version_property = lambda_host.input_string('displacement_active_version_property', 'displacement_active_version_property', '')
 qtree_active_version_property = lambda_host.input_string('qtree_active_version_property', 'qtree_active_version_property', '')
+tools_active_version_property = lambda_host.input_string('tools_active_version_property', 'tools_active_version_property', '')
 tools_active_version_property = lambda_host.input_string('tools_active_version_property', 'tools_active_version_property', '')
 
 lambda_host.log('treelist_active_version_property: ' + treelist_active_version_property)

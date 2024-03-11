@@ -192,6 +192,9 @@ def tree_generation_on_receive_data(
             'tile_x': 8,
             'tile_y': 5,
             'level' : 6,
+            'tree_lod': 8,
+            'forest_age': 5000,
+            'tree_iteration':100
         },
         code='xc_cloud_tree_creation.py',
         files=['xc_cloud_tree_creation.py'],
