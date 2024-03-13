@@ -250,29 +250,38 @@ def add_extra_column_to_csv(input_file, output_file, extra_column_name):
 
 def xc_process_files_entity(api : voxelfarmclient.rest, project_id, folder_id, raw_entity_type, entity_type, folder_path, name : str, version : int, color : bool):
 
+    lambda_host.log(f'start to result = api.creation_result()')
     result = api.creation_result()
+    lambda_host.log(f'end to result = api.creation_result()')
+
+    lambda_host.log(f'start to os.path.exists({folder_path})')
     if not os.path.exists(folder_path):
         lambda_host.log(f'File {folder_path} does not exist')
         result.success = False
         result.error_info = f'File {folder_path} does not exist'
         return result
-    
+    lambda_host.log(f'end to os.path.exists({folder_path})')
+
     # Use the os.listdir() function to get a list of filenames in the folder
+    lambda_host.log(f'start to os.listdir({folder_path})')
     file_names = os.listdir(folder_path)
+    lambda_host.log(f'end to os.listdir({folder_path})')
 
     # Create a list of file paths by joining the folder path with each file name
     file_paths = [os.path.join(folder_path, file_name) for file_name in file_names]   
-    print(file_paths) 
     delimiter = ' '  # You can specify any delimiter you want, e.g., ',' or '-'
     # Using join() method
     file_paths_string = delimiter.join(file_paths)
     lambda_host.log(file_paths_string)
 
+    lambda_host.log(f'start to api.get_project_crs({project_id})')
     result = api.get_project_crs(project_id)
     crs = result.crs
     if not result.success:
         return result
+    lambda_host.log(f'end to api.get_project_crs({project_id})')
     
+    lambda_host.log(f'start to api.create_entity_raw')
     result = api.create_entity_raw(project=project_id, 
         type = raw_entity_type,
         name=f'{name}', 
@@ -282,6 +291,7 @@ def xc_process_files_entity(api : voxelfarmclient.rest, project_id, folder_id, r
     entity_id = result.id
     if not result.success:
         return result
+    lambda_host.log(f'end to api.create_entity_raw')
 
     lambda_host.log(f'Attaching file {file_paths} to entity {entity_id}')
     #api.attach_files(project=project_id, id=entity_id, files={'file': file})
@@ -290,10 +300,13 @@ def xc_process_files_entity(api : voxelfarmclient.rest, project_id, folder_id, r
             api.attach_files(project=project_id, id=entity_id, files={'file': file})
             lambda_host.log(f'attach file {file_path} for entity {entity_id}')
 
+    lambda_host.log(f'start to only create the raw entity {entity_id}')
     if raw_entity_type == entity_type:
         lambda_host.log(f'only create the raw entity {entity_id}')
         return result
+    lambda_host.log(f'start to only create the raw entity {entity_id}')
 
+    lambda_host.log(f'start to api.create_entity_processed')
     result = api.create_entity_processed(project=project_id, 
         type = entity_type,
         name=f'{name}', 
@@ -306,6 +319,8 @@ def xc_process_files_entity(api : voxelfarmclient.rest, project_id, folder_id, r
     if not result.success:
         lambda_host.log(f'--------Fail to create entity {result.id} for {name} {version}--------')
         return result
+    lambda_host.log(f'end to api.create_entity_processed')
+
     lambda_host.log(f'--------Created entity {result.id} for {name} {version}--------')
     return result
 
