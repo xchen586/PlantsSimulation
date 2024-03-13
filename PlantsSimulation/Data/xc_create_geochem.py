@@ -115,6 +115,8 @@ def merge_csv_files(folder_path, output_file, columns_to_merge):
 
 TREE_INSTANCE = 1
 POI_INSTANCE = 2
+InstanceType_Attribute = 'InstanceType'
+Variant_Attribute = 'Variant'
 
 def calculate_id_for_instance(instance_type, tree_index, poi_index):
     # Calculate the extra column value based on the instance type and indices
@@ -203,7 +205,7 @@ def xc_process_files_entity(api : voxelfarmclient.rest, project_id, folder_id, r
 Cloud_url = 'http://52.226.195.5/'
 api = voxelfarmclient.rest(Cloud_url)
 project_id = '1D4CBBD1D957477E8CC3FF376FB87470'
-folder_id = '36F2FD37D03B4DDE8C2151438AA47804'
+geochems_folder_id = '36F2FD37D03B4DDE8C2151438AA47804'
 Tiles_size = 10
 Tiles_x = 8
 Tiles_y = 5
@@ -215,8 +217,7 @@ merged_csv_path = os.path.join(geo_chemical_folder, merged_csv_name)
 X_Attribute = 'XWorld'
 Y_Attribute = 'YWorld'
 Z_Attribute = 'ZWorld'
-InstanceType_Attribute = 'InstanceType'
-Variant_Attribute = 'Variant'
+
 columns_to_merge = [X_Attribute, Y_Attribute, Z_Attribute, InstanceType_Attribute, Variant_Attribute]  # Specify the columns you want to merge
 extra_column_name = 'Id'
 
@@ -249,16 +250,16 @@ create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Attribute_C
 project_entity = api.get_entity(project_id)
 version = int(project_entity['version']) + 1 if 'version' in project_entity else 1
 api.update_entity(project=project_id, id=project_id, fields={'version': version})
-result = api.create_folder(project=project_id, name=f'Version {version}', folder=folder_id)
+result = api.create_folder(project=project_id, name=f'Version {version}', folder=geochems_folder_id)
 if not result.success:
     print(f'Failed to create folder for version!')
     exit(4)
-folder_id = result.id
-print(f'-----------------Successful to create folder {folder_id} for version!-----------------')
+geochems_folder_id = result.id
+print(f'-----------------Successful to create folder {geochems_folder_id} for version!-----------------')
 
 print('Start with create geo chem entity')
 
-xc_process_files_entity(api, project_id, folder_id, api.entity_type.RawGeoChem, api.entity_type.GeoChem, geo_chemical_folder, f'GeoChemical_instances_{Tiles_size}_{Tiles_x}_{Tiles_y}-{version}', version=version, color=True)
+xc_process_files_entity(api, project_id, geochems_folder_id, api.entity_type.RawGeoChem, api.entity_type.GeoChem, geo_chemical_folder, f'GeoChemical_instances_{Tiles_size}_{Tiles_x}_{Tiles_y}-{version}', version=version, color=True)
 
 print('End with create geo chem entity')
 
