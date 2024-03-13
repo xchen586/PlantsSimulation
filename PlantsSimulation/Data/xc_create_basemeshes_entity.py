@@ -20,7 +20,22 @@ from voxelfarm import voxelfarmclient
 from voxelfarm import workflow_lambda
 from voxelfarm import process_lambda
 
-def xc_process_files_entity(api : voxelfarmclient.rest, project_id, folder_id, raw_entity_type, entity_type, folder_path, name : str, version : int, color : bool):
+def zip_folder(folder_path, zip_path):
+    try:
+        if os.path.exists(zip_path):
+            os.remove(zip_path)  # Remove existing zip file
+            
+        with ZipFile(zip_path, 'w') as zipf:
+            for root, dirs, files in os.walk(folder_path):
+                for file in files:
+                    file_path = os.path.join(root, file)
+                    zipf.write(file_path, os.path.relpath(file_path, folder_path))
+        return True
+    except Exception as e:
+        print("An error occurred:", e)
+        return False
+
+def xc_process_files_entity(api : voxelfarmclient.rest, project_id, folder_id, raw_entity_type, entity_type, folder_path, name : str, version : int, color : bool, zipped:bool = False):
 
     result = api.creation_result()
     if not os.path.exists(folder_path):
@@ -34,7 +49,7 @@ def xc_process_files_entity(api : voxelfarmclient.rest, project_id, folder_id, r
 
     # Create a list of file paths by joining the folder path with each file name
     file_paths = [os.path.join(folder_path, file_name) for file_name in file_names]   
-    print(file_paths) 
+    #print(file_paths) 
     delimiter = ' '  # You can specify any delimiter you want, e.g., ',' or '-'
     # Using join() method
     file_paths_string = delimiter.join(file_paths)
@@ -57,10 +72,33 @@ def xc_process_files_entity(api : voxelfarmclient.rest, project_id, folder_id, r
 
     print(f'Attaching file {file_paths} to entity {entity_id}')
     #api.attach_files(project=project_id, id=entity_id, files={'file': file})
-    for file_path in file_paths:
-        with open(file_path, "rb") as file:
-            api.attach_files(project=project_id, id=entity_id, files={'file': file})
-            print(f'attach file {file_path} for entity {entity_id}')
+    if zipped:
+        zip_path = f'{folder_path}_zip.zip'
+        canzip = zip_folder(folder_path, zip_path)
+        if canzip:
+            with open(zip_path, 'rb') as zfile:
+                try:
+                    #result = api.attach_files(project=project_id, id=entity_id, files={'file': (zip_path, zfile, 'application/zip')})
+                    result = api.attach_files(project=project_id, id=entity_id, files={'file': zfile})
+                except Exception as e:
+                    print("An error occurred:", e)
+                if not result.success:
+                    print(result.error_info)
+                    return result
+        
+            print(f'attach zip file {zip_path} for entity {entity_id}')
+        else:
+            result.success = False
+            result.error_info = f'Fail to zip {folder_path} as file'
+            return result
+    else:
+        for file_path in file_paths:
+            with open(file_path, "rb") as file:
+                result = api.attach_files(project=project_id, id=entity_id, files={'file': file})
+                if not result.success:
+                    print(result.error_info)
+                    return result
+                print(f'attach file {file_path} for entity {entity_id}')
 
     if raw_entity_type == entity_type:
         return result
@@ -110,14 +148,14 @@ def create_basemeshes_result_entity(api : voxelfarmclient.rest, basemeshes_outpu
     print(f'-----------------Successful to create basemeshes workflow folder {basemeshes_result_version_folder_id} for version {version}!-----------------')
 
     print('Start with create basemeshes workflow level 0 entity {level0_entity_name}')
-    result = xc_process_files_entity(api, basemeshes_result_project_id, basemeshes_result_version_folder_id, api.entity_type.RawMesh, api.entity_type.RawMesh, level0_output_folder, level0_entity_name, version=version, color=True)
+    result = xc_process_files_entity(api, basemeshes_result_project_id, basemeshes_result_version_folder_id, api.entity_type.RawMesh, api.entity_type.RawMesh, level0_output_folder, level0_entity_name, version=version, color=True, zipped=True)
     if not result.success:
         print(f'Failed to create basemeshes workflow result {level0_entity_name} with {api} basemeshes_result_project_id: {basemeshes_result_project_id} level0_output_folder: {level0_output_folder} raw: api.entity_type.RawMesh index: api.entity_type.IndexedMesh version: {version} !')
         exit(4)
     print('End with create basemeshes workflow level 0 entity {level0_entity_name}')
 
     print('Start with create basemeshes workflow level 1 entity {level1_entity_name}')
-    result = xc_process_files_entity(api, basemeshes_result_project_id, basemeshes_result_version_folder_id, api.entity_type.RawMesh, api.entity_type.RawMesh, level1_output_folder, level1_entity_name, version=version, color=True)
+    result = xc_process_files_entity(api, basemeshes_result_project_id, basemeshes_result_version_folder_id, api.entity_type.RawMesh, api.entity_type.RawMesh, level1_output_folder, level1_entity_name, version=version, color=True, zipped=True)
     if not result.success:
         print(f'Failed to create basemeshes workflow result {level1_entity_name} with {api} basemeshes_result_project_id: {basemeshes_result_project_id} level1_output_folder: {level1_output_folder} raw: api.entity_type.RawMesh index: api.entity_type.IndexedMesh version: {version} !')
         exit(4)
