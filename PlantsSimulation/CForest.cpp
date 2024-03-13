@@ -336,6 +336,13 @@ TreeClass* CForest::getTreeClassFromStringVector(const std::vector<std::string>&
 	moistureDensity->maxval = humidityMax;
 	pair<string, DensityMap*> moistureDensityPair = GetDensityKeyPairFromTreeClassWithDensityMapType(tree, moistureDensity->type, moistureDensity);
 	tree->masks.insert(moistureDensityPair);
+
+	DensityMap* slopeDensity = new CSlopeDensityMap();
+	slopeDensity->minval = 0 * (PI / 180.0);
+	slopeDensity->maxval = 63 * (PI / 180.0);
+	slopeDensity->ease = 5 * (PI / 180.0);
+	pair<string, DensityMap*> slopeDensityPair = GetDensityKeyPairFromTreeClassWithDensityMapType(tree, slopeDensity->type, slopeDensity);
+	tree->masks.insert(slopeDensityPair);
 #if 0
 	DensityMap* roadDensity = new CRoadAttributeDensityMap();
 	roadDensity->minval = roadCloseMin;
