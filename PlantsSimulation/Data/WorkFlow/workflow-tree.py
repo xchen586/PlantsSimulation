@@ -188,13 +188,21 @@ def tree_generation_on_receive_data(
             'displacement_active_version_property': displacement_active_version_property,
             'qtree_active_version_property': qtree_active_version_property,
             'tools_active_version_property': tools_active_version_property,
+            'run_update_basemeshes_assets': False,
+            'run_road_exe': True,
+            'run_worldgen_road': True,
+            'run_make_basemeshes': True,
+            'run_upload_basemeshes': False,
+            'run_make_tree_instances':True,
+            'run_upload_tree_instances': True,
+            'run_create_geochem_entity': True,
             'tile_size': 10,
             'tile_x': 8,
             'tile_y': 5,
             'level' : 6,
             'tree_lod': 8,
-            'forest_age': 5000,
-            'tree_iteration':100
+            'forest_age': 15000,
+            'tree_iteration':300
         },
         code='xc_cloud_tree_creation.py',
         files=['xc_cloud_tree_creation.py'],
@@ -211,6 +219,66 @@ def tree_generation_on_stage_complete(
     lambda_host.log(f'update_type: {update_type}')
     if update_type == 'msg':
         lambda_host.log('Tree generation stage complete')
+        return {'success': True, 'complete': True, 'error_info': 'None'}
+
+    return {'success': True, 'complete': False, 'error_info': 'None'}
+
+def basemeshes_generation_on_receive_data(
+        vf : voxelfarmclient.rest, 
+        request : workflow_lambda.request, 
+        lambda_host : workflow_lambda.workflow_lambda_host):
+    lambda_host.log('Received base meshes generation data')
+    request.properties['my_property'] = 'my_value'
+
+    treelist_active_version_property = request.get_product_property('TREE_LIST', 'raw_data')
+    roaddata_active_version_property = request.get_product_property('ROAD_DATA', 'raw_data')
+    basemeshes_active_version_property = request.get_product_property('BASE_MESHES', 'raw_data')
+    displacement_active_version_property = request.get_product_property('DISPLACEMENT_MAPS', 'raw_data')
+    qtree_active_version_property = request.get_product_property('QUADTREE', 'raw_data')
+    tools_active_version_property = request.get_product_property('TOOLS', 'raw_data')
+
+    result = lambda_host.process_lambda_entity(
+        workflow_request=request,
+        name="Lambda",
+        inputs={
+            'project_id': request.project_id,
+            'treelist_active_version_property': treelist_active_version_property,
+            'roaddata_active_version_property': roaddata_active_version_property,
+            'basemeshes_active_version_property': basemeshes_active_version_property,
+            'displacement_active_version_property': displacement_active_version_property,
+            'qtree_active_version_property': qtree_active_version_property,
+            'tools_active_version_property': tools_active_version_property,
+            'run_update_basemeshes_assets': False,
+            'run_road_exe': False,
+            'run_worldgen_road': False,
+            'run_make_basemeshes': True,
+            'run_upload_basemeshes': True,
+            'run_make_tree_instances':False,
+            'run_upload_tree_instances': False,
+            'run_create_geochem_entity': False,
+            'tile_size': 10,
+            'tile_x': 8,
+            'tile_y': 5,
+            'level' : 6,
+            'tree_lod': 8,
+            'forest_age': 15000,
+            'tree_iteration':300
+        },
+        code='xc_cloud_tree_creation.py',
+        files=['xc_cloud_tree_creation.py'],
+        update_type='msg')
+
+    return {'success': True, 'complete': False, 'error_info': ''}
+
+def basemeshes_generation_on_stage_complete(
+        vf_api : voxelfarmclient.rest,
+        request : workflow_lambda.request,
+        lambda_host : workflow_lambda.workflow_lambda_host):
+    
+    update_type = request.update_type
+    lambda_host.log(f'update_type: {update_type}')
+    if update_type == 'msg':
+        lambda_host.log('Base generation stage complete')
         return {'success': True, 'complete': True, 'error_info': 'None'}
 
     return {'success': True, 'complete': False, 'error_info': 'None'}
@@ -281,6 +349,14 @@ lambda_host.set_workflow_definition(
                 'icon': 'mesh',
                 'on_receive_data': tree_generation_on_receive_data,
                 'on_stage_done': tree_generation_on_stage_complete,
+            },
+            {
+                'id': 'BASEMESHES_GENERATION',
+                'name': 'Base Meshes Generation',
+                'description': 'The generation of the base meshes',
+                'icon': 'mesh',
+                'on_receive_data': basemeshes_generation_on_receive_data,
+                'on_stage_done': basemeshes_generation_on_stage_complete,
             }
         ],
     }

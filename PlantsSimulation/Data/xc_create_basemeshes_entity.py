@@ -109,19 +109,19 @@ def create_basemeshes_result_entity(api : voxelfarmclient.rest, basemeshes_outpu
     basemeshes_result_version_folder_id = result.id
     print(f'-----------------Successful to create basemeshes workflow folder {basemeshes_result_version_folder_id} for version {version}!-----------------')
 
-    print('Start with create basemeshes workflow level 0 entity')
+    print('Start with create basemeshes workflow level 0 entity {level0_entity_name}')
     result = xc_process_files_entity(api, basemeshes_result_project_id, basemeshes_result_version_folder_id, api.entity_type.RawMesh, api.entity_type.RawMesh, level0_output_folder, level0_entity_name, version=version, color=True)
     if not result.success:
         print(f'Failed to create basemeshes workflow result {level0_entity_name} with {api} basemeshes_result_project_id: {basemeshes_result_project_id} level0_output_folder: {level0_output_folder} raw: api.entity_type.RawMesh index: api.entity_type.IndexedMesh version: {version} !')
         exit(4)
-    print('End with create basemeshes workflow level 0 entity')
+    print('End with create basemeshes workflow level 0 entity {level0_entity_name}')
 
-    print('Start with create basemeshes workflow level 1 entity')
+    print('Start with create basemeshes workflow level 1 entity {level1_entity_name}')
     result = xc_process_files_entity(api, basemeshes_result_project_id, basemeshes_result_version_folder_id, api.entity_type.RawMesh, api.entity_type.RawMesh, level1_output_folder, level1_entity_name, version=version, color=True)
     if not result.success:
         print(f'Failed to create basemeshes workflow result {level1_entity_name} with {api} basemeshes_result_project_id: {basemeshes_result_project_id} level1_output_folder: {level1_output_folder} raw: api.entity_type.RawMesh index: api.entity_type.IndexedMesh version: {version} !')
         exit(4)
-    print('End with create basemeshes workflow level 1 entity')
+    print('End with create basemeshes workflow level 1 entity {level1_entity_name}')
     return
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------
