@@ -179,7 +179,7 @@ def is_valid_float_string(s):
     except ValueError:
         return False
     
-def run_tool(tool_path, progress_start, progress_end):    
+def xc_run_tool(tool_path, progress_start, progress_end):    
     
     lambda_host.log(f'run tree tool_path:\n{tool_path}')
     start = progress_start
@@ -419,6 +419,75 @@ def create_geochem_tree_entity(api, geo_chemical_folder):
     lambda_host.log('End with create geo chem entity')
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------
+def do_process_base_meshes(api : voxelfarmclient.rest, project_id, file_path : str, version : int, entity_name : str):
+    lambda_host.log(f'Start do_process_base_meshes Created entity {entity_name}')
+    result = api.get_project_crs(project_id)
+    crs = result.crs
+    entity_id = None
+    with open(os.path.join(file_path, 'index.vf'), 'rb') as f:
+        result = api.create_entity_raw(project=project_id, 
+            type=api.entity_type.VoxelPC, 
+            name=entity_name, 
+            fields={
+                'state': 'PARTIAL',
+            }, crs = crs)
+        entity_id = result.id
+        print(f'Attaching file {file_path}\index.vf to entity {entity_id}')
+        result = api.attach_files(project=project_id, id=entity_id, files={'file': f})
+        if not result.success:
+            print(f'Failed to attach file {file_path}\index.vf to entity {entity_id}')
+            return
+
+    with open(os.path.join(file_path, 'data.vf'), 'rb') as f:
+        print(f'Attaching file {file_path}\data.vf to entity {entity_id}')
+        result = api.attach_files(project=project_id, id=entity_id, files={'file': f})
+        if not result.success:
+            print(f'Failed to attach file {file_path}\data.vf to entity {entity_id}')
+            return
+    
+    result = api.create_process_entity(
+        project=project_id,
+        type=api.entity_type.Process,
+        name=f"Upload Voxel DB : {entity_name}",
+        fields={
+            'code': 'lambda-uploaddb.py',
+            'input_value_entity_id': entity_id,
+            'input_value_project_id': project_id,
+        },
+        crs=crs,
+        files=['lambdas/survey-composite-process.py', 'voxelfarmclient.py'])
+
+    lambda_host.log(f'End do_process_base_meshes Created entity {result.id} for {entity_name}')
+
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------
+def xc_process_base_meshes(api : voxelfarmclient.rest, basemeshes_output_folder_path):
+    basemeshes_result_project_id = Project_id
+    basemeshes_result_folder_id = '3A18892690F940759590B782AA80FC13'
+    level0_db_output_folder = os.path.join(basemeshes_output_folder_path, f'{tile_size}_{tile_x}_{tile_y}_0')
+    level1_db_output_folder = os.path.join(basemeshes_output_folder_path, f'{tile_size}_{tile_x}_{tile_y}_1')
+    project_entity = api.get_entity(basemeshes_result_project_id)
+    version = int(project_entity['version']) + 1 if 'version' in project_entity else 1
+    level0_entity_name = f'Workflow_Basemeshes_{tile_size}_{tile_x}_{tile_y}_0-ver-{version}'
+    level1_entity_name = f'Workflow_Basemeshes_{tile_size}_{tile_x}_{tile_y}_1-ver-{version}'
+
+    lambda_host.log(f'basemeshes_result_project_id :  {basemeshes_result_project_id}')
+    lambda_host.log(f'basemeshes_result_folder_id :  {basemeshes_result_folder_id}')
+    lambda_host.log(f'level0_db_output_folder :  {level0_db_output_folder}')
+    lambda_host.log(f'level1_db_output_folder :  {level1_db_output_folder}')
+    lambda_host.log(f'version :  {version}')
+    lambda_host.log(f'level0_entity_name :  {level0_entity_name}')
+    lambda_host.log(f'level0_entity_name :  {level1_entity_name}')
+
+    basemeshes_project_id = '74F0C96BF0F24DA2BB5AE4ED65D81D8C'
+    basemeshes_project_entity = api.get_entity(basemeshes_project_id)
+    basemeshes_version = int(basemeshes_project_entity['basemeshes_version']) + 1 if 'basemeshes_version' in basemeshes_project_entity else 1
+    api.update_entity(project=basemeshes_project_id, id=basemeshes_project_id, fields={'basemeshes_version': basemeshes_version})  
+    lambda_host.log(f'-----------------Successful to get basemeshes_version {basemeshes_version}!-----------------')
+    do_process_base_meshes(api, basemeshes_project_id, level0_db_output_folder, basemeshes_version, level0_entity_name)
+    do_process_base_meshes(api, basemeshes_project_id, level1_db_output_folder, basemeshes_version, level1_entity_name)
+
+
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------
 def create_basemeshes_result_entity(api : voxelfarmclient.rest, basemeshes_output_folder_path):
     basemeshes_result_project_id = Project_id
     basemeshes_result_folder_id = '3A18892690F940759590B782AA80FC13'
@@ -435,7 +504,7 @@ def create_basemeshes_result_entity(api : voxelfarmclient.rest, basemeshes_outpu
     lambda_host.log(f'level1_output_folder :  {level1_output_folder}')
     lambda_host.log(f'version :  {version}')
     lambda_host.log(f'level0_entity_name :  {level0_entity_name}')
-    lambda_host.log(f'level0_entity_name :  {level0_entity_name}')
+    lambda_host.log(f'level0_entity_name :  {level1_entity_name}')
 
     basemeshes_result_project_entity = api.get_entity(basemeshes_result_project_id)
     version = int(basemeshes_result_project_entity['version']) + 1 if 'version' in basemeshes_result_project_entity else 1
@@ -650,7 +719,7 @@ def tree_instances_generation(config_path):
     if run_road_exe:
         ##### Generate the road obj and image for smooth layer. 
         #return_code_road = launch_process(road_exe_command)
-        return_code_road = run_tool(road_exe_command, 21, 40)
+        return_code_road = xc_run_tool(road_exe_command, 21, 40)
         if return_code_road == 0:
             lambda_host.log(f'Process ({road_exe_command}) executed successfully.')
         else:
@@ -662,7 +731,7 @@ def tree_instances_generation(config_path):
     if run_worldgen_road:
         ##### Generate the height map and image for smooth layer. 
         #return_code_worldgen_road = launch_process(worldgen_command)
-        return_code_worldgen_road = run_tool(worldgen_command, 41, 60)
+        return_code_worldgen_road = xc_run_tool(worldgen_command, 41, 60)
         if return_code_worldgen_road == 0:
             lambda_host.log(f'Process ({worldgen_command}) executed successfully.')
         else:
@@ -675,7 +744,7 @@ def tree_instances_generation(config_path):
     if run_make_basemeshes:
         ##### Generate the height map from level 1 of BaseMeshes. 
         #return_code_basemash1 = launch_process(basemeshvoxelizer1_command)
-        return_code_basemash1 = run_tool(basemeshvoxelizer1_command, 61, 75)
+        return_code_basemash1 = xc_run_tool(basemeshvoxelizer1_command, 61, 75)
         if return_code_basemash1 == 0:
             lambda_host.log(f'Process ({basemeshvoxelizer1_command}) executed successfully.')
         else:
@@ -684,7 +753,7 @@ def tree_instances_generation(config_path):
             return -1
         ##### Generate the height map from level 0 of BaseMeshes.  
         #return_code_basemash0 = launch_process(basemeshvoxelizer0_command)
-        return_code_basemash0 = run_tool(basemeshvoxelizer0_command, 76, 90)
+        return_code_basemash0 = xc_run_tool(basemeshvoxelizer0_command, 76, 90)
         if return_code_basemash0 == 0:
             lambda_host.log(f'Process ({basemeshvoxelizer0_command}) executed successfully.')
         else:
@@ -696,7 +765,7 @@ def tree_instances_generation(config_path):
     if run_make_tree_instances:
         ##### Run tree exe to generate to tree instances.
         #return_code_tree = launch_process(tree_exe_command)
-        return_code_tree = run_tool(tree_exe_command, 91, 100)
+        return_code_tree = xc_run_tool(tree_exe_command, 91, 100)
         if return_code_tree == 0:
             lambda_host.log(f'Process ({tree_exe_command}) executed successfully.')
         else:
@@ -721,7 +790,8 @@ def tree_instances_generation(config_path):
     lambda_host.log(f'step for to run_upload_basemeshes : {tree_exe_command}')
     basemeshes_output_folder = basemeshes_cache_base_folder
     if run_upload_basemeshes:
-        create_basemeshes_result_entity(api, basemeshes_output_folder)
+        #create_basemeshes_result_entity(api, basemeshes_output_folder)
+        xc_process_base_meshes(api, basemeshes_output_folder)
         lambda_host.log(f'create_basemeshes_result_entity for {basemeshes_output_folder}')
 
     lambda_host.log(f'end for step tree_instances_generation')
