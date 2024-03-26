@@ -788,7 +788,7 @@ def tree_instances_generation(config_path):
         lambda_host.log(f'create_geochem_tree_entity for {geo_chemical_folder}')
 
     lambda_host.log(f'step for to run_upload_basemeshes : {tree_exe_command}')
-    basemeshes_output_folder = basemeshes_cache_base_folder
+    basemeshes_output_folder = basemeshes_db_base_folder
     if run_upload_basemeshes:
         #create_basemeshes_result_entity(api, basemeshes_output_folder)
         xc_process_base_meshes(api, basemeshes_output_folder)
