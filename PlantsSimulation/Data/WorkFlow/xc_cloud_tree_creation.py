@@ -2,6 +2,7 @@ import os
 from os import path
 import sys
 import time
+import glob
 
 import shutil
 import subprocess
@@ -19,6 +20,15 @@ import pandas as pd
 from voxelfarm import voxelfarmclient
 from voxelfarm import workflow_lambda
 from voxelfarm import process_lambda
+
+def find_files_of_type_in_folder(folder_path, file_extension):
+    files = []
+    # Recursively traverse through all subdirectories
+    for root, _, files_list in os.walk(folder_path):
+        # Use glob.glob to find files matching the pattern in each directory
+        files.extend(glob.glob(os.path.join(root, f"*.{file_extension}")))
+    
+    return files
 
 def launch_process(command):
     result = subprocess.run(command, shell=True, check=True)
@@ -419,8 +429,14 @@ def create_geochem_tree_entity(api, geo_chemical_folder):
     lambda_host.log('End with create geo chem entity')
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------
-def do_process_base_meshes(api : voxelfarmclient.rest, project_id, file_path : str, version : int, entity_name : str):
+def do_process_base_meshes(api : voxelfarmclient.rest, project_id, file_path : str, version : int, entity_name : str, code_path : str):
     lambda_host.log(f'Start do_process_base_meshes Created entity {entity_name}')
+
+    file_extension = "py"
+    code_files = find_files_of_type_in_folder(code_path, file_extension)
+    code_files_string = ', '.join(code_files)
+    lambda_host.log(f'Python code filse are : {code_files_string}')
+    
     result = api.get_project_crs(project_id)
     crs = result.crs
     entity_id = None
@@ -451,19 +467,21 @@ def do_process_base_meshes(api : voxelfarmclient.rest, project_id, file_path : s
             return
     
     result = api.create_process_entity(
+        
         project=project_id,
         #type=api.entity_type.Process,
         name=f'Upload Voxel DB : {entity_name}',
         code= 'lambda-uploaddb.py',
-        inputs={
-            'input_value_entity_id': entity_id,
-            'input_value_project_id': project_id,
-        },
         fields={
             'code': 'lambda-uploaddb.py',
             'input_value_entity_id': entity_id,
             'input_value_project_id': project_id,
-        }
+        },
+        inputs={
+            'input_value_entity_id': entity_id,
+            'input_value_project_id': project_id,
+        },
+        files = code_files
         #crs=crs,
         #files=['lambdas/survey-composite-process.py', 'voxelfarmclient.py']
         )
@@ -500,8 +518,8 @@ def xc_process_base_meshes(api : voxelfarmclient.rest, basemeshes_output_folder_
     basemeshes_version = int(basemeshes_project_entity['basemeshes_version']) + 1 if 'basemeshes_version' in basemeshes_project_entity else 1
     api.update_entity(project=basemeshes_project_id, id=basemeshes_project_id, fields={'basemeshes_version': basemeshes_version})  
     lambda_host.log(f'-----------------Successful to get basemeshes_version {basemeshes_version}!-----------------')
-    do_process_base_meshes(api, basemeshes_project_id, level0_db_output_folder, basemeshes_version, level0_entity_name)
-    do_process_base_meshes(api, basemeshes_project_id, level1_db_output_folder, basemeshes_version, level1_entity_name)
+    do_process_base_meshes(api, basemeshes_project_id, level0_db_output_folder, basemeshes_version, level0_entity_name, pythoncode_data_folder)
+    do_process_base_meshes(api, basemeshes_project_id, level1_db_output_folder, basemeshes_version, level1_entity_name, pythoncode_data_folder)
 
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -925,6 +943,7 @@ lambda_host.log(f'foreForest_agest_age: {Forest_age}')
 Tree_iteration = lambda_host.input_string('tree_iteration', 'tree_iteration', '')
 lambda_host.log(f'Tree_iteration: {Tree_iteration}')
 
+pythoncode_active_version_property = lambda_host.input_string('pythoncode_active_version_property', 'pythoncode_active_version_property', '') 
 treelist_active_version_property = lambda_host.input_string('treelist_active_version_property', 'treelist_active_version_property', '') 
 roaddata_active_version_property = lambda_host.input_string('roaddata_active_version_property', 'roaddata_active_version_property', '')
 basemeshes_active_version_property = lambda_host.input_string('basemeshes_active_version_property', 'basemeshes_active_version_property', '')
@@ -933,6 +952,7 @@ qtree_active_version_property = lambda_host.input_string('qtree_active_version_p
 tools_active_version_property = lambda_host.input_string('tools_active_version_property', 'tools_active_version_property', '')
 tools_active_version_property = lambda_host.input_string('tools_active_version_property', 'tools_active_version_property', '')
 
+lambda_host.log('pythoncode_active_version_property: ' + pythoncode_active_version_property)
 lambda_host.log('treelist_active_version_property: ' + treelist_active_version_property)
 lambda_host.log('roaddata_active_version_property: ' + roaddata_active_version_property)
 lambda_host.log('basemeshes_active_version_property: ' + basemeshes_active_version_property)
@@ -959,6 +979,7 @@ lambda_host.log('is_run_upload_tree_instances: ' + is_run_upload_tree_instances)
 lambda_host.log('is_run_create_geochem_entity: ' + is_run_create_geochem_entity)
 
 lambda_host.progress(1, 'Start to download files')
+pythoncode_data_folder = lambda_host.download_entity_files(pythoncode_active_version_property)
 treelist_data_folder = lambda_host.download_entity_files(treelist_active_version_property)
 #treelist_data_path = os.path.join(treelist_data_folder, 'TreeList.csv')
 roaddata_data_path = lambda_host.download_entity_files(roaddata_active_version_property)
@@ -967,6 +988,7 @@ displacement_data_path = lambda_host.download_entity_files(displacement_active_v
 qtree_data_path = lambda_host.download_entity_files(qtree_active_version_property)
 tools_data_path = lambda_host.download_entity_files(tools_active_version_property)
 
+lambda_host.log('pythoncode_data_folder: ' + pythoncode_data_folder)
 lambda_host.log('treelist_data_folder: ' + treelist_data_folder)
 lambda_host.log('roaddata_data_path: ' + roaddata_data_path)
 lambda_host.log('basemeshes_data_path: ' + basemeshes_data_path)
@@ -986,6 +1008,9 @@ if not os.path.exists(Tools_folder):
     os.makedirs(Tools_folder)
 
 lambda_host.progress(5, 'Start to copy files')
+lambda_host.log(f'start to copy from {pythoncode_data_folder} to {Data_folder}')
+copy_files(pythoncode_data_folder, Data_folder)
+lambda_host.log(f'end to copy from {pythoncode_data_folder} to {Data_folder}')
 lambda_host.log(f'start to copy from {treelist_data_folder} to {Data_folder}')
 copy_files(treelist_data_folder, Data_folder)
 lambda_host.log(f'end to copy from {treelist_data_folder} to {Data_folder}')
