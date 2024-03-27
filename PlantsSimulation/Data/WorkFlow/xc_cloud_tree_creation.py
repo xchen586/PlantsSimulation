@@ -447,15 +447,21 @@ def do_process_base_meshes(api : voxelfarmclient.rest, project_id, file_path : s
     
     result = api.create_process_entity(
         project=project_id,
-        type=api.entity_type.Process,
+        #type=api.entity_type.Process,
         name=f"Upload Voxel DB : {entity_name}",
+        code= 'lambda-uploaddb.py',
+        inputs={
+            'input_value_entity_id': entity_id,
+            'input_value_project_id': project_id,
+        },
         fields={
             'code': 'lambda-uploaddb.py',
             'input_value_entity_id': entity_id,
             'input_value_project_id': project_id,
-        },
-        crs=crs,
-        files=['lambdas/survey-composite-process.py', 'voxelfarmclient.py'])
+        }
+        #crs=crs,
+        #files=['lambdas/survey-composite-process.py', 'voxelfarmclient.py']
+        )
 
     lambda_host.log(f'End do_process_base_meshes Created entity {result.id} for {entity_name}')
 
@@ -478,7 +484,8 @@ def xc_process_base_meshes(api : voxelfarmclient.rest, basemeshes_output_folder_
     lambda_host.log(f'level0_entity_name :  {level0_entity_name}')
     lambda_host.log(f'level0_entity_name :  {level1_entity_name}')
 
-    basemeshes_project_id = '74F0C96BF0F24DA2BB5AE4ED65D81D8C'
+    #basemeshes_project_id = '74F0C96BF0F24DA2BB5AE4ED65D81D8C'
+    basemeshes_project_id = '1D4CBBD1D957477E8CC3FF376FB87470'
     basemeshes_project_entity = api.get_entity(basemeshes_project_id)
     basemeshes_version = int(basemeshes_project_entity['basemeshes_version']) + 1 if 'basemeshes_version' in basemeshes_project_entity else 1
     api.update_entity(project=basemeshes_project_id, id=basemeshes_project_id, fields={'basemeshes_version': basemeshes_version})  
