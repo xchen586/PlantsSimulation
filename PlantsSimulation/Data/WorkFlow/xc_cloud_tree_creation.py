@@ -425,6 +425,7 @@ def do_process_base_meshes(api : voxelfarmclient.rest, project_id, file_path : s
     crs = result.crs
     entity_id = None
     with open(os.path.join(file_path, 'index.vf'), 'rb') as f:
+        lambda_host.log(f'start create_entity_raw file for entity {entity_name}')
         result = api.create_entity_raw(project=project_id, 
             type=api.entity_type.VoxelPC, 
             name=entity_name, 
@@ -432,23 +433,27 @@ def do_process_base_meshes(api : voxelfarmclient.rest, project_id, file_path : s
                 'state': 'PARTIAL',
             }, crs = crs)
         entity_id = result.id
-        print(f'Attaching file {file_path}\index.vf to entity {entity_id}')
+        if not result.success:
+            lambda_host.log(f'Fail to create_entity_raw Created entity for {entity_name} : {result.error_info}')
+        else:
+            lambda_host.log(f'Successfully to create_entity_raw Created entity for {result.id} for {entity_name}')
+        lambda_host.log(f'Attaching file {file_path}\index.vf to entity {entity_id}')
         result = api.attach_files(project=project_id, id=entity_id, files={'file': f})
         if not result.success:
-            print(f'Failed to attach file {file_path}\index.vf to entity {entity_id}')
+            lambda_host.log(f'Failed to attach file {file_path}\index.vf to entity {entity_id}')
             return
 
     with open(os.path.join(file_path, 'data.vf'), 'rb') as f:
-        print(f'Attaching file {file_path}\data.vf to entity {entity_id}')
+        lambda_host.log(f'Attaching file {file_path}\data.vf to entity {entity_id}')
         result = api.attach_files(project=project_id, id=entity_id, files={'file': f})
         if not result.success:
-            print(f'Failed to attach file {file_path}\data.vf to entity {entity_id}')
+            lambda_host.log(f'Failed to attach file {file_path}\data.vf to entity {entity_id}')
             return
     
     result = api.create_process_entity(
         project=project_id,
         #type=api.entity_type.Process,
-        name=f"Upload Voxel DB : {entity_name}",
+        name=f'Upload Voxel DB : {entity_name}',
         code= 'lambda-uploaddb.py',
         inputs={
             'input_value_entity_id': entity_id,
@@ -462,6 +467,11 @@ def do_process_base_meshes(api : voxelfarmclient.rest, project_id, file_path : s
         #crs=crs,
         #files=['lambdas/survey-composite-process.py', 'voxelfarmclient.py']
         )
+    
+    if not result.success:
+        lambda_host.log(f'Fail to do_process_base_meshes Created entity for {entity_name} : {result.error_info}')
+    else:
+        lambda_host.log(f'Successfully to do_process_base_meshes Created entity for {result.id} for {entity_name}')
 
     lambda_host.log(f'End do_process_base_meshes Created entity {result.id} for {entity_name}')
 
