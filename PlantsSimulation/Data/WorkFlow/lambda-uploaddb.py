@@ -7,12 +7,16 @@ from datetime import timedelta
 from voxelfarm import voxelfarmclient as vfc
 from os import path
 import configparser
-import voxelfarmlambda 
+#import voxelfarmlambda 
+from voxelfarm import workflow_lambda
+from voxelfarm import process_lambda
 
 OrgId = 2343243456678890
 
-lambda_host = voxelfarmlambda.process_host()
-workflow_host = voxelfarmlambda.workflow_host()
+#lambda_host = voxelfarmlambda.process_host()
+#workflow_host = voxelfarmlambda.workflow_host()
+lambda_host = process_lambda.process_lambda_host()
+workflow_host = workflow_lambda.workflow_lambda_host()
 
 lambda_host.progress(0, 'Starting DB Upload lambda...')
 scrap_folder= lambda_host.get_scrap_folder()
