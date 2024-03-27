@@ -1,6 +1,33 @@
 from voxelfarm import workflow_lambda
 from voxelfarm import voxelfarmclient
 
+def python_code_on_receive_data(
+        vf : voxelfarmclient.rest, 
+        request : workflow_lambda.request, 
+        lambda_host : workflow_lambda.workflow_lambda_host):
+    lambda_host.log('Received Python code')
+
+    entity_id = request.raw_entity_id
+    project_id = request.project_id
+    folder_id = request.version_folder_id
+
+    lambda_host.log('Updating Python code raw entity...') 
+    result = vf.update_entity(
+        id= entity_id,
+        project=project_id, 
+        fields={
+            'file_type' : vf.entity_type.RawMesh,
+            'name' : 'Input files', 
+            'file_folder' : folder_id
+        })
+    if not result.success:
+        return {'success': False, 'error_info': result.error_info}
+    
+    # Save the entity ID that has the input files in the request properties
+    request.properties['raw_data'] = result.id
+
+    return {'success': True, 'complete': True, 'error_info': 'None'}
+
 def tree_list_on_receive_data(
         vf : voxelfarmclient.rest, 
         request : workflow_lambda.request, 
@@ -170,6 +197,7 @@ def tree_generation_on_receive_data(
     lambda_host.log('Received tree generation data')
     request.properties['my_property'] = 'my_value'
 
+    pythoncode_active_version_property = request.get_product_property('PYTHON_CODE', 'raw_data')
     treelist_active_version_property = request.get_product_property('TREE_LIST', 'raw_data')
     roaddata_active_version_property = request.get_product_property('ROAD_DATA', 'raw_data')
     basemeshes_active_version_property = request.get_product_property('BASE_MESHES', 'raw_data')
@@ -182,6 +210,7 @@ def tree_generation_on_receive_data(
         name="Lambda",
         inputs={
             'project_id': request.project_id,
+            'pythoncode_active_version_property': pythoncode_active_version_property,
             'treelist_active_version_property': treelist_active_version_property,
             'roaddata_active_version_property': roaddata_active_version_property,
             'basemeshes_active_version_property': basemeshes_active_version_property,
@@ -230,6 +259,7 @@ def basemeshes_generation_on_receive_data(
     lambda_host.log('Received base meshes generation data')
     request.properties['my_property'] = 'my_value'
 
+    pythoncode_active_version_property = request.get_product_property('PYTHON_CODE', 'raw_data')
     treelist_active_version_property = request.get_product_property('TREE_LIST', 'raw_data')
     roaddata_active_version_property = request.get_product_property('ROAD_DATA', 'raw_data')
     basemeshes_active_version_property = request.get_product_property('BASE_MESHES', 'raw_data')
@@ -242,6 +272,7 @@ def basemeshes_generation_on_receive_data(
         name="Lambda",
         inputs={
             'project_id': request.project_id,
+            'pythoncode_active_version_property': pythoncode_active_version_property,
             'treelist_active_version_property': treelist_active_version_property,
             'roaddata_active_version_property': roaddata_active_version_property,
             'basemeshes_active_version_property': basemeshes_active_version_property,
@@ -339,6 +370,13 @@ lambda_host.set_workflow_definition(
                         'description': 'A collection of tree classes',
                         'icon': 'mesh',
                         'on_receive_data': tree_list_on_receive_data,
+                    },
+                    {
+                        'id': 'PYTHON_CODE',
+                        'name': 'Python Code Files',
+                        'description': 'A collection of python code files',
+                        'icon': 'mesh',
+                        'on_receive_data': python_code_on_receive_data,
                     },
                 ]
             },
