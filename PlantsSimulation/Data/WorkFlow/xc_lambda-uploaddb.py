@@ -96,15 +96,13 @@ lambda_host.log(f'Base Meshes UploadDB entity_id: {output_db_id}')
 
 lambda_host.progress(30, 'Base Meshes UploadDB lambda working')
 
-code = lambda_host.upload_db(project_id, output_db_id, data_path, 'vox-pc', 'Voxel Data')
-
-if code:
+if lambda_host.upload_db(output_db_id, data_path, 'vox-pc', 'Voxel Data'):
     on_exit_succeessfull(vf, project_id, output_db_id, data_path)
 else:
     lambda_host.log('Base Meshes UploadDB Error on Tool.UploadDB')
     exit_code(3) 
 
-lambda_host.progress(100, 'Base Meshes UploadDB lambda finished')
+lambda_host.progress(90, 'Base Meshes UploadDB lambda processing finished')
 
 result = vf.update_entity(
     id=output_db_id,
@@ -117,5 +115,9 @@ if not result.success:
     lambda_host.log(result.error_info)
     exit_code(111)
 
-exit_code(code)
+lambda_host.progress(100, 'Base Meshes UploadDB lambda finished')
+
+lambda_host.set_exit_code(0)
+
+#exit_code(0)
     
