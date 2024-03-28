@@ -429,15 +429,13 @@ def create_geochem_tree_entity(api, geo_chemical_folder):
     lambda_host.log('End with create geo chem entity')
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------
-def do_process_base_meshes(api : voxelfarmclient.rest, project_id, file_path : str, version : int, entity_name : str, code_path : str):
+def do_process_base_meshes(api : voxelfarmclient.rest, project_id, basemeshes_db_folderId, file_path : str, version : int, entity_name : str, code_path : str):
     lambda_host.log(f'Start do_process_base_meshes Created entity {entity_name}')
 
     file_extension = 'py'
     code_files = find_files_of_type_in_folder(code_path, file_extension)
     code_files_string = ', '.join(code_files)
     lambda_host.log(f'Python code filse are : {code_files_string}')
-
-    basemeshes_db_folderId = 'CBF17A5E89EF4BA2A9A619CC57FBDA93'
     
     result = api.get_project_crs(project_id)
     crs = result.crs
@@ -511,10 +509,19 @@ def xc_process_base_meshes(api : voxelfarmclient.rest, basemeshes_output_folder_
 
     #basemeshes_project_id = '74F0C96BF0F24DA2BB5AE4ED65D81D8C'
     basemeshes_project_id = '1D4CBBD1D957477E8CC3FF376FB87470'
+    basemeshes_db_parent_folderId = 'CBF17A5E89EF4BA2A9A619CC57FBDA93'
     basemeshes_project_entity = api.get_entity(basemeshes_project_id)
     basemeshes_version = int(basemeshes_project_entity['basemeshes_version']) + 1 if 'basemeshes_version' in basemeshes_project_entity else 1
-    api.update_entity(project=basemeshes_project_id, id=basemeshes_project_id, fields={'basemeshes_version': basemeshes_version})  
+    #api.update_entity(project=basemeshes_project_id, id=basemeshes_project_id, fields={'basemeshes_version': basemeshes_version})  
     lambda_host.log(f'-----------------Successful to get basemeshes_version {basemeshes_version}!-----------------')
+
+    result = api.create_folder(project=basemeshes_project_id, name=f'Version {basemeshes_version}', folder=basemeshes_db_parent_folderId)
+    if not result.success:
+        print(f'Failed to create base meshes db folder for version!')
+        exit(4)
+    basemeshes_db_folder_Id = result.id
+    print(f'Successful to create base meshes db folder {basemeshes_db_folder_Id} for version!')
+    
     level0_entity_name = f'Workflow_Basemeshes_{tile_size}_{tile_x}_{tile_y}_0-ver-{basemeshes_version}'
     level1_entity_name = f'Workflow_Basemeshes_{tile_size}_{tile_x}_{tile_y}_1-ver-{basemeshes_version}'
 
@@ -526,8 +533,8 @@ def xc_process_base_meshes(api : voxelfarmclient.rest, basemeshes_output_folder_
     lambda_host.log(f'level0_entity_name :  {level0_entity_name}')
     lambda_host.log(f'level0_entity_name :  {level1_entity_name}')
     
-    do_process_base_meshes(api, basemeshes_project_id, level0_db_output_folder, basemeshes_version, level0_entity_name, pythoncode_data_folder)
-    do_process_base_meshes(api, basemeshes_project_id, level1_db_output_folder, basemeshes_version, level1_entity_name, pythoncode_data_folder)
+    do_process_base_meshes(api, basemeshes_project_id, basemeshes_db_folder_Id, level0_db_output_folder, basemeshes_version, level0_entity_name, pythoncode_data_folder)
+    do_process_base_meshes(api, basemeshes_project_id, basemeshes_db_folder_Id, level1_db_output_folder, basemeshes_version, level1_entity_name, pythoncode_data_folder)
 
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------
