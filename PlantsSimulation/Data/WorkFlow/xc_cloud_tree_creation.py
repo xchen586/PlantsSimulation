@@ -600,7 +600,9 @@ def xc_process_base_meshes(api : voxelfarmclient.rest, basemeshes_output_folder_
     basemeshes_project_id = '1D4CBBD1D957477E8CC3FF376FB87470'
     basemeshes_db_parent_folderId = 'CBF17A5E89EF4BA2A9A619CC57FBDA93'
     basemeshes_project_entity = api.get_entity(basemeshes_project_id)
-    basemeshes_version = int(basemeshes_project_entity['basemeshes_version']) + 1 if 'basemeshes_version' in basemeshes_project_entity else 1
+    test_version = basemeshes_project_entity['basemeshes_version']
+    lambda_host.log(f'-----------------test version: {test_version}!-----------------')
+    basemeshes_version = (int(test_version) + 1) if 'basemeshes_version' in basemeshes_project_entity else 1
     #api.update_entity(project=basemeshes_project_id, id=basemeshes_project_id, fields={'basemeshes_version': basemeshes_version})  
     lambda_host.log(f'-----------------Successful to get basemeshes_version {basemeshes_version}!-----------------')
 
