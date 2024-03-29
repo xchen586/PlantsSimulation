@@ -496,7 +496,7 @@ def do_upload_base_meshes(api : voxelfarmclient.rest, project_id, basemeshes_db_
         if not result.success:
             lambda_host.log(f'Failed to attach file {file_path}\data.vf to entity {entity_id}')
             return
-
+    lambda_host.log(f'Start to upload_db entity_id : {entity_id} ---- with folder ; {file_path}')
     if lambda_host.upload_db(entity_id, file_path, 'vox-pc', 'Voxel Data'):
         on_upload_db_succeessfull(api, project_id, entity_id, file_path)
     else:
@@ -593,6 +593,7 @@ def xc_process_base_meshes(api : voxelfarmclient.rest, basemeshes_output_folder_
     level1_db_output_folder = os.path.join(basemeshes_output_folder_path, f'{tile_size}_{tile_x}_{tile_y}_1')
     project_entity = api.get_entity(basemeshes_result_project_id)
     version = int(project_entity['version']) + 1 if 'version' in project_entity else 1
+    #api.update_entity(project=basemeshes_result_project_id, id=basemeshes_result_project_id, fields={'version': version})
     #level0_entity_name = f'Workflow_Basemeshes_{tile_size}_{tile_x}_{tile_y}_0-ver-{version}'
     #level1_entity_name = f'Workflow_Basemeshes_{tile_size}_{tile_x}_{tile_y}_1-ver-{version}'
 
@@ -603,8 +604,9 @@ def xc_process_base_meshes(api : voxelfarmclient.rest, basemeshes_output_folder_
     test_version = basemeshes_project_entity['basemeshes_version']
     lambda_host.log(f'-----------------test version: {test_version}!-----------------')
     basemeshes_version = (int(test_version) + 1) if 'basemeshes_version' in basemeshes_project_entity else 1
-    #api.update_entity(project=basemeshes_project_id, id=basemeshes_project_id, fields={'basemeshes_version': basemeshes_version})  
+    api.update_entity(project=basemeshes_project_id, id=basemeshes_project_id, fields={'basemeshes_version': basemeshes_version})  
     lambda_host.log(f'-----------------Successful to get basemeshes_version {basemeshes_version}!-----------------')
+    
 
     result = api.create_folder(project=basemeshes_project_id, name=f'Version {basemeshes_version}', folder=basemeshes_db_parent_folderId)
     if not result.success:
