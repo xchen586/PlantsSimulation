@@ -475,6 +475,7 @@ def do_process_base_meshes(api : voxelfarmclient.rest, project_id, basemeshes_db
         code= 'xc_lambda-uploaddb.py',
         fields={
             'code': 'xc_lambda-uploaddb.py',
+            'file_folder': basemeshes_db_folderId,
             'input_value_project_id': project_id,
             'input_value_entity_db_id': entity_id,
             'input_value_db_path' : file_path,
