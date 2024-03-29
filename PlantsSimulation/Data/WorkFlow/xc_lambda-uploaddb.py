@@ -106,7 +106,7 @@ else:
 lambda_host.progress(90, 'Base Meshes UploadDB lambda processing finished')
 
 result = vf.update_entity(
-    id=output_db_id,
+    id=entity_db_id,
     project=project_id, 
     fields={
         'state' : 'COMPLETE'
