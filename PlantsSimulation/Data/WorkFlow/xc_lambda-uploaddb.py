@@ -88,16 +88,17 @@ def run_tool(tool_path, progress_start, progress_end):
 lambda_host.log(f'Base Meshes UploadDB lambda started')
 lambda_host.progress(10, 'UploadDB lambda started')
 project_id = lambda_host.input_string('project_id', 'Project Id', '')
-output_db_id = lambda_host.input_string('output_db_id', 'Output Db Id', '')
-data_path = lambda_host.input_string('db_path', 'Db Path', '')
+entity_db_id = lambda_host.input_string('entity_db_id', 'Entity Db Id', '')
+#data_path = lambda_host.input_string('db_path', 'Db Path', '')
+data_path = lambda_host.download_entity_files(entity_db_id)
 lambda_host.log(f'Base Meshes UploadDB data_path: {data_path}')
 lambda_host.log(f'Base Meshes UploadDB project_id: {project_id}')
-lambda_host.log(f'Base Meshes UploadDB entity_id: {output_db_id}')
+lambda_host.log(f'Base Meshes UploadDB entity_id: {entity_db_id}')
 
 lambda_host.progress(30, 'Base Meshes UploadDB lambda working')
 
-if lambda_host.upload_db(output_db_id, data_path, 'vox-pc', 'Voxel Data'):
-    on_exit_succeessfull(vf, project_id, output_db_id, data_path)
+if lambda_host.upload_db(entity_db_id, data_path, 'vox-pc', 'Voxel Data'):
+    on_exit_succeessfull(vf, project_id, entity_db_id, data_path)
 else:
     lambda_host.log('Base Meshes UploadDB Error on Tool.UploadDB')
     exit_code(3) 

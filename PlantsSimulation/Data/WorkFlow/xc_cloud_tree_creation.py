@@ -476,12 +476,12 @@ def do_process_base_meshes(api : voxelfarmclient.rest, project_id, basemeshes_db
         fields={
             'code': 'xc_lambda-uploaddb.py',
             'input_value_project_id': project_id,
-            'input_value_output_db_id': entity_id,
+            'input_value_entity_db_id': entity_id,
             'input_value_db_path' : file_path,
         },
         inputs={
             'input_value_project_id': project_id,
-            'input_value_output_db_id': entity_id,
+            'input_value_entity_db_id': entity_id,
             'input_value_db_path' : file_path,
         },
         files = code_files
