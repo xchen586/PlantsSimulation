@@ -497,6 +497,7 @@ def do_upload_base_meshes(api : voxelfarmclient.rest, project_id, basemeshes_db_
             lambda_host.log(f'Failed to attach file {file_path}\data.vf to entity {entity_id}')
             return
     lambda_host.log(f'Start to upload_db entity_id : {entity_id} ---- with folder ; {file_path}')
+
     if lambda_host.upload_db(entity_id, file_path, 'vox-pc', 'Voxel Data'):
         on_upload_db_succeessfull(api, project_id, entity_id, file_path)
     else:
@@ -624,7 +625,7 @@ def xc_process_base_meshes(api : voxelfarmclient.rest, basemeshes_output_folder_
     lambda_host.log(f'level1_db_output_folder :  {level1_db_output_folder}')
     lambda_host.log(f'version :  {version}')
     lambda_host.log(f'level0_entity_name :  {level0_entity_name}')
-    lambda_host.log(f'level0_entity_name :  {level1_entity_name}')
+    lambda_host.log(f'level1_entity_name :  {level1_entity_name}')
     
     #do_process_base_meshes(api, basemeshes_project_id, basemeshes_db_folder_Id, level0_db_output_folder, basemeshes_version, level0_entity_name, pythoncode_data_folder)
     #do_process_base_meshes(api, basemeshes_project_id, basemeshes_db_folder_Id, level1_db_output_folder, basemeshes_version, level1_entity_name, pythoncode_data_folder)
@@ -818,6 +819,12 @@ def tree_instances_generation(config_path):
     basemeshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_debug_level} {basemeshes_heightmap_folder}'
     basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_debug_level} {basemeshes_heightmap_folder}'
     tree_exe_command = f'{tree_exe_path} {tree_ini_path}'
+
+    if run_upload_basemeshes:
+        basemeshes_all_level = 0 # use all level for base meshes 
+        basemeshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_all_level} {basemeshes_heightmap_folder}'
+        basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_all_level} {basemeshes_heightmap_folder}'
+        lambda_host.log("Adjust base meshes command line to all level")
 
     lambda_host.log(f'End to prepare command line for programs')
     ##### Make ini config file for tree exe.
