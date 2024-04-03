@@ -470,7 +470,8 @@ def do_upload_base_meshes(api : voxelfarmclient.rest, project_id, basemeshes_db_
     result = api.get_project_crs(project_id)
     crs = result.crs
     entity_id = None
-    with open(os.path.join(file_path, 'index.vf'), 'rb') as f:
+    index_vf_path = os.path.join(file_path, 'index.vf')
+    with open(index_vf_path, 'rb') as f:
         lambda_host.log(f'start create_entity_raw file for entity {entity_name}')
         result = api.create_entity_raw(project=project_id, 
             type=api.entity_type.VoxelPC, 
@@ -484,17 +485,20 @@ def do_upload_base_meshes(api : voxelfarmclient.rest, project_id, basemeshes_db_
             lambda_host.log(f'Fail to create_entity_raw Created entity for {entity_name} : {result.error_info}')
         else:
             lambda_host.log(f'Successfully to create_entity_raw Created entity for {result.id} for {entity_name}')
-        lambda_host.log(f'Attaching file {file_path}\index.vf to entity {entity_id}')
+        index_vf_size = os.path.getsize(index_vf_path)
+        lambda_host.log(f'Attaching file {index_vf_path} with size of {index_vf_size} to entity {entity_id}')
         result = api.attach_files(project=project_id, id=entity_id, files={'file': f})
         if not result.success:
-            lambda_host.log(f'Failed to attach file {file_path}\index.vf to entity {entity_id}')
+            lambda_host.log(f'Failed to 1 attach file {index_vf_path} to entity {entity_id} with error of {result.error_info}')
             return
 
-    with open(os.path.join(file_path, 'data.vf'), 'rb') as f:
-        lambda_host.log(f'Attaching file {file_path}\data.vf to entity {entity_id}')
+    data_vf_path = os.path.join(file_path, 'data.vf')
+    with open(data_vf_path, 'rb') as f:
+        data_vf_size = os.path.getsize(data_vf_path)
+        lambda_host.log(f'Attaching file {data_vf_path} with size of {data_vf_size} to entity {entity_id}')
         result = api.attach_files(project=project_id, id=entity_id, files={'file': f})
         if not result.success:
-            lambda_host.log(f'Failed to attach file {file_path}\data.vf to entity {entity_id}')
+            lambda_host.log(f'Failed to 2 attach file {data_vf_path} to entity {entity_id} with error of {result.error_info}')
             return
     lambda_host.log(f'Start to upload_db entity_id : {entity_id} ---- with folder ; {file_path}')
 
@@ -529,7 +533,8 @@ def do_process_base_meshes(api : voxelfarmclient.rest, project_id, basemeshes_db
     result = api.get_project_crs(project_id)
     crs = result.crs
     entity_id = None
-    with open(os.path.join(file_path, 'index.vf'), 'rb') as f:
+    index_vf_path = os.path.join(file_path, 'index.vf')
+    with open(index_vf_path, 'rb') as f:
         lambda_host.log(f'start create_entity_raw file for entity {entity_name}')
         result = api.create_entity_raw(project=project_id, 
             type=api.entity_type.VoxelPC, 
@@ -543,18 +548,22 @@ def do_process_base_meshes(api : voxelfarmclient.rest, project_id, basemeshes_db
             lambda_host.log(f'Fail to create_entity_raw Created entity for {entity_name} : {result.error_info}')
         else:
             lambda_host.log(f'Successfully to create_entity_raw Created entity for {result.id} for {entity_name}')
-        lambda_host.log(f'Attaching file {file_path}\index.vf to entity {entity_id}')
+        index_vf_size = os.path.getsize(index_vf_path)
+        lambda_host.log(f'Attaching file {index_vf_path} with size of {index_vf_size} to entity {entity_id}')
         result = api.attach_files(project=project_id, id=entity_id, files={'file': f})
         if not result.success:
-            lambda_host.log(f'Failed to attach file {file_path}\index.vf to entity {entity_id}')
+            lambda_host.log(f'Failed to 3 attach file {index_vf_path} to entity {entity_id} with error of {result.error_info}')
             return
 
-    with open(os.path.join(file_path, 'data.vf'), 'rb') as f:
-        lambda_host.log(f'Attaching file {file_path}\data.vf to entity {entity_id}')
+    data_vf_path = os.path.join(file_path, 'data.vf')
+    with open(data_vf_path, 'rb') as f:
+        data_vf_size = os.path.getsize(data_vf_path)
+        lambda_host.log(f'Attaching file {data_vf_path} with size of {data_vf_size} to entity {entity_id}')
         result = api.attach_files(project=project_id, id=entity_id, files={'file': f})
         if not result.success:
-            lambda_host.log(f'Failed to attach file {file_path}\data.vf to entity {entity_id}')
+            lambda_host.log(f'Failed to 4 attach file {data_vf_path} to entity {entity_id} with error of {result.error_info}')
             return
+    lambda_host.log(f'Start to upload_db entity_id : {entity_id} ---- with folder ; {file_path}')
     
     result = api.create_process_entity(
         
