@@ -795,32 +795,33 @@ def tree_instances_generation(config_path):
     basemeshes_1_heightmap_name = f'{tiles_count}_{tiles_x}_{tiles_y}_{basemeshes_level1}_heightarray.bin'
     basemeshes_0_heightmap_mask_name = f'{tiles_count}_{tiles_x}_{tiles_y}_{basemeshes_level0}_heightmasks.bin'
     basemeshes_1_heightmap_mask_name = f'{tiles_count}_{tiles_x}_{tiles_y}_{basemeshes_level1}_heightmasks.bin'
-    basemeshes_0_heightmap_path = f'{basemeshes_heightmap_folder}\\{basemeshes_0_heightmap_name}'
-    basemeshes_1_heightmap_path = f'{basemeshes_heightmap_folder}\\{basemeshes_1_heightmap_name}'
-    basemeshes_0_heightmap_mask_path = f'{basemeshes_heightmap_folder}\\{basemeshes_0_heightmap_mask_name}'
-    basemeshes_1_heightmap_mask_path = f'{basemeshes_heightmap_folder}\\{basemeshes_1_heightmap_mask_name}'
+    basemeshes_0_heightmap_path = os.path.join(basemeshes_heightmap_folder, basemeshes_0_heightmap_name)
+    basemeshes_1_heightmap_path = os.path.join(basemeshes_heightmap_folder, basemeshes_1_heightmap_name)
+    basemeshes_0_heightmap_mask_path = os.path.join(basemeshes_heightmap_folder, basemeshes_0_heightmap_mask_name)
+    basemeshes_1_heightmap_mask_path = os.path.join(basemeshes_heightmap_folder, basemeshes_1_heightmap_mask_name)
 
-    smoothlayer_output_folder = f'{smoothlayer_output_base_folder}\\{tiles_count}_{tiles_x}_{tiles_y}'
+    smoothlayer_output_folder = os.path.join(smoothlayer_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}')
     toplayer_image_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.jpg'
     toplayer_image_meta_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.jgw'
     toplayer_heightmap_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.height.raw'
     toplayer_heightmap_mask_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.height.masks.raw'
     level1_heightmap_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_level1.xyz.height.raw'
     level1_heightmap_mask_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_level1.xyz.height.masks.raw'
-    toplayer_image_path = f'{smoothlayer_output_folder}\\{toplayer_image_name}'
-    toplayer_image_meta_path = f'{smoothlayer_output_folder}\\{toplayer_image_meta_name}'
-    toplayer_heightmap_path = f'{smoothlayer_output_folder}\\{toplayer_heightmap_name}'
-    toplayer_heightmap_mask_path = f'{smoothlayer_output_folder}\\{toplayer_heightmap_mask_name}'
-    level1_heightmap_path = f'{smoothlayer_output_folder}\\{level1_heightmap_name}'
-    level1_heightmap_mask_path = f'{smoothlayer_output_folder}\\{level1_heightmap_mask_name}'
+    toplayer_image_path = os.path.join(smoothlayer_output_folder, toplayer_image_name)
+    toplayer_image_meta_path = os.path.join(smoothlayer_output_folder, toplayer_image_meta_name)
+    toplayer_heightmap_path = os.path.join(smoothlayer_output_folder, toplayer_heightmap_name)
+    toplayer_heightmap_mask_path = os.path.join(smoothlayer_output_folder, toplayer_heightmap_mask_name)
+    level1_heightmap_path = os.path.join(smoothlayer_output_folder, level1_heightmap_name)
+    level1_heightmap_mask_path = os.path.join(smoothlayer_output_folder, level1_heightmap_mask_name)
 
     lambda_host.log(f'End to to prepare input data parameter for TreesInstancesAbsolutePathWin.ini')
 
     lambda_host.log(f'Start to prepare command line for programs')
 
     api = voxelfarmclient.rest(cloud_url)
-    basemeshes_asset_download_parent_folder = f'{qtree_assets_folder}\\BaseMeshes_Versions'
-    basemeshes_asset_download_folder = f'{basemeshes_asset_download_parent_folder}\\{basemeshes_entity_id}'
+    
+    basemeshes_asset_download_parent_folder = os.path.join(qtree_assets_folder, f'BaseMeshes_Versions')
+    basemeshes_asset_download_folder = os.path.join(basemeshes_asset_download_parent_folder, basemeshes_entity_id)
     dont_run_road_game = 1
     road_exe_command = f'{road_exe_path} {tiles_count} {tiles_x} {tiles_y} {road_Heightmap_width} {road_heightmap_height} {road_input_folder} {road_output_folder} {dont_run_road_game}'
     worldgen_level = 5
@@ -870,7 +871,7 @@ def tree_instances_generation(config_path):
         for index, file_name in enumerate(file_list):
             lambda_host.log(f"Index: {index}, File Path: {file_name}")
             file_data = api.get_file(project_id, basemeshes_entity_id, file_name)
-            file_path = f'{basemeshes_asset_download_folder}\\{file_name}'
+            file_path = os.path.join(basemeshes_asset_download_folder, file_name)
             save_data_to_file(file_data, file_path)
         ##### Copy BaseMeshes(version) assets to BaseMeshes asset folder!
         copy_files(basemeshes_asset_download_folder, qtree_assets_folder)
@@ -933,16 +934,16 @@ def tree_instances_generation(config_path):
             exit_code(2)
             return -1
 
-    lambda_host.log(f'step for to run_update_basemeshes_assets')
+    lambda_host.log(f'step for to run_upload_tree_instances')
     ##### Update the tree instance files of tree entity.
-    workflow_api = workflow_lambda.workflow_lambda_host()
-    tree_instance_output_folder = f'{tree_output_base_folder}\\{tiles_count}_{tiles_x}_{tiles_y}\\instanceoutput'
+    #workflow_api = workflow_lambda.workflow_lambda_host()
+    tree_instance_output_folder = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', 'instanceoutput')
     if run_upload_tree_instances:
         update_attach_files_for_entity(api, project_id, tree_entity_id, tree_instance_output_folder, f'instances_lod8_{tiles_count}_{tiles_x}_{tiles_y}-{version}', version=version, color=True)
         lambda_host.log(f'update_attach_files_for_entity for {tree_entity_id}')
 
     lambda_host.log(f'step for to run_create_geochem_entity : {tree_exe_command}')
-    geo_chemical_folder = f'{tree_output_base_folder}\\{tiles_count}_{tiles_x}_{tiles_y}\\GeoChemical'
+    geo_chemical_folder = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', 'GeoChemical')
     if run_create_geochem_entity:
         create_geochem_tree_entity(api, geo_chemical_folder)
         lambda_host.log(f'create_geochem_tree_entity for {geo_chemical_folder}')
@@ -960,19 +961,20 @@ def tree_instances_generation(config_path):
 def tree_config_creation(ini_path):
     #road_input_folder = f'{Data_folder}\\RoadRawInit'
     lambda_host.log(f'start to create tree_config_creation : {ini_path}')
+
     road_input_folder = f'{Data_folder}'
-    road_exe_path = f'{Tools_folder}\\NPCTest2.exe'
-    basemeshes_exe_path = f'{Tools_folder}\\BaseMeshVoxelizer.exe'
-    worldgen_exe_path = f'{Tools_folder}\\WorldGen.exe'
-    tree_exe_path = f'{Tools_folder}\PlantsSimulation.exe'
+    road_exe_path = os.path.join(Tools_folder, f'NPCTest2.exe')
+    basemeshes_exe_path = os.path.join(Tools_folder, f'BaseMeshVoxelizer.exe')
+    worldgen_exe_path = os.path.join(Tools_folder, f'WorldGen.exe')
+    tree_exe_path = os.path.join(Tools_folder, f'PlantsSimulation.exe')
     qtree_assets_folder = Data_folder
 
-    road_output_folder =f'{Data_folder}\\RoadObjInfo'
-    smoothlayer_output_base_folder = f'{Data_folder}\\sommothlayer_output'
-    basemeshes_db_base_folder =f'{Data_folder}\\db'
-    basemeshes_cache_base_folder = f'{Data_folder}\\cache'
-    basemeshes_heightmap_folder = f'{Data_folder}\\heightmap'
-    tree_output_base_folder = f'{Data_folder}\\tree_output'
+    road_output_folder = os.path.join(Tools_folder, f'RoadObjInfo')
+    smoothlayer_output_base_folder = os.path.join(Tools_folder, f'sommothlayer_output')
+    basemeshes_db_base_folder = os.path.join(Tools_folder, f'db')
+    basemeshes_cache_base_folder = os.path.join(Tools_folder, f'cache')
+    basemeshes_heightmap_folder = os.path.join(Tools_folder, f'heightmap')
+    tree_output_base_folder = os.path.join(Tools_folder, f'tree_output')
 
     create_or_overwrite_empty_file(ini_path)
 
