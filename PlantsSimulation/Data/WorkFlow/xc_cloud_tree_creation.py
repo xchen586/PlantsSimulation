@@ -9,7 +9,8 @@ import subprocess
 import argparse
 from datetime import timedelta
 from timeit import default_timer as timer
-from distutils.dir_util import copy_tree
+#from distutils.dir_util import copy_tree
+from shutil import copytree
 
 import glob
 import configparser
