@@ -4,9 +4,9 @@ echo Building PlantsSimulation..
 
 mkdir -p build
 cd build
-cmake ..
-cmake --build . --config Debug
-cmake --build . --config Release
+cmake -G Xcode ..
+cmake --build . --config Debug 
+cmake --build . --config Release 
 
 cd ..
 
