@@ -1,0 +1,106 @@
+cmake_minimum_required(VERSION 3.8...3.20)
+project(PlantsSimulation
+	VERSION 1.0.0
+	LANGUAGES CXX
+	DESCRIPTION "Voxel Farm Plants Simulation")
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+include_directories(
+	../Common/Include
+	../PlantsSimulation
+)
+
+set(PUBLIC_HEADER_FILES
+	../Common/Include/CCellInfo.h
+	../Common/Include/CColonizationTree.h
+	../Common/Include/CTimeCounter.h
+	../Common/Include/Instance.h
+	../Common/Include/PointInstance.h
+	../Common/Include/PsHelper.h
+	../Common/Include/PsIniParser.h
+	../Common/Include/PsMarco.h
+	../Common/Include/stb_image.h
+	../Common/Include/stb_image_write.h
+	../Common/Include/TreeInstance.h
+	../Common/Include/Utils.h
+	../Common/Include/VoxelFarmPlatform.h
+)
+
+set(PUBLIC_SOURCE_FILES
+	../Common/Include/CCellInfo.cpp
+    ../Common/Include/CColonizationTree.cpp
+	../Common/Include/CTimeCounter.cpp
+	../Common/Include/PsHelper.cpp
+	../Common/Include/TreeInstance.cpp
+)
+
+set(PRIVATE_HEADER_FILES
+	../PlantsSimulation/CCellI2DMask.h
+	../PlantsSimulation/CForest.h
+	../PlantsSimulation/CHeightDensity.h
+	../PlantsSimulation/CMoistureDensityMap.h
+	../PlantsSimulation/CPlantsSimulation.h
+	../PlantsSimulation/CPsInstanceExporter.h
+	../PlantsSimulation/CRoadAttributeDensityMap.h
+	../PlantsSimulation/CRoughnessDensityMap.h
+	../PlantsSimulation/CSlopeDensityMap.h
+	../PlantsSimulation/I2DMask.h
+	../PlantsSimulation/TreeClasses.h
+)
+
+set(PRIVATE_SOURCE_FILES
+	../PlantsSimulation/CForest.cpp
+    ../PlantsSimulation/CPlantsSimulation.cpp
+    ../PlantsSimulation/CPsInstanceExporter.cpp
+)
+
+set(MAIN_SOURCE_FILE
+ 	../PlantsSimulation/main.cpp
+)
+
+add_executable(${PROJECT_NAME}
+ 	${MAIN_SOURCE_FILE}
+ 	${PUBLIC_HEADER_FILES}
+	${PUBLIC_SOURCE_FILES}
+ 	${PRIVATE_HEADER_FILES}
+ 	${PRIVATE_SOURCE_FILES}
+)
+
+#add_library(${PROJECT_NAME} STATIC
+#	${PUBLIC_HEADER_FILES}
+#	${PRIVATE_HEADER_FILES}
+#	${PRIVATE_SOURCE_FILES}
+#)
+
+set_target_properties(${PROJECT_NAME} PROPERTIES
+	CXX_STANDARD 20
+	CXX_EXTENSIONS OFF
+	#DEBUG_POSTFIX "d"
+	PUBLIC_HEADER "${PUBLIC_HEADER_FILES}"
+)
+
+target_include_directories(${PROJECT_NAME}
+	PRIVATE
+		#./boost
+		#../IO.LIB
+		#../include
+		#../Engine.CPP
+)
+
+if(WIN32)
+	#find_library()
+else()
+	#find_library()
+endif()
+
+target_link_libraries(${PROJECT_NAME}
+	PRIVATE
+)
+
