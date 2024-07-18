@@ -131,8 +131,8 @@ bool CPlantsSimulation::LoadInputImage()
 
 	char byte_humidity_map_low_raw[MAX_PATH];
 	memset(byte_humidity_map_low_raw, 0, sizeof(char) * MAX_PATH);
-#if __APPLE_
-	snprintf(byte_humidity_map_high_raw, MAX_PATH, "%s/%d_%d_%d_%d_%d_byte_humidity_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, exportXLow, exportYLow);
+#if __APPLE__
+	snprintf(byte_humidity_map_low_raw, MAX_PATH, "%s/%d_%d_%d_%d_%d_byte_humidity_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, exportXLow, exportYLow);
 #else
 	sprintf_s(byte_humidity_map_low_raw, MAX_PATH, "%s\\%d_%d_%d_%d_%d_byte_humidity_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, exportXLow, exportYLow);
 #endif
@@ -144,7 +144,7 @@ bool CPlantsSimulation::LoadInputImage()
 
 	char byte_humidity_map_high_raw[MAX_PATH];
 	memset(byte_humidity_map_high_raw, 0, sizeof(char) * MAX_PATH);
-#if __APPLE_
+#if __APPLE__
 	snprintf(byte_humidity_map_high_raw, MAX_PATH, "%s/%d_%d_%d_%d_%d_byte_humidity_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, exportXHigh, exportYHigh);
 #else
 	sprintf_s(byte_humidity_map_high_raw, MAX_PATH, "%s\\%d_%d_%d_%d_%d_byte_humidity_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, exportXHigh, exportYHigh);
@@ -478,7 +478,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	sprintf_s(angle_slope_map_exportout, MAX_PATH, "%s\\%d_%d_%d_angle_slope_map_exportout.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 #endif
 
-#if __APPLE_
+#if __APPLE__
 	snprintf(ushort_height_map_low_raw, MAX_PATH, "%s/%d_%d_%d_%d_%d_ushort_height_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, exportHeightMapLowRawX, exportHeightMapLowRawY);
 	snprintf(ushort_height_map_high_raw, MAX_PATH, "%s/%d_%d_%d_%d_%d_ushort_height_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, exportHeightMapHighRawX, exportHeightMapHighRawY);
 #else

@@ -52,7 +52,7 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "&quot;/Users/xchen586/Downloads/PlantsSimulationAssets&quot; &quot;/Users/xchen586/Downloads/PlantsSimulationAssets/output&quot; &quot;points_10_8_5_toplevel.xyz.jpg&quot; &quot;points_10_8_5_toplevel.xyz.jgw&quot; &quot;10_8_5_0_heightarray.bin&quot; &quot;10_8_5_1_heightarray.bin&quot; &quot;points_10_8_5_toplevel.xyz.height.raw&quot; &quot;points_10_8_5_level1.xyz.height.raw&quot; &quot;10_8_5_0_heightmasks.bin&quot; &quot;10_8_5_1_heightmasks.bin&quot; &quot;points_10_8_5_toplevel.xyz.height.masks.raw&quot; &quot;points_10_8_5_level1.xyz.height.masks.raw&quot;"
+            argument = "&quot;/Users/xchen586/Downloads/XCTreeCreation/tree_output/10_8_5/TreesInstancesAbsolutePathMac.ini&quot;"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
