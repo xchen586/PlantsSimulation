@@ -1,6 +1,6 @@
 from voxelfarm import voxelfarmclient as vfc
 import os
-from dotenv import load_dotenv
+#from dotenv import load_dotenv
 
 #load_dotenv()
 
@@ -11,6 +11,7 @@ workflow_path = 'D:\\xWork\\VoxelFarm\\PlantsSimulation\\PlantsSimulation\\Data\
 workflow_code = 'workflow-tree.py'
 vf_api = 'http://52.226.195.5/'
 #vf_api = 'http://localhost'
+vf_api = 'https://demo.voxelfarm.com/'
 #aad_app_secrets = 
 
 print(f'Project: {project_id}')
