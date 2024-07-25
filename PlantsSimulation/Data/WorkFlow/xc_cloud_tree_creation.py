@@ -488,7 +488,10 @@ def do_upload_base_meshes(api : voxelfarmclient.rest, project_id, basemeshes_db_
             lambda_host.log(f'Successfully to create_entity_raw Created entity for {result.id} for {entity_name}')
         index_vf_size = os.path.getsize(index_vf_path)
         lambda_host.log(f'Attaching file {index_vf_path} with size of {index_vf_size} to entity {entity_id}')
-        result = api.attach_files(project=project_id, id=entity_id, files={'file': f})
+        try:
+            result = api.attach_files(project=project_id, id=entity_id, files={'file': f})
+        except Exception as e:
+            lambda_host.log(f'Exception of Attach_files index vf to 1 attach file {index_vf_path} to entity {entity_id} with exception of {e}')
         if not result.success:
             lambda_host.log(f'Failed to 1 attach file {index_vf_path} to entity {entity_id} with error of {result.error_info}')
             return
@@ -497,7 +500,10 @@ def do_upload_base_meshes(api : voxelfarmclient.rest, project_id, basemeshes_db_
     with open(data_vf_path, 'rb') as f:
         data_vf_size = os.path.getsize(data_vf_path)
         lambda_host.log(f'Attaching file {data_vf_path} with size of {data_vf_size} to entity {entity_id}')
-        result = api.attach_files(project=project_id, id=entity_id, files={'file': f})
+        try: 
+            result = api.attach_files(project=project_id, id=entity_id, files={'file': f})
+        except Exception as e:
+            lambda_host.log(f'Exception of Attach_files data vf to 1 attach file {data_vf_path} to entity {entity_id} with exception of {e}')
         if not result.success:
             lambda_host.log(f'Failed to 2 attach file {data_vf_path} to entity {entity_id} with error of {result.error_info}')
             return
@@ -1078,7 +1084,6 @@ basemeshes_active_version_property = lambda_host.input_string('basemeshes_active
 displacement_active_version_property = lambda_host.input_string('displacement_active_version_property', 'displacement_active_version_property', '')
 qtree_active_version_property = lambda_host.input_string('qtree_active_version_property', 'qtree_active_version_property', '')
 tools_active_version_property = lambda_host.input_string('tools_active_version_property', 'tools_active_version_property', '')
-tools_active_version_property = lambda_host.input_string('tools_active_version_property', 'tools_active_version_property', '')
 
 lambda_host.log('pythoncode_active_version_property: ' + pythoncode_active_version_property)
 lambda_host.log('treelist_active_version_property: ' + treelist_active_version_property)
@@ -1156,6 +1161,7 @@ lambda_host.progress(10, 'Start to copy big files')
 lambda_host.log(f'start to copy from {qtree_data_path} to {Data_folder}')
 copy_files(qtree_data_path, Data_folder)
 lambda_host.log(f'end to copy from {qtree_data_path} to {Data_folder}')
+
 #lambda_host.progress(15, 'Start to download tools files')
 #lambda_host.log(f'start to copy from {tools_data_path} to {Tools_folder}')
 #copy_files(tools_data_path, Tools_folder)
