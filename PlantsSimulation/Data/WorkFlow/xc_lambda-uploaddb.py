@@ -15,7 +15,7 @@ lambda_host = process_lambda.process_lambda_host()
 workflow_host = workflow_lambda.workflow_lambda_host()
 vf = vfc.rest('http://127.0.0.1')
 
-lambda_host.progress(0, 'Starting Base Meshes DB Upload lambda...')
+lambda_host.progress(0, '----------Called by Processing Entity: Starting Base Meshes DB Upload lambda...')
 
 scrap_folder= lambda_host.get_scrap_folder()
 lambda_host.log(f'Base Meshes DB Upload scrap_folder: {scrap_folder}')
@@ -112,7 +112,7 @@ lambda_host.log(f'Base Meshes UploadDB entity_id: {entity_db_id}')
 
 lambda_host.progress(30, 'Base Meshes UploadDB lambda working')
 
-if lambda_host.upload_db(entity_db_id, data_path, 'vox-pc', 'Voxel Data'):
+if lambda_host.upload_db(entity_db_id, data_path, 'vox', 'Voxel Data'):
     on_exit_succeessfull(vf, project_id, entity_db_id, data_path)
 else:
     lambda_host.log('Base Meshes UploadDB Error on Tool.UploadDB')
@@ -131,7 +131,7 @@ if not result.success:
     lambda_host.log(result.error_info)
     exit_code(111)
 
-lambda_host.progress(100, 'Base Meshes UploadDB lambda finished')
+lambda_host.progress(100, '----------Called by Processing Entity Base Meshes UploadDB lambda finished')
 
 lambda_host.set_exit_code(0)
 
