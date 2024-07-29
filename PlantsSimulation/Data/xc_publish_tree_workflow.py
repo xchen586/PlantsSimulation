@@ -30,4 +30,7 @@ print(f'Apply credentials to VF API: {vf_api}')
 #if (aad_app_secrets!=None):
 #    vf.set_file_credentials(aad_app_secrets)
 
+print(f'Work flow file path is : {workflow_path}')
+print(f'Work flow code name is : {workflow_code}')
+
 vf.deploy_workflow(project_id, workflow_path, workflow_code)    
