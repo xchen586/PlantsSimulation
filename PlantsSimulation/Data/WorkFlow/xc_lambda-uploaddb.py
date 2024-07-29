@@ -22,6 +22,15 @@ lambda_host.log(f'Base Meshes DB Upload scrap_folder: {scrap_folder}')
 tools = lambda_host.get_tools_folder()
 lambda_host.log(f'Base Meshes DB Upload tools: {tools}\n')
 
+def find_files_of_type_in_folder(folder_path, file_extension):
+    files = []
+    # Recursively traverse through all subdirectories
+    for root, _, files_list in os.walk(folder_path):
+        # Use glob.glob to find files matching the pattern in each directory
+        files.extend(glob.glob(os.path.join(root, f"*.{file_extension}")))
+    
+    return files
+
 def on_exit_succeessfull(vf, project_id, entity_id, output_dir):
     lambda_host.progress(99, 'Uploading results')
 
@@ -91,6 +100,12 @@ project_id = lambda_host.input_string('project_id', 'Project Id', '')
 entity_db_id = lambda_host.input_string('entity_db_id', 'Entity Db Id', '')
 #data_path = lambda_host.input_string('db_path', 'Db Path', '')
 data_path = lambda_host.download_entity_files(entity_db_id)
+
+db_extension = 'vf'
+db_files = find_files_of_type_in_folder(data_path, db_extension)
+db_files_string = ', '.join(db_files)
+lambda_host.log(f'Voxel farm database filse are : {db_files_string}')
+
 lambda_host.log(f'Base Meshes UploadDB data_path: {data_path}')
 lambda_host.log(f'Base Meshes UploadDB project_id: {project_id}')
 lambda_host.log(f'Base Meshes UploadDB entity_id: {entity_db_id}')
