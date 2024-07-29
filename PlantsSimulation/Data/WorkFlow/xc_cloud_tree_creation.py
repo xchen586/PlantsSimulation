@@ -545,7 +545,7 @@ def do_process_base_meshes(api : voxelfarmclient.rest, project_id, basemeshes_db
     with open(index_vf_path, 'rb') as f:
         lambda_host.log(f'start create_entity_raw file for entity {entity_name}')
         result = api.create_entity_raw(project=project_id, 
-            type=api.entity_type.VoxelPC, 
+            type=api.entity_type.VoxelMesh, 
             name=entity_name, 
             fields={
                 'state': 'PARTIAL',
@@ -558,43 +558,52 @@ def do_process_base_meshes(api : voxelfarmclient.rest, project_id, basemeshes_db
             lambda_host.log(f'Successfully to create_entity_raw Created entity for {result.id} for {entity_name}')
         index_vf_size = os.path.getsize(index_vf_path)
         lambda_host.log(f'Attaching file {index_vf_path} with size of {index_vf_size} to entity {entity_id}')
-        result = api.attach_files(project=project_id, id=entity_id, files={'file': f})
+        try:
+            result = api.attach_files(project=project_id, id=entity_id, files={'file': f})
+        except Exception as e:
+            lambda_host.log(f'Exception of Attach_files index vf to 1 attach file {data_vf_path} to entity {entity_id} with exception of {e}')
         if not result.success:
-            lambda_host.log(f'Failed to 3 attach file {index_vf_path} to entity {entity_id} with error of {result.error_info}')
+            lambda_host.log(f'Failed to 3 attach index vf file {index_vf_path} to entity {entity_id} with error of {result.error_info}')
             return
 
     data_vf_path = os.path.join(file_path, 'data.vf')
     with open(data_vf_path, 'rb') as f:
         data_vf_size = os.path.getsize(data_vf_path)
         lambda_host.log(f'Attaching file {data_vf_path} with size of {data_vf_size} to entity {entity_id}')
-        result = api.attach_files(project=project_id, id=entity_id, files={'file': f})
+        try:
+            result = api.attach_files(project=project_id, id=entity_id, files={'file': f})
+        except Exception as e:
+            lambda_host.log(f'Exception of Attach_files data vf to 1 attach file {data_vf_path} to entity {entity_id} with exception of {e}')
         if not result.success:
-            lambda_host.log(f'Failed to 4 attach file {data_vf_path} to entity {entity_id} with error of {result.error_info}')
+            lambda_host.log(f'Failed to 4 attach data vf file {data_vf_path} to entity {entity_id} with error of {result.error_info}')
             return
     lambda_host.log(f'Start to upload_db entity_id : {entity_id} ---- with folder ; {file_path}')
     
-    result = api.create_process_entity(
+    try:
+        result = api.create_process_entity(
         
-        project=project_id,
-        #type=api.entity_type.Process,
-        name=f'Upload Base Meshes Voxel DB : {entity_name}',
-        code= 'xc_lambda-uploaddb.py',
-        fields={
-            'code': 'xc_lambda-uploaddb.py',
-            'file_folder': basemeshes_db_folderId,
-            'input_value_project_id': project_id,
-            'input_value_entity_db_id': entity_id,
-            'input_value_db_path' : file_path,
-        },
-        inputs={
-            'input_value_project_id': project_id,
-            'input_value_entity_db_id': entity_id,
-            'input_value_db_path' : file_path,
-        },
-        #files = code_files
-        #crs=crs,
-        files=['lambdas/xc_lambda-uploaddb.py']
+            project=project_id,
+            #type=api.entity_type.Process,
+            name=f'Upload Base Meshes Voxel DB : {entity_name}',
+            code= 'xc_lambda-uploaddb.py',
+            fields={
+                'code': 'xc_lambda-uploaddb.py',
+                'file_folder': basemeshes_db_folderId,
+                'input_value_project_id': project_id,
+                'input_value_entity_db_id': entity_id,
+                'input_value_db_path' : file_path,
+            },
+            inputs={
+                'input_value_project_id': project_id,
+                'input_value_entity_db_id': entity_id,
+                'input_value_db_path' : file_path,
+            },
+            #files = code_files
+            #crs=crs,
+            files=['lambdas/xc_lambda-uploaddb.py']
         )
+    except Exception as e:
+        lambda_host.log(f'Exception of create_process_entity to entity {entity_name} with exception of {e}')
     
     if not result.success:
         lambda_host.log(f'Fail to do_process_base_meshes Created entity for {entity_name} : {result.error_info}')
@@ -644,10 +653,10 @@ def xc_process_base_meshes(api : voxelfarmclient.rest, basemeshes_output_folder_
     lambda_host.log(f'level0_entity_name :  {level0_entity_name}')
     lambda_host.log(f'level1_entity_name :  {level1_entity_name}')
     
-    #do_process_base_meshes(api, basemeshes_project_id, basemeshes_db_folder_Id, level0_db_output_folder, basemeshes_version, level0_entity_name, pythoncode_data_folder)
-    #do_process_base_meshes(api, basemeshes_project_id, basemeshes_db_folder_Id, level1_db_output_folder, basemeshes_version, level1_entity_name, pythoncode_data_folder)
-    do_upload_base_meshes(api, basemeshes_project_id, basemeshes_db_folder_Id, level0_db_output_folder, basemeshes_version, level0_entity_name, pythoncode_data_folder)
-    do_upload_base_meshes(api, basemeshes_project_id, basemeshes_db_folder_Id, level1_db_output_folder, basemeshes_version, level1_entity_name, pythoncode_data_folder)
+    do_process_base_meshes(api, basemeshes_project_id, basemeshes_db_folder_Id, level0_db_output_folder, basemeshes_version, level0_entity_name, pythoncode_data_folder)
+    do_process_base_meshes(api, basemeshes_project_id, basemeshes_db_folder_Id, level1_db_output_folder, basemeshes_version, level1_entity_name, pythoncode_data_folder)
+    #do_upload_base_meshes(api, basemeshes_project_id, basemeshes_db_folder_Id, level0_db_output_folder, basemeshes_version, level0_entity_name, pythoncode_data_folder)
+    #do_upload_base_meshes(api, basemeshes_project_id, basemeshes_db_folder_Id, level1_db_output_folder, basemeshes_version, level1_entity_name, pythoncode_data_folder)
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------
 def create_basemeshes_result_entity(api : voxelfarmclient.rest, basemeshes_output_folder_path):
