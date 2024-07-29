@@ -600,7 +600,7 @@ def do_process_base_meshes(api : voxelfarmclient.rest, project_id, basemeshes_db
             },
             #files = code_files
             #crs=crs,
-            files=['lambdas/xc_lambda-uploaddb.py']
+            files=['xc_lambda-uploaddb.py']
         )
     except Exception as e:
         lambda_host.log(f'Exception of create_process_entity to entity {entity_name} with exception of {e}')
