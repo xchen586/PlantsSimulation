@@ -591,9 +591,9 @@ def do_process_base_meshes(api : voxelfarmclient.rest, project_id, basemeshes_db
             'input_value_entity_db_id': entity_id,
             'input_value_db_path' : file_path,
         },
-        files = code_files
+        #files = code_files
         #crs=crs,
-        #files=['lambdas/survey-composite-process.py', 'voxelfarmclient.py']
+        files=['lambdas/xc_lambda-uploaddb.py']
         )
     
     if not result.success:
@@ -616,8 +616,8 @@ def xc_process_base_meshes(api : voxelfarmclient.rest, basemeshes_output_folder_
     #level1_entity_name = f'Workflow_Basemeshes_{tile_size}_{tile_x}_{tile_y}_1-ver-{version}'
 
     #basemeshes_project_id = '74F0C96BF0F24DA2BB5AE4ED65D81D8C'
-    basemeshes_project_id = '1D4CBBD1D957477E8CC3FF376FB87470'
-    basemeshes_db_parent_folderId = 'CBF17A5E89EF4BA2A9A619CC57FBDA93'
+    basemeshes_project_id = '1D4CBBD1D957477E8CC3FF376FB87470' #Project: "My Projects > Pangea Next"
+    basemeshes_db_parent_folderId = 'CBF17A5E89EF4BA2A9A619CC57FBDA93' #Folder: "My Projects > Pangea Next > Basemeshes_Workflow"
     basemeshes_project_entity = api.get_entity(basemeshes_project_id)
     test_version = basemeshes_project_entity['basemeshes_version']
     lambda_host.log(f'-----------------test version: {test_version}!-----------------')
