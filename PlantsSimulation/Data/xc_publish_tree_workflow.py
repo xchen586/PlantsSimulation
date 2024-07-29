@@ -7,7 +7,14 @@ import os
 print('Publishing Tree Workflow Code')
 
 project_id = '0B0B6CCD4F56423C8196B7E9EA690E97'
-workflow_path = 'D:\\xWork\\VoxelFarm\\PlantsSimulation\\PlantsSimulation\\Data\\WorkFlow'
+workflow_win_path = 'D:\\xWork\\VoxelFarm\\PlantsSimulation\\PlantsSimulation\\Data\\WorkFlow'
+workflow_mac_path = '/Users/xchen586/xWork/VoxelFarm/PlantsSimulation/PlantsSimulation/Data'
+isWin = (os.name == 'nt')
+workflow_path = workflow_win_path
+
+if isWin != True:
+    workflow_path = workflow_mac_path
+
 workflow_code = 'workflow-tree.py'
 vf_api = 'http://52.226.195.5/'
 #vf_api = 'http://localhost'
