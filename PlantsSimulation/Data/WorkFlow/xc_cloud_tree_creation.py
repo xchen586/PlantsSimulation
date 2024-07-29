@@ -435,6 +435,7 @@ def on_upload_db_succeessfull(vf, project_id, entity_id, output_dir):
 
     # save entity properties and complete state
     properties_file = f'{output_dir}/properties.vf'
+
     if path.exists(properties_file):
         entity_data= {}
         config = configparser.ConfigParser()
@@ -487,7 +488,7 @@ def do_upload_base_meshes(api : voxelfarmclient.rest, project_id, basemeshes_db_
         else:
             lambda_host.log(f'Successfully to create_entity_raw Created entity for {result.id} for {entity_name}')
         index_vf_size = os.path.getsize(index_vf_path)
-        lambda_host.log(f'Attaching file {index_vf_path} with size of {index_vf_size} to entity {entity_id}')
+        lambda_host.log(f'Attaching file index vf {index_vf_path} with size of {index_vf_size} to entity {entity_id}')
         try:
             result = api.attach_files(project=project_id, id=entity_id, files={'file': f})
         except Exception as e:
@@ -499,7 +500,7 @@ def do_upload_base_meshes(api : voxelfarmclient.rest, project_id, basemeshes_db_
     data_vf_path = os.path.join(file_path, 'data.vf')
     with open(data_vf_path, 'rb') as f:
         data_vf_size = os.path.getsize(data_vf_path)
-        lambda_host.log(f'Attaching file {data_vf_path} with size of {data_vf_size} to entity {entity_id}')
+        lambda_host.log(f'Attaching file data vf {data_vf_path} with size of {data_vf_size} to entity {entity_id}')
         try: 
             result = api.attach_files(project=project_id, id=entity_id, files={'file': f})
         except Exception as e:
@@ -509,7 +510,7 @@ def do_upload_base_meshes(api : voxelfarmclient.rest, project_id, basemeshes_db_
             return
     lambda_host.log(f'Start to upload_db entity_id : {entity_id} ---- with folder ; {file_path}')
 
-    if lambda_host.upload_db(entity_id, file_path, 'vox-pc', 'Voxel Data'):
+    if lambda_host.upload_db(entity_id, file_path, 'vox', 'Voxel Data'):
         on_upload_db_succeessfull(api, project_id, entity_id, file_path)
     else:
         lambda_host.log('Base Meshes UploadDB Error on Tool.UploadDB')
