@@ -510,7 +510,11 @@ def do_upload_base_meshes(api : voxelfarmclient.rest, project_id, basemeshes_db_
             return
     lambda_host.log(f'Start to upload_db entity_id : {entity_id} ---- with folder ; {file_path}')
 
-    if lambda_host.upload_db(entity_id, file_path, 'vox', 'Voxel Data'):
+    try:
+        uploadDbOk = lambda_host.upload_db(entity_id, file_path, 'vox', 'Voxel Data')
+    except Exception as e:
+        lambda_host.log(f'Exception of lambda_host.upload_db: files folder: {file_path} to entity {entity_id} with exception of {e}')   
+    if uploadDbOk:
         on_upload_db_succeessfull(api, project_id, entity_id, file_path)
     else:
         lambda_host.log('Base Meshes UploadDB Error on Tool.UploadDB in do_upload_base_meshes')
@@ -653,10 +657,10 @@ def xc_process_base_meshes(api : voxelfarmclient.rest, basemeshes_output_folder_
     lambda_host.log(f'level0_entity_name :  {level0_entity_name}')
     lambda_host.log(f'level1_entity_name :  {level1_entity_name}')
     
-    do_process_base_meshes(api, basemeshes_project_id, basemeshes_db_folder_Id, level0_db_output_folder, basemeshes_version, level0_entity_name, pythoncode_data_folder)
-    do_process_base_meshes(api, basemeshes_project_id, basemeshes_db_folder_Id, level1_db_output_folder, basemeshes_version, level1_entity_name, pythoncode_data_folder)
-    #do_upload_base_meshes(api, basemeshes_project_id, basemeshes_db_folder_Id, level0_db_output_folder, basemeshes_version, level0_entity_name, pythoncode_data_folder)
-    #do_upload_base_meshes(api, basemeshes_project_id, basemeshes_db_folder_Id, level1_db_output_folder, basemeshes_version, level1_entity_name, pythoncode_data_folder)
+    #do_process_base_meshes(api, basemeshes_project_id, basemeshes_db_folder_Id, level0_db_output_folder, basemeshes_version, level0_entity_name, pythoncode_data_folder)
+    #do_process_base_meshes(api, basemeshes_project_id, basemeshes_db_folder_Id, level1_db_output_folder, basemeshes_version, level1_entity_name, pythoncode_data_folder)
+    do_upload_base_meshes(api, basemeshes_project_id, basemeshes_db_folder_Id, level0_db_output_folder, basemeshes_version, level0_entity_name, pythoncode_data_folder)
+    do_upload_base_meshes(api, basemeshes_project_id, basemeshes_db_folder_Id, level1_db_output_folder, basemeshes_version, level1_entity_name, pythoncode_data_folder)
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------
 def create_basemeshes_result_entity(api : voxelfarmclient.rest, basemeshes_output_folder_path):
