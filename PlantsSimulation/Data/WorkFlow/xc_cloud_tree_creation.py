@@ -515,17 +515,25 @@ def do_upload_base_meshes(api : voxelfarmclient.rest, project_id, basemeshes_db_
     except Exception as e:
         lambda_host.log(f'Exception of lambda_host.upload_db: files folder: {file_path} to entity {entity_id} with exception of {e}')   
     if uploadDbOk:
+        lambda_host.log(f'lambda_host.upload_db is successful in do_upload_base_meshes with {file_path} to entity {entity_id}')
         on_upload_db_succeessfull(api, project_id, entity_id, file_path)
-    else:
-        lambda_host.log('Base Meshes UploadDB Error on Tool.UploadDB in do_upload_base_meshes')
-        exit_code(3) 
-
-    result = api.update_entity(
+        result = api.update_entity(
         id = entity_id,
         project = project_id, 
         fields = {
             'state' : 'COMPLETE'
         })
+    else:
+        lambda_host.log(f'lambda_host.upload_db is failed in do_upload_base_meshes with {file_path} to entity {entity_id}')
+        result = api.update_entity(
+        id = entity_id,
+        project = project_id, 
+        fields = {
+            'state' : 'ERROR'
+        })
+        #exit_code(3) 
+
+    
 
     if not result.success:
         lambda_host.log(result.error_info)
