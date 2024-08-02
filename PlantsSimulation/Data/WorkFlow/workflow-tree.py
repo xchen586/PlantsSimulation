@@ -209,6 +209,7 @@ def tree_generation_on_receive_data(
         workflow_request=request,
         name="Lambda",
         inputs={
+            'lambda_entity_id': request.raw_entity_id,
             'project_id': request.project_id,
             'pythoncode_active_version_property': pythoncode_active_version_property,
             'treelist_active_version_property': treelist_active_version_property,
@@ -234,7 +235,7 @@ def tree_generation_on_receive_data(
             'tree_iteration':300
         },
         code='xc_cloud_tree_creation.py',
-        files=['xc_cloud_tree_creation.py'],
+        files=['xc_cloud_tree_creation.py', 'xc_lambda-uploaddb.py'],
         update_type='msg')
 
     return {'success': True, 'complete': False, 'error_info': ''}
@@ -258,6 +259,19 @@ def basemeshes_generation_on_receive_data(
         lambda_host : workflow_lambda.workflow_lambda_host):
     lambda_host.log('Received base meshes generation data')
     request.properties['my_property'] = 'my_value'
+    
+    entity_id = request.raw_entity_id
+    project_id = request.project_id
+    folder_id = request.version_folder_id
+    
+    result = vf.update_entity(
+        id= entity_id,
+        project=project_id, 
+        fields={
+            'file_type' : vf.entity_type.RawMesh,
+            'name' : 'Input files', 
+            'file_folder' : folder_id
+        })
 
     pythoncode_active_version_property = request.get_product_property('PYTHON_CODE', 'raw_data')
     treelist_active_version_property = request.get_product_property('TREE_LIST', 'raw_data')
@@ -271,6 +285,7 @@ def basemeshes_generation_on_receive_data(
         workflow_request=request,
         name="Lambda",
         inputs={
+            'lambda_entity_id': request.raw_entity_id,
             'project_id': request.project_id,
             'pythoncode_active_version_property': pythoncode_active_version_property,
             'treelist_active_version_property': treelist_active_version_property,
@@ -296,7 +311,7 @@ def basemeshes_generation_on_receive_data(
             'tree_iteration':300
         },
         code='xc_cloud_tree_creation.py',
-        files=['xc_cloud_tree_creation.py'],
+        files=['xc_cloud_tree_creation.py', 'xc_lambda-uploaddb.py'],
         update_type='msg')
 
     return {'success': True, 'complete': False, 'error_info': ''}
@@ -309,6 +324,7 @@ def basemeshes_generation_on_stage_complete(
     update_type = request.update_type
     lambda_host.log(f'update_type: {update_type}')
     if update_type == 'msg':
+        #todo read the file that we attached
         lambda_host.log('Base generation stage complete')
         return {'success': True, 'complete': True, 'error_info': 'None'}
 
