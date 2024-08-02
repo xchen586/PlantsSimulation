@@ -94,11 +94,13 @@ def run_tool(tool_path, progress_start, progress_end):
                 break
     return tool_process.returncode 
 
-lambda_host.log(f'Base Meshes UploadDB lambda started')
-lambda_host.progress(10, 'UploadDB lambda started')
+lambda_host.log(f'XC Base Meshes UploadDB lambda started')
+lambda_host.progress(10, 'XC UploadDB lambda started')
 project_id = lambda_host.input_string('project_id', 'Project Id', '')
 entity_db_id = lambda_host.input_string('entity_db_id', 'Entity Db Id', '')
 #data_path = lambda_host.input_string('db_path', 'Db Path', '')
+
+lambda_host.log(f'XC Base Meshes UploadDB lambda to entity: {entity_db_id}')
 data_path = lambda_host.download_entity_files(entity_db_id)
 
 db_extension = 'vf'
@@ -116,6 +118,12 @@ if lambda_host.upload_db(entity_db_id, data_path, 'vox', 'Voxel Data'):
     on_exit_succeessfull(vf, project_id, entity_db_id, data_path)
 else:
     lambda_host.log('Base Meshes UploadDB Error on Tool.UploadDB')
+    result = vf.update_entity(
+    id=entity_db_id,
+    project=project_id, 
+    fields={
+        'state' : 'ERROR'
+    })
     exit_code(3) 
 
 lambda_host.progress(90, 'Base Meshes UploadDB lambda processing finished')
