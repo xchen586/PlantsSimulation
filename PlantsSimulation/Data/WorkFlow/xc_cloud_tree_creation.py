@@ -440,7 +440,7 @@ def on_upload_db_succeessfull(vf, project_id, entity_id, output_dir):
         entity_data= {}
         config = configparser.ConfigParser()
         config.read(properties_file)
-        lambda_host.log('Entity Properties')
+        lambda_host.log('XC Entity Properties')
 
         section = config.sections()[0]
 
@@ -458,7 +458,7 @@ def on_upload_db_succeessfull(vf, project_id, entity_id, output_dir):
     if path.exists(unified_file):
         lambda_host.upload(unified_file, "extended.meta", entity_id)
     else:
-        lambda_host.log("extended.meta File not found")
+        lambda_host.log("XC extended.meta File not found")
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------
 def do_upload_base_meshes(api : voxelfarmclient.rest, project_id, basemeshes_db_folderId, file_path : str, version : int, entity_name : str, code_path : str):
@@ -556,12 +556,12 @@ azure_storage_connection_string=DefaultEndpointsProtocol=https;AccountName=vfstp
 storage_provider=AZURE
 '''
     # Log the configuration string
-    lambda_host.log(f'Tool.UploadDB.exe surveys configuration ini file content is : ')
+    lambda_host.log(f'XC Tool.UploadDB.exe surveys configuration ini file content is : ')
     lambda_host.log(f'{uploaddb_cfg}')
     
     # Create path for the ini file
     ini_file = os.path.join(scrap_folder, f'uploaddb_{dbName}.ini')
-    lambda_host.log(f'Create surveys configuration file {ini_file}')
+    lambda_host.log(f'XC Create surveys configuration file {ini_file}')
     
     # Write configuration string to the ini file
     with open(ini_file, "w") as ini:
@@ -586,7 +586,7 @@ storage_provider=AZURE
     end = timer()
     
     # Log the duration and exit code of the upload operation
-    lambda_host.log(f'Swarm UploadDB: {timedelta(seconds=end - start)}, exit code: {return_code}')
+    lambda_host.log(f'XC Swarm UploadDB: {timedelta(seconds=end - start)}, exit code: {return_code}')
     
     # Return the exit code
     return return_code
@@ -617,7 +617,8 @@ def do_upload_base_meshes_swarm(api : voxelfarmclient.rest, project_id, basemesh
         try:
             result = api.attach_files(project=project_id, id=entity_id, files={'file': f})
         except Exception as e:
-            lambda_host.log(f'Exception of Attach_files index vf to 1 attach file {index_vf_path} to entity {entity_id} with exception of {str(e)}')
+            exception_message = str(e)
+            lambda_host.log(f'Exception of Attach_files index vf to 1 attach file {index_vf_path} to entity {entity_id} with exception of {exception_message}')
         if not result.success:
             lambda_host.log(f'Failed to 1 attach file {index_vf_path} to entity {entity_id} with error of {result.error_info}')
             return
@@ -629,18 +630,21 @@ def do_upload_base_meshes_swarm(api : voxelfarmclient.rest, project_id, basemesh
         try: 
             result = api.attach_files(project=project_id, id=entity_id, files={'file': f})
         except Exception as e:
-            lambda_host.log(f'Exception of Attach_files data vf to 1 attach file {data_vf_path} to entity {entity_id} with exception of {str(e)}')
+            exception_message = str(e)
+            exception_repr_message = repr(e)
+            lambda_host.log(f'Exception of Attach_files data vf to 1 attach file {data_vf_path} to entity {entity_id} with exception of {exception_message}')
+            lambda_host.log(f'Exception of Attach_files data vf exception repr message of {exception_repr_message}')
         if not result.success:
             lambda_host.log(f'Failed to 2 attach file {data_vf_path} to entity {entity_id} with error of {result.error_info}')
             return
     lambda_host.log(f'Start to do_swarm_db_upload entity_id : {entity_id} ---- with folder ; {file_path}')
     
-    do_swarm_db_upload(project_id, entity_id, file_path, 'vox', 'Voxel Data')
-    
     uploadcode = None
     try:
         # Attempt to upload the database
-        uploadcode = do_swarm_db_upload(project_id, entity_id, file_path, 'vox-mesh', 'Voxel Mesh Data')
+        dbName = f'vox-mesh-{entity_name}'
+        dbTitle = f'Voxel Mesh Data For {entity_name}'
+        uploadcode = do_swarm_db_upload(project_id, entity_id, file_path, dbName, dbTitle)
     except Exception as e:
         # Log any exceptions that occur during the upload
         lambda_host.log(f'Exception during do_swarm_db_upload: files folder: {file_path} to entity {entity_id} with exception: {str(e)}')
