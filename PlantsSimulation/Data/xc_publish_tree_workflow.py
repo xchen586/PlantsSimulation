@@ -26,7 +26,7 @@ print(f'Using VF API: {vf_api}')
 
 vf = vfc.rest(vf_api)
 
-print(f'Apply credentials to VF API: {vf_api}')
+#print(f'Apply credentials to VF API: {vf_api}')
 #if (aad_app_secrets!=None):
 #    vf.set_file_credentials(aad_app_secrets)
 
