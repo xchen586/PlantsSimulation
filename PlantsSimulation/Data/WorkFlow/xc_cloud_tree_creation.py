@@ -463,12 +463,7 @@ def on_upload_db_succeessfull(vf, project_id, entity_id, output_dir):
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------
 def do_upload_base_meshes(api : voxelfarmclient.rest, project_id, basemeshes_db_folderId, file_path : str, version : int, entity_name : str, code_path : str):
     lambda_host.log(f'Start do_upload_base_meshes Created entity {entity_name}')
-
-    file_extension = 'py'
-    code_files = find_files_of_type_in_folder(code_path, file_extension)
-    code_files_string = ', '.join(code_files)
-    lambda_host.log(f'Python code filse are : {code_files_string}')
-    
+ 
     result = api.get_project_crs(project_id)
     crs = result.crs
     entity_id = None
@@ -533,14 +528,143 @@ def do_upload_base_meshes(api : voxelfarmclient.rest, project_id, basemeshes_db_
         })
         #exit_code(3) 
 
-    
-
     if not result.success:
         lambda_host.log(result.error_info)
         exit(3)
 
     lambda_host.log(f'End do_upload_base_meshes Created entity {result.id} for {entity_name}')
+    
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------
+def do_swarm_db_upload(projectId, itemId, outputDBFolder, dbName, dbTitle):
+    # Log progress for creating configuration file
+    lambda_host.progress(85, 'XC Create configuration file for uploading dataset')
+    
+    # Define organization ID
+    OrgId = 2343243456678890
+    
+    # Create configuration string
+    uploaddb_cfg = f'''
+[Configuration]
+Organization={OrgId}
+Instance={itemId}
+Project={projectId}
+OutputFolder={outputDBFolder}
+dbName={dbName}
+dbTitle={dbTitle}
+azure_container_name=vfcloudstorage
+azure_storage_connection_string=DefaultEndpointsProtocol=https;AccountName=vfstpangea;AccountKey=qo+5MnyJBELDbjQUBIOyl7mlyg9FlYnz7XShIyao2wd6Et+vVNMv3Szuvc5uY++zhba8TaWq/uXc+AStuouKIQ==;EndpointSuffix=core.windows.net
+storage_provider=AZURE
+'''
+    # Log the configuration string
+    lambda_host.log(f'Tool.UploadDB.exe surveys configuration ini file content is : ')
+    lambda_host.log(f'{uploaddb_cfg}')
+    
+    # Create path for the ini file
+    ini_file = os.path.join(scrap_folder, f'uploaddb_{dbName}.ini')
+    lambda_host.log(f'Create surveys configuration file {ini_file}')
+    
+    # Write configuration string to the ini file
+    with open(ini_file, "w") as ini:
+        ini.write(uploaddb_cfg)
+    
+    # Log the configuration string again
+    lambda_host.log(f'{uploaddb_cfg}')
+    
+    # Define swarm index and size
+    swarmIndex = 0
+    swarmSize = 1
+    
+    # Construct the path for the upload tool
+    uploaddb_path = f'{tools}\\Tool.UploadDB.exe {ini_file} {swarmIndex} {swarmSize}'
 
+    # Attach the configuration file for logging
+    lambda_host.attach_file(ini_file)
+
+    # Execute the upload tool and time the operation
+    start = timer()
+    return_code = xc_run_tool(uploaddb_path, 86, 98)
+    end = timer()
+    
+    # Log the duration and exit code of the upload operation
+    lambda_host.log(f'Swarm UploadDB: {timedelta(seconds=end - start)}, exit code: {return_code}')
+    
+    # Return the exit code
+    return return_code
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------
+def do_upload_base_meshes_swarm(api : voxelfarmclient.rest, project_id, basemeshes_db_folderId, file_path : str, version : int, entity_name : str, code_path : str):
+    lambda_host.log(f'Start do_upload_base_meshes_swarm Created entity {entity_name}')
+
+    result = api.get_project_crs(project_id)
+    crs = result.crs
+    entity_id = None
+    index_vf_path = os.path.join(file_path, 'index.vf')
+    with open(index_vf_path, 'rb') as f:
+        lambda_host.log(f'start create_entity_raw file for entity {entity_name}')
+        result = api.create_entity_raw(project=project_id, 
+            type=api.entity_type.VoxelPC, 
+            name=entity_name, 
+            fields={
+                'state': 'PARTIAL',
+                'file_folder': basemeshes_db_folderId,
+            }, crs = crs)
+        entity_id = result.id
+        if not result.success:
+            lambda_host.log(f'Fail to create_entity_raw Created entity for {entity_name} : {result.error_info}')
+        else:
+            lambda_host.log(f'Successfully to create_entity_raw Created entity for {result.id} for {entity_name}')
+        index_vf_size = os.path.getsize(index_vf_path)
+        lambda_host.log(f'Attaching file index vf {index_vf_path} with size of {index_vf_size} to entity {entity_id}')
+        try:
+            result = api.attach_files(project=project_id, id=entity_id, files={'file': f})
+        except Exception as e:
+            lambda_host.log(f'Exception of Attach_files index vf to 1 attach file {index_vf_path} to entity {entity_id} with exception of {str(e)}')
+        if not result.success:
+            lambda_host.log(f'Failed to 1 attach file {index_vf_path} to entity {entity_id} with error of {result.error_info}')
+            return
+
+    data_vf_path = os.path.join(file_path, 'data.vf')
+    with open(data_vf_path, 'rb') as f:
+        data_vf_size = os.path.getsize(data_vf_path)
+        lambda_host.log(f'Attaching file data vf {data_vf_path} with size of {data_vf_size} to entity {entity_id}')
+        try: 
+            result = api.attach_files(project=project_id, id=entity_id, files={'file': f})
+        except Exception as e:
+            lambda_host.log(f'Exception of Attach_files data vf to 1 attach file {data_vf_path} to entity {entity_id} with exception of {str(e)}')
+        if not result.success:
+            lambda_host.log(f'Failed to 2 attach file {data_vf_path} to entity {entity_id} with error of {result.error_info}')
+            return
+    lambda_host.log(f'Start to do_swarm_db_upload entity_id : {entity_id} ---- with folder ; {file_path}')
+    
+    do_swarm_db_upload(project_id, entity_id, file_path, 'vox', 'Voxel Data')
+    
+    uploadcode = None
+    try:
+        # Attempt to upload the database
+        uploadcode = do_swarm_db_upload(project_id, entity_id, file_path, 'vox-mesh', 'Voxel Mesh Data')
+    except Exception as e:
+        # Log any exceptions that occur during the upload
+        lambda_host.log(f'Exception during do_swarm_db_upload: files folder: {file_path} to entity {entity_id} with exception: {str(e)}')
+    
+    # Check if uploadcode was assigned
+    if uploadcode is not None:
+        # Proceed with further logic if needed
+        lambda_host.log(f'Upload completed with exit code: {uploadcode}')
+    else:
+        # Handle the case where uploadcode was not assigned (likely due to an exception)
+        lambda_host.log('Upload did not complete successfully. Please check the logs for details.')
+
+    result = api.update_entity(
+    id=entity_id,
+    project=project_id, 
+    fields={
+        'state' : 'COMPLETE'
+    })
+    
+    if not result.success:
+        lambda_host.log(result.error_info)
+        exit_code(111)
+
+    lambda_host.log(f'End do_upload_base_meshes_swarm Created entity {result.id} for {entity_name}')
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------
 def do_process_base_meshes(api : voxelfarmclient.rest, project_id, basemeshes_db_folderId, file_path : str, version : int, entity_name : str, code_path : str):
     lambda_host.log(f'Start do_process_base_meshes Created entity {entity_name}')
@@ -665,11 +789,12 @@ def xc_process_base_meshes(api : voxelfarmclient.rest, basemeshes_output_folder_
     lambda_host.log(f'level0_entity_name :  {level0_entity_name}')
     lambda_host.log(f'level1_entity_name :  {level1_entity_name}')
     
-    do_process_base_meshes(api, basemeshes_project_id, basemeshes_db_folder_Id, level0_db_output_folder, basemeshes_version, level0_entity_name, pythoncode_data_folder)
-    do_process_base_meshes(api, basemeshes_project_id, basemeshes_db_folder_Id, level1_db_output_folder, basemeshes_version, level1_entity_name, pythoncode_data_folder)
+    #do_process_base_meshes(api, basemeshes_project_id, basemeshes_db_folder_Id, level0_db_output_folder, basemeshes_version, level0_entity_name, pythoncode_data_folder)
+    #do_process_base_meshes(api, basemeshes_project_id, basemeshes_db_folder_Id, level1_db_output_folder, basemeshes_version, level1_entity_name, pythoncode_data_folder)
     #do_upload_base_meshes(api, basemeshes_project_id, basemeshes_db_folder_Id, level0_db_output_folder, basemeshes_version, level0_entity_name, pythoncode_data_folder)
     #do_upload_base_meshes(api, basemeshes_project_id, basemeshes_db_folder_Id, level1_db_output_folder, basemeshes_version, level1_entity_name, pythoncode_data_folder)
-
+    do_upload_base_meshes_swarm(api, basemeshes_project_id, basemeshes_db_folder_Id, level0_db_output_folder, basemeshes_version, level0_entity_name, pythoncode_data_folder)
+    do_upload_base_meshes_swarm(api, basemeshes_project_id, basemeshes_db_folder_Id, level1_db_output_folder, basemeshes_version, level1_entity_name, pythoncode_data_folder)
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------
 def create_basemeshes_result_entity(api : voxelfarmclient.rest, basemeshes_output_folder_path):
     basemeshes_result_project_id = Project_id
