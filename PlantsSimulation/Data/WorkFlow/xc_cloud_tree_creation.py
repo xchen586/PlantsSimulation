@@ -14,6 +14,7 @@ from shutil import copytree
 
 import glob
 import configparser
+from io import StringIO
 from zipfile import ZipFile
 
 import pandas as pd
@@ -102,6 +103,20 @@ def save_data_to_file(data, file_path):
         elif isinstance(data, bytes):
             file.write(data)
     print(f"Data saved successfully to: {file_path}")
+    
+def ini_file_to_string(file_path):
+    # Create a ConfigParser object
+    config = configparser.ConfigParser()
+
+    # Read the .ini file
+    config.read(file_path)
+
+    # Use a StringIO object to get the content as a string
+    with StringIO() as output:
+        config.write(output)
+        ini_string = output.getvalue()
+
+    return ini_string
 
 def create_or_update_ini_file(file_path, section, key, value):
     # Check if the INI file exists
@@ -664,11 +679,16 @@ def do_upload_base_meshes_swarm(api : voxelfarmclient.rest, project_id, basemesh
         'state' : 'COMPLETE'
     })
     
+    create_or_update_ini_file(g_Lambda_Info_ini_path, section_entity, entity_name, entity_id)
+    
     if not result.success:
         lambda_host.log(result.error_info)
         exit_code(111)
 
     lambda_host.log(f'End do_upload_base_meshes_swarm Created entity {result.id} for {entity_name}')
+#-----------------------------------------------------------------------------------------------------------
+
+    
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------
 def do_process_base_meshes(api : voxelfarmclient.rest, project_id, basemeshes_db_folderId, file_path : str, version : int, entity_name : str, code_path : str):
     lambda_host.log(f'Start do_process_base_meshes Created entity {entity_name}')
@@ -799,6 +819,25 @@ def xc_process_base_meshes(api : voxelfarmclient.rest, basemeshes_output_folder_
     #do_upload_base_meshes(api, basemeshes_project_id, basemeshes_db_folder_Id, level1_db_output_folder, basemeshes_version, level1_entity_name, pythoncode_data_folder)
     do_upload_base_meshes_swarm(api, basemeshes_project_id, basemeshes_db_folder_Id, level0_db_output_folder, basemeshes_version, level0_entity_name, pythoncode_data_folder)
     do_upload_base_meshes_swarm(api, basemeshes_project_id, basemeshes_db_folder_Id, level1_db_output_folder, basemeshes_version, level1_entity_name, pythoncode_data_folder)
+    
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------
+def xc_attach_file_to_lambda(api : voxelfarmclient.rest):
+    workflow_project_id = '0B0B6CCD4F56423C8196B7E9EA690E97'
+    lambda_ini_exist = os.path.exists(g_Lambda_Info_ini_path)
+    if lambda_ini_exist:
+        lambda_ini_string = ini_file_to_string(g_Lambda_Info_ini_path)
+        lambda_host.log(f'Lambda ini file : {g_Lambda_Info_ini_path} is exist!')
+        lambda_host.log(f'{lambda_ini_string}')
+        
+        with open(g_Lambda_Info_ini_path, 'rb') as f:
+            result = api.attach_files(project=workflow_project_id, id = lambda_entity_id, files={'file': f})
+            if not result.success:
+                lambda_host.log(f'Failed to attach ini file {g_Lambda_Info_ini_path} to lambda entity {lambda_entity_id}')
+            else:
+                lambda_host.log(f'Succeed to attach ini file {g_Lambda_Info_ini_path} to lambda entity {lambda_entity_id}')
+    else:
+        lambda_host.log(f'Lambda ini file : {g_Lambda_Info_ini_path} is not exist!')
+
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------
 def create_basemeshes_result_entity(api : voxelfarmclient.rest, basemeshes_output_folder_path):
     basemeshes_result_project_id = Project_id
@@ -1112,6 +1151,9 @@ def tree_instances_generation(config_path):
         #create_basemeshes_result_entity(api, basemeshes_output_folder)
         xc_process_base_meshes(api, basemeshes_output_folder)
         lambda_host.log(f'create_basemeshes_result_entity for {basemeshes_output_folder}')
+        
+    lambda_host.log(f'step for to xc_attach_file_to_lambda')
+    xc_attach_file_to_lambda(api)
 
     lambda_host.log(f'end for step tree_instances_generation')
     return 0
@@ -1192,6 +1234,7 @@ section_output = 'Output'
 section_run = 'Run'
 section_others = 'Others'
 section_road = 'Road'
+section_entity = 'Entity'
 
 section_config = 'Configuration'
 
@@ -1283,6 +1326,8 @@ lambda_host.log('qtree_data_path: ' + qtree_data_path)
 lambda_host.log('tools_data_path: ' + tools_data_path)
 
 Data_folder = os.path.join(scrap_folder, f'Tree_Instances_Creation')
+g_Lambda_Info_ini_name = 'lambda_info.ini'
+g_Lambda_Info_ini_path = os.path.join(Data_folder, g_Lambda_Info_ini_name)
 lambda_host.log(f'Data_folder: {Data_folder}')
 if not os.path.exists(Data_folder):
     os.makedirs(Data_folder)
@@ -1349,6 +1394,7 @@ lambda_host.log(f'end tree_config_creation: {configfile_path}')
 lambda_host.log(f'start tree_instances_generation: {configfile_path}')
 run_result = tree_instances_generation(configfile_path)
 lambda_host.log(f'end tree_instances_generation: {configfile_path}')
+
 
 end_time = time.time()
 execution_time_seconds = end_time - start_time
