@@ -1,6 +1,52 @@
 from voxelfarm import workflow_lambda
 from voxelfarm import voxelfarmclient
 
+import os
+import configparser
+    
+def create_view_for_basemesh_entity(vf : voxelfarmclient.rest, 
+        request : workflow_lambda.request, 
+        lambda_host : workflow_lambda.workflow_lambda_host):
+    lambda_host.log('start create_view_for_basemesh_entity')
+    
+    entity_id = request.raw_entity_id
+    
+    info_ini_name = 'lambda_info.ini'
+    section_entity = 'Entity'
+    
+    ini_file = lambda_host.download_entity_file(info_ini_name, entity_id)
+    lambda_host.log(f'down load file {ini_file} with file name {info_ini_name} from entity {entity_id}')
+    if not os.path.isfile(ini_file):
+        lambda_host.log(f'{ini_file} is not a file')
+        lambda_host.log(f'Fail to create_view_for_basemesh_entity')
+        return
+    
+    config = configparser.ConfigParser()
+    config.read(ini_file)
+    
+    # Check if the section exists
+    if section_entity in config:
+        # Loop through the section and print each key and value
+        for key in config[section_entity]:
+            value = config[section_entity][key]
+            lambda_host('Basemesh entity name : {key}')
+            lambda_host('Basemesh entity id : {value}')
+            
+            view_name = f'View for {key}'
+            lambda_host.log(f'Creating View {view_name}...') 
+            try:
+                lambda_host.create_view(request, view_name, 'com.voxelfarm.program.view.terrain', None , {'e' : f'{value}'}, {})
+            except Exception as e:
+                error_message = str(e)
+                repr_message = repr(e)
+                lambda_host.log(f'Exception of create view {view_name} with entity id {value} with exception error_message of {error_message}')
+                lambda_host.log(f'Exception of create view {view_name} with entity id {value} with exception repr_message of {repr_message}')
+            lambda_host.log(f'Created View {view_name}...') 
+    else:
+        lambda_host.log(f'Section {section_entity} not found in the ini file {ini_file}')
+        
+    lambda_host.log(f'end create_view_for_basemesh_entity')
+    
 def python_code_on_receive_data(
         vf : voxelfarmclient.rest, 
         request : workflow_lambda.request, 
@@ -107,6 +153,8 @@ def base_meshes_on_receive_data(
     # Save the entity ID that has the input files in the request properties
     request.properties['raw_data'] = result.id
 
+    create_view_for_basemesh_entity(vf, request, lambda_host)
+    
     return {'success': True, 'complete': True, 'error_info': 'None'}
 
 def displacement_maps_on_receive_data(
