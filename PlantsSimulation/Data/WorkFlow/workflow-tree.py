@@ -370,11 +370,10 @@ def basemeshes_generation_on_stage_complete(
     update_type = request.update_type
     lambda_host.log(f'update_type: {update_type}')
     
-    create_view_for_basemesh_entity(vf_api, request, lambda_host)
-    
     if update_type == 'msg':
         #todo read the file that we attached
         lambda_host.log('Base generation stage complete')
+        create_view_for_basemesh_entity(vf_api, request, lambda_host)
         return {'success': True, 'complete': True, 'error_info': 'None'}
 
     return {'success': True, 'complete': False, 'error_info': 'None'}
