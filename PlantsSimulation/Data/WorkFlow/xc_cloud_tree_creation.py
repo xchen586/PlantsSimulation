@@ -978,12 +978,12 @@ def tree_instances_generation(config_path):
     basemeshes_level1 = 1
     version = 80
 
-    most_travelled_points_path = f'{road_output_folder}\\{tiles_count}_{tiles_x}_{tiles_y}_Most_Travelled_Points.csv'
-    most_distant_points_path = f'{road_output_folder}\\{tiles_count}_{tiles_x}_{tiles_y}_Most_Distant_Points.csv'
+    most_travelled_points_path = os.path.join(road_output_folder, f'{tiles_count}_{tiles_x}_{tiles_y}_Most_Travelled_Points.csv') 
+    most_distant_points_path = os.path.join(road_output_folder, f'{tiles_count}_{tiles_x}_{tiles_y}_Most_Distant_Points.csv') 
     
-    tree_ini_folder = f'{tree_output_base_folder}\\{tiles_count}_{tiles_x}_{tiles_y}'
+    tree_ini_folder = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}') 
     tree_ini_name = 'TreesInstancesAbsolutePathWin.ini'
-    tree_ini_path = f'{tree_ini_folder}\\{tree_ini_name}'
+    tree_ini_path = os.path.join(tree_ini_folder, tree_ini_name) 
     if not os.path.exists(tree_ini_folder):
         os.makedirs(tree_ini_folder)
 
@@ -1169,12 +1169,12 @@ def tree_config_creation(ini_path):
     tree_exe_path = os.path.join(Tools_folder, f'PlantsSimulation.exe')
     qtree_assets_folder = Data_folder
 
-    road_output_folder = os.path.join(Tools_folder, f'RoadObjInfo')
-    smoothlayer_output_base_folder = os.path.join(Tools_folder, f'sommothlayer_output')
-    basemeshes_db_base_folder = os.path.join(Tools_folder, f'db')
-    basemeshes_cache_base_folder = os.path.join(Tools_folder, f'cache')
-    basemeshes_heightmap_folder = os.path.join(Tools_folder, f'heightmap')
-    tree_output_base_folder = os.path.join(Tools_folder, f'tree_output')
+    road_output_folder = os.path.join(Data_folder, f'RoadObjInfo')
+    smoothlayer_output_base_folder = os.path.join(Data_folder, f'sommothlayer_output')
+    basemeshes_db_base_folder = os.path.join(Data_folder, f'db')
+    basemeshes_cache_base_folder = os.path.join(Data_folder, f'cache')
+    basemeshes_heightmap_folder = os.path.join(Data_folder, f'heightmap')
+    tree_output_base_folder = os.path.join(Data_folder, f'tree_output')
 
     create_or_overwrite_empty_file(ini_path)
 
@@ -1325,7 +1325,8 @@ lambda_host.log('displacement_data_path: ' + displacement_data_path)
 lambda_host.log('qtree_data_path: ' + qtree_data_path)
 lambda_host.log('tools_data_path: ' + tools_data_path)
 
-Data_folder = os.path.join(scrap_folder, f'Tree_Instances_Creation')
+Tree_Data_Folder_Name = f'Tree_Instances_Creation'
+Data_folder = os.path.join(scrap_folder, Tree_Data_Folder_Name)
 g_Lambda_Info_ini_name = 'lambda_info.ini'
 g_Lambda_Info_ini_path = os.path.join(Data_folder, g_Lambda_Info_ini_name)
 lambda_host.log(f'Data_folder: {Data_folder}')
