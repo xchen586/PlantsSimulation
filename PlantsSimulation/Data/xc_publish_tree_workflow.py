@@ -8,7 +8,7 @@ print('Publishing Tree Workflow Code')
 
 project_id = '0B0B6CCD4F56423C8196B7E9EA690E97'
 workflow_win_path = 'D:\\xWork\\VoxelFarm\\PlantsSimulation\\PlantsSimulation\\Data\\WorkFlow'
-workflow_mac_path = '/Users/xchen586/xWork/VoxelFarm/PlantsSimulation/PlantsSimulation/Data'
+workflow_mac_path = '/Users/xchen586/xWork/VoxelFarm/PlantsSimulation/PlantsSimulation/Data/WorkFlow'
 isWin = (os.name == 'nt')
 workflow_path = workflow_win_path
 
