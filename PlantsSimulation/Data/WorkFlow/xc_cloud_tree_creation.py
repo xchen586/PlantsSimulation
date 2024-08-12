@@ -212,32 +212,39 @@ def xc_run_tool(tool_path, progress_start, progress_end):
     end = progress_end
     scale = (end - start) / 100
 
-    tool_process = subprocess.Popen(tool_path, stdout=subprocess.PIPE, stderr=None, text=True)
-    while True:
-        realtime_output = tool_process.stdout.readline()
-        if realtime_output:
-            tokens = realtime_output.split()
-            progress = -1
-            if len(tokens) > 2:
-                if tokens[0] == 'progress':
-                    progress_string = tokens[1]
-                    if is_valid_float_string(progress_string):
-                        tool_progress = float(progress_string)
-                        # Continue with further processing using float_value
-                    else:
-                        tool_progress = 0
-                        lambda_host.log(f'Cannot convert input progress tokens[1] {progress_string} to float:')
-                    progress = start + tool_progress * scale
-                    message = ""
-                    for token in tokens[2:]:                   
-                        message += token + " "
-                    lambda_host.progress(progress, message)
-            if progress == -1:
-                lambda_host.log(realtime_output.replace('\n', ''))
-        else: 
-            poll = tool_process.poll() 
-            if poll is not None:
-                break
+    try:
+        tool_process = subprocess.Popen(tool_path, stdout=subprocess.PIPE, stderr=None, text=True)
+        while True:
+            realtime_output = tool_process.stdout.readline()
+            if realtime_output:
+                tokens = realtime_output.split()
+                progress = -1
+                if len(tokens) > 2:
+                    if tokens[0] == 'progress':
+                        progress_string = tokens[1]
+                        if is_valid_float_string(progress_string):
+                            tool_progress = float(progress_string)
+                            # Continue with further processing using float_value
+                        else:
+                            tool_progress = 0
+                            lambda_host.log(f'Cannot convert input progress tokens[1] {progress_string} to float:')
+                        progress = start + tool_progress * scale
+                        message = ""
+                        for token in tokens[2:]:                   
+                            message += token + " "
+                        lambda_host.progress(progress, message)
+                if progress == -1:
+                    lambda_host.log(realtime_output.replace('\n', ''))
+            else: 
+                poll = tool_process.poll() 
+                if poll is not None:
+                    break
+    except Exception as e:
+        exception_message = str(e)
+        exception_repr_message = repr(e)
+        lambda_host.log(f'exception_message of xc_run_tool for {tool_path} with exception of {exception_message}')
+        lambda_host.log(f'exception_repr_message of xc_run_tool {tool_path} with repr message of {exception_repr_message}')
+    
     return tool_process.returncode 
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1039,14 +1046,14 @@ def tree_instances_generation(config_path):
     basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_debug_level} {basemeshes_heightmap_folder}'
     basemeshvoxelizer_ini_command = f'{basemeshes_exe_path} {basemeshes_ini_path}'
     tree_exe_command = f'{tree_exe_path} {tree_ini_path}'
-
+    
+    use_basemesh_ini = True
+    
     if run_upload_basemeshes:
         basemeshes_all_level = 0 # use all level for base meshes 
         basemeshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_all_level} {basemeshes_heightmap_folder}'
         basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_all_level} {basemeshes_heightmap_folder}'
         lambda_host.log("Adjust base meshes command line to all level")
-        
-    lambda_host.log(f'End to prepare command line for programs')
     
     if run_upload_basemeshes:
         lambda_host.log(f'Start to write standard basemeshes ini files : {basemeshes_ini_path}')
@@ -1058,7 +1065,7 @@ def tree_instances_generation(config_path):
         
         create_or_update_ini_file(basemeshes_ini_path, section_input, 'Assets_Folder', basemeshes_assets_folder)
         create_or_update_ini_file(basemeshes_ini_path, section_input, 'BaseMeshesCSV_Name', basemeshes_csv_name)
-
+        
         create_or_update_ini_file(basemeshes_ini_path, section_output, 'DB_Base_Folder', basemeshes_db_base_folder)
         create_or_update_ini_file(basemeshes_ini_path, section_output, 'Cache_Base_Folder', basemeshes_cache_base_folder)
         create_or_update_ini_file(basemeshes_ini_path, section_output, 'Heightmap_Folder', basemeshes_heightmap_folder)
@@ -1102,38 +1109,53 @@ def tree_instances_generation(config_path):
         lambda_host.log(f'Basemeshes standard ini file content is :')
         lambda_host.log(f'{basemeshes_ini_string}')
         
+    if run_road_exe:    
+        lambda_host.log(f'road_exe_command : {road_exe_command}')
+    if run_worldgen_road:
+        lambda_host.log(f'worldgen_command : {worldgen_command}')
+    if run_make_basemeshes and (not use_basemesh_ini):
+        lambda_host.log(f'basemeshvoxelizer0_command : {basemeshvoxelizer0_command}')
+        lambda_host.log(f'basemeshvoxelizer1_command : {basemeshvoxelizer1_command}')
+    if run_make_basemeshes and use_basemesh_ini:
+        lambda_host.log(f'basemeshvoxelizer_ini_command : {basemeshvoxelizer_ini_command}')
+    if run_make_tree_instances:
+        lambda_host.log(f'tree_exe_command : {tree_exe_command}')
+        
+    lambda_host.log(f'End to prepare command line for programs')
+        
     ##### Make ini config file for tree exe.
     #clear_all_sections(tree_ini_path)
-    lambda_host.log(f'Start to write tree instance ini files : {tree_ini_path}')
-    create_or_overwrite_empty_file(tree_ini_path)
-    create_or_update_ini_file(tree_ini_path, section_tiles, 'Tiles_Count', tiles_count)
-    create_or_update_ini_file(tree_ini_path, section_tiles, 'Tiles_X_Index', tiles_x)
-    create_or_update_ini_file(tree_ini_path, section_tiles, 'Tiles_Y_Index', tiles_y)
-    create_or_update_ini_file(tree_ini_path, section_input, 'Toplayer_Image', toplayer_image_path)
-    create_or_update_ini_file(tree_ini_path, section_input, 'Toplayer_Image_Meta', toplayer_image_meta_path)
-    create_or_update_ini_file(tree_ini_path, section_input, 'BaseMeshes_Level_0_HeightMap', basemeshes_0_heightmap_path)
-    create_or_update_ini_file(tree_ini_path, section_input, 'BaseMeshes_Level_1_HeightMap', basemeshes_1_heightmap_path)
-    create_or_update_ini_file(tree_ini_path, section_input, 'TopLayer_HeightMap', toplayer_heightmap_path)
-    create_or_update_ini_file(tree_ini_path, section_input, 'Level1Layer_heightMap', level1_heightmap_path)
-    create_or_update_ini_file(tree_ini_path, section_input, 'BaseMeshes_Level_0_HeightMap_Mask', basemeshes_0_heightmap_mask_path)
-    create_or_update_ini_file(tree_ini_path, section_input, 'BaseMeshes_Level_1_HeightMap_Mask', basemeshes_1_heightmap_mask_path)
-    create_or_update_ini_file(tree_ini_path, section_input, 'TopLayer_HeightMap_Mask', toplayer_heightmap_mask_path)
-    create_or_update_ini_file(tree_ini_path, section_input, 'Level1Layer_heightMap_Mask', level1_heightmap_mask_path)
-    create_or_update_ini_file(tree_ini_path, section_input, 'Most_Travelled_Points', most_travelled_points_path)
-    create_or_update_ini_file(tree_ini_path, section_input, 'Most_Distant_Points', most_distant_points_path)
-    create_or_update_ini_file(tree_ini_path, section_input, 'Tree_List', tree_list)
+    if run_make_tree_instances:
+        lambda_host.log(f'Start to write tree instance ini files : {tree_ini_path}')
+        create_or_overwrite_empty_file(tree_ini_path)
+        create_or_update_ini_file(tree_ini_path, section_tiles, 'Tiles_Count', tiles_count)
+        create_or_update_ini_file(tree_ini_path, section_tiles, 'Tiles_X_Index', tiles_x)
+        create_or_update_ini_file(tree_ini_path, section_tiles, 'Tiles_Y_Index', tiles_y)
+        create_or_update_ini_file(tree_ini_path, section_input, 'Toplayer_Image', toplayer_image_path)
+        create_or_update_ini_file(tree_ini_path, section_input, 'Toplayer_Image_Meta', toplayer_image_meta_path)
+        create_or_update_ini_file(tree_ini_path, section_input, 'BaseMeshes_Level_0_HeightMap', basemeshes_0_heightmap_path)
+        create_or_update_ini_file(tree_ini_path, section_input, 'BaseMeshes_Level_1_HeightMap', basemeshes_1_heightmap_path)
+        create_or_update_ini_file(tree_ini_path, section_input, 'TopLayer_HeightMap', toplayer_heightmap_path)
+        create_or_update_ini_file(tree_ini_path, section_input, 'Level1Layer_heightMap', level1_heightmap_path)
+        create_or_update_ini_file(tree_ini_path, section_input, 'BaseMeshes_Level_0_HeightMap_Mask', basemeshes_0_heightmap_mask_path)
+        create_or_update_ini_file(tree_ini_path, section_input, 'BaseMeshes_Level_1_HeightMap_Mask', basemeshes_1_heightmap_mask_path)
+        create_or_update_ini_file(tree_ini_path, section_input, 'TopLayer_HeightMap_Mask', toplayer_heightmap_mask_path)
+        create_or_update_ini_file(tree_ini_path, section_input, 'Level1Layer_heightMap_Mask', level1_heightmap_mask_path)
+        create_or_update_ini_file(tree_ini_path, section_input, 'Most_Travelled_Points', most_travelled_points_path)
+        create_or_update_ini_file(tree_ini_path, section_input, 'Most_Distant_Points', most_distant_points_path)
+        create_or_update_ini_file(tree_ini_path, section_input, 'Tree_List', tree_list)
+        
+        create_or_update_ini_file(tree_ini_path, section_output, 'Output_Dir', tree_output_base_folder)
+        create_or_update_ini_file(tree_ini_path, section_others, 'Lod', tree_lod)
+        create_or_update_ini_file(tree_ini_path, section_others, 'Forest_Age', forest_age)
+        create_or_update_ini_file(tree_ini_path, section_others, 'Tree_Iteration', tree_iteration)
+        lambda_host.log(f'End to write tree instance ini files : {tree_ini_path}')
+        tree_ini_string = ini_file_to_string(tree_ini_path)
+        lambda_host.log(f'Tree ini file content is :')
+        lambda_host.log(f'{tree_ini_string}')
     
-    create_or_update_ini_file(tree_ini_path, section_output, 'Output_Dir', tree_output_base_folder)
-    create_or_update_ini_file(tree_ini_path, section_others, 'Lod', tree_lod)
-    create_or_update_ini_file(tree_ini_path, section_others, 'Forest_Age', forest_age)
-    create_or_update_ini_file(tree_ini_path, section_others, 'Tree_Iteration', tree_iteration)
-    lambda_host.log(f'End to write tree instance ini files : {tree_ini_path}')
-    tree_ini_string = ini_file_to_string(tree_ini_path)
-    lambda_host.log(f'Tree ini file content is :')
-    lambda_host.log(f'{tree_ini_string}')
-    
-    lambda_host.log(f'step for to run_update_basemeshes_assets')
     if run_update_basemeshes_assets:
+        lambda_host.log(f'step for to run_update_basemeshes_assets')
         ##### Download BaseMeshes(version) assets from Cloud!
         file_list = api.get_file_list(project_id, basemeshes_entity_id)
         for index, file_name in enumerate(file_list):
@@ -1144,10 +1166,10 @@ def tree_instances_generation(config_path):
         ##### Copy BaseMeshes(version) assets to BaseMeshes asset folder!
         copy_files(basemeshes_asset_download_folder, qtree_assets_folder)
   
-    lambda_host.log(f'step for to run_road_exe : {road_exe_command}')
     if run_road_exe:
         ##### Generate the road obj and image for smooth layer. 
         #return_code_road = launch_process(road_exe_command)
+        lambda_host.log(f'step for to run_road_exe : {road_exe_command}')
         return_code_road = xc_run_tool(road_exe_command, 21, 40)
         if return_code_road == 0:
             lambda_host.log(f'Process ({road_exe_command}) executed successfully.')
@@ -1156,8 +1178,8 @@ def tree_instances_generation(config_path):
             exit_code(2)
             return -1
     
-    lambda_host.log(f'step for to run_worldgen_road : {worldgen_command}')
     if run_worldgen_road:
+        lambda_host.log(f'step for to run_worldgen_road : {worldgen_command}')
         ##### Generate the height map and image for smooth layer. 
         #return_code_worldgen_road = launch_process(worldgen_command)
         return_code_worldgen_road = xc_run_tool(worldgen_command, 41, 60)
@@ -1168,14 +1190,15 @@ def tree_instances_generation(config_path):
             exit_code(2)
             return -1
     
-    use_basemesh_ini = True
     if run_make_basemeshes:
         if use_basemesh_ini:
             lambda_host.log(f'step for run basemeshes with ini : {basemeshvoxelizer_ini_command}')
             
             lambda_host.log(f'step for run basemeshes with ini level : {basemeshes_level0}')
-            create_or_update_ini_file(basemeshes_ini_path, section_others, 'Level', basemeshes_level0)
-            create_or_update_ini_file(basemeshes_ini_path, section_others, 'LodDebugLevel', basemeshes_all_level)
+            if run_upload_basemeshes:
+                create_or_update_ini_file(basemeshes_ini_path, section_others, 'Level', basemeshes_level0)
+                create_or_update_ini_file(basemeshes_ini_path, section_others, 'LodDebugLevel', basemeshes_all_level)
+                lambda_host.log("Adjust base meshes ini level {basemeshes_level0} to all LOD level")
             basemeshes_ini_string = ini_file_to_string(basemeshes_ini_path)
             lambda_host.log(f'Basemeshes ini file for level {basemeshes_level0} content is :')
             lambda_host.log(f'{basemeshes_ini_string}')
@@ -1188,8 +1211,10 @@ def tree_instances_generation(config_path):
                 return -1
             
             lambda_host.log(f'step for run basemeshes with ini level : {basemeshes_level1}')
-            create_or_update_ini_file(basemeshes_ini_path, section_others, 'Level', basemeshes_level1)
-            create_or_update_ini_file(basemeshes_ini_path, section_others, 'LodDebugLevel', basemeshes_all_level)
+            if run_upload_basemeshes:
+                create_or_update_ini_file(basemeshes_ini_path, section_others, 'Level', basemeshes_level1)
+                create_or_update_ini_file(basemeshes_ini_path, section_others, 'LodDebugLevel', basemeshes_all_level)
+                lambda_host.log("Adjust base meshes ini level {basemeshes_level1} to all LOD level")
             basemeshes_ini_string = ini_file_to_string(basemeshes_ini_path)
             lambda_host.log(f'Basemeshes ini file for level {basemeshes_level0} content is :')
             lambda_host.log(f'{basemeshes_ini_string}')
@@ -1222,8 +1247,8 @@ def tree_instances_generation(config_path):
                 exit_code(2)
                 return -1
         
-    lambda_host.log(f'step for to run_make_tree_instances : {tree_exe_command}')
     if run_make_tree_instances:
+        lambda_host.log(f'step for to run_make_tree_instances : {tree_exe_command}')
         ##### Run tree exe to generate to tree instances.
         #return_code_tree = launch_process(tree_exe_command)
         return_code_tree = xc_run_tool(tree_exe_command, 91, 100)
@@ -1234,29 +1259,32 @@ def tree_instances_generation(config_path):
             exit_code(2)
             return -1
 
-    lambda_host.log(f'step for to run_upload_tree_instances')
-    ##### Update the tree instance files of tree entity.
-    #workflow_api = workflow_lambda.workflow_lambda_host()
-    tree_instance_output_folder = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', 'instanceoutput')
     if run_upload_tree_instances:
+        lambda_host.log(f'step for to run_upload_tree_instances')
+        ##### Update the tree instance files of tree entity.
+        #workflow_api = workflow_lambda.workflow_lambda_host()
+        tree_instance_output_folder = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', 'instanceoutput')
         update_attach_files_for_entity(api, project_id, tree_entity_id, tree_instance_output_folder, f'instances_lod8_{tiles_count}_{tiles_x}_{tiles_y}-{version}', version=version, color=True)
         lambda_host.log(f'update_attach_files_for_entity for {tree_entity_id}')
 
-    lambda_host.log(f'step for to run_create_geochem_entity : {tree_exe_command}')
-    geo_chemical_folder = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', 'GeoChemical')
     if run_create_geochem_entity:
+        lambda_host.log(f'step for to run_create_geochem_entity!')
+        ##### create the geochem entity for tree instance files.
+        geo_chemical_folder = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', 'GeoChemical')
         create_geochem_tree_entity(api, geo_chemical_folder)
         lambda_host.log(f'create_geochem_tree_entity for {geo_chemical_folder}')
 
-    lambda_host.log(f'step for to run_upload_basemeshes : {tree_exe_command}')
-    basemeshes_output_folder = basemeshes_db_base_folder
     if run_upload_basemeshes:
+        lambda_host.log(f'step for to run_upload_basemeshes')
+        ##### upload basemeshes voxel database to cloud.
+        basemeshes_output_folder = basemeshes_db_base_folder
         #create_basemeshes_result_entity(api, basemeshes_output_folder)
         xc_process_base_meshes(api, basemeshes_output_folder)
         lambda_host.log(f'create_basemeshes_result_entity for {basemeshes_output_folder}')
         
-    lambda_host.log(f'step for to xc_attach_file_to_lambda')
-    xc_attach_file_to_lambda(api)
+    if run_make_basemeshes and run_upload_basemeshes:
+        lambda_host.log(f'step for to xc_attach_file_to_lambda')
+        xc_attach_file_to_lambda(api)
 
     lambda_host.log(f'end for step tree_instances_generation')
     return 0
