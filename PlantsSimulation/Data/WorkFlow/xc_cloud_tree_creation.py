@@ -118,16 +118,28 @@ def ini_file_to_string(file_path):
 
     return ini_string
 
+# Create a custom ConfigParser that preserves case sensitivity
+class CaseSensitiveConfigParser(configparser.ConfigParser):
+    def optionxform(self, optionstr):
+        return optionstr  # Preserve the original case of the key
+    
 def create_or_update_ini_file(file_path, section, key, value):
     # Check if the INI file exists
     if not os.path.exists(file_path):
         # If not, create the INI file
         with open(file_path, 'w') as configfile:
             configfile.write('')
+            
     # Read the existing INI file
-    config = configparser.ConfigParser()
+    
+    #ConfigParser that lowercase
+    #config = configparser.ConfigParser()
     # Make it not only uppercase
-    config.optionxform = str
+    #config.optionxform = str
+    
+    #ConfigParser that preserves case
+    config = CaseSensitiveConfigParser()
+    
     # Use the 'with' statement to ensure proper resource management
     with open(file_path, 'r') as configfile:
         config.read_file(configfile)
@@ -1198,7 +1210,7 @@ def tree_instances_generation(config_path):
             if run_upload_basemeshes:
                 create_or_update_ini_file(basemeshes_ini_path, section_others, 'Level', basemeshes_level0)
                 create_or_update_ini_file(basemeshes_ini_path, section_others, 'LodDebugLevel', basemeshes_all_level)
-                lambda_host.log("Adjust base meshes ini level {basemeshes_level0} to all LOD level")
+                lambda_host.log(f'Adjust base meshes ini level {basemeshes_level0} to all LOD level')
             basemeshes_ini_string = ini_file_to_string(basemeshes_ini_path)
             lambda_host.log(f'Basemeshes ini file for level {basemeshes_level0} content is :')
             lambda_host.log(f'{basemeshes_ini_string}')
@@ -1214,7 +1226,7 @@ def tree_instances_generation(config_path):
             if run_upload_basemeshes:
                 create_or_update_ini_file(basemeshes_ini_path, section_others, 'Level', basemeshes_level1)
                 create_or_update_ini_file(basemeshes_ini_path, section_others, 'LodDebugLevel', basemeshes_all_level)
-                lambda_host.log("Adjust base meshes ini level {basemeshes_level1} to all LOD level")
+                lambda_host.log(f'Adjust base meshes ini level {basemeshes_level1} to all LOD level')
             basemeshes_ini_string = ini_file_to_string(basemeshes_ini_path)
             lambda_host.log(f'Basemeshes ini file for level {basemeshes_level0} content is :')
             lambda_host.log(f'{basemeshes_ini_string}')
