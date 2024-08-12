@@ -104,10 +104,20 @@ def save_data_to_file(data, file_path):
             file.write(data)
     print(f"Data saved successfully to: {file_path}")
     
+# Create a custom ConfigParser that preserves case sensitivity
+class CaseSensitiveConfigParser(configparser.ConfigParser):
+    def optionxform(self, optionstr):
+        return optionstr  # Preserve the original case of the key
+    
 def ini_file_to_string(file_path):
     # Create a ConfigParser object
-    config = configparser.ConfigParser()
+    
+    #ConfigParser that lowercase
+    #config = configparser.ConfigParser()
 
+    #ConfigParser that preserves case
+    config = CaseSensitiveConfigParser()
+    
     # Read the .ini file
     config.read(file_path)
 
@@ -117,11 +127,6 @@ def ini_file_to_string(file_path):
         ini_string = output.getvalue()
 
     return ini_string
-
-# Create a custom ConfigParser that preserves case sensitivity
-class CaseSensitiveConfigParser(configparser.ConfigParser):
-    def optionxform(self, optionstr):
-        return optionstr  # Preserve the original case of the key
     
 def create_or_update_ini_file(file_path, section, key, value):
     # Check if the INI file exists
@@ -153,7 +158,13 @@ def create_or_update_ini_file(file_path, section, key, value):
         config.write(configfile)
 
 def read_ini_value(file_path, section, key, default=None, value_type=str):
-    config = configparser.ConfigParser()
+    
+    #ConfigParser that lowercase
+    #config = configparser.ConfigParser()
+
+    #ConfigParser that preserves case
+    config = CaseSensitiveConfigParser()
+    
     # Use the 'with' statement to ensure proper resource management
     with open(file_path, 'r') as configfile:
         config.read_file(configfile)
