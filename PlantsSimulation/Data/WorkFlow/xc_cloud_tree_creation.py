@@ -1217,22 +1217,6 @@ def tree_instances_generation(config_path):
         if use_basemesh_ini:
             lambda_host.log(f'step for run basemeshes with ini : {basemeshvoxelizer_ini_command}')
             
-            lambda_host.log(f'step for run basemeshes with ini level : {basemeshes_level0}')
-            if run_upload_basemeshes:
-                create_or_update_ini_file(basemeshes_ini_path, section_others, 'Level', basemeshes_level0)
-                create_or_update_ini_file(basemeshes_ini_path, section_others, 'LodDebugLevel', basemeshes_all_level)
-                lambda_host.log(f'Adjust base meshes ini level {basemeshes_level0} to all LOD level')
-            basemeshes_ini_string = ini_file_to_string(basemeshes_ini_path)
-            lambda_host.log(f'Basemeshes ini file for level {basemeshes_level0} content is :')
-            lambda_host.log(f'{basemeshes_ini_string}')
-            return_code_basemesh_ini_0 = xc_run_tool(basemeshvoxelizer_ini_command, 61, 80)
-            if return_code_basemesh_ini_0 == 0:
-                lambda_host.log(f'Process level {basemeshes_level0} with ({basemeshvoxelizer_ini_command}) executed successfully.')
-            else:
-                lambda_host.log(f'Error: The process level {basemeshes_level0} with ({basemeshvoxelizer_ini_command}) returned a non-zero exit code ({return_code_basemesh_ini_0}).')
-                exit_code(2)
-                return -1
-            
             lambda_host.log(f'step for run basemeshes with ini level : {basemeshes_level1}')
             if run_upload_basemeshes:
                 create_or_update_ini_file(basemeshes_ini_path, section_others, 'Level', basemeshes_level1)
@@ -1241,18 +1225,47 @@ def tree_instances_generation(config_path):
             basemeshes_ini_string = ini_file_to_string(basemeshes_ini_path)
             lambda_host.log(f'Basemeshes ini file for level {basemeshes_level0} content is :')
             lambda_host.log(f'{basemeshes_ini_string}')
-            return_code_basemesh_ini_1 = xc_run_tool(basemeshvoxelizer_ini_command, 81, 90)
+            return_code_basemesh_ini_1 = xc_run_tool(basemeshvoxelizer_ini_command, 61, 80)
             if return_code_basemesh_ini_1 == 0:
                 lambda_host.log(f'Process level {basemeshes_level1} with ({basemeshvoxelizer_ini_command}) executed successfully.')
             else:
                 lambda_host.log(f'Error: The process level {basemeshes_level1} with ({basemeshvoxelizer_ini_command}) returned a non-zero exit code ({return_code_basemesh_ini_1}).')
                 exit_code(2)
                 return -1
+            
+            lambda_host.log(f'step for run basemeshes with ini level : {basemeshes_level0}')
+            if run_upload_basemeshes:
+                create_or_update_ini_file(basemeshes_ini_path, section_others, 'Level', basemeshes_level0)
+                create_or_update_ini_file(basemeshes_ini_path, section_others, 'LodDebugLevel', basemeshes_all_level)
+                lambda_host.log(f'Adjust base meshes ini level {basemeshes_level0} to all LOD level')
+            basemeshes_ini_string = ini_file_to_string(basemeshes_ini_path)
+            lambda_host.log(f'Basemeshes ini file for level {basemeshes_level0} content is :')
+            lambda_host.log(f'{basemeshes_ini_string}')
+            return_code_basemesh_ini_0 = xc_run_tool(basemeshvoxelizer_ini_command, 81, 90)
+            if return_code_basemesh_ini_0 == 0:
+                lambda_host.log(f'Process level {basemeshes_level0} with ({basemeshvoxelizer_ini_command}) executed successfully.')
+            else:
+                lambda_host.log(f'Error: The process level {basemeshes_level0} with ({basemeshvoxelizer_ini_command}) returned a non-zero exit code ({return_code_basemesh_ini_0}).')
+                exit_code(2)
+                return -1
+            
+            
         else:
             ##### Generate the height map from level 0 of BaseMeshes.  
+            
+            lambda_host.log(f'step for to run_make_basemeshes : {basemeshvoxelizer1_command}')
+            #return_code_basemash1 = launch_process(basemeshvoxelizer1_command)
+            return_code_basemash1 = xc_run_tool(basemeshvoxelizer1_command, 61, 80)
+            if return_code_basemash1 == 0:
+                lambda_host.log(f'Process ({basemeshvoxelizer1_command}) executed successfully.')
+            else:
+                lambda_host.log(f'Error: The process ({basemeshvoxelizer1_command}) returned a non-zero exit code ({return_code_basemash1}).')
+                exit_code(2)
+                return -1
+            
             #return_code_basemash0 = launch_process(basemeshvoxelizer0_command)
             lambda_host.log(f'step for to run_make_basemeshes : {basemeshvoxelizer0_command}')
-            return_code_basemash0 = xc_run_tool(basemeshvoxelizer0_command, 61, 80)
+            return_code_basemash0 = xc_run_tool(basemeshvoxelizer0_command, 81, 90)
             if return_code_basemash0 == 0:
                 lambda_host.log(f'Process ({basemeshvoxelizer0_command}) executed successfully.')
             else:
@@ -1260,15 +1273,6 @@ def tree_instances_generation(config_path):
                 exit_code(2)
                 return -1
             ##### Generate the height map from level 1 of BaseMeshes. 
-            lambda_host.log(f'step for to run_make_basemeshes : {basemeshvoxelizer1_command}')
-            #return_code_basemash1 = launch_process(basemeshvoxelizer1_command)
-            return_code_basemash1 = xc_run_tool(basemeshvoxelizer1_command, 81, 90)
-            if return_code_basemash1 == 0:
-                lambda_host.log(f'Process ({basemeshvoxelizer1_command}) executed successfully.')
-            else:
-                lambda_host.log(f'Error: The process ({basemeshvoxelizer1_command}) returned a non-zero exit code ({return_code_basemash1}).')
-                exit_code(2)
-                return -1
         
     if run_make_tree_instances:
         lambda_host.log(f'step for to run_make_tree_instances : {tree_exe_command}')
