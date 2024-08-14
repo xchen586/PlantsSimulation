@@ -1070,15 +1070,13 @@ def tree_instances_generation(config_path):
     basemeshvoxelizer_ini_command = f'{basemeshes_exe_path} {basemeshes_ini_path}'
     tree_exe_command = f'{tree_exe_path} {tree_ini_path}'
     
-    use_basemesh_ini = True
-    
     if run_upload_basemeshes:
         basemeshes_all_level = 0 # use all level for base meshes 
         basemeshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_all_level} {basemeshes_heightmap_folder}'
         basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_all_level} {basemeshes_heightmap_folder}'
         lambda_host.log("Adjust base meshes command line to all level")
     
-    if run_upload_basemeshes:
+    if run_upload_basemeshes and use_basemesh_ini:
         lambda_host.log(f'Start to write standard basemeshes ini files : {basemeshes_ini_path}')
         create_or_overwrite_empty_file(basemeshes_ini_path)
         
@@ -1136,11 +1134,13 @@ def tree_instances_generation(config_path):
         lambda_host.log(f'road_exe_command : {road_exe_command}')
     if run_worldgen_road:
         lambda_host.log(f'worldgen_command : {worldgen_command}')
-    if run_make_basemeshes and (not use_basemesh_ini):
-        lambda_host.log(f'basemeshvoxelizer0_command : {basemeshvoxelizer0_command}')
-        lambda_host.log(f'basemeshvoxelizer1_command : {basemeshvoxelizer1_command}')
-    if run_make_basemeshes and use_basemesh_ini:
-        lambda_host.log(f'basemeshvoxelizer_ini_command : {basemeshvoxelizer_ini_command}')
+    if run_make_basemeshes:
+        if use_basemesh_ini:
+            lambda_host.log(f'basemeshvoxelizer_ini_command : {basemeshvoxelizer_ini_command}')
+        else:
+            lambda_host.log(f'basemeshvoxelizer0_command : {basemeshvoxelizer0_command}')
+            lambda_host.log(f'basemeshvoxelizer1_command : {basemeshvoxelizer1_command}')
+    
     if run_make_tree_instances:
         lambda_host.log(f'tree_exe_command : {tree_exe_command}')
         
@@ -1321,10 +1321,16 @@ def tree_config_creation(ini_path):
     lambda_host.log(f'start to create tree_config_creation : {ini_path}')
 
     road_input_folder = f'{Data_folder}'
-    road_exe_path = os.path.join(Tools_folder, f'NPCTest2.exe')
-    basemeshes_exe_path = os.path.join(Tools_folder, f'BaseMeshVoxelizer.exe')
-    worldgen_exe_path = os.path.join(Tools_folder, f'WorldGen.exe')
-    tree_exe_path = os.path.join(Tools_folder, f'PlantsSimulation.exe')
+    road_exe_name = f'NPCTest2.exe'
+    road_exe_path = os.path.join(Tools_folder, road_exe_name)
+    basemeshes_exe_name = f'BaseMeshVoxelizer.exe'
+    if not use_basemesh_ini:
+        basemeshes_exe_name = f'BaseMeshVoxelizerOld.exe'
+    basemeshes_exe_path = os.path.join(Tools_folder, basemeshes_exe_name)
+    worldgen_exe_name = f'WorldGen.exe'
+    worldgen_exe_path = os.path.join(Tools_folder, worldgen_exe_name)
+    tree_exe_name = f'PlantsSimulation.exe'
+    tree_exe_path = os.path.join(Tools_folder, tree_exe_name)
     qtree_assets_folder = Data_folder
 
     road_output_folder = os.path.join(Data_folder, f'RoadObjInfo')
@@ -1398,6 +1404,8 @@ section_road = 'Road'
 section_entity = 'Entity'
 section_options = 'Options'
 section_config = 'Configuration'
+
+use_basemesh_ini = True
 
 lambda_host = process_lambda.process_lambda_host()
 
