@@ -29,8 +29,8 @@ def create_view_for_basemesh_entity(vf : voxelfarmclient.rest,
         # Loop through the section and print each key and value
         for key in config[section_entity]:
             value = config[section_entity][key]
-            lambda_host('Basemesh entity name : {key}')
-            lambda_host('Basemesh entity id : {value}')
+            lambda_host.log('Basemesh entity name : {key}')
+            lambda_host.log('Basemesh entity id : {value}')
             
             view_name = f'View for {key}'
             lambda_host.log(f'Creating View {view_name}...') 
