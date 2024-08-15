@@ -33,7 +33,8 @@ def create_view_for_basemesh_entity(vf : voxelfarmclient.rest,
             lambda_host.log(f'Basemesh entity id : {value}')
             
             view_name = f'View for {key}'
-            lambda_host.log(f'Creating View {view_name}...') 
+            lambda_host.log(f'Creating View {view_name} ...') 
+            lambda_host.log(f'view_type : com.voxelfarm.program.view.terrain , e : {value}')
             try:
                 lambda_host.create_view(request, view_name, 'com.voxelfarm.program.view.terrain', None , {'e' : f'{value}'}, {})
             except Exception as e:
