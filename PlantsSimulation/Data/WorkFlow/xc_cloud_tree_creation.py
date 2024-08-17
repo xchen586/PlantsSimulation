@@ -669,7 +669,7 @@ def do_upload_base_meshes_swarm(api : voxelfarmclient.rest, project_id, basemesh
             lambda_host.log(f'Exception of Attach_files index vf to 1 attach file {index_vf_path} to entity {entity_id} with exception of {exception_message}')
         if not result.success:
             lambda_host.log(f'Failed to 1 attach file {index_vf_path} to entity {entity_id} with error of {result.error_info}')
-            return
+            #return
 
     data_vf_path = os.path.join(file_path, 'data.vf')
     with open(data_vf_path, 'rb') as f:
@@ -684,7 +684,7 @@ def do_upload_base_meshes_swarm(api : voxelfarmclient.rest, project_id, basemesh
             lambda_host.log(f'Exception of Attach_files data vf exception repr message of {exception_repr_message}')
         if not result.success:
             lambda_host.log(f'Failed to 2 attach file {data_vf_path} to entity {entity_id} with error of {result.error_info}')
-            return
+            #return
     lambda_host.log(f'Start to do_swarm_db_upload entity_id : {entity_id} ---- with folder ; {file_path}')
     
     uploadcode = None
@@ -850,8 +850,8 @@ def xc_process_base_meshes(api : voxelfarmclient.rest, basemeshes_output_folder_
     #do_process_base_meshes(api, basemeshes_project_id, basemeshes_db_folder_Id, level1_db_output_folder, basemeshes_version, level1_entity_name, pythoncode_data_folder)
     #do_upload_base_meshes(api, basemeshes_project_id, basemeshes_db_folder_Id, level0_db_output_folder, basemeshes_version, level0_entity_name, pythoncode_data_folder)
     #do_upload_base_meshes(api, basemeshes_project_id, basemeshes_db_folder_Id, level1_db_output_folder, basemeshes_version, level1_entity_name, pythoncode_data_folder)
-    do_upload_base_meshes_swarm(api, basemeshes_project_id, basemeshes_db_folder_Id, level0_db_output_folder, basemeshes_version, level0_entity_name, pythoncode_data_folder)
-    do_upload_base_meshes_swarm(api, basemeshes_project_id, basemeshes_db_folder_Id, level1_db_output_folder, basemeshes_version, level1_entity_name, pythoncode_data_folder)
+    do_upload_base_meshes_swarm(api, basemeshes_project_id, basemeshes_db_folder_Id, level0_db_output_folder, basemeshes_version, level1_entity_name, pythoncode_data_folder)
+    do_upload_base_meshes_swarm(api, basemeshes_project_id, basemeshes_db_folder_Id, level1_db_output_folder, basemeshes_version, level0_entity_name, pythoncode_data_folder)
     
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------
 def xc_attach_file_to_lambda(api : voxelfarmclient.rest):
