@@ -244,13 +244,13 @@ def tree_generation_on_receive_data(
     lambda_host.log('Received tree generation data')
     request.properties['my_property'] = 'my_value'
 
-    pythoncode_active_version_property = request.get_product_property('PYTHON_CODE', 'raw_data')
-    treelist_active_version_property = request.get_product_property('TREE_LIST', 'raw_data')
-    roaddata_active_version_property = request.get_product_property('ROAD_DATA', 'raw_data')
-    basemeshes_active_version_property = request.get_product_property('BASE_MESHES', 'raw_data')
-    displacement_active_version_property = request.get_product_property('DISPLACEMENT_MAPS', 'raw_data')
-    qtree_active_version_property = request.get_product_property('QUADTREE', 'raw_data')
-    tools_active_version_property = request.get_product_property('TOOLS', 'raw_data')
+    pythoncode_active_version_property = request.get_product_property('PYTHON_CODE_FILES', 'raw_data')
+    treelist_active_version_property = request.get_product_property('TREE_LIST_FILES', 'raw_data')
+    roaddata_active_version_property = request.get_product_property('ROAD_DATA_FILES', 'raw_data')
+    basemeshes_active_version_property = request.get_product_property('BASE_MESHES_FILES', 'raw_data')
+    displacement_active_version_property = request.get_product_property('DISPLACEMENT_MAPS_FILES', 'raw_data')
+    qtree_active_version_property = request.get_product_property('QUADTREE_FILES', 'raw_data')
+    tools_active_version_property = request.get_product_property('TOOLS_FILES', 'raw_data')
 
     result = lambda_host.process_lambda_entity(
         workflow_request=request,
@@ -320,13 +320,13 @@ def basemeshes_generation_on_receive_data(
             'file_folder' : folder_id
         })
 
-    pythoncode_active_version_property = request.get_product_property('PYTHON_CODE', 'raw_data')
-    treelist_active_version_property = request.get_product_property('TREE_LIST', 'raw_data')
-    roaddata_active_version_property = request.get_product_property('ROAD_DATA', 'raw_data')
-    basemeshes_active_version_property = request.get_product_property('BASE_MESHES', 'raw_data')
-    displacement_active_version_property = request.get_product_property('DISPLACEMENT_MAPS', 'raw_data')
-    qtree_active_version_property = request.get_product_property('QUADTREE', 'raw_data')
-    tools_active_version_property = request.get_product_property('TOOLS', 'raw_data')
+    pythoncode_active_version_property = request.get_product_property('PYTHON_CODE_FILES', 'raw_data')
+    treelist_active_version_property = request.get_product_property('TREE_LIST_FILES', 'raw_data')
+    roaddata_active_version_property = request.get_product_property('ROAD_DATA_FILES', 'raw_data')
+    basemeshes_active_version_property = request.get_product_property('BASE_MESHES_FILES', 'raw_data')
+    displacement_active_version_property = request.get_product_property('DISPLACEMENT_MAPS_FILES', 'raw_data')
+    qtree_active_version_property = request.get_product_property('QUADTREE_FILES', 'raw_data')
+    tools_active_version_property = request.get_product_property('TOOLS_FILES', 'raw_data')
 
     result = lambda_host.process_lambda_entity(
         workflow_request=request,
@@ -382,63 +382,63 @@ def basemeshes_generation_on_stage_complete(
 lambda_host = workflow_lambda.workflow_lambda_host()
 lambda_host.set_workflow_definition(
     {
-        'id': 'PANGEA_Tree',
+        'id': 'PANGEA_NEXT_TREE_WORKFLOW',
         'name': 'Tree Generation Pangea Next',
         'icon': 'mesh',
         'description': 'Pangea Tree Generation Workflow',
         'tracks': 
         [
             {
-                'id': 'ASSETS',
-                'name': 'Assets',
+                'id': 'ASSETS_FILES',
+                'name': 'Assets Files',
                 'description': 'The assets to be used in generation',
                 'icon': 'mesh',
                 'tracks': [
                     {
-                        'id': 'TOOLS',
-                        'name': 'Tools',
+                        'id': 'TOOLS_FILES',
+                        'name': 'Tools Files',
                         'description': 'The collection of tools for tree creation',
                         'icon': 'mesh',
                         'on_receive_data': tools_on_receive_data,
                     },
                     {
-                        'id': 'QUADTREE',
-                        'name': 'Quadtree',
+                        'id': 'QUADTREE_FILES',
+                        'name': 'Quadtree Files',
                         'description': 'A quadtree of the world',
                         'icon': 'mesh',
                         'on_receive_data': quadtree_on_receive_data,
                     },
                     {
-                        'id': 'ROAD_DATA',
-                        'name': 'Road Data',
+                        'id': 'ROAD_DATA_FILES',
+                        'name': 'Road Data Files',
                         'description': 'A Input data for generate road',
                         'icon': 'mesh',
                         'on_receive_data': road_data_on_receive_data,
                     },
                     {
-                        'id': 'DISPLACEMENT_MAPS',
-                        'name': 'Displacement Maps',
+                        'id': 'DISPLACEMENT_MAPS_FILES',
+                        'name': 'Displacement Maps Files',
                         'description': 'A collection of PNG heightmaps',
                         'icon': 'mesh',
                         'on_receive_data': displacement_maps_on_receive_data,
                     },
                     {
-                        'id': 'BASE_MESHES',
-                        'name': 'Base Meshes',
+                        'id': 'BASE_MESHES_FILES',
+                        'name': 'Base Meshes Files',
                         'description': 'A collection of OBJ meshes',
                         'icon': 'mesh',
                         'on_receive_data': base_meshes_on_receive_data,
                     },
                     {
-                        'id': 'TREE_LIST',
-                        'name': 'Tree List',
+                        'id': 'TREE_LIST_FILES',
+                        'name': 'Tree List Files',
                         'description': 'A collection of tree classes',
                         'icon': 'mesh',
                         'on_receive_data': tree_list_on_receive_data,
                     },
                     {
-                        'id': 'PYTHON_CODE',
-                        'name': 'Python Code Files',
+                        'id': 'PYTHON_CODE_FILES',
+                        'name': 'Python Code Files Files',
                         'description': 'A collection of python code files',
                         'icon': 'mesh',
                         'on_receive_data': python_code_on_receive_data,
@@ -446,16 +446,16 @@ lambda_host.set_workflow_definition(
                 ]
             },
             {
-                'id': 'TREE_GENERATION',
-                'name': 'Tree Generation',
+                'id': 'TREE_GENERATION_WORKFLOW',
+                'name': 'Tree Generation Workflow',
                 'description': 'The generation of the tree',
                 'icon': 'mesh',
                 'on_receive_data': tree_generation_on_receive_data,
                 'on_stage_done': tree_generation_on_stage_complete,
             },
             {
-                'id': 'BASEMESHES_GENERATION',
-                'name': 'Base Meshes Generation',
+                'id': 'BASEMESHES_GENERATION_WORKFLOW',
+                'name': 'Base Meshes Generation Workflow',
                 'description': 'The generation of the base meshes',
                 'icon': 'mesh',
                 'on_receive_data': basemeshes_generation_on_receive_data,
