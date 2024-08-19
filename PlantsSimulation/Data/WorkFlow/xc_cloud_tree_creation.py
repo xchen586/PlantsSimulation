@@ -1406,7 +1406,7 @@ def tree_config_creation(ini_path):
     create_or_update_ini_file(ini_path, section_main, 'cloud_url', Cloud_url)
     create_or_update_ini_file(ini_path, section_main, 'project_id', Project_id)
     create_or_update_ini_file(ini_path, section_main, 'folder_id', Tree_Instances_Folder_id)
-    create_or_update_ini_file(ini_path, section_main, 'tree_entity_id', Game_Tree_entity_id)
+    create_or_update_ini_file(ini_path, section_main, 'tree_entity_id', Game_Tree_Entity_id)
     create_or_update_ini_file(ini_path, section_main, 'basemeshes_entity_id', Latest_basemeshes_entity_id)
 
     create_or_update_ini_file(ini_path, section_tiles, 'tiles_count', Tiles_size)
@@ -1480,12 +1480,8 @@ lambda_host.log(f'system tools: {tools}')
 print(f'system tools: {tools}\n')
 lambda_entity_id = lambda_host.input_string('lambda_entity_id', 'Lambda Entity Id', '')
 lambda_host.log(f'lambda_entity_id: {lambda_entity_id}')
-project_id = lambda_host.input_string('project_id', 'Project Id', '')
-lambda_host.log(f'project_id: {project_id}')
-entity_id = lambda_host.input_string('entity_id', 'Entity Id', '')
-lambda_host.log(f'entity_id: {entity_id}')
-output_id = lambda_host.input_string('output_id', 'Output Id', '')
-lambda_host.log(f'output_id: {output_id}')
+workflow_project_id = lambda_host.input_string('project_id', 'Project Id', '')
+lambda_host.log(f'project_id: {workflow_project_id}')
 tile_size = lambda_host.input_string('tile_size', 'Tile Size', '')
 lambda_host.log(f'tile_size: {tile_size}')
 tile_x = lambda_host.input_string('tile_x', 'Tile X', '')
@@ -1599,11 +1595,16 @@ lambda_host.log(f'end to copy from {qtree_data_path} to {Data_folder}')
 
 lambda_host.progress(15, 'Start to get input parameters')
 Cloud_url = 'http://localhost/'
-Project_id = '1D4CBBD1D957477E8CC3FF376FB87470'
-Tree_Instances_Folder_id = '90F6348AD5D94FCEA85C7C1CD081CE97' 
-Game_Tree_entity_id = '3A3CFEBA226B4692A8719C78335470DD'  
-Output_Result_Basemeshes_Folder_id = '3A18892690F940759590B782AA80FC13'
+Project_id = workflow_project_id
 Latest_basemeshes_entity_id = basemeshes_active_version_property #the entity id of the lastest the basemsehes asset entity
+
+Tree_Instances_Folder_id = lambda_host.input_string('tree_instances_folder_id_property', 'Tree Instances Folder id', '')
+lambda_host.log(f'Tree_Instances_Folder_id: {Tree_Instances_Folder_id}')
+Game_Tree_Entity_id = lambda_host.input_string('game_tree_entity_id_property', 'Game Tree Entity id', '')
+lambda_host.log(f'Game_Tree_Entity_id: {Game_Tree_Entity_id}')
+Output_Result_Basemeshes_Folder_id = lambda_host.input_string('output_result_basemeshes_folder_id_property', 'Output Result Basemeshes Folder id', '')
+lambda_host.log(f'Output_Result_Basemeshes_Folder_id: {Output_Result_Basemeshes_Folder_id}')
+
 Tiles_size = tile_size if tile_size else 10
 Tiles_x = tile_x if tile_x else 8
 Tiles_y = tile_y if tile_y else 5
