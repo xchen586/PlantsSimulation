@@ -390,7 +390,7 @@ lambda_host.set_workflow_definition(
         [
             {
                 'id': 'ASSETS_FILES',
-                'name': 'Assets Files',
+                'name': 'Workflow Assets Files',
                 'description': 'The assets to be used in generation',
                 'icon': 'mesh',
                 'tracks': [
@@ -446,16 +446,16 @@ lambda_host.set_workflow_definition(
                 ]
             },
             {
-                'id': 'TREE_GENERATION_WORKFLOW',
-                'name': 'Tree Generation Workflow',
+                'id': 'WORKFLOW_TREE_GENERATION',
+                'name': 'Workflow Tree Generation',
                 'description': 'The generation of the tree',
                 'icon': 'mesh',
                 'on_receive_data': tree_generation_on_receive_data,
                 'on_stage_done': tree_generation_on_stage_complete,
             },
             {
-                'id': 'BASEMESHES_GENERATION_WORKFLOW',
-                'name': 'Base Meshes Generation Workflow',
+                'id': 'WORKFLOW_BASEMESHES_GENERATION',
+                'name': 'Workflow Base Meshes Generation',
                 'description': 'The generation of the base meshes',
                 'icon': 'mesh',
                 'on_receive_data': basemeshes_generation_on_receive_data,
