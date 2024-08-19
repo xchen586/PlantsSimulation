@@ -427,8 +427,8 @@ def xc_process_files_entity(api : voxelfarmclient.rest, project_id, folder_id, r
 
 def create_geochem_tree_entity(api, geo_chemical_folder):
     extra_column_name = 'Id'
-    geochems_project_id = '1D4CBBD1D957477E8CC3FF376FB87470'
-    geochems_folder_id = '36F2FD37D03B4DDE8C2151438AA47804'
+    geochems_project_id = Project_id
+    geochems_folder_id = Tree_Geochems_Folder_id
 
     merged_csv_name = f'{Tiles_size}_{Tiles_x}_{Tiles_y}_geo_merged.csv'
     merged_csv_path = os.path.join(geo_chemical_folder, merged_csv_name)
@@ -1604,6 +1604,8 @@ Game_Tree_Entity_id = lambda_host.input_string('game_tree_entity_id_property', '
 lambda_host.log(f'Game_Tree_Entity_id: {Game_Tree_Entity_id}')
 Output_Result_Basemeshes_Folder_id = lambda_host.input_string('output_result_basemeshes_folder_id_property', 'Output Result Basemeshes Folder id', '')
 lambda_host.log(f'Output_Result_Basemeshes_Folder_id: {Output_Result_Basemeshes_Folder_id}')
+Tree_Geochems_Folder_id = lambda_host.input_string('tree_geochems_folder_id_property', 'Tree Geochems Folder id', '')
+lambda_host.log(f'Tree_Geochems_Folder_id: {Tree_Geochems_Folder_id}')
 
 Tiles_size = tile_size if tile_size else 10
 Tiles_x = tile_x if tile_x else 8
