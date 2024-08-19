@@ -251,11 +251,18 @@ def tree_generation_on_receive_data(
     displacement_active_version_property = request.get_product_property('DISPLACEMENT_MAPS_FILES', 'raw_data')
     qtree_active_version_property = request.get_product_property('QUADTREE_FILES', 'raw_data')
     tools_active_version_property = request.get_product_property('TOOLS_FILES', 'raw_data')
+    
+    tree_instances_folder_id_property = '90F6348AD5D94FCEA85C7C1CD081CE97'
+    game_tree_entity_id_property = '3A3CFEBA226B4692A8719C78335470DD'
+    output_result_basemeshes_folder_id_property = '68396F90F7CE48B4BA1412EA020ED92A'
 
     result = lambda_host.process_lambda_entity(
         workflow_request=request,
         name="Lambda",
         inputs={
+            'tree_instances_folder_id_property': tree_instances_folder_id_property,
+            'game_tree_entity_id_property': game_tree_entity_id_property,
+            'output_result_basemeshes_folder_id_property': output_result_basemeshes_folder_id_property,
             'lambda_entity_id': request.raw_entity_id,
             'project_id': request.project_id,
             'pythoncode_active_version_property': pythoncode_active_version_property,
@@ -327,11 +334,18 @@ def basemeshes_generation_on_receive_data(
     displacement_active_version_property = request.get_product_property('DISPLACEMENT_MAPS_FILES', 'raw_data')
     qtree_active_version_property = request.get_product_property('QUADTREE_FILES', 'raw_data')
     tools_active_version_property = request.get_product_property('TOOLS_FILES', 'raw_data')
-
+    
+    tree_instances_folder_id_property = '90F6348AD5D94FCEA85C7C1CD081CE97'
+    game_tree_entity_id_property = '3A3CFEBA226B4692A8719C78335470DD'
+    output_result_basemeshes_folder_id_property = '68396F90F7CE48B4BA1412EA020ED92A'
+    
     result = lambda_host.process_lambda_entity(
         workflow_request=request,
         name="Lambda",
         inputs={
+            'tree_instances_folder_id_property': tree_instances_folder_id_property,
+            'game_tree_entity_id_property': game_tree_entity_id_property,
+            'output_result_basemeshes_folder_id_property': output_result_basemeshes_folder_id_property,
             'lambda_entity_id': request.raw_entity_id,
             'project_id': request.project_id,
             'pythoncode_active_version_property': pythoncode_active_version_property,
