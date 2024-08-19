@@ -507,7 +507,58 @@ def on_upload_db_succeessfull(vf, project_id, entity_id, output_dir):
         lambda_host.upload(unified_file, "extended.meta", entity_id)
     else:
         lambda_host.log("XC extended.meta File not found")
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------
+def do_simple_upload_basemeshes(api : voxelfarmclient.rest, project_id, basemeshes_db_folderId, file_path : str, version : int, entity_name : str, code_path : str):
+    lambda_host.log(f'Start do_simple_upload_basemeshes Created entity {entity_name}')
 
+    result = api.get_project_crs(project_id)
+    crs = result.crs
+    entity_id = None
+
+    lambda_host.log(f'start create_entity_raw file for entity {entity_name}')
+    result = api.create_entity_raw(project=project_id, 
+        type=api.entity_type.VoxelPC, 
+        name=entity_name, 
+        fields={
+            'state': 'PARTIAL',
+            'file_folder': basemeshes_db_folderId,
+        }, crs = crs)
+    entity_id = result.id
+    if not result.success:
+        lambda_host.log(f'Fail to create_entity_raw Created entity for {entity_name} : {result.error_info}')
+    else:
+        lambda_host.log(f'Successfully to create_entity_raw Created entity for {result.id} for {entity_name}')
+        
+    dbName = f'vox-mesh-{entity_name}'
+    dbTitle = f'Voxel Mesh Data For {entity_name}'
+    try:
+        uploadDbOk = lambda_host.upload_db(entity_id, file_path, dbName, dbTitle)
+    except Exception as e:
+        lambda_host.log(f'Exception of lambda_host.upload_db: files folder: {file_path} to entity {entity_id} with exception of {str(e)}')   
+    if uploadDbOk:
+        lambda_host.log(f'lambda_host.upload_db is successful in do_upload_base_meshes with {file_path} to entity {entity_id}')
+        on_upload_db_succeessfull(api, project_id, entity_id, file_path)
+        result = api.update_entity(
+        id = entity_id,
+        project = project_id, 
+        fields = {
+            'state' : 'COMPLETE'
+        })
+    else:
+        lambda_host.log(f'lambda_host.upload_db is failed in do_upload_base_meshes with {file_path} to entity {entity_id}')
+        result = api.update_entity(
+        id = entity_id,
+        project = project_id, 
+        fields = {
+            'state' : 'ERROR'
+        })
+        #exit_code(3) 
+
+    if not result.success:
+        lambda_host.log(result.error_info)
+        exit(3)
+
+    lambda_host.log(f'End do_simple_upload_basemeshes Created entity {result.id} for {entity_name}')
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------
 def do_upload_base_meshes(api : voxelfarmclient.rest, project_id, basemeshes_db_folderId, file_path : str, version : int, entity_name : str, code_path : str):
     lambda_host.log(f'Start do_upload_base_meshes Created entity {entity_name}')
@@ -806,9 +857,8 @@ def do_process_base_meshes(api : voxelfarmclient.rest, project_id, basemeshes_db
     lambda_host.log(f'End do_process_base_meshes Created entity {result.id} for {entity_name}')
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------
-def xc_process_base_meshes(api : voxelfarmclient.rest, basemeshes_output_folder_path):
-    basemeshes_result_project_id = Project_id
-    basemeshes_result_folder_id = '3A18892690F940759590B782AA80FC13'
+def xc_process_base_meshes(api : voxelfarmclient.rest, basemeshes_output_folder_path, basemeshes_result_project_id, basemeshes_result_folder_id):
+    
     level0_db_output_folder = os.path.join(basemeshes_output_folder_path, f'{tile_size}_{tile_x}_{tile_y}_0')
     level1_db_output_folder = os.path.join(basemeshes_output_folder_path, f'{tile_size}_{tile_x}_{tile_y}_1')
     project_entity = api.get_entity(basemeshes_result_project_id)
@@ -850,12 +900,14 @@ def xc_process_base_meshes(api : voxelfarmclient.rest, basemeshes_output_folder_
     #do_process_base_meshes(api, basemeshes_project_id, basemeshes_db_folder_Id, level1_db_output_folder, basemeshes_version, level1_entity_name, pythoncode_data_folder)
     #do_upload_base_meshes(api, basemeshes_project_id, basemeshes_db_folder_Id, level0_db_output_folder, basemeshes_version, level0_entity_name, pythoncode_data_folder)
     #do_upload_base_meshes(api, basemeshes_project_id, basemeshes_db_folder_Id, level1_db_output_folder, basemeshes_version, level1_entity_name, pythoncode_data_folder)
-    do_upload_base_meshes_swarm(api, basemeshes_project_id, basemeshes_db_folder_Id, level0_db_output_folder, basemeshes_version, level1_entity_name, pythoncode_data_folder)
-    do_upload_base_meshes_swarm(api, basemeshes_project_id, basemeshes_db_folder_Id, level1_db_output_folder, basemeshes_version, level0_entity_name, pythoncode_data_folder)
+    #do_upload_base_meshes_swarm(api, basemeshes_project_id, basemeshes_db_folder_Id, level0_db_output_folder, basemeshes_version, level0_entity_name, pythoncode_data_folder)
+    #do_upload_base_meshes_swarm(api, basemeshes_project_id, basemeshes_db_folder_Id, level1_db_output_folder, basemeshes_version, level1_entity_name, pythoncode_data_folder)
+    
+    do_simple_upload_basemeshes(api, basemeshes_project_id, basemeshes_db_folder_Id, level0_db_output_folder, basemeshes_version, level0_entity_name, pythoncode_data_folder)
+    do_simple_upload_basemeshes(api, basemeshes_project_id, basemeshes_db_folder_Id, level1_db_output_folder, basemeshes_version, level1_entity_name, pythoncode_data_folder)
     
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------
-def xc_attach_file_to_lambda(api : voxelfarmclient.rest):
-    workflow_project_id = '0B0B6CCD4F56423C8196B7E9EA690E97'
+def xc_attach_file_to_lambda(api : voxelfarmclient.rest, workflow_project_id):
     lambda_ini_exist = os.path.exists(g_Lambda_Info_ini_path)
     if lambda_ini_exist:
         lambda_ini_string = ini_file_to_string(g_Lambda_Info_ini_path)
@@ -872,9 +924,8 @@ def xc_attach_file_to_lambda(api : voxelfarmclient.rest):
         lambda_host.log(f'Lambda ini file : {g_Lambda_Info_ini_path} is not exist!')
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------
-def create_basemeshes_result_entity(api : voxelfarmclient.rest, basemeshes_output_folder_path):
-    basemeshes_result_project_id = Project_id
-    basemeshes_result_folder_id = '3A18892690F940759590B782AA80FC13'
+def create_basemeshes_result_entity(api : voxelfarmclient.rest, basemeshes_output_folder_path, basemeshes_result_project_id, basemeshes_result_folder_id):
+    
     level0_output_folder = os.path.join(basemeshes_output_folder_path, f'{tile_size}_{tile_x}_{tile_y}_0')
     level1_output_folder = os.path.join(basemeshes_output_folder_path, f'{tile_size}_{tile_x}_{tile_y}_1')
     project_entity = api.get_entity(basemeshes_result_project_id)
@@ -1067,14 +1118,18 @@ def tree_instances_generation(config_path):
     worldgen_command =  f'{worldgen_exe_path} {tiles_count} {tiles_x} {tiles_y} {worldgen_level} {qtree_assets_folder} {smoothlayer_output_base_folder} {road_output_folder}'
     basemeshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_debug_level} {basemeshes_heightmap_folder}'
     basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_debug_level} {basemeshes_heightmap_folder}'
+    if use_basemesh_original_program:
+        basemeshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder}'
+        basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder}'
     basemeshvoxelizer_ini_command = f'{basemeshes_exe_path} {basemeshes_ini_path}'
     tree_exe_command = f'{tree_exe_path} {tree_ini_path}'
     
     if run_upload_basemeshes:
-        basemeshes_all_level = 0 # use all level for base meshes 
-        basemeshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_all_level} {basemeshes_heightmap_folder}'
-        basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_all_level} {basemeshes_heightmap_folder}'
-        lambda_host.log("Adjust base meshes command line to all level")
+        if not use_basemesh_original_program:
+            basemeshes_all_level = 0 # use all level for base meshes 
+            basemeshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_all_level} {basemeshes_heightmap_folder}'
+            basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_all_level} {basemeshes_heightmap_folder}'
+            lambda_host.log("Adjust base meshes command line to all level")
     
     if run_upload_basemeshes and use_basemesh_ini:
         lambda_host.log(f'Start to write standard basemeshes ini files : {basemeshes_ini_path}')
@@ -1305,13 +1360,14 @@ def tree_instances_generation(config_path):
         lambda_host.log(f'step for to run_upload_basemeshes')
         ##### upload basemeshes voxel database to cloud.
         basemeshes_output_folder = basemeshes_db_base_folder
-        #create_basemeshes_result_entity(api, basemeshes_output_folder)
-        xc_process_base_meshes(api, basemeshes_output_folder)
-        lambda_host.log(f'create_basemeshes_result_entity for {basemeshes_output_folder}')
+        
+        basemeshes_result_folder_id = Output_Result_Folder_id
+        xc_process_base_meshes(api, basemeshes_output_folder, Project_id, basemeshes_result_folder_id)
+        lambda_host.log(f'xc_process_base_meshes for {basemeshes_output_folder}')
         
     if run_make_basemeshes and run_upload_basemeshes:
         lambda_host.log(f'step for to xc_attach_file_to_lambda')
-        xc_attach_file_to_lambda(api)
+        xc_attach_file_to_lambda(api, Project_id)
 
     lambda_host.log(f'end for step tree_instances_generation')
     return 0
@@ -1323,9 +1379,14 @@ def tree_config_creation(ini_path):
     road_input_folder = f'{Data_folder}'
     road_exe_name = f'NPCTest2.exe'
     road_exe_path = os.path.join(Tools_folder, road_exe_name)
+    
     basemeshes_exe_name = f'BaseMeshVoxelizer.exe'
     if not use_basemesh_ini:
-        basemeshes_exe_name = f'BaseMeshVoxelizerOld.exe'
+        if not use_basemesh_original_program:
+            basemeshes_exe_name = f'BaseMeshVoxelizerOld.exe'
+        else:
+            basemeshes_exe_name = f'Tool.BaseMeshVoxelizer.exe'
+            
     basemeshes_exe_path = os.path.join(Tools_folder, basemeshes_exe_name)
     worldgen_exe_name = f'WorldGen.exe'
     worldgen_exe_path = os.path.join(Tools_folder, worldgen_exe_name)
@@ -1344,9 +1405,9 @@ def tree_config_creation(ini_path):
 
     create_or_update_ini_file(ini_path, section_main, 'cloud_url', Cloud_url)
     create_or_update_ini_file(ini_path, section_main, 'project_id', Project_id)
-    create_or_update_ini_file(ini_path, section_main, 'folder_id', Folder_id)
-    create_or_update_ini_file(ini_path, section_main, 'tree_entity_id', Tree_entity_id)
-    create_or_update_ini_file(ini_path, section_main, 'basemeshes_entity_id', Basemeshes_entity_id)
+    create_or_update_ini_file(ini_path, section_main, 'folder_id', Tree_Instances_Folder_id)
+    create_or_update_ini_file(ini_path, section_main, 'tree_entity_id', Game_Tree_entity_id)
+    create_or_update_ini_file(ini_path, section_main, 'basemeshes_entity_id', Latest_basemeshes_entity_id)
 
     create_or_update_ini_file(ini_path, section_tiles, 'tiles_count', Tiles_size)
     create_or_update_ini_file(ini_path, section_tiles, 'tiles_x', Tiles_x)
@@ -1405,7 +1466,8 @@ section_entity = 'Entity'
 section_options = 'Options'
 section_config = 'Configuration'
 
-use_basemesh_ini = True
+use_basemesh_ini = False
+use_basemesh_original_program = True
 
 lambda_host = process_lambda.process_lambda_host()
 
@@ -1538,10 +1600,10 @@ lambda_host.log(f'end to copy from {qtree_data_path} to {Data_folder}')
 lambda_host.progress(15, 'Start to get input parameters')
 Cloud_url = 'http://localhost/'
 Project_id = '1D4CBBD1D957477E8CC3FF376FB87470'
-Folder_id = '90F6348AD5D94FCEA85C7C1CD081CE97' 
-#Tree_entity_id = 'E0070AD37D4543FCB9E70D60AE47541D'
-Tree_entity_id = '3A3CFEBA226B4692A8719C78335470DD'  
-Basemeshes_entity_id = '4A59F80631E745E39557D23CED145732'
+Tree_Instances_Folder_id = '90F6348AD5D94FCEA85C7C1CD081CE97' 
+Game_Tree_entity_id = '3A3CFEBA226B4692A8719C78335470DD'  
+Output_Result_Folder_id = '3A18892690F940759590B782AA80FC13'
+Latest_basemeshes_entity_id = basemeshes_active_version_property #the entity id of the lastest the basemsehes asset entity
 Tiles_size = tile_size if tile_size else 10
 Tiles_x = tile_x if tile_x else 8
 Tiles_y = tile_y if tile_y else 5
