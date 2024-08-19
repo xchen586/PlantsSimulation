@@ -1361,7 +1361,7 @@ def tree_instances_generation(config_path):
         ##### upload basemeshes voxel database to cloud.
         basemeshes_output_folder = basemeshes_db_base_folder
         
-        basemeshes_result_folder_id = Output_Result_Folder_id
+        basemeshes_result_folder_id = Output_Result_Basemeshes_Folder_id
         xc_process_base_meshes(api, basemeshes_output_folder, Project_id, basemeshes_result_folder_id)
         lambda_host.log(f'xc_process_base_meshes for {basemeshes_output_folder}')
         
@@ -1602,7 +1602,7 @@ Cloud_url = 'http://localhost/'
 Project_id = '1D4CBBD1D957477E8CC3FF376FB87470'
 Tree_Instances_Folder_id = '90F6348AD5D94FCEA85C7C1CD081CE97' 
 Game_Tree_entity_id = '3A3CFEBA226B4692A8719C78335470DD'  
-Output_Result_Folder_id = '3A18892690F940759590B782AA80FC13'
+Output_Result_Basemeshes_Folder_id = '3A18892690F940759590B782AA80FC13'
 Latest_basemeshes_entity_id = basemeshes_active_version_property #the entity id of the lastest the basemsehes asset entity
 Tiles_size = tile_size if tile_size else 10
 Tiles_x = tile_x if tile_x else 8
