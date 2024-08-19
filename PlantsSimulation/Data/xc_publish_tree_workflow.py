@@ -6,7 +6,9 @@ import os
 
 print('Publishing Tree Workflow Code')
 
-project_id = '0B0B6CCD4F56423C8196B7E9EA690E97'
+tree_workflow_project_id = '0B0B6CCD4F56423C8196B7E9EA690E97'
+pangea_next_project_id = '1D4CBBD1D957477E8CC3FF376FB87470'
+project_id = pangea_next_project_id
 workflow_win_path = 'D:\\xWork\\VoxelFarm\\PlantsSimulation\\PlantsSimulation\\Data\\WorkFlow'
 workflow_mac_path = '/Users/xchen586/xWork/VoxelFarm/PlantsSimulation/PlantsSimulation/Data/WorkFlow'
 isWin = (os.name == 'nt')
