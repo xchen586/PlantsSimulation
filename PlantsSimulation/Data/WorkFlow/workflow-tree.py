@@ -255,6 +255,7 @@ def tree_generation_on_receive_data(
     tree_instances_folder_id_property = '90F6348AD5D94FCEA85C7C1CD081CE97'
     game_tree_entity_id_property = '3A3CFEBA226B4692A8719C78335470DD'
     output_result_basemeshes_folder_id_property = '68396F90F7CE48B4BA1412EA020ED92A'
+    tree_geochems_folder_id_property = 'C2C9E711B8A74E0FB8401646BCF3396C'
 
     result = lambda_host.process_lambda_entity(
         workflow_request=request,
@@ -263,6 +264,7 @@ def tree_generation_on_receive_data(
             'tree_instances_folder_id_property': tree_instances_folder_id_property,
             'game_tree_entity_id_property': game_tree_entity_id_property,
             'output_result_basemeshes_folder_id_property': output_result_basemeshes_folder_id_property,
+            'tree_geochems_folder_id_property': tree_geochems_folder_id_property,
             'lambda_entity_id': request.raw_entity_id,
             'project_id': request.project_id,
             'pythoncode_active_version_property': pythoncode_active_version_property,
@@ -338,6 +340,7 @@ def basemeshes_generation_on_receive_data(
     tree_instances_folder_id_property = '90F6348AD5D94FCEA85C7C1CD081CE97'
     game_tree_entity_id_property = '3A3CFEBA226B4692A8719C78335470DD'
     output_result_basemeshes_folder_id_property = '68396F90F7CE48B4BA1412EA020ED92A'
+    tree_geochems_folder_id_property = 'C2C9E711B8A74E0FB8401646BCF3396C'
     
     result = lambda_host.process_lambda_entity(
         workflow_request=request,
@@ -346,6 +349,7 @@ def basemeshes_generation_on_receive_data(
             'tree_instances_folder_id_property': tree_instances_folder_id_property,
             'game_tree_entity_id_property': game_tree_entity_id_property,
             'output_result_basemeshes_folder_id_property': output_result_basemeshes_folder_id_property,
+            'tree_geochems_folder_id_property': tree_geochems_folder_id_property,
             'lambda_entity_id': request.raw_entity_id,
             'project_id': request.project_id,
             'pythoncode_active_version_property': pythoncode_active_version_property,
