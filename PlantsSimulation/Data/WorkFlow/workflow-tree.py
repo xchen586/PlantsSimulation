@@ -397,9 +397,9 @@ lambda_host = workflow_lambda.workflow_lambda_host()
 lambda_host.set_workflow_definition(
     {
         'id': 'PANGEA_NEXT_TREE_WORKFLOW',
-        'name': 'Tree Generation Pangea Next',
+        'name': 'Pangea Next Tree Generation',
         'icon': 'mesh',
-        'description': 'Pangea Tree Generation Workflow',
+        'description': 'Pangea Next Tree Generation Workflow',
         'tracks': 
         [
             {
