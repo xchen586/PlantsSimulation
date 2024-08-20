@@ -256,10 +256,10 @@ def tree_generation_on_receive_data(
     #game_tree_entity_id_property = "536674D5E8D440D9A7EFCD1D879AD57A" # cosmin old
     #game_tree_entity_id_property = "3A3CFEBA226B4692A8719C78335470DD"  #xc test
     
-    tree_instances_folder_id_property = '90F6348AD5D94FCEA85C7C1CD081CE97'
-    game_tree_entity_id_property = '3A3CFEBA226B4692A8719C78335470DD'
-    output_result_basemeshes_folder_id_property = '68396F90F7CE48B4BA1412EA020ED92A'
-    tree_geochems_folder_id_property = 'C2C9E711B8A74E0FB8401646BCF3396C'
+    tree_instances_folder_id_property = '90F6348AD5D94FCEA85C7C1CD081CE97' #Pangea Next -> Instances
+    game_tree_entity_id_property = '3A3CFEBA226B4692A8719C78335470DD' 
+    output_result_basemeshes_folder_id_property = '68396F90F7CE48B4BA1412EA020ED92A' #Pangea Next -> Workflow Output -> Workflow BaseMeshes Output
+    tree_geochems_folder_id_property = 'C2C9E711B8A74E0FB8401646BCF3396C' #Pangea Next -> Workflow Output -> Workflow Tree GeoChems Output
 
     result = lambda_host.process_lambda_entity(
         workflow_request=request,
@@ -341,10 +341,10 @@ def basemeshes_generation_on_receive_data(
     qtree_active_version_property = request.get_product_property('QUADTREE_FILES', 'raw_data')
     tools_active_version_property = request.get_product_property('TOOLS_FILES', 'raw_data')
     
-    tree_instances_folder_id_property = '90F6348AD5D94FCEA85C7C1CD081CE97'
-    game_tree_entity_id_property = '3A3CFEBA226B4692A8719C78335470DD'
-    output_result_basemeshes_folder_id_property = '68396F90F7CE48B4BA1412EA020ED92A'
-    tree_geochems_folder_id_property = 'C2C9E711B8A74E0FB8401646BCF3396C'
+    tree_instances_folder_id_property = '90F6348AD5D94FCEA85C7C1CD081CE97' #Pangea Next -> Instances
+    game_tree_entity_id_property = '3A3CFEBA226B4692A8719C78335470DD' 
+    output_result_basemeshes_folder_id_property = '68396F90F7CE48B4BA1412EA020ED92A' #Pangea Next -> Workflow Output -> Workflow BaseMeshes Output
+    tree_geochems_folder_id_property = 'C2C9E711B8A74E0FB8401646BCF3396C' #Pangea Next -> Workflow Output -> Workflow Tree GeoChems Output
     
     result = lambda_host.process_lambda_entity(
         workflow_request=request,
