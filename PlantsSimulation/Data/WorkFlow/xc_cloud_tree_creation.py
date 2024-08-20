@@ -868,8 +868,10 @@ def xc_process_base_meshes(api : voxelfarmclient.rest, basemeshes_output_folder_
     #level1_entity_name = f'Workflow_Basemeshes_{tile_size}_{tile_x}_{tile_y}_1-ver-{version}'
 
     #basemeshes_project_id = '74F0C96BF0F24DA2BB5AE4ED65D81D8C'
-    basemeshes_project_id = '1D4CBBD1D957477E8CC3FF376FB87470' #Project: "My Projects > Pangea Next"
-    basemeshes_db_parent_folderId = 'CBF17A5E89EF4BA2A9A619CC57FBDA93' #Folder: "My Projects > Pangea Next > Basemeshes_Workflow"
+    #basemeshes_project_id = '1D4CBBD1D957477E8CC3FF376FB87470' #Project: "My Projects > Pangea Next"
+    #basemeshes_db_parent_folderId = 'CBF17A5E89EF4BA2A9A619CC57FBDA93' #Folder: "My Projects > Pangea Next > Basemeshes_Workflow"
+    basemeshes_project_id = Project_id #Project: "My Projects > Pangea Next"
+    basemeshes_db_parent_folderId = Output_Result_Basemeshes_Folder_id
     basemeshes_project_entity = api.get_entity(basemeshes_project_id)
     test_version = basemeshes_project_entity['basemeshes_version']
     lambda_host.log(f'-----------------test version: {test_version}!-----------------')
@@ -1310,7 +1312,8 @@ def tree_instances_generation(config_path):
             
             lambda_host.log(f'step for to run_make_basemeshes : {basemeshvoxelizer1_command}')
             #return_code_basemash1 = launch_process(basemeshvoxelizer1_command)
-            return_code_basemash1 = xc_run_tool(basemeshvoxelizer1_command, 61, 80)
+            #return_code_basemash1 = xc_run_tool(basemeshvoxelizer1_command, 61, 80)
+            return_code_basemash1 = xc_run_tool(basemeshvoxelizer1_command, 0, 100)
             if return_code_basemash1 == 0:
                 lambda_host.log(f'Process ({basemeshvoxelizer1_command}) executed successfully.')
             else:
@@ -1320,7 +1323,8 @@ def tree_instances_generation(config_path):
             
             #return_code_basemash0 = launch_process(basemeshvoxelizer0_command)
             lambda_host.log(f'step for to run_make_basemeshes : {basemeshvoxelizer0_command}')
-            return_code_basemash0 = xc_run_tool(basemeshvoxelizer0_command, 81, 90)
+            #return_code_basemash0 = xc_run_tool(basemeshvoxelizer0_command, 81, 90)
+            return_code_basemash0 = xc_run_tool(basemeshvoxelizer0_command, 0, 100)
             if return_code_basemash0 == 0:
                 lambda_host.log(f'Process ({basemeshvoxelizer0_command}) executed successfully.')
             else:
