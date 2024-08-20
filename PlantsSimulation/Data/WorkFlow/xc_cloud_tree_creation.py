@@ -524,6 +524,7 @@ def do_simple_upload_basemeshes(api : voxelfarmclient.rest, project_id, basemesh
             'file_folder': basemeshes_db_folderId,
         }, crs = crs)
     entity_id = result.id
+    lambda_host.log(f'end create_entity_raw file for entity {entity_name}')
     if not result.success:
         lambda_host.log(f'Fail to create_entity_raw Created entity for {entity_name} : {result.error_info}')
     else:
@@ -532,11 +533,13 @@ def do_simple_upload_basemeshes(api : voxelfarmclient.rest, project_id, basemesh
     dbName = f'vox-mesh-{entity_name}'
     dbTitle = f'Voxel Mesh Data For {entity_name}'
     try:
+        lambda_host.log(f'Start lambda_host.upload_db({entity_id}, {file_path}, {dbName}, {dbTitle})')
         uploadDbOk = lambda_host.upload_db(entity_id, file_path, dbName, dbTitle)
+        lambda_host.log(f'End lambda_host.upload_db({entity_id}, {file_path}, {dbName}, {dbTitle})')
     except Exception as e:
         lambda_host.log(f'Exception of lambda_host.upload_db: files folder: {file_path} to entity {entity_id} with exception of {str(e)}')   
     if uploadDbOk:
-        lambda_host.log(f'lambda_host.upload_db is successful in do_upload_base_meshes with {file_path} to entity {entity_id}')
+        lambda_host.log(f'lambda_host.upload_db is successful in do_simple_upload_basemeshes with {file_path} to entity {entity_id}')
         on_upload_db_succeessfull(api, project_id, entity_id, file_path)
         result = api.update_entity(
         id = entity_id,
@@ -545,7 +548,7 @@ def do_simple_upload_basemeshes(api : voxelfarmclient.rest, project_id, basemesh
             'state' : 'COMPLETE'
         })
     else:
-        lambda_host.log(f'lambda_host.upload_db is failed in do_upload_base_meshes with {file_path} to entity {entity_id}')
+        lambda_host.log(f'lambda_host.upload_db is failed in do_simple_upload_basemeshes with {file_path} to entity {entity_id}')
         result = api.update_entity(
         id = entity_id,
         project = project_id, 
@@ -1309,7 +1312,18 @@ def tree_instances_generation(config_path):
             
         else:
             ##### Generate the height map from level 0 of BaseMeshes.  
+             #return_code_basemash0 = launch_process(basemeshvoxelizer0_command)
+            lambda_host.log(f'step for to run_make_basemeshes : {basemeshvoxelizer0_command}')
+            #return_code_basemash0 = xc_run_tool(basemeshvoxelizer0_command, 81, 90)
+            return_code_basemash0 = xc_run_tool(basemeshvoxelizer0_command, 0, 100)
+            if return_code_basemash0 == 0:
+                lambda_host.log(f'Process ({basemeshvoxelizer0_command}) executed successfully.')
+            else:
+                lambda_host.log(f'Error: The process ({basemeshvoxelizer0_command}) returned a non-zero exit code ({return_code_basemash0}).')
+                exit_code(2)
+                return -1
             
+            ##### Generate the height map from level 1 of BaseMeshes. 
             lambda_host.log(f'step for to run_make_basemeshes : {basemeshvoxelizer1_command}')
             #return_code_basemash1 = launch_process(basemeshvoxelizer1_command)
             #return_code_basemash1 = xc_run_tool(basemeshvoxelizer1_command, 61, 80)
@@ -1320,18 +1334,6 @@ def tree_instances_generation(config_path):
                 lambda_host.log(f'Error: The process ({basemeshvoxelizer1_command}) returned a non-zero exit code ({return_code_basemash1}).')
                 exit_code(2)
                 return -1
-            
-            #return_code_basemash0 = launch_process(basemeshvoxelizer0_command)
-            lambda_host.log(f'step for to run_make_basemeshes : {basemeshvoxelizer0_command}')
-            #return_code_basemash0 = xc_run_tool(basemeshvoxelizer0_command, 81, 90)
-            return_code_basemash0 = xc_run_tool(basemeshvoxelizer0_command, 0, 100)
-            if return_code_basemash0 == 0:
-                lambda_host.log(f'Process ({basemeshvoxelizer0_command}) executed successfully.')
-            else:
-                lambda_host.log(f'Error: The process ({basemeshvoxelizer0_command}) returned a non-zero exit code ({return_code_basemash0}).')
-                exit_code(2)
-                return -1
-            ##### Generate the height map from level 1 of BaseMeshes. 
         
     if run_make_tree_instances:
         lambda_host.log(f'step for to run_make_tree_instances : {tree_exe_command}')
