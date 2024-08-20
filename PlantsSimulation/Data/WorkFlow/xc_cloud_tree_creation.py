@@ -1531,6 +1531,9 @@ is_run_make_tree_instances = lambda_host.input_string('run_make_tree_instances',
 is_run_upload_tree_instances = lambda_host.input_string('run_upload_tree_instances', 'run_upload_tree_instances', '')
 is_run_create_geochem_entity = lambda_host.input_string('run_create_geochem_entity', 'run_create_geochem_entity', '')
 
+if is_run_make_tree_instances:
+    use_basemesh_original_program = False
+
 lambda_host.log('is_run_update_basemeshes_assets: ' + is_run_update_basemeshes_assets)
 lambda_host.log('is_run_road_exe: ' + is_run_road_exe)
 lambda_host.log('is_run_worldgen_road: ' + is_run_worldgen_road)
