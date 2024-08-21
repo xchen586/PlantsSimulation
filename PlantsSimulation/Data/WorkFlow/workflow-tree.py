@@ -244,6 +244,10 @@ def tree_generation_on_receive_data(
     lambda_host.log('Received tree generation data')
     request.properties['my_property'] = 'my_value'
 
+    lambda_host.log(f'request.product_folder_id is {request.product_folder_id}')
+    lambda_host.log(f'request.active_version_folder_id is {request.active_version_folder_id}')
+    lambda_host.log(f'request.version_folder_id is {request.version_folder_id}')
+
     pythoncode_active_version_property = request.get_product_property('PYTHON_CODE_FILES', 'raw_data')
     treelist_active_version_property = request.get_product_property('TREE_LIST_FILES', 'raw_data')
     roaddata_active_version_property = request.get_product_property('ROAD_DATA_FILES', 'raw_data')
@@ -255,11 +259,17 @@ def tree_generation_on_receive_data(
     #game_tree_entity_id_property = 'E0070AD37D4543FCB9E70D60AE47541D' # cosmin new
     #game_tree_entity_id_property = "536674D5E8D440D9A7EFCD1D879AD57A" # cosmin old
     #game_tree_entity_id_property = "3A3CFEBA226B4692A8719C78335470DD"  #xc test
+    game_tree_entity_id_property = '3A3CFEBA226B4692A8719C78335470DD' 
     
     tree_instances_folder_id_property = '90F6348AD5D94FCEA85C7C1CD081CE97' #Pangea Next -> Instances
-    game_tree_entity_id_property = '3A3CFEBA226B4692A8719C78335470DD' 
-    output_result_basemeshes_folder_id_property = '68396F90F7CE48B4BA1412EA020ED92A' #Pangea Next -> Workflow Output -> Workflow BaseMeshes Output
     tree_geochems_folder_id_property = 'C2C9E711B8A74E0FB8401646BCF3396C' #Pangea Next -> Workflow Output -> Workflow Tree GeoChems Output
+    output_result_basemeshes_folder_id_property = '68396F90F7CE48B4BA1412EA020ED92A' #Pangea Next -> Workflow Output -> Workflow BaseMeshes Output
+    
+    if request.version_folder_id != None:
+        tree_instances_folder_id_property = request.version_folder_id
+        tree_geochems_folder_id_property = request.version_folder_id
+        output_result_basemeshes_folder_id_property = request.version_folder_id
+        lambda_host.log(f'Assign the output folder id as request.version_folder_id : {request.version_folder_id}')
 
     result = lambda_host.process_lambda_entity(
         workflow_request=request,
@@ -320,6 +330,10 @@ def basemeshes_generation_on_receive_data(
     lambda_host.log('Received base meshes generation data')
     request.properties['my_property'] = 'my_value'
     
+    lambda_host.log(f'request.product_folder_id is {request.product_folder_id}')
+    lambda_host.log(f'request.active_version_folder_id is {request.active_version_folder_id}')
+    lambda_host.log(f'request.version_folder_id is {request.version_folder_id}')
+    
     entity_id = request.raw_entity_id
     project_id = request.project_id
     folder_id = request.version_folder_id
@@ -341,10 +355,16 @@ def basemeshes_generation_on_receive_data(
     qtree_active_version_property = request.get_product_property('QUADTREE_FILES', 'raw_data')
     tools_active_version_property = request.get_product_property('TOOLS_FILES', 'raw_data')
     
-    tree_instances_folder_id_property = '90F6348AD5D94FCEA85C7C1CD081CE97' #Pangea Next -> Instances
     game_tree_entity_id_property = '3A3CFEBA226B4692A8719C78335470DD' 
+    
+    tree_instances_folder_id_property = '90F6348AD5D94FCEA85C7C1CD081CE97' #Pangea Next -> Instances
     output_result_basemeshes_folder_id_property = '68396F90F7CE48B4BA1412EA020ED92A' #Pangea Next -> Workflow Output -> Workflow BaseMeshes Output
-    tree_geochems_folder_id_property = 'C2C9E711B8A74E0FB8401646BCF3396C' #Pangea Next -> Workflow Output -> Workflow Tree GeoChems Output
+    tree_geochems_folder_id_property = 'C2C9E711B8A74E0FB8401646BCF3396C' #Pangea Next -> Workflow Output -> Workflow Tree GeoChems Output    
+    if request.version_folder_id != None:
+        tree_instances_folder_id_property = request.version_folder_id
+        tree_geochems_folder_id_property = request.version_folder_id
+        output_result_basemeshes_folder_id_property = request.version_folder_id
+        lambda_host.log(f'Assign the output folder id as request.version_folder_id : {request.version_folder_id}')
     
     result = lambda_host.process_lambda_entity(
         workflow_request=request,
