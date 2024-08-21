@@ -589,8 +589,10 @@ def do_simple_upload_basemeshes(api : voxelfarmclient.rest, project_id, basemesh
     else:
         lambda_host.log(f'Successfully to create_entity_raw Created entity for {result.id} for {entity_name}')
         
-    dbName = f'vox-mesh-{entity_name}'
-    dbTitle = f'Voxel Mesh Data For {entity_name}'
+    #dbName = f'vox-mesh-{entity_name}'
+    #dbTitle = f'Voxel Mesh Data For {entity_name}'
+    dbName = f'vox-pc'
+    dbTitle = f'Voxel Data'
     try:
         lambda_host.log(f'Start lambda_host.upload_db({entity_id}, {file_path}, {dbName}, {dbTitle})')
         uploadDbOk = lambda_host.upload_db(entity_id, file_path, dbName, dbTitle)
@@ -653,8 +655,10 @@ def do_simple_upload_basemeshes_swarm(api : voxelfarmclient.rest, project_id, ba
     uploadcode = None
     try:
         # Attempt to upload the database
-        dbName = f'vox-mesh-{entity_name}'
-        dbTitle = f'Voxel Mesh Data For {entity_name}'
+        #dbName = f'vox-mesh-{entity_name}'
+        #dbTitle = f'Voxel Mesh Data For {entity_name}'
+        dbName = f'vox-pc'
+        dbTitle = f'Voxel Data'
         uploadcode = do_swarm_db_upload(project_id, entity_id, file_path, dbName, dbTitle)
     except Exception as e:
         # Log any exceptions that occur during the upload
@@ -728,7 +732,7 @@ def do_upload_base_meshes(api : voxelfarmclient.rest, project_id, basemeshes_db_
     lambda_host.log(f'Start to upload_db entity_id : {entity_id} ---- with folder ; {file_path}')
 
     try:
-        uploadDbOk = lambda_host.upload_db(entity_id, file_path, 'vox', 'Voxel Data')
+        uploadDbOk = lambda_host.upload_db(entity_id, file_path, 'vox-pc', 'Voxel Data')
     except Exception as e:
         lambda_host.log(f'Exception of lambda_host.upload_db: files folder: {file_path} to entity {entity_id} with exception of {str(e)}')   
     if uploadDbOk:
