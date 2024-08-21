@@ -950,7 +950,7 @@ def xc_process_base_meshes(api : voxelfarmclient.rest, basemeshes_output_folder_
     lambda_host.log(f'-----------------Successful to get basemeshes_version {basemeshes_version}!-----------------')
     
 
-    result = api.create_folder(project=basemeshes_project_id, name=f'Version {basemeshes_version}', folder=basemeshes_db_parent_folderId)
+    result = api.create_folder(project=basemeshes_project_id, name=f'Base Meshes Version {basemeshes_version}', folder=basemeshes_db_parent_folderId)
     if not result.success:
         print(f'Failed to create base meshes db folder for version!')
         exit(4)
@@ -1543,7 +1543,7 @@ section_options = 'Options'
 section_config = 'Configuration'
 
 use_basemesh_ini = False
-use_basemesh_original_program = True
+use_basemesh_original_program = False
 
 lambda_host = process_lambda.process_lambda_host()
 
