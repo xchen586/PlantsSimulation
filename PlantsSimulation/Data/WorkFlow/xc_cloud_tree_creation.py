@@ -1457,10 +1457,11 @@ def tree_config_creation(ini_path):
     road_exe_path = os.path.join(Tools_folder, road_exe_name)
     
     basemeshes_exe_name = f'BaseMeshVoxelizer.exe'
+    #basemeshes_exe_name = f'BaseMeshVoxelizerCmd.exe'
     if not use_basemesh_ini:
         if not use_basemesh_original_program:
-            basemeshes_exe_name = f'BaseMeshVoxelizerOldAZ.exe'
-            #basemeshes_exe_name = f'BaseMeshVoxelizer.exe'
+            basemeshes_exe_name = f'BaseMeshVoxelizerCmd.exe'
+            #basemeshes_exe_name = f'BaseMeshVoxelizerAZ.exe'
         else:
             basemeshes_exe_name = f'Tool.BaseMeshVoxelizer.exe'
             
