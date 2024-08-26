@@ -203,7 +203,7 @@ def clear_all_sections(file_path):
     with open(file_path, 'w') as configfile:
         config.write(configfile)
 
-def update_attach_files_for_entity(api : voxelfarmclient.rest, project_id, entity_id, folder_path, name : str, version : int, color : bool):
+def update_attach_files_for_entity(api : voxelfarmclient.rest, project_id, entity_id, folder_path):
 
     if not os.path.exists(folder_path):
         print(f'File {folder_path} does not exist')
@@ -1422,7 +1422,8 @@ def tree_instances_generation(config_path):
         ##### Update the tree instance files of tree entity.
         #workflow_api = workflow_lambda.workflow_lambda_host()
         tree_instance_output_folder = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', 'instanceoutput')
-        update_attach_files_for_entity(api, project_id, tree_entity_id, tree_instance_output_folder, f'instances_lod8_{tiles_count}_{tiles_x}_{tiles_y}-{version}', version=version, color=True)
+        #update_attach_files_for_entity(api, project_id, tree_entity_id, tree_instance_output_folder, f'instances_lod8_{tiles_count}_{tiles_x}_{tiles_y}-{version}', version=version, color=True)
+        update_attach_files_for_entity(api, project_id, tree_entity_id, tree_instance_output_folder)
         lambda_host.log(f'update_attach_files_for_entity for {tree_entity_id}')
 
     if run_create_geochem_entity:
