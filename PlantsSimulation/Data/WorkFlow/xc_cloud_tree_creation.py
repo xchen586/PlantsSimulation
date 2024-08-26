@@ -461,7 +461,7 @@ def create_geochem_tree_entity(api, geo_chemical_folder):
     geochems_project_entity = api.get_entity(geochems_project_id)
     version = int(geochems_project_entity['version']) + 1 if 'version' in geochems_project_entity else 1
     api.update_entity(project=geochems_project_id, id=geochems_project_id, fields={'version': version})
-    result = api.create_folder(project=geochems_project_id, name=f'Version {version}', folder=geochems_folder_id)
+    result = api.create_folder(project=geochems_project_id, name=f'GeoChem Version {version}', folder=geochems_folder_id)
     if not result.success:
         lambda_host.log(f'Failed to create geochem folder for version!')
         exit(4)
