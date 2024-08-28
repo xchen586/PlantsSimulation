@@ -1461,11 +1461,14 @@ def tree_config_creation(ini_path):
     #basemeshes_exe_name = f'BaseMeshVoxelizerCmd.exe'
     if not use_basemesh_ini:
         if not use_basemesh_original_program:
-            #basemeshes_exe_name = f'BaseMeshVoxelizerCmd.exe'
-            basemeshes_exe_name = f'BaseMeshVoxelizerAZ.exe'
+            basemeshes_exe_name = f'BaseMeshVoxelizerCmd.exe'
+            #basemeshes_exe_name = f'BaseMeshVoxelizerAZ.exe'
         else:
             basemeshes_exe_name = f'Tool.BaseMeshVoxelizer.exe'
             
+    lambda_host.log(f'use_basemesh_original_program is {use_basemesh_original_program}')
+    lambda_host.log(f'basemeshes_exe_name is {basemeshes_exe_name}')
+
     basemeshes_exe_path = os.path.join(Tools_folder, basemeshes_exe_name)
     worldgen_exe_name = f'WorldGen.exe'
     worldgen_exe_path = os.path.join(Tools_folder, worldgen_exe_name)
@@ -1546,9 +1549,11 @@ section_options = 'Options'
 section_config = 'Configuration'
 
 use_basemesh_ini = False
-use_basemesh_original_program = False
+use_basemesh_original_program = True
 
 lambda_host = process_lambda.process_lambda_host()
+
+lambda_host.log(f'use_basemesh_original_program is {use_basemesh_original_program}')
 
 lambda_host.progress(0, 'Starting Lambda...')
 scrap_folder= lambda_host.get_scrap_folder()
@@ -1604,9 +1609,6 @@ is_run_make_tree_instances = lambda_host.input_string('run_make_tree_instances',
 is_run_upload_tree_instances = lambda_host.input_string('run_upload_tree_instances', 'run_upload_tree_instances', '')
 is_run_create_geochem_entity = lambda_host.input_string('run_create_geochem_entity', 'run_create_geochem_entity', '')
 
-if is_run_make_tree_instances:
-    use_basemesh_original_program = False
-
 lambda_host.log('is_run_update_basemeshes_assets: ' + is_run_update_basemeshes_assets)
 lambda_host.log('is_run_road_exe: ' + is_run_road_exe)
 lambda_host.log('is_run_worldgen_road: ' + is_run_worldgen_road)
@@ -1615,6 +1617,11 @@ lambda_host.log('is_run_upload_basemeshes: ' + is_run_upload_basemeshes)
 lambda_host.log('is_run_make_tree_instances: ' + is_run_make_tree_instances)
 lambda_host.log('is_run_upload_tree_instances: ' + is_run_upload_tree_instances)
 lambda_host.log('is_run_create_geochem_entity: ' + is_run_create_geochem_entity)
+
+lambda_host.log('is_run_make_tree_instances is ' + is_run_make_tree_instances)
+if is_run_make_tree_instances == "True":
+    lambda_host.log('is_run_make_tree_instances is true, set use_basemesh_original_program = False' )
+    use_basemesh_original_program = False
 
 lambda_host.progress(1, 'Start to download files')
 pythoncode_data_folder = lambda_host.download_entity_files(pythoncode_active_version_property)
