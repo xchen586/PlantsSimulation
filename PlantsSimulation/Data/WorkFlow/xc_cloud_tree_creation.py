@@ -1199,9 +1199,10 @@ def tree_instances_generation(config_path):
     basemeshvoxelizer_ini_command = f'{basemeshes_exe_path} {basemeshes_ini_path}'
     tree_exe_command = f'{tree_exe_path} {tree_ini_path}'
     
+    basemeshes_all_level = 0 # use all level for base meshes 
+    
     if run_upload_basemeshes:
         if not use_basemesh_original_program:
-            basemeshes_all_level = 0 # use all level for base meshes 
             basemeshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_all_level} {basemeshes_heightmap_folder}'
             basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_all_level} {basemeshes_heightmap_folder}'
             lambda_host.log("Adjust base meshes command line to all level")
@@ -1353,7 +1354,7 @@ def tree_instances_generation(config_path):
                 create_or_update_ini_file(basemeshes_ini_path, section_others, 'LodDebugLevel', basemeshes_all_level)
                 lambda_host.log(f'Adjust base meshes ini level {basemeshes_level1} to all LOD level')
             basemeshes_ini_string = ini_file_to_string(basemeshes_ini_path)
-            lambda_host.log(f'Basemeshes ini file for level {basemeshes_level0} content is :')
+            lambda_host.log(f'Basemeshes ini file for level {basemeshes_level1} content is :')
             lambda_host.log(f'{basemeshes_ini_string}')
             return_code_basemesh_ini_1 = xc_run_tool(basemeshvoxelizer_ini_command, 61, 80)
             if return_code_basemesh_ini_1 == 0:
@@ -1464,7 +1465,8 @@ def tree_config_creation(ini_path):
             basemeshes_exe_name = f'BaseMeshVoxelizerCmd.exe'
             #basemeshes_exe_name = f'BaseMeshVoxelizerAZ.exe'
         else:
-            basemeshes_exe_name = f'Tool.BaseMeshVoxelizer.exe'
+            #basemeshes_exe_name = f'Tool.BaseMeshVoxelizer.exe'
+            basemeshes_exe_name = f'BaseMeshVoxelizerOrigin.exe'
             
     lambda_host.log(f'use_basemesh_original_program is {use_basemesh_original_program}')
     lambda_host.log(f'basemeshes_exe_name is {basemeshes_exe_name}')
@@ -1548,7 +1550,7 @@ section_entity = 'Entity'
 section_options = 'Options'
 section_config = 'Configuration'
 
-use_basemesh_ini = False
+use_basemesh_ini = True
 use_basemesh_original_program = True
 
 lambda_host = process_lambda.process_lambda_host()
