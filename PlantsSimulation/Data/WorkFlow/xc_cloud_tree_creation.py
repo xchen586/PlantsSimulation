@@ -1249,7 +1249,7 @@ def tree_instances_generation(config_path):
         create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_OUTPUT_COASTLINE_CSV', False)
         
         create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_BASEMESHES_OUTPUT_PROGRESS', True)
-        create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_OUTPUT_NODE_MAX_DIMS', True)
+        create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_OUTPUT_NODE_MAX_DIMS', False)
         create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_OUTPUT_QUADBOUNDS_ERROR', False)
         
         create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_APPLY_RANDOM_SCALE', True)
@@ -1550,8 +1550,8 @@ section_entity = 'Entity'
 section_options = 'Options'
 section_config = 'Configuration'
 
-use_basemesh_ini = True
-use_basemesh_original_program = True
+use_basemesh_ini = False
+use_basemesh_original_program = False
 
 lambda_host = process_lambda.process_lambda_host()
 
