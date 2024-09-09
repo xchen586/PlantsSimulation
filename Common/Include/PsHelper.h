@@ -283,10 +283,28 @@ T findMinInBlock(const std::vector<std::vector<T>>& input, int x_start, int y_st
 	return min_value;
 }
 
+// Generic function to find the minimum value in an N*N block of any numeric type
+template <typename T>
+T findMinInBlock(const std::vector<std::vector<T>>& input, int x_start, int y_start, int block_width, int block_height) {
+	T min_value = std::numeric_limits<T>::max();  // Initialize with the maximum possible value for type T
+	int orig_height = input.size();
+	int orig_width = input[0].size();
+
+	for (int y = y_start; y < std::min(y_start + block_height, orig_height); ++y) {
+		for (int x = x_start; x < std::min(x_start + block_width, orig_width); ++x) {
+			min_value = std::min(min_value, input[y][x]);
+		}
+	}
+	return min_value;
+}
+
 // Generic function to find the maximum value in an N*N block of any numeric type
 template <typename T>
-T findMaxInBlock(const std::vector<std::vector<T>>& input, int x_start, int y_start, int block_width, int block_height, int orig_width, int orig_height) {
+T findMaxInBlock(const std::vector<std::vector<T>>& input, int x_start, int y_start, int block_width, int block_height) {
 	T max_value = std::numeric_limits<T>::min();  // Initialize with the minimum possible value for type T
+	int orig_height = input.size();
+	int orig_width = input[0].size();
+
 	for (int y = y_start; y < std::min(y_start + block_height, orig_height); ++y) {
 		for (int x = x_start; x < std::min(x_start + block_width, orig_width); ++x) {
 			max_value = std::max(max_value, input[y][x]);
@@ -297,9 +315,11 @@ T findMaxInBlock(const std::vector<std::vector<T>>& input, int x_start, int y_st
 
 // Generic function to find the average value in an N*N block of any numeric type
 template <typename T>
-T findAverageInBlock(const std::vector<std::vector<T>>& input, int x_start, int y_start, int block_width, int block_height, int orig_width, int orig_height) {
+T findAverageInBlock(const std::vector<std::vector<T>>& input, int x_start, int y_start, int block_width, int block_height) {
 	T sum = 0;
 	int count = 0;
+	int orig_height = input.size();
+	int orig_width = input[0].size();
 
 	for (int y = y_start; y < std::min(y_start + block_height, orig_height); ++y) {
 		for (int x = x_start; x < std::min(x_start + block_width, orig_width); ++x) {
@@ -312,7 +332,10 @@ T findAverageInBlock(const std::vector<std::vector<T>>& input, int x_start, int 
 
 // Template function to resample the 2D vector using the specified aggregation function (min, max, or average)
 template <typename T, typename Func>
-std::vector<std::vector<T>> resampleHeightMapByFunc(const std::vector<std::vector<T>>& input, int orig_width, int orig_height, int new_width, int new_height, Func aggregationFunc) {
+std::vector<std::vector<T>> resampleHeightMapByFunc(const std::vector<std::vector<T>>& input, int new_width, int new_height, Func aggregationFunc) {
+	int orig_height = input.size();
+	int orig_width = input[0].size();
+
 	std::vector<std::vector<T>> output(new_height, std::vector<T>(new_width));
 
 	// Calculate scaling factors
@@ -329,7 +352,7 @@ std::vector<std::vector<T>> resampleHeightMapByFunc(const std::vector<std::vecto
 			int block_height = static_cast<int>(std::ceil(y_scale));
 
 			// Apply the specified aggregation function (min, max, or average)
-			output[j][i] = aggregationFunc(input, x_start, y_start, block_width, block_height, orig_width, orig_height);
+			output[j][i] = aggregationFunc(input, x_start, y_start, block_width, block_height);
 		}
 	}
 
