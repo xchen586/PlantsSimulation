@@ -111,6 +111,7 @@ std::vector<std::vector<unsigned short>> ConvertShortMatrixToUShort(const std::v
 
 double GenerateRandomDouble(double min, double max);
 
+bool stringToBool(const std::string& str);
 
 std::vector<std::vector<short>> resample2DShortWithAverage(const std::vector<std::vector<short>>& original, int new_rows, int new_cols);
 std::vector<std::vector<unsigned char>> resample2DUCharWithAverage(const std::vector<std::vector<unsigned char>>& original, int new_rows, int new_cols);
@@ -194,6 +195,9 @@ T FindMaxIn4(T num1, T num2, T num3, T num4) {
 
 template <typename T>
 bool Output2DVectorToRawFile(const std::vector<std::vector<T>>& data, const std::string& filePath) {
+	
+	std::cout << "start to Output2DVectorToRawFile to : " << filePath << std::endl;
+	
 	std::ofstream outputFile(filePath, std::ios::binary);
 
 	if (!outputFile.is_open()) {
@@ -217,6 +221,8 @@ bool Output2DVectorToRawFile(const std::vector<std::vector<T>>& data, const std:
 	}
 
 	outputFile.close();
+
+	std::cout << "end to Output2DVectorToRawFile to : " << filePath << std::endl;
 	return true;
 }
 
@@ -327,7 +333,7 @@ T findAverageInBlock(const std::vector<std::vector<T>>& input, int x_start, int 
 
 	for (int y = y_start; y < std::min(y_start + block_height, orig_height); ++y) {
 		for (int x = x_start; x < std::min(x_start + block_width, orig_width); ++x) {
-			sum = sum + input[y][x];
+			sum += input[y][x];
 			count++;
 		}
 	}

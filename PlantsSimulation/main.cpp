@@ -428,6 +428,7 @@ int iniAbsolutePathMain(int argc, const char* argv[])
     const string Input_Section = "Input";
     const string Output_Section = "Output";
     const string Others_Section = "Others";
+    const string Options_Section = "Options";
 
     const char* t_str = GetIniValue(iniParser, Title_Section, "Tiles_Count");
     const char* x_str = GetIniValue(iniParser, Title_Section, "Tiles_X_Index");
@@ -453,35 +454,47 @@ int iniAbsolutePathMain(int argc, const char* argv[])
     const char* forest_age_str = GetIniValue(iniParser, Others_Section, "Forest_Age");
     const char* tree_iteration_str = GetIniValue(iniParser, Others_Section, "Tree_Iteration");
 
+    const char* only_road_data_str = GetIniValue(iniParser, Options_Section, "Only_Road_Data");
+
     const int t = atoi(t_str);
     const int x = atoi(x_str);
     const int y = atoi(y_str);
     const int lod = atoi(lod_str);
     const float forestAge = (float)atof(forest_age_str);
     const int iteration = atoi(tree_iteration_str);
+    bool isOnlyRoadData = false;
+    if (only_road_data_str)
+    {
+        bool isOnlyRoadDataValue = stringToBool(only_road_data_str);
+        if (isOnlyRoadDataValue)
+        {
+            isOnlyRoadData = isOnlyRoadDataValue;
+        }
+    }
 
     std::cout << "Command line is : " << std::endl;
-    std::cout << "Tiles count is : " << t << std::endl;
-    std::cout << "Tiles x index is : " << x << std::endl;
-    std::cout << "Tiles y index is : " << y << std::endl;
+    std::cout << "Tiles count is : " << (t_str ? t_str : "") << std::endl;
+    std::cout << "Tiles x index is : " << (x_str ? x_str : "") << std::endl;
+    std::cout << "Tiles y index is : " << (y_str ? y_str : "") << std::endl;
     //std::cout << "Assert path is : " << assets_path << std::endl;
-    std::cout << "Output path is : " << output_path << std::endl;
-    std::cout << "Input image name is : " << input_image_name << std::endl;
-    std::cout << "Input meta file name is : " << input_meta_name << std::endl;
-    std::cout << "Mesh 0 height map file name is : " << mesh_heightmap_raw_name << std::endl;
-    std::cout << "Mesh 1 height map file name is : " << mesh2_heightmap_raw_name << std::endl;
-    std::cout << "Point cloud top level height map file name is : " << pc_heightmap_raw_name << std::endl;
-    std::cout << "Point cloud level 1 height map file name is : " << l1_heightmap_raw_name << std::endl;
-    std::cout << "Mesh 0 height map mask file name is : " << mesh_heightmap_masks_name << std::endl;
-    std::cout << "Mesh 1 height map mask file name is : " << mesh2_heightmap_masks_name << std::endl;
-    std::cout << "Point cloud top level height mask map file name is : " << pc_heightmap_masks_name << std::endl;
-    std::cout << "Point cloud level 1 height mask map file name is : " << l1_heightmap_masks_name << std::endl;
-    std::cout << "Most travelled point file name is : " << point_most_travelled_name << std::endl;
-    std::cout << "Most distant  point file name is : " << point_most_distant_name << std::endl;
-    std::cout << "Tree list csv file name is : " << tree_list_csv << std::endl;
-    std::cout << "Los is  : " << lod_str << std::endl;
-    std::cout << "Forest Age is : " << forestAge << std::endl;
-    std::cout << "Tree iteration count is : " << iteration << std::endl;
+    std::cout << "Output path is : " << (output_path ? output_path : "") << std::endl;
+    std::cout << "Input image name is : " << (input_image_name ? input_image_name : "") << std::endl;
+    std::cout << "Input meta file name is : " << (input_meta_name ? input_meta_name : "") << std::endl;
+    std::cout << "Mesh 0 height map file name is : " << (mesh_heightmap_raw_name ? mesh_heightmap_raw_name : "") << std::endl;
+    std::cout << "Mesh 1 height map file name is : " << (mesh2_heightmap_raw_name ? mesh2_heightmap_raw_name : "") << std::endl;
+    std::cout << "Point cloud top level height map file name is : " << (pc_heightmap_raw_name ? pc_heightmap_raw_name : "") << std::endl;
+    std::cout << "Point cloud level 1 height map file name is : " << (l1_heightmap_raw_name ? l1_heightmap_raw_name : "") << std::endl;
+    std::cout << "Mesh 0 height map mask file name is : " << (mesh_heightmap_masks_name ? mesh_heightmap_masks_name : "") << std::endl;
+    std::cout << "Mesh 1 height map mask file name is : " << (mesh2_heightmap_masks_name ? mesh2_heightmap_masks_name : "") << std::endl;
+    std::cout << "Point cloud top level height mask map file name is : " << (pc_heightmap_masks_name ? pc_heightmap_masks_name : "") << std::endl;
+    std::cout << "Point cloud level 1 height mask map file name is : " << (l1_heightmap_masks_name ? l1_heightmap_masks_name : "") << std::endl;
+    std::cout << "Most travelled point file name is : " << (point_most_travelled_name ? point_most_travelled_name : "") << std::endl;
+    std::cout << "Most distant  point file name is : " << (point_most_distant_name ? point_most_distant_name : "") << std::endl;
+    std::cout << "Tree list csv file name is : " << (tree_list_csv_name ? tree_list_csv_name : "") << std::endl;
+    std::cout << "Los is  : " << (lod_str ? lod_str : "") << std::endl;
+    std::cout << "Forest Age is : " << (forest_age_str ? forest_age_str : "") << std::endl;
+    std::cout << "Tree iteration count is : " << (tree_iteration_str ? tree_iteration_str : "") << std::endl;
+    std::cout << "Only generate road data : " << (only_road_data_str ? only_road_data_str : "") << std::endl;
     std::cout << std::endl;
 
     int tiles = t;
@@ -534,10 +547,18 @@ int iniAbsolutePathMain(int argc, const char* argv[])
     {
         return -1;
     }
-    bool loadForest = ps.LoadForest();
-    bool buildForest = ps.BuildForest();
-    bool results = ps.OutputResults();
+    if (isOnlyRoadData)
+    {
+        std::cout << "The program only need generate road data without tree instance" << std::endl;
+    }
+    else
+    {
+        bool loadForest = ps.LoadForest();
+        bool buildForest = ps.BuildForest();
+        bool results = ps.OutputResults();
 
+    }
+    
     if (t_str) delete t_str;
     if (x_str) delete x_str;
     if (y_str) delete y_str;
@@ -556,6 +577,7 @@ int iniAbsolutePathMain(int argc, const char* argv[])
     if (point_most_travelled_name) delete point_most_travelled_name;
     if (point_most_distant_name) delete point_most_distant_name;
     if (lod_str) delete lod_str;
+    if (only_road_data_str) delete only_road_data_str;
 
     return 0;
 }

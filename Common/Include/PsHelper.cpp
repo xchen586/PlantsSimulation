@@ -647,26 +647,38 @@ std::vector<std::vector<short>> resample2DShortWithAverage(const std::vector<std
     int original_cols = original[0].size();
     if (original_cols == 0) throw std::invalid_argument("Original grid has no columns");
 
-    if (original_rows % new_rows != 0 || original_cols % new_cols != 0) {
-        throw std::invalid_argument("Original dimensions must be divisible by new dimensions");
-    }
-
     std::vector<std::vector<short>> resampled(new_rows, std::vector<short>(new_cols, 0));
 
-    int row_factor = original_rows / new_rows;
-    int col_factor = original_cols / new_cols;
+    // Use floating-point factors for scaling
+    double row_scale = static_cast<double>(original_rows) / new_rows;
+    double col_scale = static_cast<double>(original_cols) / new_cols;
 
     for (int i = 0; i < new_rows; ++i) {
         for (int j = 0; j < new_cols; ++j) {
             long long sum = 0;
+            int count = 0;
 
-            for (int x = i * row_factor; x < (i + 1) * row_factor; ++x) {
-                for (int y = j * col_factor; y < (j + 1) * col_factor; ++y) {
+            // Calculate the bounds of the current region in the original grid
+            int row_start = static_cast<int>(i * row_scale);
+            int row_end = static_cast<int>((i + 1) * row_scale);
+            int col_start = static_cast<int>(j * col_scale);
+            int col_end = static_cast<int>((j + 1) * col_scale);
+
+            // Ensure the bounds stay within the original grid dimensions
+            row_end = std::min(row_end, original_rows);
+            col_end = std::min(col_end, original_cols);
+
+            for (int x = row_start; x < row_end; ++x) {
+                for (int y = col_start; y < col_end; ++y) {
                     sum += original[x][y];
+                    ++count;
                 }
             }
 
-            resampled[i][j] = static_cast<short>(sum / (row_factor * col_factor));
+            // Avoid division by zero, though this shouldn't happen with valid inputs
+            if (count > 0) {
+                resampled[i][j] = static_cast<short>(sum / count);
+            }
         }
     }
 
@@ -681,28 +693,63 @@ std::vector<std::vector<unsigned char>> resample2DUCharWithAverage(const std::ve
     int original_cols = original[0].size();
     if (original_cols == 0) throw std::invalid_argument("Original grid has no columns");
 
-    if (original_rows % new_rows != 0 || original_cols % new_cols != 0) {
-        throw std::invalid_argument("Original dimensions must be divisible by new dimensions");
-    }
-
     std::vector<std::vector<unsigned char>> resampled(new_rows, std::vector<unsigned char>(new_cols, 0));
 
-    int row_factor = original_rows / new_rows;
-    int col_factor = original_cols / new_cols;
+    // Use floating-point scaling factors for row and column
+    double row_scale = static_cast<double>(original_rows) / new_rows;
+    double col_scale = static_cast<double>(original_cols) / new_cols;
 
     for (int i = 0; i < new_rows; ++i) {
         for (int j = 0; j < new_cols; ++j) {
             long long sum = 0;
+            int count = 0;
 
-            for (int x = i * row_factor; x < (i + 1) * row_factor; ++x) {
-                for (int y = j * col_factor; y < (j + 1) * col_factor; ++y) {
+            // Calculate the bounds of the current region in the original grid
+            int row_start = static_cast<int>(i * row_scale);
+            int row_end = static_cast<int>((i + 1) * row_scale);
+            int col_start = static_cast<int>(j * col_scale);
+            int col_end = static_cast<int>((j + 1) * col_scale);
+
+            // Ensure the boundaries stay within the original grid dimensions
+            row_end = std::min(row_end, original_rows);
+            col_end = std::min(col_end, original_cols);
+
+            // Sum the values in the defined region of the original grid
+            for (int x = row_start; x < row_end; ++x) {
+                for (int y = col_start; y < col_end; ++y) {
                     sum += original[x][y];
+                    ++count;
                 }
             }
 
-            resampled[i][j] = static_cast<unsigned char>(sum / (row_factor * col_factor));
+            // Avoid division by zero and compute the average
+            if (count > 0) {
+                resampled[i][j] = static_cast<unsigned char>(sum / count);
+            }
         }
     }
 
     return resampled;
+}
+
+bool stringToBool(const std::string& str) {
+    std::string lowerStr = str;
+
+    // Convert string to lowercase
+    std::transform(lowerStr.begin(), lowerStr.end(), lowerStr.begin(), ::tolower);
+
+    // Check for true values
+    if (lowerStr == "true" || lowerStr == "1" || lowerStr == "yes" || lowerStr == "y") {
+        return true;
+    }
+
+    // Check for false values
+    if (lowerStr == "false" || lowerStr == "0" || lowerStr == "no" || lowerStr == "n") {
+        return false;
+    }
+
+    // If the string is neither, throw an error or return a default value
+    //throw std::invalid_argument("Invalid string for conversion to bool: " + str);
+    // or you can return false as a default
+    return false;
 }
