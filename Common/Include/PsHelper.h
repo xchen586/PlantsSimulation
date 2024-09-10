@@ -332,7 +332,7 @@ T findAverageInBlock(const std::vector<std::vector<T>>& input, int x_start, int 
 
 // Template function to resample the 2D vector using the specified aggregation function (min, max, or average)
 template <typename T, typename Func>
-std::vector<std::vector<T>> resampleHeightMapByFunc(const std::vector<std::vector<T>>& input, int new_width, int new_height, Func aggregationFunc) {
+std::vector<std::vector<T>> resample2DArrayByFunc(const std::vector<std::vector<T>>& input, int new_width, int new_height, Func aggregationFunc) {
 	int orig_height = input.size();
 	int orig_width = input[0].size();
 
