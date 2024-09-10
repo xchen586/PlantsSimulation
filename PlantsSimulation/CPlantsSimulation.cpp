@@ -114,12 +114,12 @@ bool CPlantsSimulation::LoadInputImage()
 
 	int rows = m_pCellTable->size();
 	int cols = m_pCellTable[0].size();
-	std::vector<std::vector<byte>> humidity4K(rows, std::vector<byte>(cols));
+	std::vector<std::vector<unsigned char>> humidity4K(rows, std::vector<unsigned char>(cols));
 	for (int i = 0; i < rows; i++)
 	{
 		for (int j = 0; j < cols; j++)
 		{
-			humidity4K[i][j] = static_cast<byte>(GetValueFromNormalized((*m_pCellTable)[i][j]->GetMoisture(), 0, 255));
+			humidity4K[i][j] = static_cast<unsigned char>(GetValueFromNormalized((*m_pCellTable)[i][j]->GetMoisture(), 0, 255));
 		}
 	}
 
@@ -127,8 +127,9 @@ bool CPlantsSimulation::LoadInputImage()
 
 	int exportXLow = 300;
 	int exportYLow = 300;
-	std::vector<std::vector<byte>> humidityExportLow = ScaleArray(humidity4K, exportXLow, exportYLow);
-
+	//std::vector<std::vector<byte>> humidityExportLow = ScaleArray(humidity4K, exportXLow, exportYLow);
+	std::vector<std::vector<unsigned char>> humidityExportLowInvert = resample2DUCharWithAverage(humidity4K, exportXLow, exportYLow);
+	std::vector<std::vector<unsigned char>> humidityExportLow = invert2DArray(humidityExportLowInvert);
 	char byte_humidity_map_low_raw[MAX_PATH];
 	memset(byte_humidity_map_low_raw, 0, sizeof(char) * MAX_PATH);
 #if __APPLE__
@@ -140,7 +141,9 @@ bool CPlantsSimulation::LoadInputImage()
 
 	int exportXHigh = 600;
 	int exportYHigh = 600;
-	std::vector<std::vector<byte>> humidityExportHigh = ScaleArray(humidity4K, exportXHigh, exportYHigh);
+	//std::vector<std::vector<byte>> humidityExportHigh = ScaleArray(humidity4K, exportXHigh, exportYHigh);
+	std::vector<std::vector<unsigned char>> humidityExportHighInvert = resample2DUCharWithAverage(humidity4K, exportXHigh, exportYHigh);
+	std::vector<std::vector<unsigned char>> humidityExportHigh = invert2DArray(humidityExportHighInvert);
 
 	char byte_humidity_map_high_raw[MAX_PATH];
 	memset(byte_humidity_map_high_raw, 0, sizeof(char) * MAX_PATH);
@@ -320,10 +323,12 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	std::vector<std::vector<short>> l1HeightMapShort4096 = Read2DShortArray(m_l1HeightMapFile, width, height);
 
 	std::vector<std::vector<short>> heightMapShort4096(width, std::vector<short>(height));
-	std::vector<std::vector<short>> heightMapAdjust1Short4096(width, std::vector<short>(height));
-	std::vector<std::vector<short>> heightMapAdjust2Short4096(width, std::vector<short>(height));
-	std::vector<std::vector<short>> heightMapAdjust3Short4096(width, std::vector<short>(height));
-	
+	std::vector<std::vector<short>> heightMapAdjust1Short4096(width, std::vector<short>(height)); // meshValue, mesh2Value, pcValue
+	std::vector<std::vector<short>> heightMapAdjust2Short4096(width, std::vector<short>(height)); // meshValue, pcValue
+	std::vector<std::vector<short>> heightMapAdjust3Short4096(width, std::vector<short>(height)); // pcValue
+	std::vector<std::vector<short>> heightMapAdjust4Short4096(width, std::vector<short>(height)); // pcValue, l1Value
+
+	std::vector<std::vector<short>> heightMapRoadDataShort4096(width, std::vector<short>(height)); 
 	bool needHeightPositive = false;
 
 	short minHeight = std::numeric_limits<short>::max();
@@ -364,6 +369,13 @@ bool CPlantsSimulation::LoadInputHeightMap()
 				valueAdjust3 = 0;
 			}
 			heightMapAdjust3Short4096[x][y] = valueAdjust3;
+			short valueAdjust4 = std::max(pcValue, l1Value);
+			if (needHeightPositive && (valueAdjust3 < 0))
+			{
+				valueAdjust4 = 0;
+			}
+
+			heightMapRoadDataShort4096[x][y] = value > 0 ? value : 0;
 
 			if (heightMasksShort4096[x][y] > 0)
 			{
@@ -373,6 +385,17 @@ bool CPlantsSimulation::LoadInputHeightMap()
 		}
 	}
 	m_maxHeight = maxHeight;
+
+	for (int x = 0; x < width; x++)
+	{
+		for (int y = 0; y < height; y++)
+		{
+			if (heightMapRoadDataShort4096[x][y] < 0)
+			{
+				heightMapRoadDataShort4096[x][y] = 0;
+			}
+		}
+	}
 	std::cout << "Final Short Height Map minHeight = " << minHeight << " , maxHeight = " << maxHeight << std::endl;
 
 	//std::vector<std::vector<short>> slopeShort4096 = ComputeAbsMaxHeightSlopeMap(heightMapShort4096);
@@ -385,12 +408,18 @@ bool CPlantsSimulation::LoadInputHeightMap()
 
 	int exportHeightMapLowRawX = 300;
 	int exportHeightMapLowRawY = 300;
-	std::vector<std::vector<short>> heightMapExportLowRawShort = ScaleArray(heightMapAdjust3Short4096, exportHeightMapLowRawX, exportHeightMapLowRawY);
-	std::vector<std::vector<unsigned short>> heightMapExportLowRawUShort = ConvertShortMatrixToUShort(heightMapExportLowRawShort);
+	//std::vector<std::vector<short>> heightMapExportLowRawShort = ScaleArray(heightMapAdjust3Short4096, exportHeightMapLowRawX, exportHeightMapLowRawY);
+	//std::vector<std::vector<short>> heightMapExportLowRawShort = resample2DArrayByFunc(heightMapRoadDataShort4096, exportHeightMapLowRawX, exportHeightMapLowRawY, findAverageInBlock<short>);
+	std::vector<std::vector<short>> heightMapExportLowRawShort = resample2DShortWithAverage(heightMapRoadDataShort4096, exportHeightMapLowRawX, exportHeightMapLowRawY);
+	std::vector<std::vector<unsigned short>> heightMapExportLowRawUShortInvert = ConvertShortMatrixToUShort(heightMapExportLowRawShort);
+	std::vector<std::vector<unsigned short>> heightMapExportLowRawUShort = invert2DArray(heightMapExportLowRawUShortInvert);
+
 	int exportHeightMapHighRawX = 600;
 	int exportHeightMapHighRawY = 600;
-	std::vector<std::vector<short>> heightMapExportHighRawShort = ScaleArray(heightMapAdjust3Short4096, exportHeightMapHighRawX, exportHeightMapHighRawY);
-	std::vector<std::vector<unsigned short>> heightMapExportHighRawUShort = ConvertShortMatrixToUShort(heightMapExportHighRawShort);
+	//std::vector<std::vector<short>> heightMapExportHighRawShort = ScaleArray(heightMapAdjust3Short4096, exportHeightMapHighRawX, exportHeightMapHighRawY);
+	std::vector<std::vector<short>> heightMapExportHighRawShort = resample2DArrayByFunc(heightMapRoadDataShort4096, exportHeightMapHighRawX, exportHeightMapHighRawY, findAverageInBlock<short>);
+	std::vector<std::vector<unsigned short>> heightMapExportHighRawUShortInvert = ConvertShortMatrixToUShort(heightMapExportHighRawShort);
+	std::vector<std::vector<unsigned short>> heightMapExportHighRawUShort = invert2DArray(heightMapExportHighRawUShortInvert);
 
 	double ratio = 7.32673;
 #if USE_MAX_SLOPE_ANGLE
