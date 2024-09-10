@@ -111,6 +111,10 @@ std::vector<std::vector<unsigned short>> ConvertShortMatrixToUShort(const std::v
 
 double GenerateRandomDouble(double min, double max);
 
+
+std::vector<std::vector<short>> resample2DShortWithAverage(const std::vector<std::vector<short>>& original, int new_rows, int new_cols);
+std::vector<std::vector<unsigned char>> resample2DUCharWithAverage(const std::vector<std::vector<unsigned char>>& original, int new_rows, int new_cols);
+
 template <typename T>
 T GenerateRandomT(T min, T max) {
 	// Initialize a random number generator
@@ -323,7 +327,7 @@ T findAverageInBlock(const std::vector<std::vector<T>>& input, int x_start, int 
 
 	for (int y = y_start; y < std::min(y_start + block_height, orig_height); ++y) {
 		for (int x = x_start; x < std::min(x_start + block_width, orig_width); ++x) {
-			sum += input[y][x];
+			sum = sum + input[y][x];
 			count++;
 		}
 	}
@@ -357,4 +361,24 @@ std::vector<std::vector<T>> resample2DArrayByFunc(const std::vector<std::vector<
 	}
 
 	return output;
+}
+
+// Template function to return an inverted 2D vector
+template <typename T>
+std::vector<std::vector<T>> invert2DArray(const std::vector<std::vector<T>>& matrix) {
+	if (matrix.empty() || matrix[0].empty()) return {}; // Handle empty matrix
+
+	int numRows = matrix.size();
+	int numCols = matrix[0].size();
+
+	// Create a new 2D vector with swapped dimensions
+	std::vector<std::vector<T>> inverted(numCols, std::vector<T>(numRows));
+
+	for (int i = 0; i < numRows; ++i) {
+		for (int j = 0; j < numCols; ++j) {
+			inverted[j][i] = matrix[i][j];
+		}
+	}
+
+	return inverted;
 }

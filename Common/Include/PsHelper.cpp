@@ -639,4 +639,70 @@ bool RemoveAllFilesInFolder(const std::string& folderPath) {
     }
 }
 
+std::vector<std::vector<short>> resample2DShortWithAverage(const std::vector<std::vector<short>>& original,
+    int new_rows, int new_cols) {
 
+    int original_rows = original.size();
+    if (original_rows == 0) throw std::invalid_argument("Original grid has no rows");
+    int original_cols = original[0].size();
+    if (original_cols == 0) throw std::invalid_argument("Original grid has no columns");
+
+    if (original_rows % new_rows != 0 || original_cols % new_cols != 0) {
+        throw std::invalid_argument("Original dimensions must be divisible by new dimensions");
+    }
+
+    std::vector<std::vector<short>> resampled(new_rows, std::vector<short>(new_cols, 0));
+
+    int row_factor = original_rows / new_rows;
+    int col_factor = original_cols / new_cols;
+
+    for (int i = 0; i < new_rows; ++i) {
+        for (int j = 0; j < new_cols; ++j) {
+            long long sum = 0;
+
+            for (int x = i * row_factor; x < (i + 1) * row_factor; ++x) {
+                for (int y = j * col_factor; y < (j + 1) * col_factor; ++y) {
+                    sum += original[x][y];
+                }
+            }
+
+            resampled[i][j] = static_cast<short>(sum / (row_factor * col_factor));
+        }
+    }
+
+    return resampled;
+}
+
+std::vector<std::vector<unsigned char>> resample2DUCharWithAverage(const std::vector<std::vector<unsigned char>>& original,
+    int new_rows, int new_cols) {
+
+    int original_rows = original.size();
+    if (original_rows == 0) throw std::invalid_argument("Original grid has no rows");
+    int original_cols = original[0].size();
+    if (original_cols == 0) throw std::invalid_argument("Original grid has no columns");
+
+    if (original_rows % new_rows != 0 || original_cols % new_cols != 0) {
+        throw std::invalid_argument("Original dimensions must be divisible by new dimensions");
+    }
+
+    std::vector<std::vector<unsigned char>> resampled(new_rows, std::vector<unsigned char>(new_cols, 0));
+
+    int row_factor = original_rows / new_rows;
+    int col_factor = original_cols / new_cols;
+
+    for (int i = 0; i < new_rows; ++i) {
+        for (int j = 0; j < new_cols; ++j) {
+            long long sum = 0;
+
+            for (int x = i * row_factor; x < (i + 1) * row_factor; ++x) {
+                for (int y = j * col_factor; y < (j + 1) * col_factor; ++y) {
+                    sum += original[x][y];
+                }
+            }
+
+            resampled[i][j] = static_cast<unsigned char>(sum / (row_factor * col_factor));
+        }
+    }
+
+    return resampled;
+}
