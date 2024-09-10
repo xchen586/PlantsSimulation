@@ -19,6 +19,8 @@
 
 bool OutputCSVFileForSubInstances(const string& filePath, std::shared_ptr<InstanceSubOutputVector> subVector)
 {
+	std::cout << "Start to OutputCSVFileForSubInstances to : " << filePath << std::endl;
+
 	std::ofstream outputFile(filePath);
 	if (!outputFile.is_open()) {
 		std::cerr << "Error: Unable to open the sub csv file " << filePath << std::endl;
@@ -93,6 +95,7 @@ bool OutputCSVFileForSubInstances(const string& filePath, std::shared_ptr<Instan
 	}
 
 	outputFile.close();
+	std::cout << "End to OutputCSVFileForSubInstances to : " << filePath << std::endl;
 	return true;
 }
 
@@ -103,6 +106,7 @@ bool OutputAllInstance(string outputFilePath, const InstanceSubOutputMap& allIns
 		std::cerr << "Error: Unable to open the sub csv file " << outputFilePath << std::endl;
 		return false;
 	}*/
+	std::cout << "Start to OutputAllInstance to : " << outputFilePath << std::endl;
 
 	outputFile << "XWorld,YWorld,ZWorld,ScaleX,ScaleY,ScaleZ,RotationX,RotationY,RotaionZ,InstanceType,Variant,Age,idString" << std::endl;
 
@@ -130,6 +134,8 @@ bool OutputAllInstance(string outputFilePath, const InstanceSubOutputMap& allIns
 		}
 	}
 	outputFile.close();
+	std::cout << "End to OutputAllInstance to : " << outputFilePath << std::endl;
+
 	return true;
 }
 
@@ -330,6 +336,8 @@ std::string GetKeyStringForInstance(const string& outputDir, int intXIdx, int in
 
 bool CPsInstanceExporter::OutputAllInstanceGeoChem(string outputFilePath, const InstanceSubOutputMap& allInstances)
 {
+	std::cout << "Start to OutputAllInstanceGeoChem to : " << outputFilePath << std::endl;
+
 	std::ofstream outputFile(outputFilePath);
 	double batch_min_x = m_pMetaInfo->batch_min_x;
 	double batch_min_y = m_pMetaInfo->batch_min_y;
@@ -361,6 +369,8 @@ bool CPsInstanceExporter::OutputAllInstanceGeoChem(string outputFilePath, const 
 		}
 	}
 	outputFile.close();
+	std::cout << "End to OutputAllInstanceGeoChem to : " << outputFilePath << std::endl;
+
 	return true;
 }
 
@@ -481,6 +491,8 @@ bool CPsInstanceExporter::loadPointInstanceFromCSV(const string& filePath, const
 
 bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 {
+	std::cout << "Start to CPsInstanceExporter::outputSubfiles to : " << outputSubsDir << std::endl;
+
 	if (!m_pFullTreeOutputs)
 	{
 		return false;
@@ -591,6 +603,8 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 	bool outputGeo = true;
 	outputGeo = OutputAllInstanceGeoChem(allinstancesGeo_Csv, m_outputMap);
 	std::cout << "Start OutputAllInstanceGeoChem : " << allinstancesGeo_Csv << std::endl;
+
+	std::cout << "End to CPsInstanceExporter::outputSubfiles to : " << outputSubsDir << std::endl;
 
 	return allOk && outputGeo; 
 	/*std::ofstream outputFile(subFilePath);
