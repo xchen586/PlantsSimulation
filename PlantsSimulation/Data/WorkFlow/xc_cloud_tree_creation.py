@@ -42,12 +42,12 @@ def create_or_overwrite_empty_file(file_path):
         # If the file exists, open it with 'w' mode to overwrite it with an empty file
         with open(file_path, 'w'):
             pass  # Using 'pass' as no content needs to be written
-        print(f"File '{file_path}' overwritten as an empty file.")
+        lambda_host.log(f"File '{file_path}' overwritten as an empty file.")
     else:
         # If the file does not exist, create it with 'w' mode
         with open(file_path, 'w'):
             pass  # Using 'pass' as no content needs to be written
-        print(f"File '{file_path}' created as an empty file.")
+        lambda_host.log(f"File '{file_path}' created as an empty file.")
 
 def zip_folder(folder_path, zip_path):
     try:
@@ -61,7 +61,7 @@ def zip_folder(folder_path, zip_path):
                     zipf.write(file_path, os.path.relpath(file_path, folder_path))
         return True
     except Exception as e:
-        print("An error occurred:", e)
+        lambda_host.log("An error occurred:", e)
         return False
 
 def copy_files(src_folder, dest_folder):
@@ -74,7 +74,7 @@ def copy_files(src_folder, dest_folder):
         dest_filepath = os.path.join(dest_folder, filename)
         # Copy the file to the destination folder, replacing if it already exists
         shutil.copy2(src_filepath, dest_filepath)
-        print(f"File '{filename}' copied to '{dest_folder}'")
+        lambda_host.log(f"File '{filename}' copied to '{dest_folder}'")
 
 def is_exe_file(file_path):
     _, file_extension = os.path.splitext(file_path.lower())
@@ -82,7 +82,7 @@ def is_exe_file(file_path):
 
 def save_data_to_file(data, file_path):
     if is_exe_file(file_path):
-        print(f"The file at {file_path} is an executable (.exe) file. can not download it")
+        lambda_host.log(f"The file at {file_path} is an executable (.exe) file. can not download it")
         return
     # Extract the directory path from the file_path
     directory = os.path.dirname(file_path)
@@ -102,7 +102,7 @@ def save_data_to_file(data, file_path):
             file.write(data)
         elif isinstance(data, bytes):
             file.write(data)
-    print(f"Data saved successfully to: {file_path}")
+    lambda_host.log(f"Data saved successfully to: {file_path}")
     
 # Create a custom ConfigParser that preserves case sensitivity
 class CaseSensitiveConfigParser(configparser.ConfigParser):
@@ -206,7 +206,7 @@ def clear_all_sections(file_path):
 def update_attach_files_for_entity(api : voxelfarmclient.rest, project_id, entity_id, folder_path):
 
     if not os.path.exists(folder_path):
-        print(f'File {folder_path} does not exist')
+        lambda_host.log(f'File {folder_path} does not exist')
         return
     
     # Use the os.listdir() function to get a list of filenames in the folder
@@ -477,6 +477,61 @@ def create_geochem_tree_entity(api, geo_chemical_folder):
         exit(4)
     lambda_host.log('End with create geo chem entity')
 
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+def process_file_image(api : voxelfarmclient.rest, project_id, folder_id, file_path, jgw_path : str, name : str):
+
+    lambda_host.log(f'process_file_image project id = {project_id}')
+    lambda_host.log(f'process_file_image parent folder id = {folder_id}')
+    lambda_host.log(f'process_file_image image file path = {file_path}')
+    lambda_host.log(f'process_file_image image meta path = {jgw_path}')   
+     
+    if not os.path.exists(file_path):
+        lambda_host.log(f'Image File {file_path} does not exist')
+        return
+    if not os.path.exists(jgw_path):
+        lambda_host.log(f'Image Meta File {jgw_path} does not exist')
+        return
+    
+    result = api.get_project_crs(project_id)
+    crs = result.crs
+    
+    project_entity = api.get_entity(project_id)
+    version = int(project_entity['version']) + 1 if 'version' in project_entity else 1
+    api.update_entity(project=project_id, id=project_id, fields={'version': version})
+
+    result = api.create_folder(project=project_id, name=f'Road Image Version {version}', folder=folder_id)
+    if not result.success:
+        lambda_host.log(f'Failed to create image file folder for version!')
+        return 
+    entity_folder_id = result.id
+    lambda_host.log(f'Successful to create image file folder {entity_folder_id} for version!')
+
+    result = api.create_entity_raw(project=project_id, 
+            type=api.entity_type.IndexedOrthoImagery, 
+            name=f'{name}-{version}_src', 
+            fields={
+                'file_folder': entity_folder_id,
+            }, crs = crs)
+    entity_id = result.id
+    
+    with open(jgw_path, 'rb') as j:
+        api.attach_files(project=project_id, id=entity_id, files={'file': j})
+    lambda_host.log(f'Attaching file {jgw_path} to entity {entity_id}')
+    with open(file_path, 'rb') as f:
+        api.attach_files(project=project_id, id=entity_id, files={'file': f})
+    lambda_host.log(f'Attaching file {file_path} to entity {entity_id}')
+
+    result = api.create_entity_processed(project=project_id, 
+        type=api.entity_type.IndexedOrthoImagery, 
+        name=f'{name}-{version}', 
+        fields={
+            'source': entity_id,
+            'source_type': 'ORTHO',
+            'file_folder': entity_folder_id,
+            'source_ortho': entity_id
+        }, crs = crs)
+    lambda_host.log(f'Created entity {result.id} for {name}-{version}')
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------
 def on_upload_db_succeessfull(vf, project_id, entity_id, output_dir):
     #lambda_host.progress(99, 'Uploading results')
@@ -952,10 +1007,10 @@ def xc_process_base_meshes(api : voxelfarmclient.rest, basemeshes_output_folder_
 
     result = api.create_folder(project=basemeshes_project_id, name=f'Base Meshes Version {basemeshes_version}', folder=basemeshes_db_parent_folderId)
     if not result.success:
-        print(f'Failed to create base meshes db folder for version!')
+        lambda_host.log(f'Failed to create base meshes db folder for version!')
         exit(4)
     basemeshes_db_folder_Id = result.id
-    print(f'Successful to create base meshes db folder {basemeshes_db_folder_Id} for version!')
+    lambda_host.log(f'Successful to create base meshes db folder {basemeshes_db_folder_Id} for version!')
     
     level0_entity_name = f'Workflow_Basemeshes_{tile_size}_{tile_x}_{tile_y}_0-ver-{basemeshes_version}'
     level1_entity_name = f'Workflow_Basemeshes_{tile_size}_{tile_x}_{tile_y}_1-ver-{basemeshes_version}'
@@ -1078,7 +1133,7 @@ def tree_instances_generation(config_path):
     lambda_host.log(f'start for step tree_instances_generation')
 
     if not os.path.exists(config_path):
-        print(f'Config File {config_path} does not exist')
+        lambda_host.log(f'Config File {config_path} does not exist')
         lambda_host.log(f'Config File {config_path} does not exist')
         return -1
     
@@ -1086,7 +1141,7 @@ def tree_instances_generation(config_path):
 
     cloud_url = read_ini_value(config_path, section_main, 'cloud_url')
     project_id = read_ini_value(config_path, section_main, 'project_id')
-    folder_id = read_ini_value(config_path, section_main, 'folder_id')
+    tree_instances_folder_id = read_ini_value(config_path, section_main, 'tree_instances_folder_id')
     #tree_entity_id = 'E0070AD37D4543FCB9E70D60AE47541D' # cosmin new
     #tree_entity_id = "536674D5E8D440D9A7EFCD1D879AD57A" # cosmin old
     #tree_entity_id = "3A3CFEBA226B4692A8719C78335470DD"  #xc tesst
@@ -1343,6 +1398,8 @@ def tree_instances_generation(config_path):
             lambda_host.log(f'Error: The process ({worldgen_command}) returned a non-zero exit code ({return_code_worldgen_road}).')
             exit_code(2)
             return -1
+        
+        process_file_image(api, Project_id, tree_instances_folder_id, toplayer_image_path, toplayer_image_meta_path, )
     
     if run_make_basemeshes:
         if use_basemesh_ini:
@@ -1489,7 +1546,7 @@ def tree_config_creation(ini_path):
 
     create_or_update_ini_file(ini_path, section_main, 'cloud_url', Cloud_url)
     create_or_update_ini_file(ini_path, section_main, 'project_id', Project_id)
-    create_or_update_ini_file(ini_path, section_main, 'folder_id', Tree_Instances_Folder_id)
+    create_or_update_ini_file(ini_path, section_main, 'tree_instances_folder_id', Tree_Instances_Folder_id)
     create_or_update_ini_file(ini_path, section_main, 'tree_entity_id', Game_Tree_Entity_id)
     create_or_update_ini_file(ini_path, section_main, 'basemeshes_entity_id', Latest_basemeshes_entity_id)
 
@@ -1560,10 +1617,10 @@ lambda_host.log(f'use_basemesh_original_program is {use_basemesh_original_progra
 lambda_host.progress(0, 'Starting Lambda...')
 scrap_folder= lambda_host.get_scrap_folder()
 lambda_host.log(f'scrap_folder: {scrap_folder}')
-print(f'scrap_folder: {scrap_folder}')
+lambda_host.log(f'scrap_folder: {scrap_folder}')
 tools = lambda_host.get_tools_folder()
 lambda_host.log(f'system tools: {tools}')
-print(f'system tools: {tools}\n')
+lambda_host.log(f'system tools: {tools}\n')
 lambda_entity_id = lambda_host.input_string('lambda_entity_id', 'Lambda Entity Id', '')
 lambda_host.log(f'lambda_entity_id: {lambda_entity_id}')
 workflow_project_id = lambda_host.input_string('project_id', 'Project Id', '')
@@ -1709,7 +1766,7 @@ lambda_host.log(f'Basemeshes_debug_level: {Basemeshes_debug_level}')
 configfile_path = f'{Data_folder}\\TreeInstancesCreationConfig.ini'
 #configfile_path = params[0]
 lambda_host.log(f'Tree instance generation configfile_path: {configfile_path}')
-print(f'Tree instance generation config file : {configfile_path}')
+lambda_host.log(f'Tree instance generation config file : {configfile_path}')
 
 run_result = 0
 
@@ -1733,7 +1790,7 @@ days, hours = divmod(hours, 24)
 # Format the execution time
 formatted_time = "{:02}:{:02}:{:02}:{:02}:{:03}".format(days, hours, minutes, seconds, milliseconds)
 lambda_host.log(f'Tree instance generation Whole Execution time : {formatted_time}')
-print("Whole Execution time :", formatted_time)
+lambda_host.log("Whole Execution time :", formatted_time)
 
 if run_result == 0:
     lambda_host.progress(100, 'QuadTree lambda finished')
