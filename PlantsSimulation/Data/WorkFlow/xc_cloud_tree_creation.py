@@ -1233,6 +1233,13 @@ def tree_instances_generation(config_path):
     toplayer_heightmap_mask_path = os.path.join(smoothlayer_output_folder, toplayer_heightmap_mask_name)
     level1_heightmap_path = os.path.join(smoothlayer_output_folder, level1_heightmap_name)
     level1_heightmap_mask_path = os.path.join(smoothlayer_output_folder, level1_heightmap_mask_name)
+    
+    toplevel_file_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz'
+    level1_file_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_level1.xyz'
+    bedrock_file_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_bedrock.xyz'
+    toplevel_file_path = os.path.join(smoothlayer_output_folder, toplevel_file_name)
+    level1_file_path = os.path.join(smoothlayer_output_folder, level1_file_name)
+    bedrock_file_path = os.path.join(smoothlayer_output_folder, bedrock_file_name)
 
     lambda_host.log(f'End to to prepare input data parameter for TreesInstancesAbsolutePathWin.ini')
 
