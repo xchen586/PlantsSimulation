@@ -32,7 +32,7 @@ def process_file_image(api : voxelfarmclient.rest, project_id, folder_id, file_p
 
     result = api.create_entity_processed(project=project_id, 
         type=api.entity_type.IndexedOrthoImagery, 
-        name=f'{name}_IdxOrtho', 
+        name=f'{name}', 
         fields={
             'source': entity_id,
             'source_type': 'ORTHO',
