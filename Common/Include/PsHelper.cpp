@@ -20,7 +20,7 @@ InputImageDataInfo* LoadInputImageFile(const string& inputImageFile)
 	}
 }
 
-std::vector<std::vector<short>> Read2DShortArray(const std::string& filePath, int width, int height)
+std::vector<std::vector<short>> Read2DShortArray(const std::string& filePath, int width, int height, bool invert/* = true*/)
 {
     std::ifstream fs(filePath, std::ios::binary);
     if (!fs.is_open())
@@ -55,10 +55,73 @@ std::vector<std::vector<short>> Read2DShortArray(const std::string& filePath, in
             //short value = (static_cast<unsigned short>(bytes[1]) << 8) | bytes[0];
             minHeight = std::min(minHeight, value);
             maxHeight = std::max(maxHeight, value);
-            array[y][x] = value;  //mirror issue !!!!!!!
+            if (invert)
+            {
+                array[y][x] = value;  //mirror issue !!!!!!!
+            }
+            else
+            {
+                array[x][y] = value;
+            }
         }
     }
     std::cout << "Short Height Map minHeight = " << minHeight << " , maxHeight = " << maxHeight << std::endl;
+    return array;
+}
+
+std::vector<std::vector<int>> Read2DIntArray(const std::string& filePath, int width, int height, bool invert/* = false*/)
+{
+    std::ifstream fs(filePath, std::ios::binary);
+    if (!fs.is_open())
+    {
+        throw std::runtime_error("Failed to open file");
+    }
+
+    int minHeight = std::numeric_limits<int>::max();
+    int maxHeight = std::numeric_limits<int>::min();
+
+    // Check if the file size matches the expected size
+    fs.seekg(0, std::ios::end);
+    std::streampos fileSize = fs.tellg();
+    if (fileSize != static_cast<std::streampos>(width) * height * sizeof(int))
+    {
+        throw std::runtime_error("File size doesn't match expected dimensions");
+    }
+    fs.seekg(0, std::ios::beg);
+
+    std::vector<std::vector<int>> array(width, std::vector<int>(height));
+
+    for (int x = 0; x < width; x++)
+    {
+        for (int y = 0; y < height; y++)
+        {
+            unsigned char bytes[4]; // Reading 4 bytes for an int
+            fs.read(reinterpret_cast<char*>(bytes), 4);
+            if (!fs)
+            {
+                throw std::runtime_error("Failed to read data from file");
+            }
+
+            // Reconstruct the int from 4 bytes (assuming little-endian format)
+            int value = (static_cast<unsigned char>(bytes[3]) << 24) |
+                (static_cast<unsigned char>(bytes[2]) << 16) |
+                (static_cast<unsigned char>(bytes[1]) << 8) |
+                static_cast<unsigned char>(bytes[0]);
+
+            minHeight = std::min(minHeight, value);
+            maxHeight = std::max(maxHeight, value);
+            if (invert)
+            {
+                array[y][x] = value;  // Store the int value correctly
+            }
+            else
+            {
+                array[x][y] = value;  // Store the int value correctly
+            }
+        }
+    }
+
+    std::cout << "Int Height Map minHeight = " << minHeight << " , maxHeight = " << maxHeight << std::endl;
     return array;
 }
 

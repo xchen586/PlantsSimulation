@@ -29,6 +29,18 @@
 	return true;
 }*/
 
+bool OutputArrayFileForSubRegions(const string& filePath, const double cellSize, std::shared_ptr<RegionSubOutputVector> subVector)
+{
+	bool ret = true;
+	std::cout << "Start to OutputArrayFileForSubRegions to : " << filePath << std::endl;
+
+	std::ofstream outputFile(filePath);
+	if (!outputFile.is_open()) {
+		std::cerr << "Error: Unable to open the sub csv file " << filePath << std::endl;
+		return false;
+	}
+}
+
 void CPlantsSimulation::DeInitialize()
 {
 	if (m_pCellTable) {
@@ -201,6 +213,242 @@ bool CPlantsSimulation::LoadImageMetaFile()
 	std::cout << "Image Meta Info yRatio: " << m_topLayerMeta->yRatio << std::endl;
 	std::cout << "Image Meta Info batch_min_x: " << m_topLayerMeta->batch_min_x << std::endl;
 	std::cout << "Image Meta Info batch_min_y: " << m_topLayerMeta->batch_min_y << std::endl;
+	return ret;
+}
+
+bool CPlantsSimulation::LoadRegions()
+{
+	bool ret = true;
+	const int regionsWidth = 300;
+	const int regionsHeight = 300;
+
+	const int worldWidth = 30000;
+	const int worldHeight = 30000;
+
+	int region_lod = 8;
+	const double cellSize = (1 << region_lod) * VoxelFarm::CELL_SIZE;
+	//const double voxelSize = cellSize / VoxelFarm::BLOCK_DIMENSION;// 
+	const double vfScale = 2.0;
+
+	CAffineTransform transform(
+		CAffineTransform::sAffineVector{
+			0.0, 0.0, 0.0
+		}, vfScale, CAffineTransform::eTransformMode::TM_YZ_ROTATE);
+	auto worldOriginVF = transform.WC_TO_VF(CAffineTransform::sAffineVector{ 0.0, 0.0, 0.0 });
+
+	std::vector<std::vector<int>> regionsShort300 = Read2DIntArray(m_regionsRawFile, regionsWidth, regionsHeight);
+	m_regionsVector.clear();
+	m_regionMap.clear();
+
+	double xRegionRatio = worldWidth / regionsWidth;
+	double yRegionRatio = worldHeight / regionsHeight;
+	double xRatio = m_topLayerMeta->xRatio;
+	double yRatio = m_topLayerMeta->yRatio;
+	double batch_min_x = m_topLayerMeta->batch_min_x;
+	double batch_min_y = m_topLayerMeta->batch_min_y;
+	double x0 = m_topLayerMeta->x0;
+	double y0 = m_topLayerMeta->y0;
+	
+	int tableRowsCount = (*m_pCellTable).size();
+	int tableColsCount = (*m_pCellTable)[0].size();
+
+	int negativeHeightCount = 0;
+
+	for (int row = 0; row < regionsWidth; row++)
+	{
+		for (int col = 0; col < regionsHeight; col++)
+		{
+			std::shared_ptr<RegionStruct> reg = std::make_shared<RegionStruct>(regionsShort300[row][col], row, col);
+
+			bool hasHeight = true;
+			double xPos = row * xRegionRatio;
+			double yPos = col * yRegionRatio;
+			double zPos = 0;
+
+			int rowIdx = static_cast<int>(xPos / xRatio);
+			int colIdx = static_cast<int>(yPos / yRatio);
+
+			CCellInfo* pCell = nullptr;
+			if (((rowIdx >= 0) && (rowIdx < tableRowsCount))
+				&& ((colIdx >= 0) && (colIdx < tableColsCount))) {
+				pCell = (*m_pCellTable)[rowIdx][colIdx];
+			}
+			if ((pCell != nullptr) && (pCell->GetHasHeight()))
+			{
+				zPos = pCell->GetHeight();
+			}
+			else
+			{
+				hasHeight = false;
+			}
+			bool negativeZPos = false;
+			if ((zPos < 0) && hasHeight)
+			{
+				negativeZPos = true;
+				negativeHeightCount++;
+				zPos = 0;
+			}
+			double posX = xPos + batch_min_x + x0;
+			double posY = yPos + batch_min_y + y0;
+			double posZ = zPos;
+
+			reg->posX = posX;
+			reg->posY = posY;
+			reg->posZ = posZ;
+
+			SetupRegionSubOutput(posX, posY, posZ, transform, cellSize, region_lod, reg);
+			string keyString = GetKeyStringForRegion(m_outputDir, reg->cellXIdx, reg->cellZIdx);
+			RegionSubOutputMap::iterator iter = m_regionMap.find(keyString);
+			if (m_regionMap.end() != iter)
+			{
+				m_regionMap[keyString] = std::make_shared<RegionSubOutputVector>();
+			}
+
+			std::shared_ptr<RegionSubOutputVector> subVector = m_regionMap[keyString];
+			subVector->push_back(reg);
+			m_regionsVector.push_back(reg);
+		}
+	}
+
+	const int MAX_PATH = 250;
+	char subRegionOutput_Dir[MAX_PATH];
+	memset(subRegionOutput_Dir, 0, sizeof(char) * MAX_PATH);
+
+#if __APPLE__ 
+	snprintf(subFullOutput_Dir, MAX_PATH, "%s/regionoutput", m_outputDir.c_str());
+#else
+	sprintf_s(subRegionOutput_Dir, MAX_PATH, "%s\\regionoutput", m_outputDir.c_str());
+#endif
+
+
+	return ret;
+}
+
+void CPlantsSimulation::SetupRegionSubOutput(double posX, double posY, double posZ, const CAffineTransform& transform, double cellSize, int32_t lod, std::shared_ptr<RegionStruct> sub)
+{
+	const auto vfPosition = transform.WC_TO_VF(CAffineTransform::sAffineVector(posX, posY, posZ));
+
+	//cell min
+	int cellX = (int)(vfPosition.X / cellSize);
+	int cellY = (int)(vfPosition.Y / cellSize);
+	int cellZ = (int)(vfPosition.Z / cellSize);
+
+	//cell max
+	int cellX1 = cellX + 1;
+	int cellY1 = cellY + 1;
+	int cellZ1 = cellZ + 1;
+
+	//vf point 0
+	double vfPointX = (cellX * cellSize);
+	double vfPointY = (cellY * cellSize);
+	double vfPointZ = (cellZ * cellSize);
+
+	//vf point 1
+	double vfPoint1X = (cellX1 * cellSize);
+	double vfPoint1Y = (cellY1 * cellSize);
+	double vfPoint1Z = (cellZ1 * cellSize);
+
+	//vf bounds size
+	double vfBoundsSizeX = (vfPoint1X - vfPointX);
+	double vfBoundsSizeY = (vfPoint1Y - vfPointY);
+	double vfBoundsSizeZ = (vfPoint1Z - vfPointZ);
+
+	//vf min
+	double vfMinX = min(vfPointX, vfPoint1X);
+	double vfMinY = min(vfPointY, vfPoint1Y);
+	double vfMinZ = min(vfPointZ, vfPoint1Z);
+
+	//vf max
+	double vfMaxX = max(vfPointX, vfPoint1X);
+	double vfMaxY = max(vfPointY, vfPoint1Y);
+	double vfMaxZ = max(vfPointZ, vfPoint1Z);
+
+	//world point 0
+	auto worldPoint0 = transform.VF_TO_WC(CAffineTransform::sAffineVector{ vfMinX, vfMinY, vfMinZ });
+
+	//world point 1
+	auto worldPoint1 = transform.VF_TO_WC(CAffineTransform::sAffineVector{ vfMaxX, vfMaxY, vfMaxZ });
+
+	//world min
+	double worldMinX = min(worldPoint0.X, worldPoint1.X);
+	double worldMinY = min(worldPoint0.Y, worldPoint1.Y);
+	double worldMinZ = min(worldPoint0.Z, worldPoint1.Z);
+
+	//world max
+	double worldMaxX = max(worldPoint0.X, worldPoint1.X);
+	double worldMaxY = max(worldPoint0.Y, worldPoint1.Y);
+	double worldMaxZ = max(worldPoint0.Z, worldPoint1.Z);
+
+	//world bounds size
+	double worldBoundsSizeX = (worldMaxX - worldMinX);
+	double worldBoundsSizeY = (worldMaxY - worldMinY);
+	double worldBoundsSizeZ = (worldMaxZ - worldMinZ);
+
+	//world offset
+	double worldOffsetX = (posX - worldMinX);
+	double worldOffsetY = (posY - worldMinY);
+	double worldOffsetZ = (posZ - worldMinZ);
+
+	//const bool ok = (worldOffsetX < 640.000001 && worldOffsetY < 640.000001 && worldOffsetZ < 640.000001);
+	double lodSize = (1 << lod) * 20.0;
+	lodSize += 0.000001;
+	const bool ok = (worldOffsetX < lodSize && worldOffsetY < lodSize && worldOffsetZ < lodSize);
+
+	if (!ok)
+	{
+		std::cout << "offset is overflow" << std::endl;
+	}
+
+	if ((posX < worldMinX) ||
+		(posY < worldMinY) ||
+		(posZ < worldMinZ) ||
+		(posX > worldMaxX) ||
+		(posY > worldMaxY) ||
+		(posZ > worldMaxZ))
+	{
+		std::cout << "pos is not in the cell" << std::endl;
+	}
+
+	if (worldOffsetX < 0 ||
+		worldOffsetY < 0 ||
+		worldOffsetZ < 0)
+	{
+		std::cout << "offset is not in the cell" << std::endl;
+	}
+
+	sub->cellXIdx = cellX;
+	sub->cellYIdx = cellY;
+	sub->cellZIdx = cellZ;
+
+	sub->xOffsetW = worldOffsetX;
+	sub->yOffsetW = worldOffsetY;
+	sub->zOffsetW = worldOffsetZ;
+
+	sub->posX = posX;
+	sub->posY = posY;
+	sub->posZ = posZ;
+
+	sub->vX = vfPosition.X;
+	sub->vY = vfPosition.Y;
+	sub->vZ = vfPosition.Z;
+
+}
+
+std::string CPlantsSimulation::GetKeyStringForRegion(const string& outputDir, int intXIdx, int intZIdx)
+{
+	const int MAX_PATH = 250;
+	char subFileName[MAX_PATH];
+	char subFilePath[MAX_PATH];
+	memset(subFileName, 0, sizeof(char) * MAX_PATH);
+	memset(subFilePath, 0, sizeof(char) * MAX_PATH);
+#if __APPLE__
+	snprintf(subFileName, MAX_PATH, "instances_%d_%d", intXIdx, intZIdx);
+	snprintf(subFilePath, MAX_PATH, "%s/%s", outputDir.c_str(), subFileName);
+#else
+	sprintf_s(subFileName, MAX_PATH, "instances_%d_%d", intXIdx, intZIdx);
+	sprintf_s(subFilePath, MAX_PATH, "%s\\%s", outputDir.c_str(), subFileName);
+#endif
+	string ret = subFilePath;
 	return ret;
 }
 
@@ -911,12 +1159,15 @@ bool CPlantsSimulation::LoadInputData()
 		DeInitialize();
 		return ret;
 	}
+
 	ret = LoadInputHeightMap();
 	if (!ret) {
 		DeInitialize();
 		return ret;
 	}
-	
+
+	ret = LoadRegions();
+
 	return ret;
 }
 

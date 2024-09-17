@@ -78,8 +78,10 @@ struct PixelRGB {
 
 InputImageDataInfo* LoadInputImageFile(const string& inputImageFile);
 
-std::vector<std::vector<short>> Read2DShortArray(const std::string& filePath, int width, int height);
+std::vector<std::vector<short>> Read2DShortArray(const std::string& filePath, int width, int height, bool invert = true);
 bool Write2DShortArrayAsRaw(const std::string& filePath, std::vector<std::vector<short>> array);
+
+std::vector<std::vector<int>> Read2DIntArray(const std::string& filePath, int width, int height, bool invert = false);
 
 double BilinearInterpolation(double x, double y, const std::vector<std::vector<short>>& inputArray);
 double BilinearInterpolation2(double x, double y, const std::vector<std::vector<short>>& inputArray);
