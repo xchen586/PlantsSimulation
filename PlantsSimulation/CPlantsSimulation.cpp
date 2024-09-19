@@ -474,7 +474,23 @@ bool CPlantsSimulation::LoadAndOutputRegions()
 	RemoveAllFilesInFolder(subRegionOutput_Dir);
 	
 	std::vector<std::vector<int>> regionsInt300 = Read2DIntArray(m_regionsRawFile, regionsWidth, regionsHeight);
-
+	int regionPlaceCount = 0;
+	int maxRegionId = 0;
+	for (int x = 0; x < regionsWidth; x++)
+	{
+		for (int y = 0; y < regionsHeight; y++)
+		{
+			int regionValue = regionsInt300[x][y];
+			if ( regionValue > 0)
+			{
+				regionPlaceCount++;
+				maxRegionId = std::max(maxRegionId, regionValue);
+			}
+		}
+	}
+	std::cout << "Region place count is " << regionPlaceCount << std::endl;
+	std::cout << "Max Region Id (region type count) is " << maxRegionId << std::endl;
+	 
 	const double vfScale = 2.0;
 	CAffineTransform transform(
 		CAffineTransform::sAffineVector{
@@ -549,7 +565,7 @@ bool CPlantsSimulation::LoadAndOutputRegions()
 
 		VoxelFarm::unpackCellId(cellId, lod, cellX, cellY, cellZ);
 		std::cout << "Cell_" << lod << "_" << cellX << "_" << cellY << "_" << cellZ << std::endl;
-		std::vector<std::vector<uint32_t>> scaledArray(cellArrayWidth, std::vector<uint32_t>(cellArrayHeight));
+		std::vector<std::vector<uint16_t>> scaledArray(cellArrayWidth, std::vector<uint16_t>(cellArrayHeight));
 		for (int x = 0; x < cellArrayWidth; x++)
 		{
 			for (int y = 0; y < cellArrayHeight; y++)
