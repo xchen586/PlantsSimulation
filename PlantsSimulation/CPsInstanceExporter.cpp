@@ -139,14 +139,14 @@ bool OutputAllInstance(string outputFilePath, const InstanceSubOutputMap& allIns
 	return true;
 }
 
-void SetupInstanceSubOutput2(double posX, double posY, double posZ, const CAffineTransform& transform, double cellSize, int32_t lod, std::shared_ptr<InstanceSubOutput> sub)
+void SetupInstanceSubOutput2(double posX, double posY, double posZ, const CAffineTransform& transform, double cellScale, int32_t lod, std::shared_ptr<InstanceSubOutput> sub)
 {
 	const auto vfPosition = transform.WC_TO_VF(CAffineTransform::sAffineVector(posX, posY, posZ));
 	
 	//cell min
-	int cellX = (int)(vfPosition.X / cellSize);
-	int cellY = (int)(vfPosition.Y / cellSize);
-	int cellZ = (int)(vfPosition.Z / cellSize);
+	int cellX = (int)(vfPosition.X / cellScale);
+	int cellY = (int)(vfPosition.Y / cellScale);
+	int cellZ = (int)(vfPosition.Z / cellScale);
 
 	//cell max
 	int cellX1 = cellX + 1;
@@ -154,19 +154,19 @@ void SetupInstanceSubOutput2(double posX, double posY, double posZ, const CAffin
 	int cellZ1 = cellZ + 1;
 
 	//vf point 0
-	double vfPointX = (cellX * cellSize);
-	double vfPointY = (cellY * cellSize);
-	double vfPointZ = (cellZ * cellSize);
+	double vfPointX = (cellX * cellScale);
+	double vfPointY = (cellY * cellScale);
+	double vfPointZ = (cellZ * cellScale);
 
 	//vf point 1
-	double vfPoint1X = (cellX1 * cellSize);
-	double vfPoint1Y = (cellY1 * cellSize);
-	double vfPoint1Z = (cellZ1 * cellSize);
+	double vfPoint1X = (cellX1 * cellScale);
+	double vfPoint1Y = (cellY1 * cellScale);
+	double vfPoint1Z = (cellZ1 * cellScale);
 
 	//vf bounds size
-	double vfBoundsSizeX = (vfPoint1X - vfPointX);
-	double vfBoundsSizeY = (vfPoint1Y - vfPointY);
-	double vfBoundsSizeZ = (vfPoint1Z - vfPointZ);
+	double vfBoundsSizeX = std::abs(vfPoint1X - vfPointX);
+	double vfBoundsSizeY = std::abs(vfPoint1Y - vfPointY);
+	double vfBoundsSizeZ = std::abs(vfPoint1Z - vfPointZ);
 
 	//vf min
 	double vfMinX = min(vfPointX, vfPoint1X);
@@ -195,24 +195,14 @@ void SetupInstanceSubOutput2(double posX, double posY, double posZ, const CAffin
 	double worldMaxZ = max(worldPoint0.Z, worldPoint1.Z);
 
 	//world bounds size
-	double worldBoundsSizeX = (worldMaxX - worldMinX);
-	double worldBoundsSizeY = (worldMaxY - worldMinY);
-	double worldBoundsSizeZ = (worldMaxZ - worldMinZ);
+	double worldBoundsSizeX = std::abs(worldMaxX - worldMinX);
+	double worldBoundsSizeY = std::abs(worldMaxY - worldMinY);
+	double worldBoundsSizeZ = std::abs(worldMaxZ - worldMinZ);
 
 	//world offset
 	double worldOffsetX = (posX - worldMinX);
 	double worldOffsetY = (posY - worldMinY);
 	double worldOffsetZ = (posZ - worldMinZ);
-
-	//const bool ok = (worldOffsetX < 640.000001 && worldOffsetY < 640.000001 && worldOffsetZ < 640.000001);
-	double lodSize = (1 << lod) * 20.0;
-	lodSize += 0.000001;
-	const bool ok = (worldOffsetX < lodSize && worldOffsetY < lodSize && worldOffsetZ < lodSize);
-
-	if (!ok)
-	{
-		std::cout << "offset is overflow" << std::endl;
-	}
 
 	if ((posX < worldMinX) ||
 		(posY < worldMinY) ||

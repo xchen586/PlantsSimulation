@@ -15,6 +15,8 @@
 #define _USE_MATH_DEFINES
 #endif
 
+#include "Utils.h"
+
 using namespace std;
 
 struct InputImageDataInfo
@@ -75,6 +77,9 @@ struct PixelRGB {
 	unsigned char green;
 	unsigned char blue;
 };
+
+VoxelFarm::CellId GetVFCellIDFromVF(double vfX, double vfY, double vfZ, const CAffineTransform& transform, int32_t lod);
+VoxelFarm::CellId GetVFCellIDFromWorld(double posX, double posY, double posZ, const CAffineTransform& transform, int32_t lod);
 
 InputImageDataInfo* LoadInputImageFile(const string& inputImageFile);
 
@@ -389,4 +394,31 @@ std::vector<std::vector<T>> invert2DArray(const std::vector<std::vector<T>>& mat
 	}
 
 	return inverted;
+}
+
+template <typename T>
+bool Write2DArrayAsRaw(const std::string& filePath, const std::vector<std::vector<T>>& array) {
+	bool ret = false;
+	size_t width = array.size();
+	size_t height = array[0].size();
+
+	std::ofstream outputArrayFile(filePath, std::ios::binary | std::ios::trunc);
+	size_t arraySize = width * height * sizeof(T);  // Calculate size based on the generic type T
+
+	if (outputArrayFile.is_open()) {
+		for (const auto& row : array) {
+			for (T value : row) {
+				outputArrayFile.write(reinterpret_cast<const char*>(&value), sizeof(T));  // Write values of type T
+			}
+		}
+		outputArrayFile.close();
+		std::cout << "Array of type " << typeid(T).name() << " saved to array file successfully." << std::endl;
+		ret = true;
+	}
+	else {
+		std::cerr << "Unable to open array file for saving." << std::endl;
+		ret = false;
+	}
+
+	return ret;
 }

@@ -29,9 +29,8 @@
 	return true;
 }*/
 
-bool OutputArrayFileForSubRegions(const string& filePath, const double cellSize, std::shared_ptr<RegionSubOutputVector> subVector)
+bool OutputArrayFileForSubRegions(const string& filePath, const CAffineTransform& transform, VoxelFarm::CellId cellId, std::shared_ptr<RegionSubOutputVector> subVector)
 {
-	bool ret = true;
 	std::cout << "Start to OutputArrayFileForSubRegions to : " << filePath << std::endl;
 
 	std::ofstream outputFile(filePath);
@@ -39,6 +38,100 @@ bool OutputArrayFileForSubRegions(const string& filePath, const double cellSize,
 		std::cerr << "Error: Unable to open the sub csv file " << filePath << std::endl;
 		return false;
 	}
+
+	int cellX = 0;
+	int cellY = 0;
+	int cellZ = 0;
+	int lod = 0;
+	 
+	VoxelFarm::unpackCellId(cellId, lod, cellX, cellY, cellZ);
+	const double cellScale = (1 << lod) * VoxelFarm::CELL_SIZE;
+
+	int cellX1 = cellX + 1;
+	int cellY1 = cellY + 1;
+	int cellZ1 = cellZ + 1;
+
+	//vf point 0
+	double vfPointX = (cellX * cellScale);
+	double vfPointY = (cellY * cellScale);
+	double vfPointZ = (cellZ * cellScale);
+
+	//vf point 1
+	double vfPoint1X = (cellX1 * cellScale);
+	double vfPoint1Y = (cellY1 * cellScale);
+	double vfPoint1Z = (cellZ1 * cellScale);
+
+	//vf bounds size
+	double vfBoundsSizeX = (vfPoint1X - vfPointX);
+	double vfBoundsSizeY = (vfPoint1Y - vfPointY);
+	double vfBoundsSizeZ = (vfPoint1Z - vfPointZ);
+
+	//vf min
+	double vfMinX = min(vfPointX, vfPoint1X);
+	double vfMinY = min(vfPointY, vfPoint1Y);
+	double vfMinZ = min(vfPointZ, vfPoint1Z);
+
+	//vf max
+	double vfMaxX = max(vfPointX, vfPoint1X);
+	double vfMaxY = max(vfPointY, vfPoint1Y);
+	double vfMaxZ = max(vfPointZ, vfPoint1Z);
+	
+	double scaleWidthRate = 100;
+	double scaleHeightRate = 100;
+
+	int arrayWidth = static_cast<int>(cellScale / scaleWidthRate);
+	int arrayHeight = static_cast<int>(cellScale / scaleHeightRate);
+
+	std::vector<std::vector<uint32_t>> region2D(arrayWidth, std::vector<uint32_t>(arrayHeight));
+	for (int x = 0; x < arrayWidth; x++)
+	{
+		for (int y = 0; y < arrayHeight; y++)
+		{
+			region2D[x][y] = 0;
+		}
+	}
+
+	int regionCount = 0;;
+
+	for (const std::shared_ptr<RegionStruct>& sub : *subVector)
+	{
+		double dIndexX = (sub->vX - vfMinX) / scaleWidthRate;
+		double dIndexZ = (sub->vZ - vfMinZ) / scaleHeightRate;
+		int iIndexX = static_cast<int>(dIndexX);
+		int iIndexZ = static_cast<int>(dIndexZ);
+		
+		if ((iIndexX < 0) || (iIndexX > (arrayWidth - 1)))
+		{
+			//std::cout << "Region Struct iIndexX " << iIndexX << " is out of cell bound X " << "Cell " << cellX << " " << cellZ << std::endl;
+			if (iIndexX < 0)
+			{
+				iIndexX = 0;
+			}
+			if (iIndexX > (arrayWidth - 1))
+			{
+				iIndexX = arrayWidth - 1;
+			}
+		}
+		if ((iIndexZ < 0) || (iIndexZ > (arrayHeight - 1)))
+		{
+			//std::cout << "Region Struct iIndexZ " << iIndexZ << " is out of cell bound X " << "Cell " << cellX << " " << cellZ << std::endl;
+			if (iIndexZ < 0)
+			{
+				iIndexZ = 0;
+			}
+			if (iIndexZ > (arrayHeight - 1))
+			{
+				iIndexZ = arrayHeight - 1;
+			}
+		}
+		region2D[iIndexX][iIndexZ] = sub->regionsId;
+		regionCount++;
+	}
+	std::cout << "It has region count is " << regionCount << endl;
+
+	bool saved = Write2DArrayAsRaw(filePath, region2D);
+
+	return saved;
 }
 
 void CPlantsSimulation::DeInitialize()
@@ -222,26 +315,27 @@ bool CPlantsSimulation::LoadRegions()
 	const int regionsWidth = 300;
 	const int regionsHeight = 300;
 
-	const int worldWidth = 30000;
-	const int worldHeight = 30000;
+	const int worldTileWidth = 30000;
+	const int worldTileHeight = 30000;
 
-	int region_lod = 8;
-	const double cellSize = (1 << region_lod) * VoxelFarm::CELL_SIZE;
-	//const double voxelSize = cellSize / VoxelFarm::BLOCK_DIMENSION;// 
+	int region_lod = 10;
+	const double cellScale = (1 << region_lod) * VoxelFarm::CELL_SIZE;
+
 	const double vfScale = 2.0;
-
 	CAffineTransform transform(
 		CAffineTransform::sAffineVector{
 			0.0, 0.0, 0.0
 		}, vfScale, CAffineTransform::eTransformMode::TM_YZ_ROTATE);
 	auto worldOriginVF = transform.WC_TO_VF(CAffineTransform::sAffineVector{ 0.0, 0.0, 0.0 });
+	std::cout << "current region lod is : " << region_lod << std::endl;
+	std::cout << "current region cellScale is : " << cellScale << std::endl;
 
 	std::vector<std::vector<int>> regionsShort300 = Read2DIntArray(m_regionsRawFile, regionsWidth, regionsHeight);
 	m_regionsVector.clear();
 	m_regionMap.clear();
 
-	double xRegionRatio = worldWidth / regionsWidth;
-	double yRegionRatio = worldHeight / regionsHeight;
+	double xRegionRatio = worldTileWidth / regionsWidth;
+	double yRegionRatio = worldTileHeight / regionsHeight;
 	double xRatio = m_topLayerMeta->xRatio;
 	double yRatio = m_topLayerMeta->yRatio;
 	double batch_min_x = m_topLayerMeta->batch_min_x;
@@ -253,62 +347,70 @@ bool CPlantsSimulation::LoadRegions()
 	int tableColsCount = (*m_pCellTable)[0].size();
 
 	int negativeHeightCount = 0;
-
+	int total_non_zero_regions = 0;
 	for (int row = 0; row < regionsWidth; row++)
 	{
 		for (int col = 0; col < regionsHeight; col++)
 		{
-			std::shared_ptr<RegionStruct> reg = std::make_shared<RegionStruct>(regionsShort300[row][col], row, col);
-
-			bool hasHeight = true;
-			double xPos = row * xRegionRatio;
-			double yPos = col * yRegionRatio;
-			double zPos = 0;
-
-			int rowIdx = static_cast<int>(xPos / xRatio);
-			int colIdx = static_cast<int>(yPos / yRatio);
-
-			CCellInfo* pCell = nullptr;
-			if (((rowIdx >= 0) && (rowIdx < tableRowsCount))
-				&& ((colIdx >= 0) && (colIdx < tableColsCount))) {
-				pCell = (*m_pCellTable)[rowIdx][colIdx];
-			}
-			if ((pCell != nullptr) && (pCell->GetHasHeight()))
+			if (regionsShort300[row][col] != 0)
 			{
-				zPos = pCell->GetHeight();
-			}
-			else
-			{
-				hasHeight = false;
-			}
-			bool negativeZPos = false;
-			if ((zPos < 0) && hasHeight)
-			{
-				negativeZPos = true;
-				negativeHeightCount++;
-				zPos = 0;
-			}
-			double posX = xPos + batch_min_x + x0;
-			double posY = yPos + batch_min_y + y0;
-			double posZ = zPos;
+				int regionId = regionsShort300[row][col];
+				std::shared_ptr<RegionStruct> reg = std::make_shared<RegionStruct>(regionId, row, col);
 
-			reg->posX = posX;
-			reg->posY = posY;
-			reg->posZ = posZ;
+				bool hasHeight = true;
+				double xPos = row * xRegionRatio;
+				double yPos = col * yRegionRatio;
+				double zPos = 0;
 
-			SetupRegionSubOutput(posX, posY, posZ, transform, cellSize, region_lod, reg);
-			string keyString = GetKeyStringForRegion(m_outputDir, reg->cellXIdx, reg->cellZIdx);
-			RegionSubOutputMap::iterator iter = m_regionMap.find(keyString);
-			if (m_regionMap.end() != iter)
-			{
-				m_regionMap[keyString] = std::make_shared<RegionSubOutputVector>();
+				int rowIdx = static_cast<int>(xPos / xRatio);
+				int colIdx = static_cast<int>(yPos / yRatio);
+
+				CCellInfo* pCell = nullptr;
+				if (((rowIdx >= 0) && (rowIdx < tableRowsCount))
+					&& ((colIdx >= 0) && (colIdx < tableColsCount))) {
+					pCell = (*m_pCellTable)[rowIdx][colIdx];
+				}
+				if ((pCell != nullptr) && (pCell->GetHasHeight()))
+				{
+					zPos = pCell->GetHeight();
+				}
+				else
+				{
+					hasHeight = false;
+				}
+				bool negativeZPos = false;
+				if ((zPos < 0) && hasHeight)
+				{
+					negativeZPos = true;
+					negativeHeightCount++;
+					zPos = 0;
+				}
+				double posX = xPos + batch_min_x + x0;
+				double posY = yPos + batch_min_y + y0;
+				double posZ = zPos;
+
+				reg->posX = posX;
+				reg->posY = posY;
+				reg->posZ = posZ;
+
+				SetupRegionSubOutput(posX, posY, posZ, transform, cellScale, region_lod, reg);
+				//string keyString = GetKeyStringForRegion(m_outputDir, reg->cellXIdx, reg->cellZIdx);
+				VoxelFarm::CellId keyId = reg->cellId;
+				RegionSubOutputMap::iterator iter = m_regionMap.find(keyId);
+				if (m_regionMap.end() == iter)
+				{
+					m_regionMap[keyId] = std::make_shared<RegionSubOutputVector>();
+				}
+
+				std::shared_ptr<RegionSubOutputVector> subVector = m_regionMap[keyId];
+				subVector->push_back(reg);
+				m_regionsVector.push_back(reg);
+				total_non_zero_regions++;
 			}
-
-			std::shared_ptr<RegionSubOutputVector> subVector = m_regionMap[keyString];
-			subVector->push_back(reg);
-			m_regionsVector.push_back(reg);
 		}
 	}
+	std::cout << "Total non region unit count is " << total_non_zero_regions << std::endl;
+	std::cout << "Total region cell count is : " << m_regionMap.size() << std::endl;
 
 	const int MAX_PATH = 250;
 	char subRegionOutput_Dir[MAX_PATH];
@@ -320,18 +422,193 @@ bool CPlantsSimulation::LoadRegions()
 	sprintf_s(subRegionOutput_Dir, MAX_PATH, "%s\\regionoutput", m_outputDir.c_str());
 #endif
 
+	if (!std::filesystem::exists(subRegionOutput_Dir)) {
+		if (!std::filesystem::create_directory(subRegionOutput_Dir)) {
+			std::cerr << "Failed to create the directory of subRegionOutput_Dir!" << std::endl;
+			return false;
+		}
+	}
+	RemoveAllFilesInFolder(subRegionOutput_Dir);
 
+	for (const auto& pair : m_regionMap)
+	{
+		int cellX = 0;
+		int cellY = 0;
+		int cellZ = 0;
+		int lod = 0;
+
+		VoxelFarm::unpackCellId(pair.first, lod, cellX, cellY, cellZ);
+		int subRegionsCount = (*pair.second).size();
+		std::cout << "Cell_" << lod << "_" << cellX << "_" << cellY << "_" << cellZ << " has regions count : " << subRegionsCount << std::endl;
+		string arrayFilePath = Get2DArrayFilePathForRegion(subRegionOutput_Dir, lod, cellX, cellY, cellZ);
+		
+		bool beSaved = OutputArrayFileForSubRegions(arrayFilePath, transform, pair.first, pair.second);
+	}
 	return ret;
 }
 
-void CPlantsSimulation::SetupRegionSubOutput(double posX, double posY, double posZ, const CAffineTransform& transform, double cellSize, int32_t lod, std::shared_ptr<RegionStruct> sub)
+
+
+bool CPlantsSimulation::LoadRegions2()
+{
+	bool ret = true;
+	const int regionsWidth = 300;
+	const int regionsHeight = 300;
+
+	const int MAX_PATH = 250;
+	char subRegionOutput_Dir[MAX_PATH];
+	memset(subRegionOutput_Dir, 0, sizeof(char) * MAX_PATH);
+
+#if __APPLE__ 
+	snprintf(subFullOutput_Dir, MAX_PATH, "%s/regionoutput", m_outputDir.c_str());
+#else
+	sprintf_s(subRegionOutput_Dir, MAX_PATH, "%s\\regionoutput", m_outputDir.c_str());
+#endif
+
+	if (!std::filesystem::exists(subRegionOutput_Dir)) {
+		if (!std::filesystem::create_directory(subRegionOutput_Dir)) {
+			std::cerr << "Failed to create the directory of subRegionOutput_Dir!" << std::endl;
+			return false;
+		}
+	}
+	RemoveAllFilesInFolder(subRegionOutput_Dir);
+	
+	std::vector<std::vector<int>> regionsInt300 = Read2DIntArray(m_regionsRawFile, regionsWidth, regionsHeight);
+
+	const double vfScale = 2.0;
+	CAffineTransform transform(
+		CAffineTransform::sAffineVector{
+			0.0, 0.0, 0.0
+		}, vfScale, CAffineTransform::eTransformMode::TM_YZ_ROTATE);
+	auto worldOriginVF = transform.WC_TO_VF(CAffineTransform::sAffineVector{ 0.0, 0.0, 0.0 });
+	int region_lod = 10;
+	const double cellScale = (1 << region_lod) * VoxelFarm::CELL_SIZE;
+
+	const int regionWidthScale = 100;
+	const int regionHeightScale = 100;
+	const int cellArrayWidth = static_cast<int>(cellScale / regionWidthScale);
+	const int cellArrayHeight = static_cast<int>(cellScale / regionHeightScale);
+
+	double xRatio = m_topLayerMeta->xRatio;
+	double yRatio = m_topLayerMeta->yRatio;
+	double batch_min_x = m_topLayerMeta->batch_min_x;
+	double batch_min_y = m_topLayerMeta->batch_min_y;
+	double x0 = m_topLayerMeta->x0;
+	double y0 = m_topLayerMeta->y0;
+
+	//batch_min_x = 0;
+	//batch_min_y = 0;
+	const int worldTileWidth = 30000;
+	const int worldTileHeight = 30000;
+	double xRegionRatio = worldTileWidth / regionsWidth;
+	double yRegionRatio = worldTileHeight / regionsHeight;
+	const int topX = batch_min_x + x0;
+	const int topY = batch_min_y + y0;
+	const int bottomX = batch_min_x + x0 + worldTileWidth;
+	const int bottomY = batch_min_y + y0 + worldTileHeight;
+
+	auto topVf = transform.WC_TO_VF(CAffineTransform::sAffineVector{ static_cast<double>(topX), static_cast<double>(topY), 0.0 });
+	auto bottomVf = transform.WC_TO_VF(CAffineTransform::sAffineVector{ static_cast<double>(bottomX), static_cast<double>(bottomY), 0.0 });
+	const int min_vx = static_cast<int>(std::min(topVf.X, bottomVf.X) / cellScale);
+	const int min_vy = static_cast<int>(std::min(topVf.Z, bottomVf.Z) / cellScale);
+	const int max_vx = static_cast<int>(std::max(topVf.X, bottomVf.X) / cellScale);
+	const int max_vy = static_cast<int>(std::max(topVf.Z, bottomVf.Z) / cellScale);
+
+	std::set<VoxelFarm::CellId> cellSet;
+	{
+		string title = "Get Cells from top and bottom";
+		CTimeCounter timer(title);
+		for (int y = min_vy; y < max_vy; y++)
+		//for (int x = min_x; x < max_x; x++)
+		{
+			for (int x = min_vx; x < max_vx; x++)
+			//for (int y = min_y; y < max_y; y++)
+			{
+				VoxelFarm::CellId cell = VoxelFarm::packCellId(region_lod, x, 0, y);
+				cellSet.insert(cell);
+			}
+		}
+	}
+
+	std::cout << "current region lod is : " << region_lod << std::endl;
+	std::cout << "current region cellScale is : " << cellScale << std::endl;
+	std::cout << "Total cells count is " << cellSet.size() << std::endl;
+
+	for (auto cellId : cellSet)
+	{
+		int subRegionsCount = 0;
+		int cellX = 0;
+		int cellY = 0;
+		int cellZ = 0;
+		int lod = 0;
+
+		VoxelFarm::unpackCellId(cellId, lod, cellX, cellY, cellZ);
+		std::cout << "Cell_" << lod << "_" << cellX << "_" << cellY << "_" << cellZ << std::endl;
+	}
+
+	int totalRegionsCount = 0;
+	for (auto cellId : cellSet)
+	{
+		int subRegionsCount = 0;
+		int cellX = 0;
+		int cellY = 0;
+		int cellZ = 0;
+		int lod = 0;
+
+		VoxelFarm::unpackCellId(cellId, lod, cellX, cellY, cellZ);
+		std::cout << "Cell_" << lod << "_" << cellX << "_" << cellY << "_" << cellZ << std::endl;
+		std::vector<std::vector<uint32_t>> scaledArray(cellArrayWidth, std::vector<uint32_t>(cellArrayHeight));
+		for (int x = 0; x < cellArrayWidth; x++)
+		{
+			for (int y = 0; y < cellArrayHeight; y++)
+			{
+				double vfX = cellX * cellScale + x * cellScale / cellArrayWidth;
+
+				//double vfY = cellY * cellScale + y * cellScale / cellArrayHeight;
+
+				double vfZ = cellZ * cellScale + y * cellScale / cellArrayHeight;
+
+				auto worldPos = transform.VF_TO_WC(CAffineTransform::sAffineVector{ vfX, 0.0, vfZ});
+
+				int tilePosX = worldPos.X - batch_min_x - x0;
+				int tilePosY = worldPos.Y - batch_min_y - y0;
+
+				if ((tilePosX >=  0) && (tilePosX <= worldTileWidth)
+					&& (tilePosY >= 0) && (tilePosY <= worldTileHeight))
+				{
+					int iIndexX = tilePosX / regionWidthScale;
+					int iIndexY = tilePosY / regionHeightScale;
+
+					scaledArray[x][y] = regionsInt300[iIndexX][iIndexY];
+					subRegionsCount++;
+					totalRegionsCount++;
+				}
+				else
+				{
+					scaledArray[x][y] = 0;
+				}
+				
+			}
+		}
+
+		std::cout << "Cell_" << lod << "_" << cellX << "_" << cellY << "_" << cellZ << " has regions count : " << subRegionsCount << std::endl;
+		string arrayFilePath = Get2DArrayFilePathForRegion(subRegionOutput_Dir, lod, cellX, cellY, cellZ);
+
+		bool saved = Write2DArrayAsRaw(arrayFilePath, scaledArray);
+	}
+	
+	std::cout << "Total regions count is " << totalRegionsCount << std::endl;
+	return ret;
+}
+
+void CPlantsSimulation::SetupRegionSubOutput(double posX, double posY, double posZ, const CAffineTransform& transform, double cellScale, int32_t lod, std::shared_ptr<RegionStruct> sub)
 {
 	const auto vfPosition = transform.WC_TO_VF(CAffineTransform::sAffineVector(posX, posY, posZ));
 
 	//cell min
-	int cellX = (int)(vfPosition.X / cellSize);
-	int cellY = (int)(vfPosition.Y / cellSize);
-	int cellZ = (int)(vfPosition.Z / cellSize);
+	int cellX = (int)(vfPosition.X / cellScale);
+	int cellY = (int)(vfPosition.Y / cellScale);
+	int cellZ = (int)(vfPosition.Z / cellScale);
 
 	//cell max
 	int cellX1 = cellX + 1;
@@ -339,19 +616,19 @@ void CPlantsSimulation::SetupRegionSubOutput(double posX, double posY, double po
 	int cellZ1 = cellZ + 1;
 
 	//vf point 0
-	double vfPointX = (cellX * cellSize);
-	double vfPointY = (cellY * cellSize);
-	double vfPointZ = (cellZ * cellSize);
+	double vfPointX = (cellX * cellScale);
+	double vfPointY = (cellY * cellScale);
+	double vfPointZ = (cellZ * cellScale);
 
 	//vf point 1
-	double vfPoint1X = (cellX1 * cellSize);
-	double vfPoint1Y = (cellY1 * cellSize);
-	double vfPoint1Z = (cellZ1 * cellSize);
+	double vfPoint1X = (cellX1 * cellScale);
+	double vfPoint1Y = (cellY1 * cellScale);
+	double vfPoint1Z = (cellZ1 * cellScale);
 
 	//vf bounds size
-	double vfBoundsSizeX = (vfPoint1X - vfPointX);
-	double vfBoundsSizeY = (vfPoint1Y - vfPointY);
-	double vfBoundsSizeZ = (vfPoint1Z - vfPointZ);
+	double vfBoundsSizeX = std::abs(vfPoint1X - vfPointX);
+	double vfBoundsSizeY = std::abs(vfPoint1Y - vfPointY);
+	double vfBoundsSizeZ = std::abs(vfPoint1Z - vfPointZ);
 
 	//vf min
 	double vfMinX = min(vfPointX, vfPoint1X);
@@ -380,24 +657,14 @@ void CPlantsSimulation::SetupRegionSubOutput(double posX, double posY, double po
 	double worldMaxZ = max(worldPoint0.Z, worldPoint1.Z);
 
 	//world bounds size
-	double worldBoundsSizeX = (worldMaxX - worldMinX);
-	double worldBoundsSizeY = (worldMaxY - worldMinY);
-	double worldBoundsSizeZ = (worldMaxZ - worldMinZ);
+	double worldBoundsSizeX = std::abs(worldMaxX - worldMinX);
+	double worldBoundsSizeY = std::abs(worldMaxY - worldMinY);
+	double worldBoundsSizeZ = std::abs(worldMaxZ - worldMinZ);
 
 	//world offset
 	double worldOffsetX = (posX - worldMinX);
 	double worldOffsetY = (posY - worldMinY);
 	double worldOffsetZ = (posZ - worldMinZ);
-
-	//const bool ok = (worldOffsetX < 640.000001 && worldOffsetY < 640.000001 && worldOffsetZ < 640.000001);
-	double lodSize = (1 << lod) * 20.0;
-	lodSize += 0.000001;
-	const bool ok = (worldOffsetX < lodSize && worldOffsetY < lodSize && worldOffsetZ < lodSize);
-
-	if (!ok)
-	{
-		std::cout << "offset is overflow" << std::endl;
-	}
 
 	if ((posX < worldMinX) ||
 		(posY < worldMinY) ||
@@ -416,6 +683,8 @@ void CPlantsSimulation::SetupRegionSubOutput(double posX, double posY, double po
 		std::cout << "offset is not in the cell" << std::endl;
 	}
 
+	//cellY = 0; //Because I only 2D cellX and CellZ;
+
 	sub->cellXIdx = cellX;
 	sub->cellYIdx = cellY;
 	sub->cellZIdx = cellZ;
@@ -432,9 +701,10 @@ void CPlantsSimulation::SetupRegionSubOutput(double posX, double posY, double po
 	sub->vY = vfPosition.Y;
 	sub->vZ = vfPosition.Z;
 
+	sub->cellId = VoxelFarm::packCellId(lod, cellX, cellY, cellZ);
 }
 
-std::string CPlantsSimulation::GetKeyStringForRegion(const string& outputDir, int intXIdx, int intZIdx)
+std::string CPlantsSimulation::Get2DArrayFilePathForRegion(const string& outputDir, int lod, int intXIdx, int intYIdx, int intZIdx)
 {
 	const int MAX_PATH = 250;
 	char subFileName[MAX_PATH];
@@ -442,12 +712,21 @@ std::string CPlantsSimulation::GetKeyStringForRegion(const string& outputDir, in
 	memset(subFileName, 0, sizeof(char) * MAX_PATH);
 	memset(subFilePath, 0, sizeof(char) * MAX_PATH);
 #if __APPLE__
-	snprintf(subFileName, MAX_PATH, "instances_%d_%d", intXIdx, intZIdx);
+	snprintf(subFileName, MAX_PATH, "regions_%d_%d.raw", intXIdx, intZIdx);
 	snprintf(subFilePath, MAX_PATH, "%s/%s", outputDir.c_str(), subFileName);
 #else
-	sprintf_s(subFileName, MAX_PATH, "instances_%d_%d", intXIdx, intZIdx);
+	sprintf_s(subFileName, MAX_PATH, "regions_%d_%d.raw", intXIdx, intZIdx);
 	sprintf_s(subFilePath, MAX_PATH, "%s\\%s", outputDir.c_str(), subFileName);
 #endif
+/*
+#if __APPLE__
+	snprintf(subFileName, MAX_PATH, "regions_%d_%d_%d_%d.dat", lod, intXIdx, intYIdx, intZIdx);
+	snprintf(subFilePath, MAX_PATH, "%s/%s", outputDir.c_str(), subFileName);
+#else
+	sprintf_s(subFileName, MAX_PATH, "regions_%d_%d_%d_%d.dat", lod, intXIdx, intYIdx, intZIdx);
+	sprintf_s(subFilePath, MAX_PATH, "%s\\%s", outputDir.c_str(), subFileName);
+#endif
+*/
 	string ret = subFilePath;
 	return ret;
 }
@@ -1160,13 +1439,15 @@ bool CPlantsSimulation::LoadInputData()
 		return ret;
 	}
 
+	ret = LoadRegions2();
+
 	ret = LoadInputHeightMap();
 	if (!ret) {
 		DeInitialize();
 		return ret;
 	}
 
-	ret = LoadRegions();
+	//ret = LoadRegions();
 
 	return ret;
 }

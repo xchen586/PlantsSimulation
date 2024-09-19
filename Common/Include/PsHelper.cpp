@@ -20,6 +20,23 @@ InputImageDataInfo* LoadInputImageFile(const string& inputImageFile)
 	}
 }
 
+VoxelFarm::CellId GetVFCellIDFromVF(double vfX, double vfY, double vfZ, const CAffineTransform& transform, int32_t lod)
+{
+    const double cellScale = (1 << lod) * VoxelFarm::CELL_SIZE;
+
+    int cellX = (int)((vfX) / cellScale);
+    int cellY = (int)((vfY) / cellScale);
+    int cellZ = (int)((vfZ) / cellScale);
+
+    return VoxelFarm::packCellId(lod, cellX, cellY, cellZ);
+}
+
+VoxelFarm::CellId GetVFCellIDFromWorld(double posX, double posY, double posZ, const CAffineTransform& transform, int32_t lod)
+{
+    const auto vf = transform.WC_TO_VF(CAffineTransform::sAffineVector(posX, posY, posZ));
+    return GetVFCellIDFromVF(vf.X, vf.Y, vf.Z, transform, lod);
+}
+
 std::vector<std::vector<short>> Read2DShortArray(const std::string& filePath, int width, int height, bool invert/* = true*/)
 {
     std::ifstream fs(filePath, std::ios::binary);
