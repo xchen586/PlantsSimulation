@@ -112,7 +112,8 @@ private:
 	bool ExportAngleSlopeMap(std::vector<std::vector<double>>& slopeMap, const string& outputPath, int rgbColor, bool hasHeader, bool withRatio = false);
 
 	bool LoadRegions();
-	std::string GetKeyStringForRegion(const string& outputDir, int intXIdx, int intZIdx);
+	bool LoadAndOutputRegions();
+	std::string Get2DArrayFilePathForRegion(const string& outputDir, int lod, int intXIdx, int intYIdx, int intZIdx);
 	void SetupRegionSubOutput(double posX, double posY, double posZ, const CAffineTransform& transform, double cellSize, int32_t lod, std::shared_ptr<RegionStruct> sub);
 public:
 	bool LoadInputData();

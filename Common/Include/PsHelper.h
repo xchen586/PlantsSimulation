@@ -135,6 +135,7 @@ T GenerateRandomT(T min, T max) {
 }
 
 bool RemoveAllFilesInFolder(const std::string& folderPath);
+bool CheckExistFolderAndRemoveSubFiles(const std::string& outputSubsDir);
 
 template <typename T>
 T FindMinIn3(const T& num1, const T& num2, const T& num3) {

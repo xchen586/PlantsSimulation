@@ -719,6 +719,17 @@ bool RemoveAllFilesInFolder(const std::string& folderPath) {
     }
 }
 
+bool CheckExistFolderAndRemoveSubFiles(const std::string& outputSubsDir)
+{
+    if (!std::filesystem::exists(outputSubsDir)) {
+        if (!std::filesystem::create_directory(outputSubsDir)) {
+            std::cerr << "Failed to create the directory of outputSubsDir!" << std::endl;
+            return false;
+        }
+    }
+    bool removeFiles = RemoveAllFilesInFolder(outputSubsDir);
+}
+
 std::vector<std::vector<short>> resample2DShortWithAverage(const std::vector<std::vector<short>>& original,
     int new_rows, int new_cols) {
 

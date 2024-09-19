@@ -487,13 +487,13 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 	{
 		return false;
 	}
+
 	if (!std::filesystem::exists(outputSubsDir)) {
 		if (!std::filesystem::create_directory(outputSubsDir)) {
 			std::cerr << "Failed to create the directory of outputSubsDir!" << std::endl;
 			return false;
 		}
 	}
-
 	bool removeFiles = RemoveAllFilesInFolder(outputSubsDir);
 
 	//int lod = 5;

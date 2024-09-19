@@ -449,7 +449,7 @@ bool CPlantsSimulation::LoadRegions()
 
 
 
-bool CPlantsSimulation::LoadRegions2()
+bool CPlantsSimulation::LoadAndOutputRegions()
 {
 	bool ret = true;
 	const int regionsWidth = 300;
@@ -496,8 +496,6 @@ bool CPlantsSimulation::LoadRegions2()
 	double x0 = m_topLayerMeta->x0;
 	double y0 = m_topLayerMeta->y0;
 
-	//batch_min_x = 0;
-	//batch_min_y = 0;
 	const int worldTileWidth = 30000;
 	const int worldTileHeight = 30000;
 	double xRegionRatio = worldTileWidth / regionsWidth;
@@ -515,18 +513,12 @@ bool CPlantsSimulation::LoadRegions2()
 	const int max_vy = static_cast<int>(std::max(topVf.Z, bottomVf.Z) / cellScale);
 
 	std::set<VoxelFarm::CellId> cellSet;
+	for (int x = min_vx; x < max_vx; x++)
 	{
-		string title = "Get Cells from top and bottom";
-		CTimeCounter timer(title);
 		for (int y = min_vy; y < max_vy; y++)
-		//for (int x = min_x; x < max_x; x++)
 		{
-			for (int x = min_vx; x < max_vx; x++)
-			//for (int y = min_y; y < max_y; y++)
-			{
-				VoxelFarm::CellId cell = VoxelFarm::packCellId(region_lod, x, 0, y);
-				cellSet.insert(cell);
-			}
+			VoxelFarm::CellId cell = VoxelFarm::packCellId(region_lod, x, 0, y);
+			cellSet.insert(cell);
 		}
 	}
 
@@ -563,9 +555,6 @@ bool CPlantsSimulation::LoadRegions2()
 			for (int y = 0; y < cellArrayHeight; y++)
 			{
 				double vfX = cellX * cellScale + x * cellScale / cellArrayWidth;
-
-				//double vfY = cellY * cellScale + y * cellScale / cellArrayHeight;
-
 				double vfZ = cellZ * cellScale + y * cellScale / cellArrayHeight;
 
 				auto worldPos = transform.VF_TO_WC(CAffineTransform::sAffineVector{ vfX, 0.0, vfZ});
@@ -587,7 +576,6 @@ bool CPlantsSimulation::LoadRegions2()
 				{
 					scaledArray[x][y] = 0;
 				}
-				
 			}
 		}
 
@@ -718,15 +706,7 @@ std::string CPlantsSimulation::Get2DArrayFilePathForRegion(const string& outputD
 	sprintf_s(subFileName, MAX_PATH, "regions_%d_%d.raw", intXIdx, intZIdx);
 	sprintf_s(subFilePath, MAX_PATH, "%s\\%s", outputDir.c_str(), subFileName);
 #endif
-/*
-#if __APPLE__
-	snprintf(subFileName, MAX_PATH, "regions_%d_%d_%d_%d.dat", lod, intXIdx, intYIdx, intZIdx);
-	snprintf(subFilePath, MAX_PATH, "%s/%s", outputDir.c_str(), subFileName);
-#else
-	sprintf_s(subFileName, MAX_PATH, "regions_%d_%d_%d_%d.dat", lod, intXIdx, intYIdx, intZIdx);
-	sprintf_s(subFilePath, MAX_PATH, "%s\\%s", outputDir.c_str(), subFileName);
-#endif
-*/
+
 	string ret = subFilePath;
 	return ret;
 }
@@ -1439,7 +1419,7 @@ bool CPlantsSimulation::LoadInputData()
 		return ret;
 	}
 
-	ret = LoadRegions2();
+	ret = LoadAndOutputRegions();
 
 	ret = LoadInputHeightMap();
 	if (!ret) {
@@ -1451,11 +1431,6 @@ bool CPlantsSimulation::LoadInputData()
 
 	return ret;
 }
-
-//std::vector<std::vector<unsigned short>> heightMap300 = Read2DShortArray(m_heightMapFile, width, height);
-
-//std::vector<std::vector<unsigned short>> heightMap4096 = ScaleArray(heightMap300, newWidth, newHeight);
-//std::vector<std::vector<unsigned short>> slope4096 = ComputeSlopeMap(heightMap4096);
 
 bool CPlantsSimulation::LoadForest()
 {
