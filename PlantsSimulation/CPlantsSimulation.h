@@ -20,7 +20,7 @@ class CPlantsSimulation
 public:
 	CPlantsSimulation(const string& outputDir, const string& inputTreeList, const string& inputImageFile, const string& inputImageMataFile, const string& mesh_HeightMapFile, const string& mesh2_HeightMapFile, const string& pc_HeightMapFile, const string& l1_HeightMapFile,
 		const string& mesh_HeightMasksFile, const string& mesh2_HeightMasksFile, const string& pc_HeightMasksFile, const string& l1_HeightMasksFile, const string& mostTravelledPointFile, const string& mostDistantPointFile, 
-		const string& regionsRawFile, const string& outputFile, const string& fullOutputFile, const string& pcFullOutputFile, int32_t lod, float forestAge, int iteration, int tiles, int tileX, int tileY)
+		const string& regionsRawFile, const string& regionsInfoFile, const string& outputFile, const string& fullOutputFile, const string& pcFullOutputFile, int32_t lod, float forestAge, int iteration, int tiles, int tileX, int tileY)
 		: m_outputDir(outputDir)
 		, m_inputTreeListCsv(inputTreeList)
 		, m_inputImageFile(inputImageFile)
@@ -36,6 +36,7 @@ public:
 		, m_mostTravelledPointFile(mostTravelledPointFile)
 		, m_mostDistantPointFile(mostDistantPointFile)
 		, m_regionsRawFile(regionsRawFile)
+		, m_regionsInfoFile(regionsInfoFile)
 		, m_outputFile(outputFile)
 		, m_fullOutputFile(fullOutputFile)
 		, m_pcFullOutputFile(pcFullOutputFile)
@@ -71,6 +72,7 @@ private:
 	string m_mostTravelledPointFile;
 	string m_mostDistantPointFile;
 	string m_regionsRawFile;
+	string m_regionsInfoFile;
 	string m_outputFile;
 	string m_fullOutputFile;
 	string m_pcFullOutputFile;
@@ -89,6 +91,7 @@ private:
 
 	RegionSubOutputVector m_regionsVector;
 	RegionSubOutputMap m_regionMap;
+	RegionInfoMap m_regionInfoMap;
 
 	std::vector<std::vector<CCellInfo*>>* m_pCellTable;
 	CForest* m_pForest;
@@ -113,7 +116,6 @@ private:
 
 	bool LoadRegions();
 	bool LoadAndOutputRegions();
-	std::string Get2DArrayFilePathForRegion(const string& outputDir, int lod, int intXIdx, int intYIdx, int intZIdx);
 	void SetupRegionSubOutput(double posX, double posY, double posZ, const CAffineTransform& transform, double cellSize, int32_t lod, std::shared_ptr<RegionStruct> sub);
 public:
 	bool LoadInputData();

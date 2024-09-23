@@ -52,6 +52,7 @@ int iniAbsolutePathMain(int argc, const char* argv[])
     const char* point_most_travelled_name = GetIniValue(iniParser, Input_Section, "Most_Travelled_Points");
     const char* point_most_distant_name = GetIniValue(iniParser, Input_Section, "Most_Distant_Points");
     const char* regions_raw_name = GetIniValue(iniParser, Input_Section, "Regions_Raw");
+    const char* regions_info_name = GetIniValue(iniParser, Input_Section, "Regions_Info");
     const char* tree_list_csv_name = GetIniValue(iniParser, Input_Section, "Tree_List");
     string tree_list_csv = tree_list_csv_name ? tree_list_csv_name : "";
     const char* lod_str = GetIniValue(iniParser, Others_Section, "Lod");
@@ -95,6 +96,7 @@ int iniAbsolutePathMain(int argc, const char* argv[])
     std::cout << "Most travelled point file name is : " << (point_most_travelled_name ? point_most_travelled_name : "") << std::endl;
     std::cout << "Most distant point file name is : " << (point_most_distant_name ? point_most_distant_name : "") << std::endl;
     std::cout << "Regions Raw file name is : " << (regions_raw_name ? regions_raw_name : "") << std::endl;
+    std::cout << "Regions Info file name is : " << (regions_info_name ? regions_info_name : "") << std::endl;
     std::cout << "Tree list csv file name is : " << (tree_list_csv_name ? tree_list_csv_name : "") << std::endl;
     std::cout << "Los is  : " << (lod_str ? lod_str : "") << std::endl;
     std::cout << "Forest Age is : " << (forest_age_str ? forest_age_str : "") << std::endl;
@@ -145,7 +147,7 @@ int iniAbsolutePathMain(int argc, const char* argv[])
 
     CPlantsSimulation ps(output_final_path, tree_list_csv, input_image_name, input_meta_name, mesh_heightmap_raw_name, mesh2_heightmap_raw_name, pc_heightmap_raw_name, l1_heightmap_raw_name
         , mesh_heightmap_masks_name, mesh2_heightmap_masks_name, pc_heightmap_masks_name, l1_heightmap_masks_name
-        , point_most_travelled_name, point_most_distant_name, regions_raw_name, output_file, fullOutput_file, pcFullOutput_file, lod, forestAge, iteration, tiles, tileX, tileY);
+        , point_most_travelled_name, point_most_distant_name, regions_raw_name, regions_info_name, output_file, fullOutput_file, pcFullOutput_file, lod, forestAge, iteration, tiles, tileX, tileY);
 
     bool isLoad = ps.LoadInputData();
     if (!isLoad)
@@ -181,6 +183,7 @@ int iniAbsolutePathMain(int argc, const char* argv[])
     if (l1_heightmap_masks_name) delete l1_heightmap_masks_name;
     if (point_most_travelled_name) delete point_most_travelled_name;
     if (regions_raw_name) delete regions_raw_name;
+    if (regions_info_name) delete regions_info_name;
     if (point_most_distant_name) delete point_most_distant_name;
     if (lod_str) delete lod_str;
     if (only_road_data_str) delete only_road_data_str;
