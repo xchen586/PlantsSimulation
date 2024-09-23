@@ -205,7 +205,7 @@ bool CPlantsSimulation::LoadImageMetaFile()
 	return ret;
 }
 
-bool CPlantsSimulation::LoadRegions()
+bool CPlantsSimulation::LoadRegionsTest()
 {
 	bool ret = true;
 	const int regionsWidth = 300;
@@ -338,7 +338,7 @@ bool CPlantsSimulation::LoadRegions()
 		std::cout << "Cell_" << lod << "_" << cellX << "_" << cellY << "_" << cellZ << " has regions count : " << subRegionsCount << std::endl;
 		string arrayFilePath = Get2DArrayFilePathForRegion(subRegionOutput_Dir, lod, cellX, cellY, cellZ);
 		
-		bool beSaved = OutputArrayFileForSubRegions(arrayFilePath, transform, pair.first, pair.second);
+		bool beSaved = OutputArrayFileForSubRegionsTest(arrayFilePath, transform, pair.first, pair.second);
 	}
 	return ret;
 }
@@ -511,111 +511,6 @@ bool CPlantsSimulation::LoadAndOutputRegions()
 	std::cout << "Total regions count is " << totalRegionsCount << std::endl;
 	return ret;
 }
-
-void CPlantsSimulation::SetupRegionSubOutput(double posX, double posY, double posZ, const CAffineTransform& transform, double cellScale, int32_t lod, std::shared_ptr<RegionStruct> sub)
-{
-	const auto vfPosition = transform.WC_TO_VF(CAffineTransform::sAffineVector(posX, posY, posZ));
-
-	//cell min
-	int cellX = (int)(vfPosition.X / cellScale);
-	int cellY = (int)(vfPosition.Y / cellScale);
-	int cellZ = (int)(vfPosition.Z / cellScale);
-
-	//cell max
-	int cellX1 = cellX + 1;
-	int cellY1 = cellY + 1;
-	int cellZ1 = cellZ + 1;
-
-	//vf point 0
-	double vfPointX = (cellX * cellScale);
-	double vfPointY = (cellY * cellScale);
-	double vfPointZ = (cellZ * cellScale);
-
-	//vf point 1
-	double vfPoint1X = (cellX1 * cellScale);
-	double vfPoint1Y = (cellY1 * cellScale);
-	double vfPoint1Z = (cellZ1 * cellScale);
-
-	//vf bounds size
-	double vfBoundsSizeX = std::abs(vfPoint1X - vfPointX);
-	double vfBoundsSizeY = std::abs(vfPoint1Y - vfPointY);
-	double vfBoundsSizeZ = std::abs(vfPoint1Z - vfPointZ);
-
-	//vf min
-	double vfMinX = min(vfPointX, vfPoint1X);
-	double vfMinY = min(vfPointY, vfPoint1Y);
-	double vfMinZ = min(vfPointZ, vfPoint1Z);
-
-	//vf max
-	double vfMaxX = max(vfPointX, vfPoint1X);
-	double vfMaxY = max(vfPointY, vfPoint1Y);
-	double vfMaxZ = max(vfPointZ, vfPoint1Z);
-
-	//world point 0
-	auto worldPoint0 = transform.VF_TO_WC(CAffineTransform::sAffineVector{ vfMinX, vfMinY, vfMinZ });
-
-	//world point 1
-	auto worldPoint1 = transform.VF_TO_WC(CAffineTransform::sAffineVector{ vfMaxX, vfMaxY, vfMaxZ });
-
-	//world min
-	double worldMinX = min(worldPoint0.X, worldPoint1.X);
-	double worldMinY = min(worldPoint0.Y, worldPoint1.Y);
-	double worldMinZ = min(worldPoint0.Z, worldPoint1.Z);
-
-	//world max
-	double worldMaxX = max(worldPoint0.X, worldPoint1.X);
-	double worldMaxY = max(worldPoint0.Y, worldPoint1.Y);
-	double worldMaxZ = max(worldPoint0.Z, worldPoint1.Z);
-
-	//world bounds size
-	double worldBoundsSizeX = std::abs(worldMaxX - worldMinX);
-	double worldBoundsSizeY = std::abs(worldMaxY - worldMinY);
-	double worldBoundsSizeZ = std::abs(worldMaxZ - worldMinZ);
-
-	//world offset
-	double worldOffsetX = (posX - worldMinX);
-	double worldOffsetY = (posY - worldMinY);
-	double worldOffsetZ = (posZ - worldMinZ);
-
-	if ((posX < worldMinX) ||
-		(posY < worldMinY) ||
-		(posZ < worldMinZ) ||
-		(posX > worldMaxX) ||
-		(posY > worldMaxY) ||
-		(posZ > worldMaxZ))
-	{
-		std::cout << "pos is not in the cell" << std::endl;
-	}
-
-	if (worldOffsetX < 0 ||
-		worldOffsetY < 0 ||
-		worldOffsetZ < 0)
-	{
-		std::cout << "offset is not in the cell" << std::endl;
-	}
-
-	//cellY = 0; //Because I only 2D cellX and CellZ;
-
-	sub->cellXIdx = cellX;
-	sub->cellYIdx = cellY;
-	sub->cellZIdx = cellZ;
-
-	sub->xOffsetW = worldOffsetX;
-	sub->yOffsetW = worldOffsetY;
-	sub->zOffsetW = worldOffsetZ;
-
-	sub->posX = posX;
-	sub->posY = posY;
-	sub->posZ = posZ;
-
-	sub->vX = vfPosition.X;
-	sub->vY = vfPosition.Y;
-	sub->vZ = vfPosition.Z;
-
-	sub->cellId = VoxelFarm::packCellId(lod, cellX, cellY, cellZ);
-}
-
-
 
 bool CPlantsSimulation::LoadInputHeightMap()
 {

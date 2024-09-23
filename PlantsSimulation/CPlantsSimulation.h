@@ -114,9 +114,9 @@ private:
 	bool ExportShortHeightSlopeMap(std::vector<std::vector<short>>& slopeMap, const string& outputPath, int rgbColor, bool hasHeader, bool withRatio = false);
 	bool ExportAngleSlopeMap(std::vector<std::vector<double>>& slopeMap, const string& outputPath, int rgbColor, bool hasHeader, bool withRatio = false);
 
-	bool LoadRegions();
+	bool LoadRegionsTest();
 	bool LoadAndOutputRegions();
-	void SetupRegionSubOutput(double posX, double posY, double posZ, const CAffineTransform& transform, double cellSize, int32_t lod, std::shared_ptr<RegionStruct> sub);
+	
 public:
 	bool LoadInputData();
 	bool LoadForest();
