@@ -146,7 +146,7 @@ bool CPsInstanceExporter::loadPointInstanceFromCSV(const string& filePath, const
 		if (hasHeight)
 		{
 			std::shared_ptr<PointInstanceSubOutput> sub = std::make_shared<PointInstanceSubOutput>();
-			SetupInstanceSubOutput2(posX, posY, posZ, transform, cellSize, lod, sub);
+			SetupInstanceSubOutput(posX, posY, posZ, transform, cellSize, lod, sub);
 			sub->instanceType = static_cast<unsigned int>(InstanceType::InstanceType_Point);
 			sub->variant = variant;
 			sub->age = 1.0;
@@ -213,7 +213,7 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 			negativeHeightCount++;
 		}
 		std::shared_ptr<TreeInstanceSubOutput> sub = std::make_shared<TreeInstanceSubOutput>();
-		SetupInstanceSubOutput2(instance.posX, instance.posY, instance.posZ, transform, cellSize, m_lod, sub);
+		SetupInstanceSubOutput(instance.posX, instance.posY, instance.posZ, transform, cellSize, m_lod, sub);
 
 		sub->index = instance.index;
 		sub->instanceType = static_cast<unsigned int>(InstanceType::InstanceType_Tree);

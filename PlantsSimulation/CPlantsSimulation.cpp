@@ -343,6 +343,8 @@ bool CPlantsSimulation::LoadRegionsTest()
 	return ret;
 }
 
+
+
 bool CPlantsSimulation::LoadAndOutputRegions()
 {
 	if (!std::filesystem::exists(m_regionsRawFile)) {
@@ -377,6 +379,8 @@ bool CPlantsSimulation::LoadAndOutputRegions()
 	RemoveAllFilesInFolder(subRegionOutput_Dir);
 	
 	std::vector<std::vector<int>> regionsInt300 = Read2DIntArray(m_regionsRawFile, regionsWidth, regionsHeight);
+	bool loadAllRegionInfo = LoadRegionInfoFromCSV(m_regionsInfoFile, m_regionInfoMap);
+	std::cout << "Total region info count is " << m_regionInfoMap.size() << std::endl;
 	int regionPlaceCount = 0;
 	int maxRegionId = 0;
 	for (int x = 0; x < regionsWidth; x++)
@@ -466,7 +470,7 @@ bool CPlantsSimulation::LoadAndOutputRegions()
 		int cellZ = 0;
 		int lod = 0;
 
-		std::set<int> subRegionSet;
+		std::set<unsigned int> subRegionSet;
 
 		VoxelFarm::unpackCellId(cellId, lod, cellX, cellY, cellZ);
 		std::cout << "Cell_" << lod << "_" << cellX << "_" << cellY << "_" << cellZ << std::endl;
@@ -491,9 +495,17 @@ bool CPlantsSimulation::LoadAndOutputRegions()
 
 					int regionValue = regionsInt300[iIndexX][iIndexY];
 					scaledArray[x][y] = regionValue;
-					subRegionsCount++;
-					totalRegionsCount++;
-					subRegionSet.insert(regionValue);
+					if (regionValue != 0)
+					{
+						subRegionsCount++;
+						totalRegionsCount++;
+						subRegionSet.insert(regionValue);
+					}
+					else
+					{
+						//std::cout << "there is x : " << x << " y : " << y << " region value is zero" << std::endl;
+					}
+						
 				}
 				else
 				{
@@ -504,8 +516,10 @@ bool CPlantsSimulation::LoadAndOutputRegions()
 
 		std::cout << "Cell_" << lod << "_" << cellX << "_" << cellY << "_" << cellZ << " has regions count : " << subRegionsCount << std::endl;
 		string arrayFilePath = Get2DArrayFilePathForRegion(subRegionOutput_Dir, lod, cellX, cellY, cellZ);
+		bool saveSubRaw = Write2DArrayAsRaw(arrayFilePath, scaledArray);
 
-		bool saved = Write2DArrayAsRaw(arrayFilePath, scaledArray);
+		string subRegionInfoPath = GetSubRegionInfoOutputCSVFilePathForRegion(subRegionOutput_Dir, lod, cellX, cellY, cellZ);
+		bool saveSubInfo = SaveSubRegionInfoToCSVFile(subRegionInfoPath, m_regionInfoMap, subRegionSet);
 	}
 	
 	std::cout << "Total regions count is " << totalRegionsCount << std::endl;

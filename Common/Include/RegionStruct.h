@@ -21,7 +21,7 @@ struct RegionInfo
 	unsigned int minHeight;
 	unsigned int maxHeight;
 	unsigned int nearSea;
-	unsigned int avarageHumidity;
+	unsigned int averageHumidity;
 	unsigned int treeCount;
 	unsigned short eId;
 	RegionInfo()
@@ -31,7 +31,7 @@ struct RegionInfo
 		, minHeight(0)
 		, maxHeight(0)
 		, nearSea(0)
-		, avarageHumidity(0)
+		, averageHumidity(0)
 		, treeCount(0)
 		, eId(0)
 	{

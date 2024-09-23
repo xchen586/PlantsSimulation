@@ -1,5 +1,7 @@
 #include "CAppFuncs.h"
 
+#include <cassert>
+
 std::string Get2DArrayFilePathForRegion(const string& outputDir, int lod, int intXIdx, int intYIdx, int intZIdx)
 {
 	const int MAX_PATH = 250;
@@ -19,7 +21,7 @@ std::string Get2DArrayFilePathForRegion(const string& outputDir, int lod, int in
 	return ret;
 }
 
-std::string GetRawInfoOutputCSVFilePathForRegion(const string& outputDir, int lod, int intXIdx, int intYIdx, int intZIdx)
+std::string GetSubRegionInfoOutputCSVFilePathForRegion(const string& outputDir, int lod, int intXIdx, int intYIdx, int intZIdx)
 {
 	const int MAX_PATH = 250;
 	char subFileName[MAX_PATH];
@@ -36,6 +38,103 @@ std::string GetRawInfoOutputCSVFilePathForRegion(const string& outputDir, int lo
 
 	string ret = subFilePath;
 	return ret;
+}
+
+bool LoadRegionInfoFromCSV(const string& filePath, RegionInfoMap& regionInfoMap)
+{
+	std::cout << "Start to LoadRegionInfoFromCSV from : " << filePath << std::endl;
+	std::ifstream file(filePath);
+	if (!file.is_open()) {
+		std::cerr << "Failed to open the csv file :" << filePath << std::endl;
+		return false;
+	}
+	regionInfoMap.clear();
+
+	std::string header;
+	std::getline(file, header);
+
+	std::string line;
+
+	while (std::getline(file, line)) {
+		std::stringstream lineStream(line);
+		std::string cell;
+
+		std::vector<std::string> row;
+		while (std::getline(lineStream, cell, ','))
+		{
+			row.push_back(cell);
+		}
+		// This checks for a trailing comma with no data after it.
+		if (!lineStream && cell.empty())
+		{
+			// If there was a trailing comma then add an empty element.
+			row.push_back("");
+		}
+
+		std::shared_ptr<RegionInfo> info = std::make_shared<RegionInfo>();
+		string regionIdString = row[static_cast<size_t>(Region_Info_CSV_Columns::RI_Col_RegionId)];
+		string areaString = row[static_cast<size_t>(Region_Info_CSV_Columns::RI_Col_Area)];
+		string averageHeightString = row[static_cast<size_t>(Region_Info_CSV_Columns::RI_Col_AvgHeight)];
+		string minHeightString = row[static_cast<size_t>(Region_Info_CSV_Columns::RI_Col_MinHeight)];
+		string maxHeightString = row[static_cast<size_t>(Region_Info_CSV_Columns::RI_Col_MaxHeight)];
+		string nearSeaString = row[static_cast<size_t>(Region_Info_CSV_Columns::RI_Col_NearSea)];
+		string averageHumidityString = row[static_cast<size_t>(Region_Info_CSV_Columns::RI_Col_AvgHumidity)];
+		string treeCountString = row[static_cast<size_t>(Region_Info_CSV_Columns::RI_Col_TreeCount)];
+
+		info->regionId = static_cast<unsigned int>(std::stoul(regionIdString));
+		info->area = static_cast<unsigned int>(std::stoul(areaString));
+		info->averageHeight = static_cast<unsigned int>(std::stoul(averageHeightString));
+		info->minHeight = static_cast<unsigned int>(std::stoul(minHeightString));
+		info->maxHeight = static_cast<unsigned int>(std::stoul(maxHeightString));
+		info->nearSea = static_cast<unsigned int>(std::stoul(nearSeaString));
+		info->averageHumidity = static_cast<unsigned int>(std::stoul(averageHumidityString));
+		info->treeCount = static_cast<unsigned int>(std::stoul(treeCountString));
+		info->eId = info->regionId;
+
+		pair<unsigned int, shared_ptr<RegionInfo>> pair(info->regionId, info);
+		regionInfoMap.insert(pair);
+	}
+
+	file.close();
+	std::cout << "End to LoadRegionInfoFromCSV from : " << filePath << std::endl;
+	return true;
+}
+
+bool SaveSubRegionInfoToCSVFile(const string& filePath, RegionInfoMap& regionInfoMap, std::set<unsigned int> subSet)
+{
+	std::cout << "Start to SaveSubRegionInfoToCSVFile to : " << filePath << std::endl;
+
+	std::ofstream outputFile(filePath);
+	if (!outputFile.is_open()) {
+		std::cerr << "Error: Unable to open the sub csv file " << filePath << std::endl;
+		return false;
+	}
+
+	outputFile << "RegionId,Area,AvgHeight,MinHeight,MaxHeight,NearSea,AvgHumidity,TreeCount,ExtrId" << std::endl;
+
+	for (unsigned int rid : subSet)
+	{
+		shared_ptr<RegionInfo> info = regionInfoMap[rid];
+		assert(info != nullptr);
+		if (info != nullptr)
+		{
+			outputFile
+				<< info->regionId << ","
+				<< info->area << ","
+				<< info->averageHeight << ","
+				<< info->minHeight << ","
+				<< info->maxHeight << ","
+				<< info->nearSea << ","
+				<< info->averageHumidity << ","
+				<< info->treeCount << ","
+				<< info->eId << std::endl;
+		}
+	}
+
+	outputFile.close();
+	std::cout << "End to SaveSubRegionInfoToCSVFile to : " << filePath << std::endl;
+	
+	return true;
 }
 
 void SetupRegionSubOutput(double posX, double posY, double posZ, const CAffineTransform& transform, double cellScale, int32_t lod, std::shared_ptr<RegionStruct> sub)
@@ -246,7 +345,7 @@ bool OutputArrayFileForSubRegionsTest(const string& filePath, const CAffineTrans
 	return saved;
 }
 
-void SetupInstanceSubOutput2(double posX, double posY, double posZ, const CAffineTransform& transform, double cellScale, int32_t lod, std::shared_ptr<InstanceSubOutput> sub)
+void SetupInstanceSubOutput(double posX, double posY, double posZ, const CAffineTransform& transform, double cellScale, int32_t lod, std::shared_ptr<InstanceSubOutput> sub)
 {
 	const auto vfPosition = transform.WC_TO_VF(CAffineTransform::sAffineVector(posX, posY, posZ));
 
