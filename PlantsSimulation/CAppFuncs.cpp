@@ -79,7 +79,9 @@ bool LoadRegionInfoFromCSV(const string& filePath, RegionInfoMap& regionInfoMap)
 		string maxHeightString = row[static_cast<size_t>(Region_Info_CSV_Columns::RI_Col_MaxHeight)];
 		string nearSeaString = row[static_cast<size_t>(Region_Info_CSV_Columns::RI_Col_NearSea)];
 		string averageHumidityString = row[static_cast<size_t>(Region_Info_CSV_Columns::RI_Col_AvgHumidity)];
-		string treeCountString = row[static_cast<size_t>(Region_Info_CSV_Columns::RI_Col_TreeCount)];
+		//string treeCountString = row[static_cast<size_t>(Region_Info_CSV_Columns::RI_Col_TreeCount)];
+		string type1String = row[static_cast<size_t>(Region_Info_CSV_Columns::RI_COL_Type1)];
+		string nameString = row[static_cast<size_t>(Region_Info_CSV_Columns::RI_COL_Name)];
 
 		info->regionId = static_cast<unsigned int>(std::stoul(regionIdString));
 		info->area = static_cast<unsigned int>(std::stoul(areaString));
@@ -88,7 +90,9 @@ bool LoadRegionInfoFromCSV(const string& filePath, RegionInfoMap& regionInfoMap)
 		info->maxHeight = static_cast<unsigned int>(std::stoul(maxHeightString));
 		info->nearSea = static_cast<unsigned int>(std::stoul(nearSeaString));
 		info->averageHumidity = static_cast<unsigned int>(std::stoul(averageHumidityString));
-		info->treeCount = static_cast<unsigned int>(std::stoul(treeCountString));
+		//info->treeCount = static_cast<unsigned int>(std::stoul(treeCountString));
+		info->type1 = type1String;
+		info->name = nameString;
 		info->eId = info->regionId;
 
 		pair<unsigned int, shared_ptr<RegionInfo>> pair(info->regionId, info);
@@ -110,7 +114,17 @@ bool SaveSubRegionInfoToCSVFile(const string& filePath, RegionInfoMap& regionInf
 		return false;
 	}
 
-	outputFile << "RegionId,Area,AvgHeight,MinHeight,MaxHeight,NearSea,AvgHumidity,TreeCount,ExtrId" << std::endl;
+	outputFile << "RegionId" << ","
+		<< "Area" << "," 
+		<< "AvgHeight" << ","
+		<< "MinHeight" << ","
+		<< "MaxHeight" << ","
+		<< "NearSea" << ","
+		<< "AvgHumidity" << ","
+		//<< "TreeCount" << ","
+		<< "type 1" << ","
+		<< "Name" << ","
+		<< "ExtrId" << std::endl;
 
 	for (unsigned int rid : subSet)
 	{
@@ -126,7 +140,9 @@ bool SaveSubRegionInfoToCSVFile(const string& filePath, RegionInfoMap& regionInf
 				<< info->maxHeight << ","
 				<< info->nearSea << ","
 				<< info->averageHumidity << ","
-				<< info->treeCount << ","
+				//<< info->treeCount << ","
+				<< info->type1 << ","
+				<< info->name << ","
 				<< info->eId << std::endl;
 		}
 	}

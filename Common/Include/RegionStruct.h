@@ -9,7 +9,9 @@ enum struct Region_Info_CSV_Columns {
 	RI_Col_MaxHeight,
 	RI_Col_NearSea,
 	RI_Col_AvgHumidity,
-	RI_Col_TreeCount,
+	//RI_Col_TreeCount,
+	RI_COL_Type1,
+	RI_COL_Name,
 	RI_Col_EId,
 };
 
@@ -22,7 +24,9 @@ struct RegionInfo
 	unsigned int maxHeight;
 	unsigned int nearSea;
 	unsigned int averageHumidity;
-	unsigned int treeCount;
+	//unsigned int treeCount;
+	string type1;
+	string name;
 	unsigned short eId;
 	RegionInfo()
 		: regionId(0)
@@ -32,7 +36,9 @@ struct RegionInfo
 		, maxHeight(0)
 		, nearSea(0)
 		, averageHumidity(0)
-		, treeCount(0)
+		//, treeCount(0)
+		, type1("")
+		, name("")
 		, eId(0)
 	{
 		
