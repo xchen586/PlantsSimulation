@@ -442,10 +442,15 @@ bool CPlantsSimulation::LoadAndOutputRegions()
 	const int max_vx = static_cast<int>(std::max(topVf.X, bottomVf.X) / cellScale);
 	const int max_vy = static_cast<int>(std::max(topVf.Z, bottomVf.Z) / cellScale);
 
+	int stepX = max_vx - min_vx;
+	int stepY = max_vy - min_vy;
+	std::cout << "Cells XStep max_vx - min_vx = " << stepX << std::endl;
+	std::cout << "Cells YStep max_vy - min_vy = " << stepY << std::endl;
+
 	std::set<VoxelFarm::CellId> cellSet;
-	for (int x = min_vx; x < max_vx; x++)
+	for (int x = min_vx; x <= max_vx; x++) // use <=  to increase the cells  
 	{
-		for (int y = min_vy; y < max_vy; y++)
+		for (int y = min_vy; y <= max_vy; y++) // use <=  to increase the cells
 		{
 			VoxelFarm::CellId cell = VoxelFarm::packCellId(region_lod, x, 0, y);
 			cellSet.insert(cell);
