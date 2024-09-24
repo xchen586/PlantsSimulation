@@ -24,6 +24,8 @@
 #define USE_SIMPLE_PC_OUTPUT 0
 #endif
 
+#pragma once
+
 #ifndef USE_OUTPUT_HEIGHT_MAP_CSV
 #define USE_OUTPUT_HEIGHT_MAP_CSV 0
 #endif

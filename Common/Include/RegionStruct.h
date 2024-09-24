@@ -1,5 +1,5 @@
 #pragma once
-#include "PsHelper.h"
+#include "CellCoordStruct.h"
 
 enum struct Region_Info_CSV_Columns {
 	RI_Col_RegionId,
@@ -12,6 +12,8 @@ enum struct Region_Info_CSV_Columns {
 	//RI_Col_TreeCount,
 	RI_COL_Type1,
 	RI_COL_Name,
+	RI_COL_CentroidX,
+	RI_COL_CentroidY,
 	RI_Col_EId,
 };
 
@@ -27,7 +29,10 @@ struct RegionInfo
 	//unsigned int treeCount;
 	string type1;
 	string name;
+	unsigned int centroidX;
+	unsigned int centroidY;
 	unsigned short eId;
+	CellCoordStruct centroidCoord;
 	RegionInfo()
 		: regionId(0)
 		, area(0)
@@ -50,39 +55,13 @@ struct RegionStruct
 	int regionsId;
 	int rX;
 	int rY;
-	int cellXIdx;
-	int cellYIdx;
-	int cellZIdx;
-	double posX;
-	double posY;
-	double posZ;
-	double vX;
-	double vY;
-	double vZ;
-	
-	double xOffsetW;
-	double yOffsetW;
-	double zOffsetW;
 
-	VoxelFarm::CellId cellId;
+	CellCoordStruct coord;
 
 	RegionStruct(int id, int x, int y)
 		: regionsId(id)
 		, rX(x)
 		, rY(y)
-		, cellXIdx(0)
-		, cellYIdx(0)
-		, cellZIdx(0)
-		, posX(0.0)
-		, posY(0.0)
-		, posZ(0.0)
-		, vX(0.0)
-		, vY(0.0)
-		, vZ(0.0)
-		, xOffsetW(0.0)
-		, yOffsetW(0.0)
-		, zOffsetW(0.0)
-		, cellId(0)
 	{
 
 	}

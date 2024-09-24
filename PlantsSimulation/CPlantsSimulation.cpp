@@ -285,13 +285,9 @@ bool CPlantsSimulation::LoadRegionsTest()
 				double posY = yPos + batch_min_y + y0;
 				double posZ = zPos;
 
-				reg->posX = posX;
-				reg->posY = posY;
-				reg->posZ = posZ;
-
-				SetupRegionSubOutput(posX, posY, posZ, transform, cellScale, region_lod, reg);
+				bool beSetup = reg->coord.SetupCellCoordinate(posX, posY, posZ, transform, region_lod);
 				//string keyString = GetKeyStringForRegion(m_outputDir, reg->cellXIdx, reg->cellZIdx);
-				VoxelFarm::CellId keyId = reg->cellId;
+				VoxelFarm::CellId keyId = reg->coord.cellId;
 				RegionSubOutputMap::iterator iter = m_regionMap.find(keyId);
 				if (m_regionMap.end() == iter)
 				{
@@ -380,7 +376,9 @@ bool CPlantsSimulation::LoadAndOutputRegions()
 	
 	std::vector<std::vector<int>> regionsInt300 = Read2DIntArray(m_regionsRawFile, regionsWidth, regionsHeight);
 	bool loadAllRegionInfo = LoadRegionInfoFromCSV(m_regionsInfoFile, m_regionInfoMap);
+	
 	std::cout << "Total region info count is " << m_regionInfoMap.size() << std::endl;
+	
 	int regionPlaceCount = 0;
 	int maxRegionId = 0;
 	for (int x = 0; x < regionsWidth; x++)
@@ -407,17 +405,26 @@ bool CPlantsSimulation::LoadAndOutputRegions()
 	int region_lod = 10;
 	const double cellScale = (1 << region_lod) * VoxelFarm::CELL_SIZE;
 
-	const int regionWidthScale = 100;
-	const int regionHeightScale = 100;
-	const int cellArrayWidth = static_cast<int>(cellScale / regionWidthScale);
-	const int cellArrayHeight = static_cast<int>(cellScale / regionHeightScale);
-
 	double xRatio = m_topLayerMeta->xRatio;
 	double yRatio = m_topLayerMeta->yRatio;
 	double batch_min_x = m_topLayerMeta->batch_min_x;
 	double batch_min_y = m_topLayerMeta->batch_min_y;
 	double x0 = m_topLayerMeta->x0;
 	double y0 = m_topLayerMeta->y0;
+
+	for (auto pair : m_regionInfoMap)
+	{
+		shared_ptr<RegionInfo> reg = pair.second;
+		double posX = batch_min_x + x0 + reg->centroidX;
+		double posY = batch_min_y + y0 + reg->centroidY;
+		double posZ = 0;
+		reg->centroidCoord.SetupCellCoordinate(posX, posY, posZ, transform, region_lod);
+	}
+
+	const int regionWidthScale = 100;
+	const int regionHeightScale = 100;
+	const int cellArrayWidth = static_cast<int>(cellScale / regionWidthScale);
+	const int cellArrayHeight = static_cast<int>(cellScale / regionHeightScale);
 
 	const int worldTileWidth = 30000;
 	const int worldTileHeight = 30000;

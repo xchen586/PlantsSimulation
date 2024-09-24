@@ -82,6 +82,8 @@ bool LoadRegionInfoFromCSV(const string& filePath, RegionInfoMap& regionInfoMap)
 		//string treeCountString = row[static_cast<size_t>(Region_Info_CSV_Columns::RI_Col_TreeCount)];
 		string type1String = row[static_cast<size_t>(Region_Info_CSV_Columns::RI_COL_Type1)];
 		string nameString = row[static_cast<size_t>(Region_Info_CSV_Columns::RI_COL_Name)];
+		string centroidXString = row[static_cast<size_t>(Region_Info_CSV_Columns::RI_COL_CentroidX)];
+		string centroidYString = row[static_cast<size_t>(Region_Info_CSV_Columns::RI_COL_CentroidY)];
 
 		info->regionId = static_cast<unsigned int>(std::stoul(regionIdString));
 		info->area = static_cast<unsigned int>(std::stoul(areaString));
@@ -93,6 +95,8 @@ bool LoadRegionInfoFromCSV(const string& filePath, RegionInfoMap& regionInfoMap)
 		//info->treeCount = static_cast<unsigned int>(std::stoul(treeCountString));
 		info->type1 = type1String;
 		info->name = nameString;
+		info->centroidX = static_cast<unsigned int>(std::stoul(centroidXString));
+		info->centroidY = static_cast<unsigned int>(std::stoul(centroidYString));
 		info->eId = info->regionId;
 
 		pair<unsigned int, shared_ptr<RegionInfo>> pair(info->regionId, info);
@@ -124,6 +128,8 @@ bool SaveSubRegionInfoToCSVFile(const string& filePath, RegionInfoMap& regionInf
 		//<< "TreeCount" << ","
 		<< "type 1" << ","
 		<< "Name" << ","
+		<< "CentroidX" << ","
+		<< "CentroidY" << ","
 		<< "ExtrId" << std::endl;
 
 	for (unsigned int rid : subSet)
@@ -143,6 +149,8 @@ bool SaveSubRegionInfoToCSVFile(const string& filePath, RegionInfoMap& regionInf
 				//<< info->treeCount << ","
 				<< info->type1 << ","
 				<< info->name << ","
+				<< info->centroidCoord.xOffsetW << ","
+				<< info->centroidCoord.yOffsetW << ","
 				<< info->eId << std::endl;
 		}
 	}
@@ -153,108 +161,6 @@ bool SaveSubRegionInfoToCSVFile(const string& filePath, RegionInfoMap& regionInf
 	return true;
 }
 
-void SetupRegionSubOutput(double posX, double posY, double posZ, const CAffineTransform& transform, double cellScale, int32_t lod, std::shared_ptr<RegionStruct> sub)
-{
-	const auto vfPosition = transform.WC_TO_VF(CAffineTransform::sAffineVector(posX, posY, posZ));
-
-	//cell min
-	int cellX = (int)(vfPosition.X / cellScale);
-	int cellY = (int)(vfPosition.Y / cellScale);
-	int cellZ = (int)(vfPosition.Z / cellScale);
-
-	//cell max
-	int cellX1 = cellX + 1;
-	int cellY1 = cellY + 1;
-	int cellZ1 = cellZ + 1;
-
-	//vf point 0
-	double vfPointX = (cellX * cellScale);
-	double vfPointY = (cellY * cellScale);
-	double vfPointZ = (cellZ * cellScale);
-
-	//vf point 1
-	double vfPoint1X = (cellX1 * cellScale);
-	double vfPoint1Y = (cellY1 * cellScale);
-	double vfPoint1Z = (cellZ1 * cellScale);
-
-	//vf bounds size
-	double vfBoundsSizeX = std::abs(vfPoint1X - vfPointX);
-	double vfBoundsSizeY = std::abs(vfPoint1Y - vfPointY);
-	double vfBoundsSizeZ = std::abs(vfPoint1Z - vfPointZ);
-
-	//vf min
-	double vfMinX = min(vfPointX, vfPoint1X);
-	double vfMinY = min(vfPointY, vfPoint1Y);
-	double vfMinZ = min(vfPointZ, vfPoint1Z);
-
-	//vf max
-	double vfMaxX = max(vfPointX, vfPoint1X);
-	double vfMaxY = max(vfPointY, vfPoint1Y);
-	double vfMaxZ = max(vfPointZ, vfPoint1Z);
-
-	//world point 0
-	auto worldPoint0 = transform.VF_TO_WC(CAffineTransform::sAffineVector{ vfMinX, vfMinY, vfMinZ });
-
-	//world point 1
-	auto worldPoint1 = transform.VF_TO_WC(CAffineTransform::sAffineVector{ vfMaxX, vfMaxY, vfMaxZ });
-
-	//world min
-	double worldMinX = min(worldPoint0.X, worldPoint1.X);
-	double worldMinY = min(worldPoint0.Y, worldPoint1.Y);
-	double worldMinZ = min(worldPoint0.Z, worldPoint1.Z);
-
-	//world max
-	double worldMaxX = max(worldPoint0.X, worldPoint1.X);
-	double worldMaxY = max(worldPoint0.Y, worldPoint1.Y);
-	double worldMaxZ = max(worldPoint0.Z, worldPoint1.Z);
-
-	//world bounds size
-	double worldBoundsSizeX = std::abs(worldMaxX - worldMinX);
-	double worldBoundsSizeY = std::abs(worldMaxY - worldMinY);
-	double worldBoundsSizeZ = std::abs(worldMaxZ - worldMinZ);
-
-	//world offset
-	double worldOffsetX = (posX - worldMinX);
-	double worldOffsetY = (posY - worldMinY);
-	double worldOffsetZ = (posZ - worldMinZ);
-
-	if ((posX < worldMinX) ||
-		(posY < worldMinY) ||
-		(posZ < worldMinZ) ||
-		(posX > worldMaxX) ||
-		(posY > worldMaxY) ||
-		(posZ > worldMaxZ))
-	{
-		std::cout << "pos is not in the cell" << std::endl;
-	}
-
-	if (worldOffsetX < 0 ||
-		worldOffsetY < 0 ||
-		worldOffsetZ < 0)
-	{
-		std::cout << "offset is not in the cell" << std::endl;
-	}
-
-	//cellY = 0; //Because I only 2D cellX and CellZ;
-
-	sub->cellXIdx = cellX;
-	sub->cellYIdx = cellY;
-	sub->cellZIdx = cellZ;
-
-	sub->xOffsetW = worldOffsetX;
-	sub->yOffsetW = worldOffsetY;
-	sub->zOffsetW = worldOffsetZ;
-
-	sub->posX = posX;
-	sub->posY = posY;
-	sub->posZ = posZ;
-
-	sub->vX = vfPosition.X;
-	sub->vY = vfPosition.Y;
-	sub->vZ = vfPosition.Z;
-
-	sub->cellId = VoxelFarm::packCellId(lod, cellX, cellY, cellZ);
-}
 
 bool OutputArrayFileForSubRegionsTest(const string& filePath, const CAffineTransform& transform, VoxelFarm::CellId cellId, std::shared_ptr<RegionSubOutputVector> subVector)
 {
@@ -322,8 +228,8 @@ bool OutputArrayFileForSubRegionsTest(const string& filePath, const CAffineTrans
 
 	for (const std::shared_ptr<RegionStruct>& sub : *subVector)
 	{
-		double dIndexX = (sub->vX - vfMinX) / scaleWidthRate;
-		double dIndexZ = (sub->vZ - vfMinZ) / scaleHeightRate;
+		double dIndexX = (sub->coord.vX - vfMinX) / scaleWidthRate;
+		double dIndexZ = (sub->coord.vZ - vfMinZ) / scaleHeightRate;
 		int iIndexX = static_cast<int>(dIndexX);
 		int iIndexZ = static_cast<int>(dIndexZ);
 
