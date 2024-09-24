@@ -34,10 +34,12 @@ folder_id = '90F6348AD5D94FCEA85C7C1CD081CE97' # Pangea Next > Instances
 
 entity_id = 'E0070AD37D4543FCB9E70D60AE47541D' # cosmin new
 
+game_tree_entity_id_property = 'E0070AD37D4543FCB9E70D60AE47541D' # cosmin new
+#game_tree_entity_id_property = "536674D5E8D440D9A7EFCD1D879AD57A" # cosmin old
+#game_tree_entity_id_property = "3A3CFEBA226B4692A8719C78335470DD"  #game entity 
+
 #entity_id = "536674D5E8D440D9A7EFCD1D879AD57A" # cosmin old
 #entity_id = "3A3CFEBA226B4692A8719C78335470DD"  #xc tesst
-
-version = 80
 
 tiles = 10
 
