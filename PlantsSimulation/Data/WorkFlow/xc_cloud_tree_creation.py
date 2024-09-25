@@ -1198,6 +1198,8 @@ def tree_instances_generation(config_path):
 
     most_travelled_points_path = os.path.join(road_output_folder, f'{tiles_count}_{tiles_x}_{tiles_y}_Most_Travelled_Points.csv') 
     most_distant_points_path = os.path.join(road_output_folder, f'{tiles_count}_{tiles_x}_{tiles_y}_Most_Distant_Points.csv') 
+    regions_raw_path = os.path.join(road_output_folder, f'{tiles_count}_{tiles_x}_{tiles_y}_regions.raw') 
+    regions_info_path = os.path.join(road_output_folder, f'{tiles_count}_{tiles_x}_{tiles_y}_regions_info.csv') 
     
     tree_ini_folder = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}') 
     tree_ini_name = 'TreesInstancesAbsolutePathWin.ini'
@@ -1360,6 +1362,8 @@ def tree_instances_generation(config_path):
         create_or_update_ini_file(tree_ini_path, section_input, 'Most_Travelled_Points', most_travelled_points_path)
         create_or_update_ini_file(tree_ini_path, section_input, 'Most_Distant_Points', most_distant_points_path)
         create_or_update_ini_file(tree_ini_path, section_input, 'Tree_List', tree_list)
+        create_or_update_ini_file(tree_ini_path, section_input, 'Regions_Raw', regions_raw_path)
+        create_or_update_ini_file(tree_ini_path, section_input, 'Regions_Info', regions_info_path)
         
         create_or_update_ini_file(tree_ini_path, section_output, 'Output_Dir', tree_output_base_folder)
         create_or_update_ini_file(tree_ini_path, section_others, 'Lod', tree_lod)
@@ -1489,7 +1493,10 @@ def tree_instances_generation(config_path):
         tree_instance_output_folder = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', 'instanceoutput')
         #update_attach_files_for_entity(api, project_id, tree_entity_id, tree_instance_output_folder, f'instances_lod8_{tiles_count}_{tiles_x}_{tiles_y}-{version}', version=version, color=True)
         update_attach_files_for_entity(api, project_id, tree_entity_id, tree_instance_output_folder)
-        lambda_host.log(f'update_attach_files_for_entity for {tree_entity_id}')
+        lambda_host.log(f'update_attach_files_for_entity tree instances for {tree_entity_id}')
+        regions_output_folder = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', 'regionoutput')
+        update_attach_files_for_entity(api, project_id, tree_entity_id, regions_output_folder)
+        lambda_host.log(f'update_attach_files_for_entity cell regions for {tree_entity_id}')
 
     if run_create_geochem_entity:
         lambda_host.log(f'step for to run_create_geochem_entity!')
