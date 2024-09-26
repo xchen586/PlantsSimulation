@@ -1248,6 +1248,7 @@ def tree_instances_generation(config_path):
     run_make_tree_instances = read_ini_value(config_path, section_run, 'run_make_tree_instances', value_type=bool)
     run_upload_tree_instances = read_ini_value(config_path, section_run, 'run_upload_tree_instances', value_type=bool)
     run_create_geochem_entity = read_ini_value(config_path, section_run, 'run_create_geochem_entity', value_type=bool)
+    run_generate_road_input = read_ini_value(config_path, section_run, 'run_generate_road_input', value_type=bool)
 
     road_Heightmap_width = read_ini_value(config_path, section_road, 'road_Heightmap_width', value_type=int)
     road_heightmap_height = read_ini_value(config_path, section_road, 'road_heightmap_height', value_type=int)
@@ -1439,6 +1440,9 @@ def tree_instances_generation(config_path):
         create_or_update_ini_file(tree_ini_path, section_others, 'Lod', tree_lod)
         create_or_update_ini_file(tree_ini_path, section_others, 'Forest_Age', forest_age)
         create_or_update_ini_file(tree_ini_path, section_others, 'Tree_Iteration', tree_iteration)
+        
+        create_or_update_ini_file(tree_ini_path, section_options,'Only_Road_Data', run_generate_road_input)
+        
         lambda_host.log(f'End to write tree instance ini files : {tree_ini_path}')
         tree_ini_string = ini_file_to_string(tree_ini_path)
         lambda_host.log(f'Tree ini file content is :')
@@ -1558,6 +1562,9 @@ def tree_instances_generation(config_path):
             lambda_host.log(f'Error: The process ({tree_exe_command}) returned a non-zero exit code ({return_code_tree}).')
             exit_code(2)
             return -1
+        
+    #if run_generate_road_input:
+        # todo to triger update road data
 
     if run_upload_smooth_layer:
         lambda_host.log(f'step for to run_upload_smooth_layer : {worldgen_command}')
@@ -1686,6 +1693,7 @@ def tree_config_creation(ini_path):
     create_or_update_ini_file(ini_path, section_run, 'run_make_tree_instances', is_run_make_tree_instances)
     create_or_update_ini_file(ini_path, section_run, 'run_upload_tree_instances', is_run_upload_tree_instances)
     create_or_update_ini_file(ini_path, section_run, 'run_create_geochem_entity', is_run_create_geochem_entity)
+    create_or_update_ini_file(ini_path, section_run, 'run_generate_road_input', is_run_generate_road_input)
 
     create_or_update_ini_file(ini_path, section_road, 'road_Heightmap_width', 300)
     create_or_update_ini_file(ini_path, section_road, 'road_heightmap_height', 300)
@@ -1777,6 +1785,7 @@ is_run_upload_basemeshes = lambda_host.input_string('run_upload_basemeshes', 'ru
 is_run_make_tree_instances = lambda_host.input_string('run_make_tree_instances', 'run_make_tree_instances', '')
 is_run_upload_tree_instances = lambda_host.input_string('run_upload_tree_instances', 'run_upload_tree_instances', '')
 is_run_create_geochem_entity = lambda_host.input_string('run_create_geochem_entity', 'run_create_geochem_entity', '')
+is_run_generate_road_input = lambda_host.input_string('run_generate_road_input', 'run_generate_road_input', '')
 
 lambda_host.log('is_run_update_basemeshes_assets: ' + is_run_update_basemeshes_assets)
 lambda_host.log('is_run_road_exe: ' + is_run_road_exe)
@@ -1787,6 +1796,7 @@ lambda_host.log('is_run_upload_basemeshes: ' + is_run_upload_basemeshes)
 lambda_host.log('is_run_make_tree_instances: ' + is_run_make_tree_instances)
 lambda_host.log('is_run_upload_tree_instances: ' + is_run_upload_tree_instances)
 lambda_host.log('is_run_create_geochem_entity: ' + is_run_create_geochem_entity)
+lambda_host.log('is_run_generate_road_input: ' + is_run_generate_road_input)
 
 lambda_host.log('is_run_make_tree_instances is ' + is_run_make_tree_instances)
 if is_run_make_tree_instances == "True":
