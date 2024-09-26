@@ -256,19 +256,17 @@ def tree_generation_on_receive_data(
     qtree_active_version_property = request.get_product_property('QUADTREE_FILES', 'raw_data')
     tools_active_version_property = request.get_product_property('TOOLS_FILES', 'raw_data')
     
-    #game_tree_entity_id_property = 'E0070AD37D4543FCB9E70D60AE47541D' # cosmin new
-    #game_tree_entity_id_property = "536674D5E8D440D9A7EFCD1D879AD57A" # cosmin old
-    #game_tree_entity_id_property = "3A3CFEBA226B4692A8719C78335470DD"  #xc test
-    game_tree_entity_id_property = '3A3CFEBA226B4692A8719C78335470DD' 
+    #game_tree_entity_id_property = '0B4C084415C744B48B4BD13D9990E713' # xuan test 
+    game_tree_entity_id_property = "3A3CFEBA226B4692A8719C78335470DD"  #game entity 
     
     tree_instances_folder_id_property = '90F6348AD5D94FCEA85C7C1CD081CE97' #Pangea Next -> Instances
     tree_geochems_folder_id_property = 'C2C9E711B8A74E0FB8401646BCF3396C' #Pangea Next -> Workflow Output -> Workflow Tree GeoChems Output
-    output_result_basemeshes_folder_id_property = '68396F90F7CE48B4BA1412EA020ED92A' #Pangea Next -> Workflow Output -> Workflow BaseMeshes Output
+    workflow_output_version_folder_id_property = '68396F90F7CE48B4BA1412EA020ED92A' #Pangea Next -> Workflow Output -> Workflow BaseMeshes Output
     
     if request.version_folder_id != None:
         tree_instances_folder_id_property = request.version_folder_id
         tree_geochems_folder_id_property = request.version_folder_id
-        output_result_basemeshes_folder_id_property = request.version_folder_id
+        workflow_output_version_folder_id_property = request.version_folder_id
         lambda_host.log(f'Assign the output folder id as request.version_folder_id : {request.version_folder_id}')
 
     result = lambda_host.process_lambda_entity(
@@ -277,7 +275,7 @@ def tree_generation_on_receive_data(
         inputs={
             'tree_instances_folder_id_property': tree_instances_folder_id_property,
             'game_tree_entity_id_property': game_tree_entity_id_property,
-            'output_result_basemeshes_folder_id_property': output_result_basemeshes_folder_id_property,
+            'workflow_output_version_folder_id_property': workflow_output_version_folder_id_property,
             'tree_geochems_folder_id_property': tree_geochems_folder_id_property,
             'lambda_entity_id': request.raw_entity_id,
             'project_id': request.project_id,
@@ -291,6 +289,7 @@ def tree_generation_on_receive_data(
             'run_update_basemeshes_assets': False,
             'run_road_exe': True,
             'run_worldgen_road': True,
+            'run_upload_smooth_layer': True,
             'run_make_basemeshes': True,
             'run_upload_basemeshes': False,
             'run_make_tree_instances':True,
@@ -308,7 +307,7 @@ def tree_generation_on_receive_data(
         files=['xc_cloud_tree_creation.py', 'xc_lambda-uploaddb.py'],
         update_type='msg')
 
-    return {'success': True, 'complete': False, 'error_info': ''}
+    return {'success': result.success, 'complete': False, 'error_info': ''}
 
 def tree_generation_on_stage_complete(
         vf_api : voxelfarmclient.rest,
@@ -358,12 +357,12 @@ def basemeshes_generation_on_receive_data(
     game_tree_entity_id_property = '3A3CFEBA226B4692A8719C78335470DD' 
     
     tree_instances_folder_id_property = '90F6348AD5D94FCEA85C7C1CD081CE97' #Pangea Next -> Instances
-    output_result_basemeshes_folder_id_property = '68396F90F7CE48B4BA1412EA020ED92A' #Pangea Next -> Workflow Output -> Workflow BaseMeshes Output
+    workflow_output_version_folder_id_property = '68396F90F7CE48B4BA1412EA020ED92A' #Pangea Next -> Workflow Output -> Workflow BaseMeshes Output
     tree_geochems_folder_id_property = 'C2C9E711B8A74E0FB8401646BCF3396C' #Pangea Next -> Workflow Output -> Workflow Tree GeoChems Output    
     if request.version_folder_id != None:
         tree_instances_folder_id_property = request.version_folder_id
         tree_geochems_folder_id_property = request.version_folder_id
-        output_result_basemeshes_folder_id_property = request.version_folder_id
+        workflow_output_version_folder_id_property = request.version_folder_id
         lambda_host.log(f'Assign the output folder id as request.version_folder_id : {request.version_folder_id}')
     
     result = lambda_host.process_lambda_entity(
@@ -372,7 +371,7 @@ def basemeshes_generation_on_receive_data(
         inputs={
             'tree_instances_folder_id_property': tree_instances_folder_id_property,
             'game_tree_entity_id_property': game_tree_entity_id_property,
-            'output_result_basemeshes_folder_id_property': output_result_basemeshes_folder_id_property,
+            'workflow_output_version_folder_id_property': workflow_output_version_folder_id_property,
             'tree_geochems_folder_id_property': tree_geochems_folder_id_property,
             'lambda_entity_id': request.raw_entity_id,
             'project_id': request.project_id,
@@ -386,6 +385,7 @@ def basemeshes_generation_on_receive_data(
             'run_update_basemeshes_assets': False,
             'run_road_exe': False,
             'run_worldgen_road': False,
+            'run_upload_smooth_layer': False,
             'run_make_basemeshes': True,
             'run_upload_basemeshes': True,
             'run_make_tree_instances':False,
@@ -402,8 +402,8 @@ def basemeshes_generation_on_receive_data(
         code='xc_cloud_tree_creation.py',
         files=['xc_cloud_tree_creation.py', 'xc_lambda-uploaddb.py'],
         update_type='msg')
-
-    return {'success': True, 'complete': False, 'error_info': ''}
+    
+    return {'success': result.success, 'complete': False, 'error_info': ''}
 
 def basemeshes_generation_on_stage_complete(
         vf_api : voxelfarmclient.rest,
