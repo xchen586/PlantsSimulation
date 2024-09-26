@@ -1484,18 +1484,6 @@ def tree_instances_generation(config_path):
             lambda_host.log(f'Error: The process ({worldgen_command}) returned a non-zero exit code ({return_code_worldgen_road}).')
             exit_code(2)
             return -1
-        
-    if run_upload_smooth_layer:
-        lambda_host.log(f'step for to run_upload_smooth_layer : {worldgen_command}')
-        process_file_image(api, Project_id, Workflow_Output_Result_Folder_id, toplayer_image_path, toplayer_image_meta_path, toplevel_image_entity_base_name)
-        
-        process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, toplevel_file_path, api.entity_type.VoxelTerrain, toplevel_layer_entity_base_name, color=True)
-        process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, level1_file_path, api.entity_type.VoxelTerrain, level1_layer_entity_base_name, color=True)
-        process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, bedrock_file_path, api.entity_type.VoxelTerrain, bedrock_layer_entity_base_name, color=True)
-
-        #process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, toplevel_file_path, api.entity_type.IndexedPointCloud, toplevel_layer_entity_base_name, color=True)
-        #process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, level1_file_path, api.entity_type.IndexedPointCloud, level1_layer_entity_base_name, color=True)
-        #process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, bedrock_file_path, api.entity_type.IndexedPointCloud, bedrock_layer_entity_base_name, color=True)
     
     if run_make_basemeshes:
         if use_basemesh_ini:
@@ -1571,6 +1559,18 @@ def tree_instances_generation(config_path):
             exit_code(2)
             return -1
 
+    if run_upload_smooth_layer:
+        lambda_host.log(f'step for to run_upload_smooth_layer : {worldgen_command}')
+        process_file_image(api, Project_id, Workflow_Output_Result_Folder_id, toplayer_image_path, toplayer_image_meta_path, toplevel_image_entity_base_name)
+        
+        process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, toplevel_file_path, api.entity_type.VoxelTerrain, toplevel_layer_entity_base_name, color=True)
+        process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, level1_file_path, api.entity_type.VoxelTerrain, level1_layer_entity_base_name, color=True)
+        process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, bedrock_file_path, api.entity_type.VoxelTerrain, bedrock_layer_entity_base_name, color=True)
+
+        #process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, toplevel_file_path, api.entity_type.IndexedPointCloud, toplevel_layer_entity_base_name, color=True)
+        #process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, level1_file_path, api.entity_type.IndexedPointCloud, level1_layer_entity_base_name, color=True)
+        #process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, bedrock_file_path, api.entity_type.IndexedPointCloud, bedrock_layer_entity_base_name, color=True)
+        
     tree_instance_output_folder_name = 'instanceoutput'
     regions_output_folder_name = 'regionoutput'
     geo_chemical_folder_name = 'GeoChemical'
