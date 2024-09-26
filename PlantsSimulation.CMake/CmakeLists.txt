@@ -20,12 +20,14 @@ include_directories(
 set(PUBLIC_HEADER_FILES
 	../Common/Include/CCellInfo.h
 	../Common/Include/CColonizationTree.h
+	../Common/Include/CellCoordStruct.h
 	../Common/Include/CTimeCounter.h
 	../Common/Include/Instance.h
 	../Common/Include/PointInstance.h
 	../Common/Include/PsHelper.h
 	../Common/Include/PsIniParser.h
 	../Common/Include/PsMarco.h
+	../Common/Include/RegionStruct.h
 	../Common/Include/stb_image.h
 	../Common/Include/stb_image_write.h
 	../Common/Include/TreeInstance.h
@@ -35,13 +37,14 @@ set(PUBLIC_HEADER_FILES
 
 set(PUBLIC_SOURCE_FILES
 	../Common/Include/CCellInfo.cpp
-    ../Common/Include/CColonizationTree.cpp
+    	../Common/Include/CColonizationTree.cpp
 	../Common/Include/CTimeCounter.cpp
 	../Common/Include/PsHelper.cpp
 	../Common/Include/TreeInstance.cpp
 )
 
 set(PRIVATE_HEADER_FILES
+	../PlantsSimulation/CAppFuncs.h
 	../PlantsSimulation/CCellI2DMask.h
 	../PlantsSimulation/CForest.h
 	../PlantsSimulation/CHeightDensity.h
@@ -56,9 +59,10 @@ set(PRIVATE_HEADER_FILES
 )
 
 set(PRIVATE_SOURCE_FILES
+	../PlantsSimulation/CAppFuncs.cpp
 	../PlantsSimulation/CForest.cpp
-    ../PlantsSimulation/CPlantsSimulation.cpp
-    ../PlantsSimulation/CPsInstanceExporter.cpp
+    	../PlantsSimulation/CPlantsSimulation.cpp
+    	../PlantsSimulation/CPsInstanceExporter.cpp
 )
 
 set(MAIN_SOURCE_FILE
