@@ -532,6 +532,72 @@ def process_file_image(api : voxelfarmclient.rest, project_id, folder_id, file_p
             'source_ortho': entity_id
         }, crs = crs)
     lambda_host.log(f'Created entity {result.id} for {name}-{version}')
+    
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------
+def process_point_cloud(api : voxelfarmclient.rest, file_path_txt2las, project_id, folder_id, file_path,  entityType, entity_basename : str, color : bool):
+
+    lambda_host.log(f'process_point_cloud project id = {project_id}')
+    lambda_host.log(f'process_point_cloud parent folder id = {folder_id}')
+    lambda_host.log(f'process_point_cloud point cloud file path = {file_path}') 
+    lambda_host.log(f'process_point_cloud txt2las file path = {file_path_txt2las}') 
+    
+    if not os.path.exists(file_path):
+        lambda_host.log(f'Point cloud file {file_path} does not exist')
+        return
+    if not os.path.exists(file_path_txt2las):
+        lambda_host.log(f'Tool txt2las File {file_path_txt2las} does not exist')
+        return
+
+    # Run txt2las to convert the txt file to a laz file
+    file_path_laz = file_path + '.laz'
+    subprocess.run([
+        #'C:\\Work\\SDK\\Voxel-Farm-Examples\\Python\\txt2las.exe', '-i', file_path, '-o', file_path_laz,  
+        file_path_txt2las, '-i', file_path, '-o', file_path_laz,  
+        '-set_version', '1.4', 
+        '-set_system_identifier', 'Pangea Next Procgren', 
+        '-set_generating_software', 'Pangea Next Procgren',
+        '-parse', 'xyzRGB' if color else 'xyz',], 
+        stdout=subprocess.PIPE)
+
+    result = api.get_project_crs(project_id)
+    crs = result.crs
+    
+    project_entity = api.get_entity(project_id)
+    version = int(project_entity['version']) + 1 if 'version' in project_entity else 1
+    api.update_entity(project=project_id, id=project_id, fields={'version': version})
+    
+    result = api.create_folder(project=project_id, name=f'Smooth Layer Version {version}', folder=folder_id)
+    if not result.success:
+        lambda_host.log(f'Failed to Smooth Layer file folder for version {version}!')
+        return 
+    entity_folder_id = result.id
+    lambda_host.log(f'Successful to Smooth Layer file folder {entity_folder_id} for version {version}!')
+    
+    result = api.create_entity_raw(project=project_id, 
+        type=api.entity_type.RawPointCloud, 
+        name=f'{entity_basename}-{entityType}-{version}_src', 
+        fields={
+            'file_folder': entity_folder_id,
+        }, crs = crs)
+    entity_id = result.id
+
+    with open(file_path_laz, 'rb') as f:
+        api.attach_files(project=project_id, id=entity_id, files={'file': f})
+    lambda_host.log(f'Attaching file {file_path_laz} to entity {entity_id}')
+    
+    result = api.create_entity_processed(project=project_id, 
+        #type=api.entity_type.VoxelTerrain, 
+        #type=api.entity_type.IndexedPointCloud,
+        type = entityType,
+        name=f'{entity_basename}-{entityType}-{version}', 
+        fields={
+            'source': entity_id,
+            'source_type': 'RAWPC',
+            'file_folder': entity_folder_id,
+            #'source_ortho' if color else '_source_ortho': entity_id
+        }, crs = crs)
+    lambda_host.log(f'Created entity {result.id} for {entity_basename} {version}')
+
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------
 def on_upload_db_succeessfull(vf, project_id, entity_id, output_dir):
     #lambda_host.progress(99, 'Uploading results')
@@ -996,7 +1062,7 @@ def xc_process_base_meshes(api : voxelfarmclient.rest, basemeshes_output_folder_
     #basemeshes_project_id = '1D4CBBD1D957477E8CC3FF376FB87470' #Project: "My Projects > Pangea Next"
     #basemeshes_db_parent_folderId = 'CBF17A5E89EF4BA2A9A619CC57FBDA93' #Folder: "My Projects > Pangea Next > Basemeshes_Workflow"
     basemeshes_project_id = Project_id #Project: "My Projects > Pangea Next"
-    basemeshes_db_parent_folderId = Output_Result_Basemeshes_Folder_id
+    basemeshes_db_parent_folderId = basemeshes_result_folder_id
     basemeshes_project_entity = api.get_entity(basemeshes_project_id)
     test_version = basemeshes_project_entity['basemeshes_version']
     lambda_host.log(f'-----------------test version: {test_version}!-----------------')
@@ -1156,6 +1222,7 @@ def tree_instances_generation(config_path):
     road_input_folder = read_ini_value(config_path, section_input, 'road_input_folder')
     road_exe_path = read_ini_value(config_path, section_input, 'road_exe_path')
     worldgen_exe_path = read_ini_value(config_path, section_input, 'worldgen_exe_path')
+    txt2las_exe_path = read_ini_value(config_path, section_input, 'txt2las_exe_path')
     basemeshes_exe_path = read_ini_value(config_path, section_input, 'basemeshes_exe_path')
     tree_exe_path = read_ini_value(config_path, section_input, 'tree_exe_path')
     qtree_assets_folder = read_ini_value(config_path, section_input, 'qtree_assets_folder')
@@ -1175,6 +1242,7 @@ def tree_instances_generation(config_path):
     run_update_basemeshes_assets = read_ini_value(config_path, section_run, 'run_update_basemeshes_assets', value_type=bool)
     run_road_exe = read_ini_value(config_path, section_run, 'run_road_exe', value_type=bool)
     run_worldgen_road = read_ini_value(config_path, section_run, 'run_worldgen_road', value_type=bool)
+    run_upload_smooth_layer = read_ini_value(config_path, section_run, 'run_upload_smooth_layer', value_type=bool)
     run_make_basemeshes = read_ini_value(config_path, section_run, 'run_make_basemeshes', value_type=bool)
     run_upload_basemeshes = read_ini_value(config_path, section_run, 'run_upload_basemeshes', value_type=bool)
     run_make_tree_instances = read_ini_value(config_path, section_run, 'run_make_tree_instances', value_type=bool)
@@ -1223,22 +1291,24 @@ def tree_instances_generation(config_path):
     basemeshes_1_heightmap_mask_path = os.path.join(basemeshes_heightmap_folder, basemeshes_1_heightmap_mask_name)
 
     smoothlayer_output_folder = os.path.join(smoothlayer_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}')
-    toplayer_image_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.jpg'
-    toplayer_image_meta_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.jgw'
     toplayer_heightmap_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.height.raw'
     toplayer_heightmap_mask_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.height.masks.raw'
     level1_heightmap_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_level1.xyz.height.raw'
     level1_heightmap_mask_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_level1.xyz.height.masks.raw'
-    toplayer_image_path = os.path.join(smoothlayer_output_folder, toplayer_image_name)
-    toplayer_image_meta_path = os.path.join(smoothlayer_output_folder, toplayer_image_meta_name)
+    
     toplayer_heightmap_path = os.path.join(smoothlayer_output_folder, toplayer_heightmap_name)
     toplayer_heightmap_mask_path = os.path.join(smoothlayer_output_folder, toplayer_heightmap_mask_name)
     level1_heightmap_path = os.path.join(smoothlayer_output_folder, level1_heightmap_name)
     level1_heightmap_mask_path = os.path.join(smoothlayer_output_folder, level1_heightmap_mask_name)
     
+    toplayer_image_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.jpg'
+    toplayer_image_meta_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.jgw'
     toplevel_file_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz'
     level1_file_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_level1.xyz'
     bedrock_file_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_bedrock.xyz'
+    
+    toplayer_image_path = os.path.join(smoothlayer_output_folder, toplayer_image_name)
+    toplayer_image_meta_path = os.path.join(smoothlayer_output_folder, toplayer_image_meta_name)
     toplevel_file_path = os.path.join(smoothlayer_output_folder, toplevel_file_name)
     level1_file_path = os.path.join(smoothlayer_output_folder, level1_file_name)
     bedrock_file_path = os.path.join(smoothlayer_output_folder, bedrock_file_name)
@@ -1399,6 +1469,10 @@ def tree_instances_generation(config_path):
             return -1
     
     toplevel_image_entity_base_name = f'RoadImage_{tiles_count}_{tile_x}_{tiles_y}'
+    toplevel_layer_entity_base_name = f'TopLevel_{tiles_count}_{tile_x}_{tiles_y}'
+    level1_layer_entity_base_name = f'Level1_{tiles_count}_{tile_x}_{tiles_y}'
+    bedrock_layer_entity_base_name = f'BedRock_level_{tiles_count}_{tile_x}_{tiles_y}'
+    
     if run_worldgen_road:
         lambda_host.log(f'step for to run_worldgen_road : {worldgen_command}')
         ##### Generate the height map and image for smooth layer. 
@@ -1411,7 +1485,17 @@ def tree_instances_generation(config_path):
             exit_code(2)
             return -1
         
-        process_file_image(api, Project_id, tree_instances_folder_id, toplayer_image_path, toplayer_image_meta_path, toplevel_image_entity_base_name)
+    if run_upload_smooth_layer:
+        lambda_host.log(f'step for to run_upload_smooth_layer : {worldgen_command}')
+        process_file_image(api, Project_id, Workflow_Output_Result_Folder_id, toplayer_image_path, toplayer_image_meta_path, toplevel_image_entity_base_name)
+        
+        process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, toplevel_file_path, api.entity_type.VoxelTerrain, toplevel_layer_entity_base_name, color=True)
+        process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, level1_file_path, api.entity_type.VoxelTerrain, level1_layer_entity_base_name, color=True)
+        process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, bedrock_file_path, api.entity_type.VoxelTerrain, bedrock_layer_entity_base_name, color=True)
+
+        #process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, toplevel_file_path, api.entity_type.IndexedPointCloud, toplevel_layer_entity_base_name, color=True)
+        #process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, level1_file_path, api.entity_type.IndexedPointCloud, level1_layer_entity_base_name, color=True)
+        #process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, bedrock_file_path, api.entity_type.IndexedPointCloud, bedrock_layer_entity_base_name, color=True)
     
     if run_make_basemeshes:
         if use_basemesh_ini:
@@ -1517,7 +1601,7 @@ def tree_instances_generation(config_path):
         ##### upload basemeshes voxel database to cloud.
         basemeshes_output_folder = basemeshes_db_base_folder
         
-        basemeshes_result_folder_id = Output_Result_Basemeshes_Folder_id
+        basemeshes_result_folder_id = Workflow_Output_Result_Folder_id
         xc_process_base_meshes(api, basemeshes_output_folder, Project_id, basemeshes_result_folder_id)
         lambda_host.log(f'xc_process_base_meshes for {basemeshes_output_folder}')
         
@@ -1552,6 +1636,8 @@ def tree_config_creation(ini_path):
     basemeshes_exe_path = os.path.join(Tools_folder, basemeshes_exe_name)
     worldgen_exe_name = f'WorldGen.exe'
     worldgen_exe_path = os.path.join(Tools_folder, worldgen_exe_name)
+    txt2las_exe_name = 'txt2las.exe'
+    txt2las_exe_path = os.path.join(Tools_folder, txt2las_exe_name)
     tree_exe_name = f'PlantsSimulation.exe'
     tree_exe_path = os.path.join(Tools_folder, tree_exe_name)
     qtree_assets_folder = Data_folder
@@ -1579,6 +1665,7 @@ def tree_config_creation(ini_path):
     create_or_update_ini_file(ini_path, section_input, 'road_exe_path', road_exe_path)
     create_or_update_ini_file(ini_path, section_input, 'basemeshes_exe_path', basemeshes_exe_path)
     create_or_update_ini_file(ini_path, section_input, 'worldgen_exe_path', worldgen_exe_path)
+    create_or_update_ini_file(ini_path, section_input, 'txt2las_exe_path', txt2las_exe_path)
     create_or_update_ini_file(ini_path, section_input, 'tree_exe_path', tree_exe_path)
     create_or_update_ini_file(ini_path, section_input, 'qtree_assets_folder', qtree_assets_folder)
     create_or_update_ini_file(ini_path, section_input, 'treelist_data_path', treelist_data_path)
@@ -1593,6 +1680,7 @@ def tree_config_creation(ini_path):
     create_or_update_ini_file(ini_path, section_run, 'run_update_basemeshes_assets', is_run_update_basemeshes_assets)
     create_or_update_ini_file(ini_path, section_run, 'run_road_exe', is_run_road_exe)
     create_or_update_ini_file(ini_path, section_run, 'run_worldgen_road', is_run_worldgen_road)
+    create_or_update_ini_file(ini_path, section_run, 'run_upload_smooth_layer', is_run_upload_smooth_layer)
     create_or_update_ini_file(ini_path, section_run, 'run_make_basemeshes', is_run_make_basemeshes)
     create_or_update_ini_file(ini_path, section_run, 'run_upload_basemeshes', is_run_upload_basemeshes)
     create_or_update_ini_file(ini_path, section_run, 'run_make_tree_instances', is_run_make_tree_instances)
@@ -1683,6 +1771,7 @@ lambda_host.log('tools_active_version_property: ' + tools_active_version_propert
 is_run_update_basemeshes_assets = lambda_host.input_string('run_update_basemeshes_assets', 'run_update_basemeshes_assets', '') 
 is_run_road_exe = lambda_host.input_string('run_road_exe', 'run_road_exe', '')
 is_run_worldgen_road = lambda_host.input_string('run_worldgen_road', 'run_worldgen_road', '')
+is_run_upload_smooth_layer = lambda_host.input_string('run_upload_smooth_layer', 'run_upload_smooth_layer', '')
 is_run_make_basemeshes = lambda_host.input_string('run_make_basemeshes', 'run_make_basemeshes', '')
 is_run_upload_basemeshes = lambda_host.input_string('run_upload_basemeshes', 'run_upload_basemeshes', '')
 is_run_make_tree_instances = lambda_host.input_string('run_make_tree_instances', 'run_make_tree_instances', '')
@@ -1692,6 +1781,7 @@ is_run_create_geochem_entity = lambda_host.input_string('run_create_geochem_enti
 lambda_host.log('is_run_update_basemeshes_assets: ' + is_run_update_basemeshes_assets)
 lambda_host.log('is_run_road_exe: ' + is_run_road_exe)
 lambda_host.log('is_run_worldgen_road: ' + is_run_worldgen_road)
+lambda_host.log('is_run_upload_smooth_layer: ' + is_run_upload_smooth_layer)
 lambda_host.log('is_run_make_basemeshes: ' + is_run_make_basemeshes)
 lambda_host.log('is_run_upload_basemeshes: ' + is_run_upload_basemeshes)
 lambda_host.log('is_run_make_tree_instances: ' + is_run_make_tree_instances)
@@ -1771,8 +1861,8 @@ Tree_Instances_Folder_id = lambda_host.input_string('tree_instances_folder_id_pr
 lambda_host.log(f'Tree_Instances_Folder_id: {Tree_Instances_Folder_id}')
 Game_Tree_Entity_id = lambda_host.input_string('game_tree_entity_id_property', 'Game Tree Entity id', '')
 lambda_host.log(f'Game_Tree_Entity_id: {Game_Tree_Entity_id}')
-Output_Result_Basemeshes_Folder_id = lambda_host.input_string('output_result_basemeshes_folder_id_property', 'Output Result Basemeshes Folder id', '')
-lambda_host.log(f'Output_Result_Basemeshes_Folder_id: {Output_Result_Basemeshes_Folder_id}')
+Workflow_Output_Result_Folder_id = lambda_host.input_string('workflow_output_version_folder_id_property', 'Output Result Basemeshes Folder id', '')
+lambda_host.log(f'Workflow_Output_Result_Folder_id: {Workflow_Output_Result_Folder_id}')
 Tree_Geochems_Folder_id = lambda_host.input_string('tree_geochems_folder_id_property', 'Tree Geochems Folder id', '')
 lambda_host.log(f'Tree_Geochems_Folder_id: {Tree_Geochems_Folder_id}')
 
