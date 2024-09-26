@@ -1398,6 +1398,7 @@ def tree_instances_generation(config_path):
             exit_code(2)
             return -1
     
+    toplevel_image_entity_base_name = f'RoadImage_{tiles_count}_{tile_x}_{tiles_y}'
     if run_worldgen_road:
         lambda_host.log(f'step for to run_worldgen_road : {worldgen_command}')
         ##### Generate the height map and image for smooth layer. 
@@ -1410,7 +1411,7 @@ def tree_instances_generation(config_path):
             exit_code(2)
             return -1
         
-        process_file_image(api, Project_id, tree_instances_folder_id, toplayer_image_path, toplayer_image_meta_path, )
+        process_file_image(api, Project_id, tree_instances_folder_id, toplayer_image_path, toplayer_image_meta_path, toplevel_image_entity_base_name)
     
     if run_make_basemeshes:
         if use_basemesh_ini:
