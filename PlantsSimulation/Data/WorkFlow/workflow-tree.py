@@ -264,8 +264,8 @@ def tree_generation_on_receive_data(
     qtree_active_version_property = request.get_product_property('QUADTREE_FILES', 'raw_data')
     tools_active_version_property = request.get_product_property('TOOLS_FILES', 'raw_data')
     
-    game_tree_entity_id_property = '0B4C084415C744B48B4BD13D9990E713' # xuan test 
-    #game_tree_entity_id_property = "3A3CFEBA226B4692A8719C78335470DD"  #game entity 
+    #game_tree_entity_id_property = '0B4C084415C744B48B4BD13D9990E713' # xuan test 
+    game_tree_entity_id_property = "3A3CFEBA226B4692A8719C78335470DD"  #game entity 
     
     tree_instances_folder_id_property = '90F6348AD5D94FCEA85C7C1CD081CE97' #Pangea Next -> Instances
     tree_geochems_folder_id_property = 'C2C9E711B8A74E0FB8401646BCF3396C' #Pangea Next -> Workflow Output -> Workflow Tree GeoChems Output
