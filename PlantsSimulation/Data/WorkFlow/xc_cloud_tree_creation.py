@@ -596,7 +596,7 @@ def process_point_cloud(api : voxelfarmclient.rest, file_path_txt2las, project_i
             'file_folder': entity_folder_id,
             #'source_ortho' if color else '_source_ortho': entity_id
         }, crs = crs)
-    lambda_host.log(f'Created entity {result.id} for {entity_basename} {version}')
+    lambda_host.log(f'Created entity {result.id} for {entity_basename}-{entityType}-{version}')
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------
 def on_upload_db_succeessfull(vf, project_id, entity_id, output_dir):
@@ -1484,7 +1484,7 @@ def tree_instances_generation(config_path):
             lambda_host.log(f'Error: The process ({worldgen_command}) returned a non-zero exit code ({return_code_worldgen_road}).')
             exit_code(2)
             return -1
-    
+        
     if run_make_basemeshes:
         if use_basemesh_ini:
             lambda_host.log(f'step for run basemeshes with ini : {basemeshvoxelizer_ini_command}')
@@ -1811,7 +1811,7 @@ lambda_host.log('displacement_data_path: ' + displacement_data_path)
 lambda_host.log('qtree_data_path: ' + qtree_data_path)
 lambda_host.log('tools_data_path: ' + tools_data_path)
 
-Tree_Data_Folder_Name = f'Tree_Instances_Creation'
+Tree_Data_Folder_Name = 'Tree_Instances_Creation'
 Data_folder = os.path.join(scrap_folder, Tree_Data_Folder_Name)
 g_Lambda_Info_ini_name = 'lambda_info.ini'
 g_Lambda_Info_ini_path = os.path.join(Data_folder, g_Lambda_Info_ini_name)
@@ -1901,7 +1901,7 @@ days, hours = divmod(hours, 24)
 # Format the execution time
 formatted_time = "{:02}:{:02}:{:02}:{:02}:{:03}".format(days, hours, minutes, seconds, milliseconds)
 lambda_host.log(f'Tree instance generation Whole Execution time : {formatted_time}')
-lambda_host.log("Whole Execution time :", formatted_time)
+lambda_host.log(f'Whole Execution time :", {formatted_time}')
 
 if run_result == 0:
     lambda_host.progress(100, 'QuadTree lambda finished')
