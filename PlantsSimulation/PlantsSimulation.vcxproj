@@ -136,8 +136,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(TargetPath)" "D:\Downloads\TreeCreation\Tools"
-copy "$(TargetPath)" "D:\Downloads\TreeCreation_bak\Tools"</Command>
+      <Command>copy "$(TargetPath)" "D:\Downloads\XCTreeWorkFlow\Tools"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -146,6 +145,7 @@ copy "$(TargetPath)" "D:\Downloads\TreeCreation_bak\Tools"</Command>
     <ClCompile Include="..\Common\Include\CTimeCounter.cpp" />
     <ClCompile Include="..\Common\Include\PsHelper.cpp" />
     <ClCompile Include="..\Common\Include\TreeInstance.cpp" />
+    <ClCompile Include="CAppFuncs.cpp" />
     <ClCompile Include="CForest.cpp" />
     <ClCompile Include="CPlantsSimulation.cpp" />
     <ClCompile Include="CPsInstanceExporter.cpp" />
@@ -154,17 +154,20 @@ copy "$(TargetPath)" "D:\Downloads\TreeCreation_bak\Tools"</Command>
   <ItemGroup>
     <ClInclude Include="..\Common\Include\CCellInfo.h" />
     <ClInclude Include="..\Common\Include\CColonizationTree.h" />
+    <ClInclude Include="..\Common\Include\CellCoordStruct.h" />
     <ClInclude Include="..\Common\Include\CTimeCounter.h" />
     <ClInclude Include="..\Common\Include\Instance.h" />
     <ClInclude Include="..\Common\Include\PointInstance.h" />
     <ClInclude Include="..\Common\Include\PsHelper.h" />
     <ClInclude Include="..\Common\Include\PsIniParser.h" />
     <ClInclude Include="..\Common\Include\PsMarco.h" />
+    <ClInclude Include="..\Common\Include\RegionStruct.h" />
     <ClInclude Include="..\Common\Include\stb_image.h" />
     <ClInclude Include="..\Common\Include\stb_image_write.h" />
     <ClInclude Include="..\Common\Include\TreeInstance.h" />
     <ClInclude Include="..\Common\Include\Utils.h" />
     <ClInclude Include="..\Common\Include\VoxelFarmPlatform.h" />
+    <ClInclude Include="CAppFuncs.h" />
     <ClInclude Include="CCellI2DMask.h" />
     <ClInclude Include="CForest.h" />
     <ClInclude Include="CHeightDensity.h" />

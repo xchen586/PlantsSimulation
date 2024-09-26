@@ -45,6 +45,9 @@
     <ClCompile Include="CPsInstanceExporter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CAppFuncs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CPlantsSimulation.h">
@@ -117,6 +120,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Common\Include\PsIniParser.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Include\RegionStruct.h">
+      <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="CAppFuncs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Common\Include\CellCoordStruct.h">
       <Filter>Common</Filter>
     </ClInclude>
   </ItemGroup>
