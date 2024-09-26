@@ -1486,24 +1486,30 @@ def tree_instances_generation(config_path):
             exit_code(2)
             return -1
 
+    tree_instance_output_folder_name = 'instanceoutput'
+    regions_output_folder_name = 'regionoutput'
+    geo_chemical_folder_name = 'GeoChemical'
+    
+    tree_instance_output_folder_path = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', tree_instance_output_folder_name)
+    regions_output_folder_path = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', regions_output_folder_name)
+    geo_chemical_folder_path = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', geo_chemical_folder_name)
+    
     if run_upload_tree_instances:
         lambda_host.log(f'step for to run_upload_tree_instances')
-        ##### Update the tree instance files of tree entity.
-        #workflow_api = workflow_lambda.workflow_lambda_host()
-        tree_instance_output_folder = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', 'instanceoutput')
+        ##### Update the tree instance files of tree entity. 
         #update_attach_files_for_entity(api, project_id, tree_entity_id, tree_instance_output_folder, f'instances_lod8_{tiles_count}_{tiles_x}_{tiles_y}-{version}', version=version, color=True)
-        update_attach_files_for_entity(api, project_id, tree_entity_id, tree_instance_output_folder)
-        lambda_host.log(f'update_attach_files_for_entity tree instances for {tree_entity_id}')
-        regions_output_folder = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', 'regionoutput')
-        update_attach_files_for_entity(api, project_id, tree_entity_id, regions_output_folder)
-        lambda_host.log(f'update_attach_files_for_entity cell regions for {tree_entity_id}')
+        update_attach_files_for_entity(api, project_id, tree_entity_id, tree_instance_output_folder_path)
+        lambda_host.log(f'update_attach_files_for_entity tree instances from {tree_instance_output_folder_path} for {tree_entity_id}')
+        
+        ##### Update the tree region files of tree entity. 
+        update_attach_files_for_entity(api, project_id, tree_entity_id, regions_output_folder_path)
+        lambda_host.log(f'update_attach_files_for_entity cell regions from {regions_output_folder_path} for {tree_entity_id}')
 
     if run_create_geochem_entity:
         lambda_host.log(f'step for to run_create_geochem_entity!')
         ##### create the geochem entity for tree instance files.
-        geo_chemical_folder = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', 'GeoChemical')
-        create_geochem_tree_entity(api, geo_chemical_folder)
-        lambda_host.log(f'create_geochem_tree_entity for {geo_chemical_folder}')
+        create_geochem_tree_entity(api, geo_chemical_folder_path)
+        lambda_host.log(f'create_geochem_tree_entity from {geo_chemical_folder_path}')
 
     if run_upload_basemeshes:
         lambda_host.log(f'step for to run_upload_basemeshes')
