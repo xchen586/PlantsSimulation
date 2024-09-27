@@ -1643,7 +1643,8 @@ def tree_config_creation(ini_path):
     basemeshes_exe_path = os.path.join(Tools_folder, basemeshes_exe_name)
     worldgen_exe_name = f'WorldGen.exe'
     worldgen_exe_path = os.path.join(Tools_folder, worldgen_exe_name)
-    txt2las_exe_name = 'txt2las.exe'
+    #txt2las_exe_name = 'txt2las.exe'
+    txt2las_exe_name = 'txt2las64.exe'
     txt2las_exe_path = os.path.join(Tools_folder, txt2las_exe_name)
     tree_exe_name = f'PlantsSimulation.exe'
     tree_exe_path = os.path.join(Tools_folder, tree_exe_name)
