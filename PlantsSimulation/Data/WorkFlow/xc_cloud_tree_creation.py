@@ -479,7 +479,7 @@ def create_geochem_tree_entity(api, geo_chemical_folder):
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-def process_file_image(api : voxelfarmclient.rest, project_id, folder_id, file_path, jgw_path : str, name : str):
+def process_file_image(api : voxelfarmclient.rest, project_id, folder_id, file_path, jgw_path : str, name : str, version : int):
 
     lambda_host.log(f'process_file_image project id = {project_id}')
     lambda_host.log(f'process_file_image parent folder id = {folder_id}')
@@ -495,7 +495,8 @@ def process_file_image(api : voxelfarmclient.rest, project_id, folder_id, file_p
     
     result = api.get_project_crs(project_id)
     crs = result.crs
-    
+
+    '''
     project_entity = api.get_entity(project_id)
     version = int(project_entity['version']) + 1 if 'version' in project_entity else 1
     api.update_entity(project=project_id, id=project_id, fields={'version': version})
@@ -506,7 +507,8 @@ def process_file_image(api : voxelfarmclient.rest, project_id, folder_id, file_p
         return 
     entity_folder_id = result.id
     lambda_host.log(f'Successful to create image file folder {entity_folder_id} for version!')
-
+    '''
+    entity_folder_id = folder_id
     result = api.create_entity_raw(project=project_id, 
             type=api.entity_type.IndexedOrthoImagery, 
             name=f'{name}-{version}_src', 
@@ -534,7 +536,7 @@ def process_file_image(api : voxelfarmclient.rest, project_id, folder_id, file_p
     lambda_host.log(f'Created entity {result.id} for {name}-{version}')
     
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------
-def process_point_cloud(api : voxelfarmclient.rest, file_path_txt2las, project_id, folder_id, file_path,  entityType, entity_basename : str, color : bool):
+def process_point_cloud(api : voxelfarmclient.rest, file_path_txt2las, project_id, folder_id, file_path,  entityType, entity_basename : str, version : int, color : bool):
 
     lambda_host.log(f'process_point_cloud project id = {project_id}')
     lambda_host.log(f'process_point_cloud parent folder id = {folder_id}')
@@ -562,6 +564,7 @@ def process_point_cloud(api : voxelfarmclient.rest, file_path_txt2las, project_i
     result = api.get_project_crs(project_id)
     crs = result.crs
     
+    '''
     project_entity = api.get_entity(project_id)
     version = int(project_entity['version']) + 1 if 'version' in project_entity else 1
     api.update_entity(project=project_id, id=project_id, fields={'version': version})
@@ -572,7 +575,8 @@ def process_point_cloud(api : voxelfarmclient.rest, file_path_txt2las, project_i
         return 
     entity_folder_id = result.id
     lambda_host.log(f'Successful to Smooth Layer file folder {entity_folder_id} for version {version}!')
-    
+    '''
+    entity_folder_id = folder_id
     result = api.create_entity_raw(project=project_id, 
         type=api.entity_type.RawPointCloud, 
         name=f'{entity_basename}-{entityType}-{version}_src', 
@@ -1048,12 +1052,13 @@ def do_process_base_meshes(api : voxelfarmclient.rest, project_id, basemeshes_db
     lambda_host.log(f'End do_process_base_meshes Created entity {result.id} for {entity_name}')
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------
-def xc_process_base_meshes(api : voxelfarmclient.rest, basemeshes_output_folder_path, basemeshes_result_project_id, basemeshes_result_folder_id):
+def xc_process_base_meshes(api : voxelfarmclient.rest, basemeshes_output_folder_path, basemeshes_result_project_id, basemeshes_result_folder_id, version : int):
     
     level0_db_output_folder = os.path.join(basemeshes_output_folder_path, f'{tile_size}_{tile_x}_{tile_y}_0')
     level1_db_output_folder = os.path.join(basemeshes_output_folder_path, f'{tile_size}_{tile_x}_{tile_y}_1')
-    project_entity = api.get_entity(basemeshes_result_project_id)
-    version = int(project_entity['version']) + 1 if 'version' in project_entity else 1
+
+    #project_entity = api.get_entity(basemeshes_result_project_id)
+    #version = int(project_entity['version']) + 1 if 'version' in project_entity else 1
     #api.update_entity(project=basemeshes_result_project_id, id=basemeshes_result_project_id, fields={'version': version})
     #level0_entity_name = f'Workflow_Basemeshes_{tile_size}_{tile_x}_{tile_y}_0-ver-{version}'
     #level1_entity_name = f'Workflow_Basemeshes_{tile_size}_{tile_x}_{tile_y}_1-ver-{version}'
@@ -1061,7 +1066,10 @@ def xc_process_base_meshes(api : voxelfarmclient.rest, basemeshes_output_folder_
     #basemeshes_project_id = '74F0C96BF0F24DA2BB5AE4ED65D81D8C'
     #basemeshes_project_id = '1D4CBBD1D957477E8CC3FF376FB87470' #Project: "My Projects > Pangea Next"
     #basemeshes_db_parent_folderId = 'CBF17A5E89EF4BA2A9A619CC57FBDA93' #Folder: "My Projects > Pangea Next > Basemeshes_Workflow"
+
     basemeshes_project_id = Project_id #Project: "My Projects > Pangea Next"
+
+    '''
     basemeshes_db_parent_folderId = basemeshes_result_folder_id
     basemeshes_project_entity = api.get_entity(basemeshes_project_id)
     test_version = basemeshes_project_entity['basemeshes_version']
@@ -1070,14 +1078,15 @@ def xc_process_base_meshes(api : voxelfarmclient.rest, basemeshes_output_folder_
     api.update_entity(project=basemeshes_project_id, id=basemeshes_project_id, fields={'basemeshes_version': basemeshes_version})  
     lambda_host.log(f'-----------------Successful to get basemeshes_version {basemeshes_version}!-----------------')
     
-
     result = api.create_folder(project=basemeshes_project_id, name=f'Base Meshes Version {basemeshes_version}', folder=basemeshes_db_parent_folderId)
     if not result.success:
         lambda_host.log(f'Failed to create base meshes db folder for version!')
         exit(4)
     basemeshes_db_folder_Id = result.id
     lambda_host.log(f'Successful to create base meshes db folder {basemeshes_db_folder_Id} for version!')
+    '''
     
+    basemeshes_version = version
     level0_entity_name = f'Workflow_Basemeshes_{tile_size}_{tile_x}_{tile_y}_0-ver-{basemeshes_version}'
     level1_entity_name = f'Workflow_Basemeshes_{tile_size}_{tile_x}_{tile_y}_1-ver-{basemeshes_version}'
 
@@ -1096,6 +1105,7 @@ def xc_process_base_meshes(api : voxelfarmclient.rest, basemeshes_output_folder_
     #do_upload_base_meshes_swarm(api, basemeshes_project_id, basemeshes_db_folder_Id, level0_db_output_folder, basemeshes_version, level0_entity_name, pythoncode_data_folder)
     #do_upload_base_meshes_swarm(api, basemeshes_project_id, basemeshes_db_folder_Id, level1_db_output_folder, basemeshes_version, level1_entity_name, pythoncode_data_folder)
     
+    basemeshes_db_folder_Id = basemeshes_result_folder_id
     do_simple_upload_basemeshes(api, basemeshes_project_id, basemeshes_db_folder_Id, level0_db_output_folder, basemeshes_version, level0_entity_name, pythoncode_data_folder)
     do_simple_upload_basemeshes(api, basemeshes_project_id, basemeshes_db_folder_Id, level1_db_output_folder, basemeshes_version, level1_entity_name, pythoncode_data_folder)
     
@@ -1319,6 +1329,10 @@ def tree_instances_generation(config_path):
     lambda_host.log(f'Start to prepare command line for programs')
 
     api = voxelfarmclient.rest(cloud_url)
+
+    project_entity = api.get_entity(project_id)
+    project_output_version = int(project_entity['version']) + 1 if 'version' in project_entity else 1
+    api.update_entity(project=project_id, id=project_id, fields={'version': project_output_version})
     
     basemeshes_asset_download_parent_folder = os.path.join(qtree_assets_folder, f'BaseMeshes_Versions')
     basemeshes_asset_download_folder = os.path.join(basemeshes_asset_download_parent_folder, basemeshes_entity_id)
@@ -1568,15 +1582,15 @@ def tree_instances_generation(config_path):
 
     if run_upload_smooth_layer:
         lambda_host.log(f'step for to run_upload_smooth_layer : {worldgen_command}')
-        process_file_image(api, Project_id, Workflow_Output_Result_Folder_id, toplayer_image_path, toplayer_image_meta_path, toplevel_image_entity_base_name)
+        process_file_image(api, Project_id, Workflow_Output_Result_Folder_id, toplayer_image_path, toplayer_image_meta_path, toplevel_image_entity_base_name, project_output_version)
         
-        process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, toplevel_file_path, api.entity_type.VoxelTerrain, toplevel_layer_entity_base_name, color=True)
-        process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, level1_file_path, api.entity_type.VoxelTerrain, level1_layer_entity_base_name, color=True)
-        process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, bedrock_file_path, api.entity_type.VoxelTerrain, bedrock_layer_entity_base_name, color=True)
+        process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, toplevel_file_path, api.entity_type.VoxelTerrain, toplevel_layer_entity_base_name, project_output_version, color=True)
+        process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, level1_file_path, api.entity_type.VoxelTerrain, level1_layer_entity_base_name, project_output_version, color=True)
+        process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, bedrock_file_path, api.entity_type.VoxelTerrain, bedrock_layer_entity_base_name, project_output_version, color=True)
 
-        #process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, toplevel_file_path, api.entity_type.IndexedPointCloud, toplevel_layer_entity_base_name, color=True)
-        #process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, level1_file_path, api.entity_type.IndexedPointCloud, level1_layer_entity_base_name, color=True)
-        #process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, bedrock_file_path, api.entity_type.IndexedPointCloud, bedrock_layer_entity_base_name, color=True)
+        #process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, toplevel_file_path, api.entity_type.IndexedPointCloud, toplevel_layer_entity_base_name, project_output_version, color=True)
+        #process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, level1_file_path, api.entity_type.IndexedPointCloud, level1_layer_entity_base_name, project_output_version, color=True)
+        #process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, bedrock_file_path, api.entity_type.IndexedPointCloud, bedrock_layer_entity_base_name, project_output_version, color=True)
         
     tree_instance_output_folder_name = 'instanceoutput'
     regions_output_folder_name = 'regionoutput'
@@ -1609,7 +1623,7 @@ def tree_instances_generation(config_path):
         basemeshes_output_folder = basemeshes_db_base_folder
         
         basemeshes_result_folder_id = Workflow_Output_Result_Folder_id
-        xc_process_base_meshes(api, basemeshes_output_folder, Project_id, basemeshes_result_folder_id)
+        xc_process_base_meshes(api, basemeshes_output_folder, Project_id, basemeshes_result_folder_id, project_output_version)
         lambda_host.log(f'xc_process_base_meshes for {basemeshes_output_folder}')
         
     if run_make_basemeshes and run_upload_basemeshes:
@@ -1866,6 +1880,7 @@ lambda_host.log(f'end to copy from {qtree_data_path} to {Data_folder}')
 lambda_host.progress(15, 'Start to get input parameters')
 Cloud_url = 'http://localhost/'
 Project_id = workflow_project_id
+
 Latest_basemeshes_entity_id = basemeshes_active_version_property #the entity id of the lastest the basemsehes asset entity
 
 Tree_Instances_Folder_id = lambda_host.input_string('tree_instances_folder_id_property', 'Tree Instances Folder id', '')
