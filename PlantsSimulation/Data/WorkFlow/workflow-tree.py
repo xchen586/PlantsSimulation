@@ -11,6 +11,9 @@ level = 6
 tree_lod =  8
 forest_age = 15000
 tree_iteration = 300
+
+#game_tree_entity_id_property = '0B4C084415C744B48B4BD13D9990E713' # xuan test 
+game_tree_entity_id_property = "3A3CFEBA226B4692A8719C78335470DD"  #game entity 
     
 def create_view_for_basemesh_entity(vf : voxelfarmclient.rest, 
         request : workflow_lambda.request, 
@@ -264,9 +267,6 @@ def tree_generation_on_receive_data(
     qtree_active_version_property = request.get_product_property('QUADTREE_FILES', 'raw_data')
     tools_active_version_property = request.get_product_property('TOOLS_FILES', 'raw_data')
     
-    #game_tree_entity_id_property = '0B4C084415C744B48B4BD13D9990E713' # xuan test 
-    game_tree_entity_id_property = "3A3CFEBA226B4692A8719C78335470DD"  #game entity 
-    
     tree_instances_folder_id_property = '90F6348AD5D94FCEA85C7C1CD081CE97' #Pangea Next -> Instances
     tree_geochems_folder_id_property = 'C2C9E711B8A74E0FB8401646BCF3396C' #Pangea Next -> Workflow Output -> Workflow Tree GeoChems Output
     workflow_output_version_folder_id_property = '68396F90F7CE48B4BA1412EA020ED92A' #Pangea Next -> Workflow Output -> Workflow BaseMeshes Output
@@ -363,8 +363,6 @@ def basemeshes_generation_on_receive_data(
     qtree_active_version_property = request.get_product_property('QUADTREE_FILES', 'raw_data')
     tools_active_version_property = request.get_product_property('TOOLS_FILES', 'raw_data')
     
-    game_tree_entity_id_property = '3A3CFEBA226B4692A8719C78335470DD' 
-    
     tree_instances_folder_id_property = '90F6348AD5D94FCEA85C7C1CD081CE97' #Pangea Next -> Instances
     workflow_output_version_folder_id_property = '68396F90F7CE48B4BA1412EA020ED92A' #Pangea Next -> Workflow Output -> Workflow BaseMeshes Output
     tree_geochems_folder_id_property = 'C2C9E711B8A74E0FB8401646BCF3396C' #Pangea Next -> Workflow Output -> Workflow Tree GeoChems Output    
@@ -449,8 +447,6 @@ def smooth_layer_generation_on_receive_data(
     displacement_active_version_property = request.get_product_property('DISPLACEMENT_MAPS_FILES', 'raw_data')
     qtree_active_version_property = request.get_product_property('QUADTREE_FILES', 'raw_data')
     tools_active_version_property = request.get_product_property('TOOLS_FILES', 'raw_data')
-    
-    game_tree_entity_id_property = "3A3CFEBA226B4692A8719C78335470DD"  #game entity 
     
     tree_instances_folder_id_property = '90F6348AD5D94FCEA85C7C1CD081CE97' #Pangea Next -> Instances
     tree_geochems_folder_id_property = 'C2C9E711B8A74E0FB8401646BCF3396C' #Pangea Next -> Workflow Output -> Workflow Tree GeoChems Output
@@ -537,8 +533,6 @@ def road_input_generation_on_receive_data(
     qtree_active_version_property = request.get_product_property('QUADTREE_FILES', 'raw_data')
     tools_active_version_property = request.get_product_property('TOOLS_FILES', 'raw_data')
     
-    game_tree_entity_id_property = "3A3CFEBA226B4692A8719C78335470DD"  #game entity 
-    
     tree_instances_folder_id_property = '90F6348AD5D94FCEA85C7C1CD081CE97' #Pangea Next -> Instances
     tree_geochems_folder_id_property = 'C2C9E711B8A74E0FB8401646BCF3396C' #Pangea Next -> Workflow Output -> Workflow Tree GeoChems Output
     workflow_output_version_folder_id_property = '68396F90F7CE48B4BA1412EA020ED92A' #Pangea Next -> Workflow Output -> Workflow BaseMeshes Output
@@ -601,6 +595,91 @@ def road_input_generation_on_stage_complete(
     if update_type == 'msg':
         #todo read the file that we attached
         lambda_host.log('Road input stage complete')
+        return {'success': True, 'complete': True, 'error_info': 'None'}
+
+    return {'success': True, 'complete': False, 'error_info': 'None'}
+
+def whole_result_generation_on_receive_data(
+        vf : voxelfarmclient.rest, 
+        request : workflow_lambda.request, 
+        lambda_host : workflow_lambda.workflow_lambda_host):
+    lambda_host.log('Received whole result generation data')
+    request.properties['my_property'] = 'my_value'
+
+    lambda_host.log(f'request.product_folder_id is {request.product_folder_id}')
+    lambda_host.log(f'request.active_version_folder_id is {request.active_version_folder_id}')
+    lambda_host.log(f'request.version_folder_id is {request.version_folder_id}')
+
+    pythoncode_active_version_property = request.get_product_property('PYTHON_CODE_FILES', 'raw_data')
+    treelist_active_version_property = request.get_product_property('TREE_LIST_FILES', 'raw_data')
+    roaddata_active_version_property = request.get_product_property('ROAD_DATA_FILES', 'raw_data')
+    basemeshes_active_version_property = request.get_product_property('BASE_MESHES_FILES', 'raw_data')
+    displacement_active_version_property = request.get_product_property('DISPLACEMENT_MAPS_FILES', 'raw_data')
+    qtree_active_version_property = request.get_product_property('QUADTREE_FILES', 'raw_data')
+    tools_active_version_property = request.get_product_property('TOOLS_FILES', 'raw_data')
+    
+    tree_instances_folder_id_property = '90F6348AD5D94FCEA85C7C1CD081CE97' #Pangea Next -> Instances
+    tree_geochems_folder_id_property = 'C2C9E711B8A74E0FB8401646BCF3396C' #Pangea Next -> Workflow Output -> Workflow Tree GeoChems Output
+    workflow_output_version_folder_id_property = '68396F90F7CE48B4BA1412EA020ED92A' #Pangea Next -> Workflow Output -> Workflow BaseMeshes Output
+    
+    if request.version_folder_id != None:
+        tree_instances_folder_id_property = request.version_folder_id
+        tree_geochems_folder_id_property = request.version_folder_id
+        workflow_output_version_folder_id_property = request.version_folder_id
+        lambda_host.log(f'Assign the output folder id as request.version_folder_id : {request.version_folder_id}')
+
+    result = lambda_host.process_lambda_entity(
+        workflow_request=request,
+        name="Whole Result Lambda",
+        inputs={
+            'tree_instances_folder_id_property': tree_instances_folder_id_property,
+            'game_tree_entity_id_property': game_tree_entity_id_property,
+            'workflow_output_version_folder_id_property': workflow_output_version_folder_id_property,
+            'tree_geochems_folder_id_property': tree_geochems_folder_id_property,
+            'lambda_entity_id': request.raw_entity_id,
+            'project_id': request.project_id,
+            'pythoncode_active_version_property': pythoncode_active_version_property,
+            'treelist_active_version_property': treelist_active_version_property,
+            'roaddata_active_version_property': roaddata_active_version_property,
+            'basemeshes_active_version_property': basemeshes_active_version_property,
+            'displacement_active_version_property': displacement_active_version_property,
+            'qtree_active_version_property': qtree_active_version_property,
+            'tools_active_version_property': tools_active_version_property,
+            'run_update_basemeshes_assets': False,
+            'run_road_exe': True,
+            'run_worldgen_road': True,
+            'run_upload_smooth_layer': True,
+            'run_make_basemeshes': True,
+            'run_upload_basemeshes': True,
+            'run_make_tree_instances':True,
+            'run_upload_tree_instances': True,
+            'run_create_geochem_entity': True,
+            'run_generate_road_input': False,
+            'tile_size': tile_size,
+            'tile_x': tile_x,
+            'tile_y': tile_y,
+            'level' : level,
+            'tree_lod': tree_lod,
+            'forest_age': forest_age,
+            'tree_iteration':tree_iteration
+        },
+        code='xc_cloud_tree_creation.py',
+        files=['xc_cloud_tree_creation.py', 'xc_lambda-uploaddb.py'],
+        update_type='msg')
+
+    return {'success': result.success, 'complete': False, 'error_info': ''}
+
+def whole_result_generation_on_stage_complete(
+        vf_api : voxelfarmclient.rest,
+        request : workflow_lambda.request,
+        lambda_host : workflow_lambda.workflow_lambda_host):
+    
+    update_type = request.update_type
+    lambda_host.log(f'update_type: {update_type}')
+    
+    if update_type == 'msg':
+        #todo read the file that we attached
+        lambda_host.log('Whole result stage complete')
         return {'success': True, 'complete': True, 'error_info': 'None'}
 
     return {'success': True, 'complete': False, 'error_info': 'None'}
@@ -702,6 +781,14 @@ lambda_host.set_workflow_definition(
                 'icon': 'mesh',
                 'on_receive_data': road_input_generation_on_receive_data,
                 'on_stage_done': road_input_generation_on_stage_complete,
+            },
+            {
+                'id': 'WORKFLOW_WHOLE_RESULT_GENERATION',
+                'name': 'Workflow Whole Result Generation',
+                'description': 'The generation of the whole result',
+                'icon': 'mesh',
+                'on_receive_data': whole_result_generation_on_receive_data,
+                'on_stage_done': whole_result_generation_on_stage_complete,
             }
         ],
     }
