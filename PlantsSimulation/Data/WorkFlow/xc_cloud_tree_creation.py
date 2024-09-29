@@ -1220,7 +1220,6 @@ def tree_instances_generation(config_path):
 
     cloud_url = read_ini_value(config_path, section_main, 'cloud_url')
     project_id = read_ini_value(config_path, section_main, 'project_id')
-    tree_instances_folder_id = read_ini_value(config_path, section_main, 'tree_instances_folder_id')
     #tree_entity_id = 'E0070AD37D4543FCB9E70D60AE47541D' # cosmin new
     #tree_entity_id = "536674D5E8D440D9A7EFCD1D879AD57A" # cosmin old
     #tree_entity_id = "3A3CFEBA226B4692A8719C78335470DD"  #xc tesst
@@ -1680,7 +1679,6 @@ def tree_config_creation(ini_path):
 
     create_or_update_ini_file(ini_path, section_main, 'cloud_url', Cloud_url)
     create_or_update_ini_file(ini_path, section_main, 'project_id', Project_id)
-    create_or_update_ini_file(ini_path, section_main, 'tree_instances_folder_id', Tree_Instances_Folder_id)
     create_or_update_ini_file(ini_path, section_main, 'tree_entity_id', Game_Tree_Entity_id)
     create_or_update_ini_file(ini_path, section_main, 'basemeshes_entity_id', Latest_basemeshes_entity_id)
 
@@ -1888,8 +1886,6 @@ Project_id = workflow_project_id
 
 Latest_basemeshes_entity_id = basemeshes_active_version_property #the entity id of the lastest the basemsehes asset entity
 
-Tree_Instances_Folder_id = lambda_host.input_string('tree_instances_folder_id_property', 'Tree Instances Folder id', '')
-lambda_host.log(f'Tree_Instances_Folder_id: {Tree_Instances_Folder_id}')
 Game_Tree_Entity_id = lambda_host.input_string('game_tree_entity_id_property', 'Game Tree Entity id', '')
 lambda_host.log(f'Game_Tree_Entity_id: {Game_Tree_Entity_id}')
 Workflow_Output_Result_Folder_id = lambda_host.input_string('workflow_output_version_folder_id_property', 'Output Result Basemeshes Folder id', '')
