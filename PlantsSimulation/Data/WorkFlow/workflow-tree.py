@@ -267,11 +267,8 @@ def tree_generation_on_receive_data(
     qtree_active_version_property = request.get_product_property('QUADTREE_FILES', 'raw_data')
     tools_active_version_property = request.get_product_property('TOOLS_FILES', 'raw_data')
     
-    tree_instances_folder_id_property = '90F6348AD5D94FCEA85C7C1CD081CE97' #Pangea Next -> Instances
     workflow_output_version_folder_id_property = '68396F90F7CE48B4BA1412EA020ED92A' #Pangea Next -> Workflow Output -> Workflow BaseMeshes Output
-    
     if request.version_folder_id != None:
-        tree_instances_folder_id_property = request.version_folder_id
         workflow_output_version_folder_id_property = request.version_folder_id
         lambda_host.log(f'Assign the output folder id as request.version_folder_id : {request.version_folder_id}')
 
@@ -279,7 +276,6 @@ def tree_generation_on_receive_data(
         workflow_request=request,
         name="Tree Lambda",
         inputs={
-            'tree_instances_folder_id_property': tree_instances_folder_id_property,
             'game_tree_entity_id_property': game_tree_entity_id_property,
             'workflow_output_version_folder_id_property': workflow_output_version_folder_id_property,
             'lambda_entity_id': request.raw_entity_id,
@@ -360,10 +356,8 @@ def basemeshes_generation_on_receive_data(
     qtree_active_version_property = request.get_product_property('QUADTREE_FILES', 'raw_data')
     tools_active_version_property = request.get_product_property('TOOLS_FILES', 'raw_data')
     
-    tree_instances_folder_id_property = '90F6348AD5D94FCEA85C7C1CD081CE97' #Pangea Next -> Instances
     workflow_output_version_folder_id_property = '68396F90F7CE48B4BA1412EA020ED92A' #Pangea Next -> Workflow Output -> Workflow BaseMeshes Output
     if request.version_folder_id != None:
-        tree_instances_folder_id_property = request.version_folder_id
         workflow_output_version_folder_id_property = request.version_folder_id
         lambda_host.log(f'Assign the output folder id as request.version_folder_id : {request.version_folder_id}')
     
@@ -371,7 +365,6 @@ def basemeshes_generation_on_receive_data(
         workflow_request=request,
         name="Base Meshses Lambda",
         inputs={
-            'tree_instances_folder_id_property': tree_instances_folder_id_property,
             'game_tree_entity_id_property': game_tree_entity_id_property,
             'workflow_output_version_folder_id_property': workflow_output_version_folder_id_property,
             'lambda_entity_id': request.raw_entity_id,
@@ -442,11 +435,8 @@ def smooth_layer_generation_on_receive_data(
     qtree_active_version_property = request.get_product_property('QUADTREE_FILES', 'raw_data')
     tools_active_version_property = request.get_product_property('TOOLS_FILES', 'raw_data')
     
-    tree_instances_folder_id_property = '90F6348AD5D94FCEA85C7C1CD081CE97' #Pangea Next -> Instances
     workflow_output_version_folder_id_property = '68396F90F7CE48B4BA1412EA020ED92A' #Pangea Next -> Workflow Output -> Workflow BaseMeshes Output
-    
     if request.version_folder_id != None:
-        tree_instances_folder_id_property = request.version_folder_id
         workflow_output_version_folder_id_property = request.version_folder_id
         lambda_host.log(f'Assign the output folder id as request.version_folder_id : {request.version_folder_id}')
 
@@ -454,7 +444,6 @@ def smooth_layer_generation_on_receive_data(
         workflow_request=request,
         name="Smooth Layers Lambda",
         inputs={
-            'tree_instances_folder_id_property': tree_instances_folder_id_property,
             'game_tree_entity_id_property': game_tree_entity_id_property,
             'workflow_output_version_folder_id_property': workflow_output_version_folder_id_property,
             'lambda_entity_id': request.raw_entity_id,
@@ -524,11 +513,8 @@ def road_input_generation_on_receive_data(
     qtree_active_version_property = request.get_product_property('QUADTREE_FILES', 'raw_data')
     tools_active_version_property = request.get_product_property('TOOLS_FILES', 'raw_data')
     
-    tree_instances_folder_id_property = '90F6348AD5D94FCEA85C7C1CD081CE97' #Pangea Next -> Instances
     workflow_output_version_folder_id_property = '68396F90F7CE48B4BA1412EA020ED92A' #Pangea Next -> Workflow Output -> Workflow BaseMeshes Output
-    
     if request.version_folder_id != None:
-        tree_instances_folder_id_property = request.version_folder_id
         workflow_output_version_folder_id_property = request.version_folder_id
         lambda_host.log(f'Assign the output folder id as request.version_folder_id : {request.version_folder_id}')
 
@@ -536,7 +522,6 @@ def road_input_generation_on_receive_data(
         workflow_request=request,
         name="Road Input Lambda",
         inputs={
-            'tree_instances_folder_id_property': tree_instances_folder_id_property,
             'game_tree_entity_id_property': game_tree_entity_id_property,
             'workflow_output_version_folder_id_property': workflow_output_version_folder_id_property,
             'lambda_entity_id': request.raw_entity_id,
@@ -606,11 +591,8 @@ def whole_result_generation_on_receive_data(
     qtree_active_version_property = request.get_product_property('QUADTREE_FILES', 'raw_data')
     tools_active_version_property = request.get_product_property('TOOLS_FILES', 'raw_data')
     
-    tree_instances_folder_id_property = '90F6348AD5D94FCEA85C7C1CD081CE97' #Pangea Next -> Instances
     workflow_output_version_folder_id_property = '68396F90F7CE48B4BA1412EA020ED92A' #Pangea Next -> Workflow Output -> Workflow BaseMeshes Output
-    
     if request.version_folder_id != None:
-        tree_instances_folder_id_property = request.version_folder_id
         workflow_output_version_folder_id_property = request.version_folder_id
         lambda_host.log(f'Assign the output folder id as request.version_folder_id : {request.version_folder_id}')
 
@@ -618,7 +600,6 @@ def whole_result_generation_on_receive_data(
         workflow_request=request,
         name="Whole Result Lambda",
         inputs={
-            'tree_instances_folder_id_property': tree_instances_folder_id_property,
             'game_tree_entity_id_property': game_tree_entity_id_property,
             'workflow_output_version_folder_id_property': workflow_output_version_folder_id_property,
             'lambda_entity_id': request.raw_entity_id,
