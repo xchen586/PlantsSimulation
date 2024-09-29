@@ -319,7 +319,7 @@ def add_extra_column_to_csv(input_file, output_file, extra_column_name):
     # Write the updated DataFrame to a new CSV file
     merged_df.to_csv(output_file, index=False)
 
-def xc_process_files_entity(api : voxelfarmclient.rest, project_id, folder_id, raw_entity_type, entity_type, folder_path, name : str, version : int, color : bool, zipped:bool = False):
+def xc_process_files_entity(api : voxelfarmclient.rest, project_id, folder_id, raw_entity_type, entity_type, folder_path, name : str, color : bool, zipped:bool = False):
 
     lambda_host.log(f'start to result = api.creation_result()')
     result = api.creation_result()
@@ -418,17 +418,17 @@ def xc_process_files_entity(api : voxelfarmclient.rest, project_id, folder_id, r
             #'source_ortho' if color else '_source_ortho': entity_id
         }, crs = crs)
     if not result.success:
-        lambda_host.log(f'--------Fail to create entity {result.id} for {name} {version}--------')
+        lambda_host.log(f'--------Fail to create entity {result.id} for {name} --------')
         return result
     lambda_host.log(f'end to api.create_entity_processed')
 
-    lambda_host.log(f'--------Created entity {result.id} for {name} {version}--------')
+    lambda_host.log(f'--------Created entity {result.id} for {name} --------')
     return result
 
-def create_geochem_tree_entity(api, geo_chemical_folder):
+def create_geochem_tree_entity(api, project_id, folder_id, geo_chemical_folder, entity_basename : str, version : int):
     extra_column_name = 'Id'
-    geochems_project_id = Project_id
-    geochems_folder_id = Tree_Geochems_Folder_id
+    geochems_project_id = project_id
+    geochems_folder_id = folder_id
 
     merged_csv_name = f'{Tiles_size}_{Tiles_x}_{Tiles_y}_geo_merged.csv'
     merged_csv_path = os.path.join(geo_chemical_folder, merged_csv_name)
@@ -458,6 +458,7 @@ def create_geochem_tree_entity(api, geo_chemical_folder):
     lambda_host.log(f'Geo meta file content is :')
     lambda_host.log(f'{geo_meta_string}')
 
+    '''
     geochems_project_entity = api.get_entity(geochems_project_id)
     version = int(geochems_project_entity['version']) + 1 if 'version' in geochems_project_entity else 1
     api.update_entity(project=geochems_project_id, id=geochems_project_id, fields={'version': version})
@@ -467,11 +468,12 @@ def create_geochem_tree_entity(api, geo_chemical_folder):
         exit(4)
     geochems_folder_id = result.id
     lambda_host.log(f'-----------------Successful to create geochem folder {geochems_folder_id} for version!-----------------')
+    '''
 
     lambda_host.log('Start with create geo chem entity')
 
-    geochem_entity_name = f'GeoChemical_instances_{Tiles_size}_{Tiles_x}_{Tiles_y}-{version}'
-    result = xc_process_files_entity(api, geochems_project_id, geochems_folder_id, api.entity_type.RawGeoChem, api.entity_type.GeoChem, geo_chemical_folder, geochem_entity_name, version=version, color=True)
+    geochem_entity_name = f'{entity_basename}-{version}'
+    result = xc_process_files_entity(api, geochems_project_id, geochems_folder_id, api.entity_type.RawGeoChem, api.entity_type.GeoChem, geo_chemical_folder, geochem_entity_name, color=True)
     if not result.success:
         lambda_host.log(f'Failed to create geochem entity {geochem_entity_name} with {api} basemeshes_result_project_id: {geochems_project_id} geo_chemical_folder: {geo_chemical_folder} raw: api.entity_type.RawGeoChem index: api.entity_type.GeoChem version: {version} !')
         exit(4)
@@ -508,6 +510,7 @@ def process_file_image(api : voxelfarmclient.rest, project_id, folder_id, file_p
     entity_folder_id = result.id
     lambda_host.log(f'Successful to create image file folder {entity_folder_id} for version!')
     '''
+
     entity_folder_id = folder_id
     result = api.create_entity_raw(project=project_id, 
             type=api.entity_type.IndexedOrthoImagery, 
@@ -1158,14 +1161,14 @@ def create_basemeshes_result_entity(api : voxelfarmclient.rest, basemeshes_outpu
     lambda_host.log(f'-----------------Successful to create basemeshes workflow folder {basemeshes_result_version_folder_id} for version {version}!-----------------')
 
     lambda_host.log('Start with create basemeshes workflow level 0 entity {level0_entity_name}')
-    result = xc_process_files_entity(api, basemeshes_result_project_id, basemeshes_result_version_folder_id, api.entity_type.RawMesh, api.entity_type.RawMesh, level0_output_folder, level0_entity_name, version=version, color=True, zipped=True)
+    result = xc_process_files_entity(api, basemeshes_result_project_id, basemeshes_result_version_folder_id, api.entity_type.RawMesh, api.entity_type.RawMesh, level0_output_folder, level0_entity_name, color=True, zipped=True)
     if not result.success:
         lambda_host.log(f'Failed to create basemeshes workflow result {level0_entity_name} with {api} basemeshes_result_project_id: {basemeshes_result_project_id} level0_output_folder: {level0_output_folder} raw: api.entity_type.RawMesh index: api.entity_type.IndexedMesh version: {version} !')
         exit(4)
     lambda_host.log('End with create basemeshes workflow level 0 entity {level0_entity_name}')
 
     lambda_host.log('Start with create basemeshes workflow level 1 entity {level1_entity_name}')
-    result = xc_process_files_entity(api, basemeshes_result_project_id, basemeshes_result_version_folder_id, api.entity_type.RawMesh, api.entity_type.RawMesh, level1_output_folder, level1_entity_name, version=version, color=True, zipped=True)
+    result = xc_process_files_entity(api, basemeshes_result_project_id, basemeshes_result_version_folder_id, api.entity_type.RawMesh, api.entity_type.RawMesh, level1_output_folder, level1_entity_name, color=True, zipped=True)
     if not result.success:
         lambda_host.log(f'Failed to create basemeshes workflow result {level1_entity_name} with {api} basemeshes_result_project_id: {basemeshes_result_project_id} level1_output_folder: {level1_output_folder} raw: api.entity_type.RawMesh index: api.entity_type.IndexedMesh version: {version} !')
         exit(4)
@@ -1614,7 +1617,9 @@ def tree_instances_generation(config_path):
     if run_create_geochem_entity:
         lambda_host.log(f'step for to run_create_geochem_entity!')
         ##### create the geochem entity for tree instance files.
-        create_geochem_tree_entity(api, geo_chemical_folder_path)
+        geochem_result_folder_id = Workflow_Output_Result_Folder_id
+        geochem_entity_base_name = f'GeoChemical_instances_{Tiles_size}_{Tiles_x}_{Tiles_y}'
+        create_geochem_tree_entity(api, Project_id, geochem_result_folder_id, geo_chemical_folder_path, geochem_entity_base_name, project_output_version)
         lambda_host.log(f'create_geochem_tree_entity from {geo_chemical_folder_path}')
 
     if run_upload_basemeshes:
@@ -1889,8 +1894,6 @@ Game_Tree_Entity_id = lambda_host.input_string('game_tree_entity_id_property', '
 lambda_host.log(f'Game_Tree_Entity_id: {Game_Tree_Entity_id}')
 Workflow_Output_Result_Folder_id = lambda_host.input_string('workflow_output_version_folder_id_property', 'Output Result Basemeshes Folder id', '')
 lambda_host.log(f'Workflow_Output_Result_Folder_id: {Workflow_Output_Result_Folder_id}')
-Tree_Geochems_Folder_id = lambda_host.input_string('tree_geochems_folder_id_property', 'Tree Geochems Folder id', '')
-lambda_host.log(f'Tree_Geochems_Folder_id: {Tree_Geochems_Folder_id}')
 
 Tiles_size = tile_size if tile_size else 10
 Tiles_x = tile_x if tile_x else 8
