@@ -1602,22 +1602,16 @@ def tree_instances_generation(config_path):
         lambda_host.log(f'road_regions_name_file_path is : {road_regions_name_file_path}')
     
         new_road_input_files = [new_road_heightmap_file_path, original_road_humidity_file_path, road_regions_name_file_path]
-        
-        capture_date = 1000 * int(time.time())  # time in milliseconds
-        dt = datetime.fromtimestamp(capture_date / 1000)  # convert back to seconds
-        month = dt.strftime('%m')
-        year = dt.strftime('%Y')
-        day = dt.strftime('%d')
+    
         inputs = {
-            "capture_date": capture_date,
-            "comment": f'EOM {year}-{month}-{day} new road input generation',
+            "comment": f'new road data updated is trigger by new road input generation',
         }
         product_id = 'ROAD_DATA_FILES' #hard code for now.
         try:
             roaddata_version = lambda_host.create_product_version(Project_id, product_id, inputs, new_road_input_files)
             lambda_host.log(f'New {product_id} roaddata_version is : {roaddata_version}')
         except Exception as e:
-            lambda_host.log("lambda_host.create_product_version for {product_id} has an error occurred:", e)
+            lambda_host.log(f'lambda_host.create_product_version for {product_id} has an error occurred : {e}')
             
         lambda_host.log(f'End to run_generate_road_input')
 
