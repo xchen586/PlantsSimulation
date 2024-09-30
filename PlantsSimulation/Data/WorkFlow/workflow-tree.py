@@ -156,6 +156,12 @@ def road_data_on_stage_complete(
     new_whole_version = lambda_host.create_product_version(project_id, product_id, inputs, files)
     lambda_host.log(f'The whole result generation workflow version : {new_whole_version} is triggered!')
     
+    update_type = request.update_type
+    lambda_host.log(f'update_type: {update_type}')
+    if update_type == 'msg':
+        lambda_host.log('Road data on stage complete')
+        return {'success': True, 'complete': True, 'error_info': 'None'}
+
     return {'success': True, 'complete': False, 'error_info': 'None'}
 
 def base_meshes_on_receive_data(
@@ -513,7 +519,7 @@ def smooth_layer_generation_on_stage_complete(
     
     if update_type == 'msg':
         #todo read the file that we attached
-        lambda_host.log('Smooth layers stage complete')
+        lambda_host.log('Smooth layers generation stage complete')
         return {'success': True, 'complete': True, 'error_info': 'None'}
 
     return {'success': True, 'complete': False, 'error_info': 'None'}
@@ -603,7 +609,7 @@ def road_input_generation_on_stage_complete(
     # Get all files in the folder
     for filename in os.listdir(folder_path):
         full_path = os.path.join(folder_path, filename)
-        if os.path.isfile(full_path):  # Check if it's a file
+        if os.path.isfile(full_path) and filename.endswith(".raw"):  # Check if it's a file
             file_paths.append(full_path)
             lambda_host.log(f'The attach file of road_input_generation is {full_path}')
     
@@ -612,7 +618,7 @@ def road_input_generation_on_stage_complete(
     
     if update_type == 'msg':
         #todo read the file that we attached
-        lambda_host.log('Road input stage complete')
+        lambda_host.log('Road input generation stage complete')
         return {'success': True, 'complete': True, 'error_info': 'None'}
 
     return {'success': True, 'complete': False, 'error_info': 'None'}
@@ -692,7 +698,7 @@ def whole_result_generation_on_stage_complete(
     
     if update_type == 'msg':
         #todo read the file that we attached
-        lambda_host.log('Whole result stage complete')
+        lambda_host.log('Whole result generation stage complete')
         return {'success': True, 'complete': True, 'error_info': 'None'}
 
     return {'success': True, 'complete': False, 'error_info': 'None'}

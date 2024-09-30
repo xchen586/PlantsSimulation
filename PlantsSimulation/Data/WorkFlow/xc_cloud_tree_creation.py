@@ -1608,8 +1608,9 @@ def tree_instances_generation(config_path):
         # todo to triger update road data
         lambda_host.log(f'Start to run_generate_road_input')
         
-        new_road_heightmap_file_path = os.path.join(road_input_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', road_heightmap_file_name)
-        new_road_humidity_file_path = os.path.join(road_input_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', road_humidity_file_name)
+        new_road_heightmap_file_path = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', road_heightmap_file_name)
+        new_road_humidity_file_path = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', road_humidity_file_name)
+        
         lambda_host.log(f'new_road_heightmap_file_path is : {new_road_heightmap_file_path}')
         lambda_host.log(f'new_road_humidity_file_path is : {new_road_humidity_file_path}')
         lambda_host.log(f'original_road_heightmap_file_path is : {original_road_heightmap_file_path}')
