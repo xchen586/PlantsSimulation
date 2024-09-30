@@ -1118,7 +1118,7 @@ def xc_process_base_meshes(api : voxelfarmclient.rest, basemeshes_output_folder_
     #do_simple_upload_basemeshes_swarm(api, basemeshes_project_id, basemeshes_db_folder_Id, level1_db_output_folder, basemeshes_version, level1_entity_name, pythoncode_data_folder)
     
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------
-def xc_attach_file_to_lambda(api : voxelfarmclient.rest, workflow_project_id):
+def xc_attach_ini_to_lambda(api : voxelfarmclient.rest, workflow_project_id):
     lambda_ini_exist = os.path.exists(g_Lambda_Info_ini_path)
     if lambda_ini_exist:
         lambda_ini_string = ini_file_to_string(g_Lambda_Info_ini_path)
@@ -1133,6 +1133,21 @@ def xc_attach_file_to_lambda(api : voxelfarmclient.rest, workflow_project_id):
                 lambda_host.log(f'Succeed to attach ini file {g_Lambda_Info_ini_path} to lambda entity {lambda_entity_id}')
     else:
         lambda_host.log(f'Lambda ini file : {g_Lambda_Info_ini_path} is not exist!')
+        
+#--------------------------------------------------------------------------------------------------------------------------------------------------------------
+def attach_file_to_lambda(api : voxelfarmclient.rest, project_id, lambda_entity, file_path):
+    file_exist = os.path.exists(file_path)
+    if file_exist:
+        lambda_host.log(f'Lambda ini file : {file_path} is exist!')
+        
+        with open(file_path, 'rb') as f:
+            result = api.attach_files(project_id, lambda_entity, files={'file': f})
+            if not result.success:
+                lambda_host.log(f'Failed to attach file {file_path} to lambda entity {lambda_entity}')
+            else:
+                lambda_host.log(f'Succeed to attach file {file_path} to lambda entity {lambda_entity}')
+    else:
+        lambda_host.log(f'Lambda file : {file_path} is not exist!')
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------
 def create_basemeshes_result_entity(api : voxelfarmclient.rest, basemeshes_output_folder_path, basemeshes_result_project_id, basemeshes_result_folder_id):
@@ -1601,17 +1616,9 @@ def tree_instances_generation(config_path):
         lambda_host.log(f'original_road_humidity_file_path is : {original_road_humidity_file_path}')
         lambda_host.log(f'road_regions_name_file_path is : {road_regions_name_file_path}')
     
-        new_road_input_files = [new_road_heightmap_file_path, original_road_humidity_file_path, road_regions_name_file_path]
-    
-        inputs = {
-            "comment": f'new road data updated is trigger by new road input generation',
-        }
-        product_id = 'ROAD_DATA_FILES' #hard code for now.
-        try:
-            roaddata_version = lambda_host.create_product_version(Project_id, product_id, inputs, new_road_input_files)
-            lambda_host.log(f'New {product_id} roaddata_version is : {roaddata_version}')
-        except Exception as e:
-            lambda_host.log(f'lambda_host.create_product_version for {product_id} has an error occurred : {e}')
+        attach_file_to_lambda(api, workflow_project_id, lambda_entity_id, new_road_heightmap_file_path)
+        attach_file_to_lambda(api, workflow_project_id, lambda_entity_id, original_road_humidity_file_path)
+        attach_file_to_lambda(api, workflow_project_id, lambda_entity_id, road_regions_name_file_path)
             
         lambda_host.log(f'End to run_generate_road_input')
 
@@ -1664,8 +1671,8 @@ def tree_instances_generation(config_path):
         lambda_host.log(f'xc_process_base_meshes for {basemeshes_output_folder}')
         
     if run_make_basemeshes and run_upload_basemeshes:
-        lambda_host.log(f'step for to xc_attach_file_to_lambda')
-        xc_attach_file_to_lambda(api, Project_id)
+        lambda_host.log(f'step for to xc_attach_ini_to_lambda')
+        xc_attach_ini_to_lambda(api, Project_id)
 
     lambda_host.log(f'end for step tree_instances_generation')
     return 0

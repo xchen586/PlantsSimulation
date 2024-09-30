@@ -142,6 +142,22 @@ def road_data_on_receive_data(
 
     return {'success': True, 'complete': True, 'error_info': 'None'}
 
+def road_data_on_stage_complete(
+        vf_api : voxelfarmclient.rest,
+        request : workflow_lambda.request,
+        lambda_host : workflow_lambda.workflow_lambda_host):
+    
+    project_id = request.project_id
+    product_id = 'WORKFLOW_WHOLE_RESULT_GENERATION'
+    inputs = {
+            "comment": f'Triggered by Road Data version folder : {request.version_folder_id}',
+        }
+    files = []
+    new_whole_version = lambda_host.create_product_version(project_id, product_id, inputs, files)
+    lambda_host.log(f'The whole result generation workflow version : {new_whole_version} is triggered!')
+    
+    return {'success': True, 'complete': False, 'error_info': 'None'}
+
 def base_meshes_on_receive_data(
         vf : voxelfarmclient.rest, 
         request : workflow_lambda.request, 
@@ -573,7 +589,26 @@ def road_input_generation_on_stage_complete(
         lambda_host : workflow_lambda.workflow_lambda_host):
     
     update_type = request.update_type
-    lambda_host.log(f'update_type: {update_type}')
+    
+    project_id = request.project_id
+    product_id = 'ROAD_DATA_FILES'
+    inputs = {
+            "comment": f'ROAD_DATA_FILES is Triggered by Road input generation version folder : {request.version_folder_id}',
+        }
+    
+    entity_id = request.raw_entity_id
+    folder_path  = lambda_host.download_entity_files(entity_id)
+    lambda_host.log(f'folder_path of request.raw_entity_id {entity_id} attach files is {folder_path}')
+    file_paths = []
+    # Get all files in the folder
+    for filename in os.listdir(folder_path):
+        full_path = os.path.join(folder_path, filename)
+        if os.path.isfile(full_path):  # Check if it's a file
+            file_paths.append(full_path)
+            lambda_host.log(f'The attach file of road_input_generation is {full_path}')
+    
+    new_road_data_version = lambda_host.create_product_version(project_id, product_id, inputs, file_paths)
+    lambda_host.log(f'The road data entity version : {new_road_data_version} is triggered!')
     
     if update_type == 'msg':
         #todo read the file that we attached
@@ -697,6 +732,7 @@ lambda_host.set_workflow_definition(
                         'description': 'A Input data for generate road',
                         'icon': 'mesh',
                         'on_receive_data': road_data_on_receive_data,
+                        'on_stage_done': road_data_on_stage_complete,
                     },
                     {
                         'id': 'DISPLACEMENT_MAPS_FILES',
