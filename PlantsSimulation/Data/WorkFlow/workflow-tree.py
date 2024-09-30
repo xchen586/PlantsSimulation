@@ -4,6 +4,8 @@ from voxelfarm import voxelfarmclient
 import os
 import configparser
 
+road_input_width = 300
+road_input_height = 300
 tile_size = 10
 tile_x = 8
 tile_y = 5
@@ -297,6 +299,8 @@ def tree_generation_on_receive_data(
             'run_upload_tree_instances': True,
             'run_create_geochem_entity': True,
             'run_generate_road_input': False,
+            'road_input_width': road_input_width,
+            'road_input_height': road_input_height,
             'tile_size': tile_size,
             'tile_x': tile_x,
             'tile_y': tile_y,
@@ -386,6 +390,8 @@ def basemeshes_generation_on_receive_data(
             'run_upload_tree_instances': False,
             'run_create_geochem_entity': False,
             'run_generate_road_input': False,
+            'road_input_width': road_input_width,
+            'road_input_height': road_input_height,
             'tile_size': tile_size,
             'tile_x': tile_x,
             'tile_y': tile_y,
@@ -465,6 +471,8 @@ def smooth_layer_generation_on_receive_data(
             'run_upload_tree_instances': False,
             'run_create_geochem_entity': False,
             'run_generate_road_input': False,
+            'road_input_width': road_input_width,
+            'road_input_height': road_input_height,
             'tile_size': tile_size,
             'tile_x': tile_x,
             'tile_y': tile_y,
@@ -543,6 +551,8 @@ def road_input_generation_on_receive_data(
             'run_upload_tree_instances': False,
             'run_create_geochem_entity': False,
             'run_generate_road_input': True,
+            'road_input_width': road_input_width,
+            'road_input_height': road_input_height,
             'tile_size': tile_size,
             'tile_x': tile_x,
             'tile_y': tile_y,
@@ -621,6 +631,8 @@ def whole_result_generation_on_receive_data(
             'run_upload_tree_instances': True,
             'run_create_geochem_entity': True,
             'run_generate_road_input': False,
+            'road_input_width': road_input_width,
+            'road_input_height': road_input_height,
             'tile_size': tile_size,
             'tile_x': tile_x,
             'tile_y': tile_y,
