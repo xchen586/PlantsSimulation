@@ -7,6 +7,8 @@ import glob
 import shutil
 import subprocess
 import argparse
+import datetime
+
 from datetime import timedelta
 from timeit import default_timer as timer
 #from distutils.dir_util import copy_tree
@@ -1277,6 +1279,14 @@ def tree_instances_generation(config_path):
     basemeshes_level1 = 1
     version = 80
 
+    road_heightmap_file_name = f'{tiles_count}_{tiles_x}_{tiles_y}_{road_Heightmap_width}_{road_heightmap_height}_ushort_height_map_raw.raw'
+    road_humidity_file_name = f'{tiles_count}_{tiles_x}_{tiles_y}_{road_Heightmap_width}_{road_heightmap_height}_byte_humidity_map_raw.raw'
+    road_regions_name_file_name = f'{tiles_count}_{tiles_x}_{tiles_y}_regions_name.csv'
+    
+    original_road_heightmap_file_path = os.path.join(road_input_folder, road_heightmap_file_name)
+    original_road_humidity_file_path = os.path.join(road_input_folder, road_humidity_file_name)
+    road_regions_name_file_path = os.path.join(road_input_folder, road_regions_name_file_name)
+
     most_travelled_points_path = os.path.join(road_output_folder, f'{tiles_count}_{tiles_x}_{tiles_y}_Most_Travelled_Points.csv') 
     most_distant_points_path = os.path.join(road_output_folder, f'{tiles_count}_{tiles_x}_{tiles_y}_Most_Distant_Points.csv') 
     regions_raw_path = os.path.join(road_output_folder, f'{tiles_count}_{tiles_x}_{tiles_y}_regions.raw') 
@@ -1579,8 +1589,37 @@ def tree_instances_generation(config_path):
             exit_code(2)
             return -1
         
-    #if run_generate_road_input:
+    if run_generate_road_input:
         # todo to triger update road data
+        lambda_host.log(f'Start to run_generate_road_input')
+        
+        new_road_heightmap_file_path = os.path.join(road_input_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', road_heightmap_file_name)
+        new_road_humidity_file_path = os.path.join(road_input_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', road_humidity_file_name)
+        lambda_host.log(f'new_road_heightmap_file_path is : {new_road_heightmap_file_path}')
+        lambda_host.log(f'new_road_humidity_file_path is : {new_road_humidity_file_path}')
+        lambda_host.log(f'original_road_heightmap_file_path is : {original_road_heightmap_file_path}')
+        lambda_host.log(f'original_road_humidity_file_path is : {original_road_humidity_file_path}')
+        lambda_host.log(f'road_regions_name_file_path is : {road_regions_name_file_path}')
+    
+        new_road_input_files = [new_road_heightmap_file_path, original_road_humidity_file_path, road_regions_name_file_path]
+        
+        capture_date = 1000 * int(time.time())  # time in milliseconds
+        dt = datetime.fromtimestamp(capture_date / 1000)  # convert back to seconds
+        month = dt.strftime('%m')
+        year = dt.strftime('%Y')
+        day = dt.strftime('%d')
+        inputs = {
+            "capture_date": capture_date,
+            "comment": f'EOM {year}-{month}-{day} new road input generation',
+        }
+        product_id = 'ROAD_DATA_FILES' #hard code for now.
+        try:
+            roaddata_version = lambda_host.create_product_version(Project_id, product_id, inputs, new_road_input_files)
+            lambda_host.log(f'New {product_id} roaddata_version is : {roaddata_version}')
+        except Exception as e:
+            lambda_host.log("lambda_host.create_product_version for {product_id} has an error occurred:", e)
+            
+        lambda_host.log(f'End to run_generate_road_input')
 
     if run_upload_smooth_layer:
         lambda_host.log(f'step for to run_upload_smooth_layer : {worldgen_command}')
@@ -1713,8 +1752,8 @@ def tree_config_creation(ini_path):
     create_or_update_ini_file(ini_path, section_run, 'run_create_geochem_entity', is_run_create_geochem_entity)
     create_or_update_ini_file(ini_path, section_run, 'run_generate_road_input', is_run_generate_road_input)
 
-    create_or_update_ini_file(ini_path, section_road, 'road_Heightmap_width', 300)
-    create_or_update_ini_file(ini_path, section_road, 'road_heightmap_height', 300)
+    create_or_update_ini_file(ini_path, section_road, 'road_Heightmap_width', Road_Input_Width)
+    create_or_update_ini_file(ini_path, section_road, 'road_heightmap_height', Road_Input_Height)
 
     create_or_update_ini_file(ini_path, section_others, 'basemeshes_debug_level', Basemeshes_debug_level)
     create_or_update_ini_file(ini_path, section_others, 'tree_lod', Tree_load)
@@ -1777,6 +1816,11 @@ Forest_age = lambda_host.input_string('forest_age', 'forest_age', '')
 lambda_host.log(f'foreForest_agest_age: {Forest_age}')
 Tree_iteration = lambda_host.input_string('tree_iteration', 'tree_iteration', '')
 lambda_host.log(f'Tree_iteration: {Tree_iteration}')
+
+Road_Input_Width = lambda_host.input_string('road_input_width', 'road_input_width', '')
+lambda_host.log(f'Road_Input_Width: {Road_Input_Width}')
+Road_Input_Height = lambda_host.input_string('road_input_height', 'road_input_height', '')
+lambda_host.log(f'Road_Input_Height: {Road_Input_Height}')
 
 pythoncode_active_version_property = lambda_host.input_string('pythoncode_active_version_property', 'pythoncode_active_version_property', '') 
 treelist_active_version_property = lambda_host.input_string('treelist_active_version_property', 'treelist_active_version_property', '') 
