@@ -1,9 +1,9 @@
 #pragma once
 
 #if __APPLE__
-    #include "../Common/include/CColonizationTree.h"
+#include "../Common/include/CColonizationTree.h"
 #else
-    #include "..\Common\include\CColonizationTree.h"
+#include "..\Common\include\CColonizationTree.h"
 #endif
 
 class CRoadAttributeDensityMap : public DensityMap

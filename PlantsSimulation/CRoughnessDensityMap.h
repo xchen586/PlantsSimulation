@@ -1,9 +1,9 @@
 #pragma once
 
 #if __APPLE__
-    #include "../Common/include/CColonizationTree.h"
+#include "../Common/include/CColonizationTree.h"
 #else
-    #include "..\Common\include\CColonizationTree.h"
+#include "..\Common\include\CColonizationTree.h"
 #endif
 
 class CRoughnessDensityMap : public DensityMap
@@ -32,8 +32,11 @@ class CMapleRoughnessDensityMap : public CRoughnessDensityMap
 public:
 	CMapleRoughnessDensityMap() : CRoughnessDensityMap()
 	{
-		minval = 0.12;
-		maxval = 0.297;
+		//minval = 0.12;
+		//maxval = 0.297;
+
+		minval = 0.1;
+		maxval = 0.298;
 	}
 };
 

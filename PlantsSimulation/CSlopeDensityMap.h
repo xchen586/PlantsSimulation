@@ -1,11 +1,11 @@
 #pragma once
 
 #if __APPLE__
-    #include "../Common/include/CColonizationTree.h"
-    #include "../Common/include/PsMarco.h"
+#include "../Common/include/CColonizationTree.h"
+#include "../Common/include/PsMarco.h"
 #else
-    #include "..\Common\include\CColonizationTree.h"
-    #include "..\Common\include\PsMarco.h"
+#include "..\Common\include\CColonizationTree.h"
+#include "..\Common\include\PsMarco.h"
 #endif
 
 #if USE_SCOPE_ANGLE
@@ -26,7 +26,9 @@ public:
 	{
 		//minval = 5 * (PI / 180.0);
 		minval = 0 * (PI / 180.0);
-		maxval = 30 * (PI / 180.0);
+		//maxval = 30 * (PI / 180.0);
+		//maxval = 90 * (PI / 180.0);
+		maxval = 1;
 		ease = 5 * (PI / 180.0);
 	}
 };
@@ -38,7 +40,9 @@ public:
 	{
 		//minval = 5 * (PI / 180.0);
 		minval = 0 * (PI / 180.0);
-		maxval = 30 * (PI / 180.0);
+		//maxval = 30 * (PI / 180.0);
+		//maxval = 90 * (PI / 180.0);
+		maxval = 1;
 		ease = 5 * (PI / 180.0);
 	}
 };

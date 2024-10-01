@@ -1,9 +1,9 @@
 #pragma once
 
 #if __APPLE__
-    #include "../Common/include/CColonizationTree.h"
+#include "../Common/include/CColonizationTree.h"
 #else
-    #include "..\Common\include\CColonizationTree.h"
+#include "..\Common\include\CColonizationTree.h"
 #endif
 
 class CMoistureDensityMap : public DensityMap
@@ -37,11 +37,14 @@ class CMapleMoistureDensityMap : public CMoistureDensityMap
 public:
 	CMapleMoistureDensityMap() : CMoistureDensityMap()
 	{
-		minval = 0.1;
-		maxval = 0.8;
+		//minval = 0.1;
+		//maxval = 0.8;
 
 		//minval = 0;
 		//maxval = 1.0;
+
+		minval = 0.1;
+		maxval = 0.37;
 	}
 };
 
