@@ -357,7 +357,7 @@ def xc_process_files_entity(api : voxelfarmclient.rest, project_id, folder_id, r
     print(f'start to api.create_entity_raw')
     result = api.create_entity_raw(project=project_id, 
         type = raw_entity_type,
-        name=f'{name}', 
+        name=f'{name}_src', 
         fields={
             'file_folder': folder_id,
         }, crs = crs)
@@ -1412,7 +1412,7 @@ def tree_instances_generation(config_path):
     toplevel_image_entity_base_name = f'RoadImage_{tiles_count}_{tile_x}_{tiles_y}'
     toplevel_layer_entity_base_name = f'TopLevel_{tiles_count}_{tile_x}_{tiles_y}'
     level1_layer_entity_base_name = f'Level1_{tiles_count}_{tile_x}_{tiles_y}'
-    bedrock_layer_entity_base_name = f'BedRock_level_{tiles_count}_{tile_x}_{tiles_y}'
+    bedrock_layer_entity_base_name = f'BedRock_{tiles_count}_{tile_x}_{tiles_y}'
     
     if run_worldgen_road:
         print(f'step for to run_worldgen_road : {worldgen_command}')
