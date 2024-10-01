@@ -67,7 +67,7 @@ def common_generation_on_receive_data(
     
     result = lambda_host.process_lambda_entity(
         workflow_request=request,
-        name=lambda_name,
+        name=f'{lambda_name} Process Lambda',
         inputs={
             'game_tree_entity_id_property': game_tree_entity_id_property,
             'workflow_output_version_folder_id_property': workflow_output_version_folder_id_property,
@@ -372,7 +372,7 @@ def tree_generation_on_receive_data(
     
     lambda_host.log('Received tree generation data')
     return common_generation_on_receive_data(vf ,request ,lambda_host
-                                             , lambda_name="Tree Generation Lambda"
+                                             , lambda_name="Tree Generation"
                                              , run_road_exe=True
                                              , run_worldgen_road=True
                                              , run_upload_smooth_layer=False
