@@ -147,6 +147,8 @@ def road_data_on_stage_complete(
         request : workflow_lambda.request,
         lambda_host : workflow_lambda.workflow_lambda_host):
     
+    lambda_host.log(f'road_data_on_stage_complete is start')
+    
     project_id = request.project_id
     product_id = 'WORKFLOW_WHOLE_RESULT_GENERATION'
     inputs = {
@@ -609,7 +611,7 @@ def road_input_generation_on_stage_complete(
     # Get all files in the folder
     for filename in os.listdir(folder_path):
         full_path = os.path.join(folder_path, filename)
-        if os.path.isfile(full_path) and filename.endswith(".raw"):  # Check if it's a file
+        if os.path.isfile(full_path) and (filename.endswith(".raw") or filename.endswith(".csv")):  # Check if it's a file
             file_paths.append(full_path)
             lambda_host.log(f'The attach file of road_input_generation is {full_path}')
     
