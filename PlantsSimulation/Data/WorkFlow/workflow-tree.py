@@ -214,15 +214,17 @@ def road_data_on_receive_data(
     project_id = request.project_id
     folder_id = request.version_folder_id
     
-    lambda_host.log(f'Start to trigger the whole result generation workflow!')
-    product_id = 'WORKFLOW_WHOLE_RESULT_GENERATION'
-    inputs = {
-            "comment": f'Triggered by Road Data version folder : {request.version_folder_id}',
-        }
-    files = []
-    new_whole_version = lambda_host.create_product_version(project_id, product_id, inputs, files)
-    lambda_host.log(f'The whole result generation workflow version : {new_whole_version} is triggered!')
-
+    triggerOthers = False
+    if triggerOthers:
+        lambda_host.log(f'Start to trigger the whole result generation workflow!')
+        product_id = 'WORKFLOW_WHOLE_RESULT_GENERATION'
+        inputs = {
+                "comment": f'Triggered by Road Data version folder : {request.version_folder_id}',
+            }
+        files = []
+        new_whole_version = lambda_host.create_product_version(project_id, product_id, inputs, files)
+        lambda_host.log(f'The whole result generation workflow version : {new_whole_version} is triggered!')
+    
     lambda_host.log('Updating road data raw entity...') 
     result = vf.update_entity(
         id= entity_id,
