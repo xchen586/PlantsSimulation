@@ -374,8 +374,9 @@ bool CPlantsSimulation::LoadAndOutputRegions()
 	}
 	RemoveAllFilesInFolder(subRegionOutput_Dir);
 	
-	std::vector<std::vector<int>> regionsInt300_Raw = Read2DIntArray(m_regionsRawFile, regionsWidth, regionsHeight);
-	std::vector<std::vector<int>> regionsInt300 = invert2DArray(regionsInt300_Raw);
+	std::vector<std::vector<int>> regionsInt300 = Read2DIntArray(m_regionsRawFile, regionsWidth, regionsHeight);
+	//std::vector<std::vector<int>> regionsInt300_Raw = Read2DIntArray(m_regionsRawFile, regionsWidth, regionsHeight);
+	//std::vector<std::vector<int>> regionsInt300 = invert2DArray(regionsInt300_Raw);
 	bool loadAllRegionInfo = LoadRegionInfoFromCSV(m_regionsInfoFile, m_regionInfoMap);
 	
 	std::cout << "Total region info count is " << m_regionInfoMap.size() << std::endl;
