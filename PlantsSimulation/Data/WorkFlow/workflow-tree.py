@@ -16,6 +16,94 @@ tree_iteration = 300
 
 #game_tree_entity_id_property = '0B4C084415C744B48B4BD13D9990E713' # xuan test 
 game_tree_entity_id_property = "3A3CFEBA226B4692A8719C78335470DD"  #game entity 
+
+def common_generation_on_receive_data(
+        vf : voxelfarmclient.rest, 
+        request : workflow_lambda.request, 
+        lambda_host : workflow_lambda.workflow_lambda_host,
+        run_road_exe: bool,
+        run_worldgen_road: bool,
+        run_upload_smooth_layer: bool,
+        run_make_basemeshes: bool,
+        run_upload_basemeshes: bool,
+        run_make_tree_instances:bool,
+        run_upload_tree_instances: bool,
+        run_create_geochem_entity: bool,
+        run_generate_road_input: bool
+        ):
+    lambda_host.log('Received base meshes generation data')
+    request.properties['my_property'] = 'my_value'
+    
+    lambda_host.log(f'request.product_folder_id is {request.product_folder_id}')
+    lambda_host.log(f'request.active_version_folder_id is {request.active_version_folder_id}')
+    lambda_host.log(f'request.version_folder_id is {request.version_folder_id}')
+    
+    entity_id = request.raw_entity_id
+    project_id = request.project_id
+    folder_id = request.version_folder_id
+    
+    result = vf.update_entity(
+        id= entity_id,
+        project=project_id, 
+        fields={
+            'file_type' : vf.entity_type.RawMesh,
+            'name' : 'Input files', 
+            'file_folder' : folder_id
+        })
+
+    pythoncode_active_version_property = request.get_product_property('PYTHON_CODE_FILES', 'raw_data')
+    treelist_active_version_property = request.get_product_property('TREE_LIST_FILES', 'raw_data')
+    roaddata_active_version_property = request.get_product_property('ROAD_DATA_FILES', 'raw_data')
+    basemeshes_active_version_property = request.get_product_property('BASE_MESHES_FILES', 'raw_data')
+    displacement_active_version_property = request.get_product_property('DISPLACEMENT_MAPS_FILES', 'raw_data')
+    qtree_active_version_property = request.get_product_property('QUADTREE_FILES', 'raw_data')
+    tools_active_version_property = request.get_product_property('TOOLS_FILES', 'raw_data')
+    
+    workflow_output_version_folder_id_property = '68396F90F7CE48B4BA1412EA020ED92A' #Pangea Next -> Workflow Output -> Workflow BaseMeshes Output
+    if request.version_folder_id != None:
+        workflow_output_version_folder_id_property = request.version_folder_id
+        lambda_host.log(f'Assign the output folder id as request.version_folder_id : {request.version_folder_id}')
+    
+    result = lambda_host.process_lambda_entity(
+        workflow_request=request,
+        name="Base Meshses Lambda",
+        inputs={
+            'game_tree_entity_id_property': game_tree_entity_id_property,
+            'workflow_output_version_folder_id_property': workflow_output_version_folder_id_property,
+            'lambda_entity_id': request.raw_entity_id,
+            'project_id': request.project_id,
+            'pythoncode_active_version_property': pythoncode_active_version_property,
+            'treelist_active_version_property': treelist_active_version_property,
+            'roaddata_active_version_property': roaddata_active_version_property,
+            'basemeshes_active_version_property': basemeshes_active_version_property,
+            'displacement_active_version_property': displacement_active_version_property,
+            'qtree_active_version_property': qtree_active_version_property,
+            'tools_active_version_property': tools_active_version_property,
+            'run_update_basemeshes_assets': False,
+            'run_road_exe': run_road_exe,
+            'run_worldgen_road': run_worldgen_road,
+            'run_upload_smooth_layer': run_upload_smooth_layer,
+            'run_make_basemeshes': run_make_basemeshes,
+            'run_upload_basemeshes': run_upload_basemeshes,
+            'run_make_tree_instances':run_make_tree_instances,
+            'run_upload_tree_instances': run_upload_tree_instances,
+            'run_create_geochem_entity': run_create_geochem_entity,
+            'run_generate_road_input': run_generate_road_input,
+            'road_input_width': road_input_width,
+            'road_input_height': road_input_height,
+            'tile_size': tile_size,
+            'tile_x': tile_x,
+            'tile_y': tile_y,
+            'level' : level,
+            'tree_lod': tree_lod,
+            'forest_age': forest_age,
+            'tree_iteration':tree_iteration
+        },
+        code='xc_cloud_tree_creation.py',
+        files=['xc_cloud_tree_creation.py', 'xc_lambda-uploaddb.py'],
+        update_type='msg')
+    
+    return {'success': result.success, 'complete': False, 'error_info': ''}
     
 def create_view_for_basemesh_entity(vf : voxelfarmclient.rest, 
         request : workflow_lambda.request, 
@@ -124,6 +212,15 @@ def road_data_on_receive_data(
     entity_id = request.raw_entity_id
     project_id = request.project_id
     folder_id = request.version_folder_id
+    
+    lambda_host.log(f'Start to trigger the whole result generation workflow!')
+    product_id = 'WORKFLOW_WHOLE_RESULT_GENERATION'
+    inputs = {
+            "comment": f'Triggered by Road Data version folder : {request.version_folder_id}',
+        }
+    files = []
+    new_whole_version = lambda_host.create_product_version(project_id, product_id, inputs, files)
+    lambda_host.log(f'The whole result generation workflow version : {new_whole_version} is triggered!')
 
     lambda_host.log('Updating road data raw entity...') 
     result = vf.update_entity(
@@ -149,14 +246,7 @@ def road_data_on_stage_complete(
     
     lambda_host.log(f'road_data_on_stage_complete is start')
     
-    project_id = request.project_id
-    product_id = 'WORKFLOW_WHOLE_RESULT_GENERATION'
-    inputs = {
-            "comment": f'Triggered by Road Data version folder : {request.version_folder_id}',
-        }
-    files = []
-    new_whole_version = lambda_host.create_product_version(project_id, product_id, inputs, files)
-    lambda_host.log(f'The whole result generation workflow version : {new_whole_version} is triggered!')
+    
     
     update_type = request.update_type
     lambda_host.log(f'update_type: {update_type}')
@@ -740,7 +830,6 @@ lambda_host.set_workflow_definition(
                         'description': 'A Input data for generate road',
                         'icon': 'mesh',
                         'on_receive_data': road_data_on_receive_data,
-                        'on_stage_done': road_data_on_stage_complete,
                     },
                     {
                         'id': 'DISPLACEMENT_MAPS_FILES',
