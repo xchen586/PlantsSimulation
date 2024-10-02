@@ -355,6 +355,8 @@ bool CPlantsSimulation::LoadAndOutputRegions()
 	bool ret = true;
 	const int regionsWidth = 300;
 	const int regionsHeight = 300;
+	const int worldTileWidth = 30000;
+	const int worldTileHeight = 30000;
 
 	const int MAX_PATH = 250;
 	char subRegionOutput_Dir[MAX_PATH];
@@ -427,14 +429,12 @@ bool CPlantsSimulation::LoadAndOutputRegions()
 	auto tileEndWorld = transform.VF_TO_WC(CAffineTransform::sAffineVector{ static_cast<double>(cellScale), 0.0, static_cast<double>(cellScale) });
 	auto worldSizeX = std::abs(tileStartWorld.X - tileEndWorld.X);
 	//auto worldSizeY = std::abs(tileStartWorld.Y - tileEndWorld.Y);
-	//auto bottomVf = transform.WC_TO_VF(CAffineTransform::sAffineVector{ static_cast<double>(bottomX), static_cast<double>(bottomY), 0.0 });
-	const int regionWidthScale = 100;
-	const int regionHeightScale = 100;
+	const int regionWidthScale = worldTileWidth / regionsWidth; //One point in the cell region array should has 100 meters.
+	const int regionHeightScale = worldTileHeight / regionsHeight;
+
 	const int cellArrayWidth = static_cast<int>(worldSizeX / regionWidthScale);
 	const int cellArrayHeight = static_cast<int>(worldSizeX / regionHeightScale);
-
-	const int worldTileWidth = 30000;
-	const int worldTileHeight = 30000;
+	
 	double xRegionRatio = worldTileWidth / regionsWidth;
 	double yRegionRatio = worldTileHeight / regionsHeight;
 	const int topX = batch_min_x + x0;
