@@ -423,10 +423,15 @@ bool CPlantsSimulation::LoadAndOutputRegions()
 		reg->centroidCoord.SetupCellCoordinate(posX, posY, posZ, transform, region_lod);
 	}
 
+	auto tileStartWorld = transform.VF_TO_WC(CAffineTransform::sAffineVector{ static_cast<double>(0), 0.0, static_cast<double>(0)});
+	auto tileEndWorld = transform.VF_TO_WC(CAffineTransform::sAffineVector{ static_cast<double>(cellScale), 0.0, static_cast<double>(cellScale) });
+	auto worldSizeX = std::abs(tileStartWorld.X - tileEndWorld.X);
+	//auto worldSizeY = std::abs(tileStartWorld.Y - tileEndWorld.Y);
+	//auto bottomVf = transform.WC_TO_VF(CAffineTransform::sAffineVector{ static_cast<double>(bottomX), static_cast<double>(bottomY), 0.0 });
 	const int regionWidthScale = 100;
 	const int regionHeightScale = 100;
-	const int cellArrayWidth = static_cast<int>(cellScale / regionWidthScale);
-	const int cellArrayHeight = static_cast<int>(cellScale / regionHeightScale);
+	const int cellArrayWidth = static_cast<int>(worldSizeX / regionWidthScale);
+	const int cellArrayHeight = static_cast<int>(worldSizeX / regionHeightScale);
 
 	const int worldTileWidth = 30000;
 	const int worldTileHeight = 30000;
