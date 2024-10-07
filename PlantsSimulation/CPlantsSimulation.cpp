@@ -455,9 +455,9 @@ bool CPlantsSimulation::LoadAndOutputRegions()
 	std::cout << "Cells YStep max_vy - min_vy = " << stepY << std::endl;
 
 	std::set<VoxelFarm::CellId> cellSet;
-	for (int x = min_vx; x <= max_vx; x++) // use <=  to increase the cells  
+	for (int x = min_vx; x <= max_vx; x++) // use <= because it need involve all the related cells (increase the cells)
 	{
-		for (int y = min_vy; y <= max_vy; y++) // use <=  to increase the cells
+		for (int y = min_vy; y <= max_vy; y++) // use <=  to because it need involve all the related cells (increase the cells)
 		{
 			VoxelFarm::CellId cell = VoxelFarm::packCellId(region_lod, x, 0, y);
 			cellSet.insert(cell);
@@ -1374,19 +1374,13 @@ bool CPlantsSimulation::OutputResults()
 	const int MAX_PATH = 250;
 	char subFullOutput_Dir[MAX_PATH];
 	memset(subFullOutput_Dir, 0, sizeof(char) * MAX_PATH);
-#if USE_OFFSET_FOR_INSTANCE_OUTPUT
+
 	#if __APPLE__ 
 		snprintf(subFullOutput_Dir, MAX_PATH, "%s/instanceoutput", m_outputDir.c_str());
 	#else
 		sprintf_s(subFullOutput_Dir, MAX_PATH, "%s\\instanceoutput", m_outputDir.c_str());
 	#endif
-#else
-	#if __APPLE__ 
-		snprintf(subFullOutput_Dir, MAX_PATH, "%s/instanceoutputwithoutoffeset", m_outputDir.c_str());
-	#else
-		sprintf_s(subFullOutput_Dir, MAX_PATH, "%s\\instanceoutputwithoutoffeset", m_outputDir.c_str());
-	#endif
-#endif
+
 	if (output)
 	{
 		output = m_pInstanceExporter->outputSubfiles(subFullOutput_Dir);
