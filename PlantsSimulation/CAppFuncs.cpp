@@ -130,7 +130,9 @@ bool SaveSubRegionInfoToCSVFile(const string& filePath, RegionInfoMap& regionInf
 		<< "Name" << ","
 		<< "CentroidX" << ","
 		<< "CentroidY" << ","
-		<< "ExtrId" << std::endl;
+		<< "ExtrId" << ","
+		<< "WorldCentroidX" << ","
+		<< "WorldCentroidY" << std::endl;
 
 	for (unsigned int rid : subSet)
 	{
@@ -151,7 +153,9 @@ bool SaveSubRegionInfoToCSVFile(const string& filePath, RegionInfoMap& regionInf
 				<< info->name << ","
 				<< info->centroidCoord.xOffsetW << ","
 				<< info->centroidCoord.yOffsetW << ","
-				<< info->eId << std::endl;
+				<< info->eId << ","
+				<< info->centroidCoord.posX << ","
+				<< info->centroidCoord.posY << std::endl;
 		}
 	}
 
