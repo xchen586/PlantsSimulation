@@ -66,7 +66,22 @@ def zip_folder(folder_path, zip_path):
         print("An error occurred:", e)
         return False
 
+def print_file_paths(folder_path):
+    try:
+        # Loop through all files and directories in the specified folder
+        for file_name in os.listdir(folder_path):
+            file_path = os.path.join(folder_path, file_name)
+            if os.path.isfile(file_path):  # Check if it is a file
+                print(file_path)  # Print the full file path
+    except FileNotFoundError:
+        print(f"Folder '{folder_path}' not found.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+
 def copy_files(src_folder, dest_folder):
+    print(f"copy_files Start to print file in {src_folder} !")
+    print_file_paths(src_folder)
+    print(f"copy_files End to print file in {src_folder} !") 
     # Ensure that the destination folder exists
     if not os.path.exists(dest_folder):
         os.makedirs(dest_folder)
@@ -77,6 +92,32 @@ def copy_files(src_folder, dest_folder):
         # Copy the file to the destination folder, replacing if it already exists
         shutil.copy2(src_filepath, dest_filepath)
         print(f"File '{filename}' copied to '{dest_folder}'")
+        
+def copy_files_in_folder(source_folder, destination_folder):
+    """
+    Copies files that are directly in the source folder (not in subfolders) to the destination folder.
+
+    Parameters:
+    source_folder (str): Path to the source folder containing the files.
+    destination_folder (str): Path to the destination folder where files will be copied.
+    """
+    print(f"copy_files_in_folder Start to print file in {source_folder} !")
+    print_file_paths(source_folder)
+    print(f"copy_files_in_folder End to print file in {source_folder} !") 
+    # Make sure the destination folder exists
+    if not os.path.exists(destination_folder):
+        os.makedirs(destination_folder)
+
+    # Iterate through items in the source folder
+    for item in os.listdir(source_folder):
+        item_path = os.path.join(source_folder, item)
+
+        # Check if the item is a file (not a directory)
+        if os.path.isfile(item_path):
+            # Copy the file to the destination folder
+            shutil.copy(item_path, destination_folder)
+            print(f"Copied: {item_path} to {destination_folder}")
+
 
 def is_exe_file(file_path):
     _, file_extension = os.path.splitext(file_path.lower())
@@ -1264,6 +1305,8 @@ def tree_instances_generation(config_path):
     road_exe_command = f'{road_exe_path} {tiles_count} {tiles_x} {tiles_y} {road_Heightmap_width} {road_heightmap_height} {road_input_folder} {road_output_folder} {dont_run_road_game}'
     worldgen_level = 5
     worldgen_command =  f'{worldgen_exe_path} {tiles_count} {tiles_x} {tiles_y} {worldgen_level} {qtree_assets_folder} {smoothlayer_output_base_folder} {road_output_folder}'
+    if run_generate_road_input:
+        worldgen_command =  f'{worldgen_exe_path} {tiles_count} {tiles_x} {tiles_y} {worldgen_level} {qtree_assets_folder} {smoothlayer_output_base_folder}'
     basemeshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_debug_level} {basemeshes_heightmap_folder}'
     basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_debug_level} {basemeshes_heightmap_folder}'
     if use_basemesh_original_program:
@@ -1730,7 +1773,7 @@ is_run_upload_basemeshes = False
 is_run_make_tree_instances = True
 is_run_upload_tree_instances = False
 is_run_create_geochem_entity = False
-is_run_generate_road_input = False
+is_run_generate_road_input = True
 
 print(f'is_run_update_basemeshes_assets: {is_run_update_basemeshes_assets}')
 print(f'is_run_road_exe: {is_run_road_exe}')
@@ -1782,24 +1825,24 @@ if not os.path.exists(Tools_folder):
 
 print('Start to copy files')
 print(f'start to copy from {pythoncode_data_folder} to {Data_folder}')
-copy_files(pythoncode_data_folder, Data_folder)
+copy_files_in_folder(pythoncode_data_folder, Data_folder)
 print(f'end to copy from {pythoncode_data_folder} to {Data_folder}')
 print(f'start to copy from {treelist_data_folder} to {Data_folder}')
-copy_files(treelist_data_folder, Data_folder)
+copy_files_in_folder(treelist_data_folder, Data_folder)
 print(f'end to copy from {treelist_data_folder} to {Data_folder}')
 treelist_data_path = os.path.join(Data_folder, 'TreeList.csv')
 print(f'start to copy from {roaddata_data_path} to {Data_folder}')
-copy_files(roaddata_data_path, Data_folder)
+copy_files_in_folder(roaddata_data_path, Data_folder)
 print(f'end to copy from {roaddata_data_path} to {Data_folder}')
 print(f'start to copy from {basemeshes_data_path} to {Data_folder}')
-copy_files(basemeshes_data_path, Data_folder)
+copy_files_in_folder(basemeshes_data_path, Data_folder)
 print(f'end to copy from {basemeshes_data_path} to {Data_folder}')
 print(f'start to copy from {displacement_data_path} to {Data_folder}')
-copy_files(displacement_data_path, Data_folder)
+copy_files_in_folder(displacement_data_path, Data_folder)
 print(f'end to copy from {displacement_data_path} to {Data_folder}')
 print('Start to copy big files')
 print(f'start to copy from {qtree_data_path} to {Data_folder}')
-copy_files(qtree_data_path, Data_folder)
+copy_files_in_folder(qtree_data_path, Data_folder)
 print(f'end to copy from {qtree_data_path} to {Data_folder}')
 
 print('Start to get input parameters')
