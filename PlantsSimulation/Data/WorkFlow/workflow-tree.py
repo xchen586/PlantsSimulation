@@ -108,7 +108,7 @@ def common_generation_on_receive_data(
         files=['xc_cloud_tree_creation.py', 'xc_lambda-uploaddb.py'],
         update_type='msg')
     
-    return {'success': result.success, 'complete': False, 'error_info': ''}
+    return result
     
 def create_view_for_basemesh_entity(vf : voxelfarmclient.rest, 
         request : workflow_lambda.request, 
@@ -254,7 +254,6 @@ def road_data_on_stage_complete(
     lambda_host.log(f'road_data_on_stage_complete is start')
     
     
-    
     update_type = request.update_type
     lambda_host.log(f'update_type: {update_type}')
     if update_type == 'msg':
@@ -377,7 +376,7 @@ def tree_generation_on_receive_data(
         lambda_host : workflow_lambda.workflow_lambda_host):
     
     lambda_host.log('Received tree generation data')
-    return common_generation_on_receive_data(vf ,request ,lambda_host
+    result = common_generation_on_receive_data(vf ,request ,lambda_host
                                              , lambda_name="Tree Generation"
                                              , test_tree_result=False
                                              , run_road_exe=True
@@ -389,6 +388,8 @@ def tree_generation_on_receive_data(
                                              , run_upload_tree_instances=True
                                              , run_create_geochem_entity=True
                                              , run_generate_road_input=False)
+
+    return {'success': result.success, 'complete': False, 'error_info': ''}
 
 def tree_generation_on_stage_complete(
         vf_api : voxelfarmclient.rest,
@@ -409,7 +410,7 @@ def basemeshes_generation_on_receive_data(
         lambda_host : workflow_lambda.workflow_lambda_host):
     
     lambda_host.log('Received base meshes generation data')
-    return common_generation_on_receive_data(vf ,request ,lambda_host
+    result = common_generation_on_receive_data(vf ,request ,lambda_host
                                              , lambda_name='Base Meshes Generation'
                                              , test_tree_result=False
                                              , run_road_exe=False
@@ -421,6 +422,7 @@ def basemeshes_generation_on_receive_data(
                                              , run_upload_tree_instances=False
                                              , run_create_geochem_entity=False
                                              , run_generate_road_input=False)
+    return {'success': result.success, 'complete': False, 'error_info': ''}
 
 def basemeshes_generation_on_stage_complete(
         vf_api : voxelfarmclient.rest,
@@ -444,7 +446,7 @@ def smooth_layer_generation_on_receive_data(
         lambda_host : workflow_lambda.workflow_lambda_host):
     
     lambda_host.log('Received smooth layer generation data')
-    return common_generation_on_receive_data(vf ,request ,lambda_host
+    result = common_generation_on_receive_data(vf ,request ,lambda_host
                                              , lambda_name='Smooth Layer Generation'
                                              , test_tree_result=False
                                              , run_road_exe=True
@@ -456,6 +458,7 @@ def smooth_layer_generation_on_receive_data(
                                              , run_upload_tree_instances=False
                                              , run_create_geochem_entity=False
                                              , run_generate_road_input=False)
+    return {'success': result.success, 'complete': False, 'error_info': ''}
 
 def smooth_layer_generation_on_stage_complete(
         vf_api : voxelfarmclient.rest,
@@ -478,7 +481,7 @@ def road_input_generation_on_receive_data(
         lambda_host : workflow_lambda.workflow_lambda_host):
     
     lambda_host.log('Received road input generation data')
-    return common_generation_on_receive_data(vf ,request ,lambda_host
+    result = common_generation_on_receive_data(vf ,request ,lambda_host
                                              , lambda_name='Road Input Generation'
                                              , test_tree_result=False
                                              , run_road_exe=False
@@ -490,12 +493,21 @@ def road_input_generation_on_receive_data(
                                              , run_upload_tree_instances=False
                                              , run_create_geochem_entity=False
                                              , run_generate_road_input=True)
+    
+    request.properties['road_input_generation_lambda_id'] = result.id
+    lambda_host.log(f'road_input_generation_lambda_id : {result.id}')
+    
+    return {'success': result.success, 'complete': False, 'error_info': ''}
 
 def road_input_generation_on_stage_complete(
         vf_api : voxelfarmclient.rest,
         request : workflow_lambda.request,
         lambda_host : workflow_lambda.workflow_lambda_host):
     
+    # Check if the lambda completed sucessuflly
+    lambda_entity = lambda_host.get_entity(request.properties['road_input_generation_lambda_id'])
+    if not 'state' in lambda_entity or lambda_entity['state'] != 'COMPLETE':
+        return {'success': False, 'complete': False, 'error_info': f'Lambda ({request.properties['road_input_generation_lambda_id']}) was not completed properly'}
 
     update_type = request.update_type
     
@@ -532,7 +544,7 @@ def whole_result_generation_on_receive_data(
         lambda_host : workflow_lambda.workflow_lambda_host):
     
     lambda_host.log('Received whole result generation data')
-    return common_generation_on_receive_data(vf ,request ,lambda_host
+    result = common_generation_on_receive_data(vf ,request ,lambda_host
                                              , lambda_name='Whole Result Generation'
                                              , test_tree_result=False
                                              , run_road_exe=True
@@ -544,6 +556,8 @@ def whole_result_generation_on_receive_data(
                                              , run_upload_tree_instances=True
                                              , run_create_geochem_entity=True
                                              , run_generate_road_input=False)
+
+    return {'success': result.success, 'complete': False, 'error_info': ''}
 
 def whole_result_generation_on_stage_complete(
         vf_api : voxelfarmclient.rest,
@@ -566,7 +580,7 @@ def test_tree_generation_on_receive_data(
         lambda_host : workflow_lambda.workflow_lambda_host):
     
     lambda_host.log('Received test tree generation data')
-    return common_generation_on_receive_data(vf ,request ,lambda_host
+    result = common_generation_on_receive_data(vf ,request ,lambda_host
                                              , lambda_name="Test Tree Generation"
                                              , test_tree_result=True
                                              , run_road_exe=True
@@ -578,6 +592,8 @@ def test_tree_generation_on_receive_data(
                                              , run_upload_tree_instances=True
                                              , run_create_geochem_entity=True
                                              , run_generate_road_input=False)
+    
+    return {'success': result.success, 'complete': False, 'error_info': ''}
 
 def test_tree_generation_on_stage_complete(
         vf_api : voxelfarmclient.rest,
@@ -598,7 +614,7 @@ def test_whole_result_generation_on_receive_data(
         lambda_host : workflow_lambda.workflow_lambda_host):
     
     lambda_host.log('Received test whole result generation data')
-    return common_generation_on_receive_data(vf ,request ,lambda_host
+    result = common_generation_on_receive_data(vf ,request ,lambda_host
                                              , lambda_name='Test Whole Result Generation'
                                              , test_tree_result=True
                                              , run_road_exe=True
@@ -610,6 +626,8 @@ def test_whole_result_generation_on_receive_data(
                                              , run_upload_tree_instances=True
                                              , run_create_geochem_entity=True
                                              , run_generate_road_input=False)
+    
+    return {'success': result.success, 'complete': False, 'error_info': ''}
 
 def test_whole_result_generation_on_stage_complete(
         vf_api : voxelfarmclient.rest,
