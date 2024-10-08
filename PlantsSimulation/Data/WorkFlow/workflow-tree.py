@@ -481,7 +481,7 @@ def road_input_generation_on_receive_data(
     return common_generation_on_receive_data(vf ,request ,lambda_host
                                              , lambda_name='Road Input Generation'
                                              , test_tree_result=False
-                                             , run_road_exe=True
+                                             , run_road_exe=False
                                              , run_worldgen_road=True
                                              , run_upload_smooth_layer=False
                                              , run_make_basemeshes=True
@@ -496,6 +496,7 @@ def road_input_generation_on_stage_complete(
         request : workflow_lambda.request,
         lambda_host : workflow_lambda.workflow_lambda_host):
     
+
     update_type = request.update_type
     
     project_id = request.project_id
