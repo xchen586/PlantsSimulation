@@ -505,9 +505,10 @@ def road_input_generation_on_stage_complete(
         lambda_host : workflow_lambda.workflow_lambda_host):
     
     # Check if the lambda completed sucessuflly
-    lambda_entity = lambda_host.get_entity(request.properties['road_input_generation_lambda_id'])
+    lambda_entity_id = request.properties['road_input_generation_lambda_id']
+    lambda_entity = lambda_host.get_entity(lambda_entity_id)
     if not 'state' in lambda_entity or lambda_entity['state'] != 'COMPLETE':
-        return {'success': False, 'complete': False, 'error_info': f'Lambda ({request.properties['road_input_generation_lambda_id']}) was not completed properly'}
+        return {'success': False, 'complete': False, 'error_info': f'Lambda {lambda_entity_id} was not completed properly'}
 
     update_type = request.update_type
     
