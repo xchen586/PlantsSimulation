@@ -1873,6 +1873,7 @@ basemeshes_active_version_property = lambda_host.input_string('basemeshes_active
 displacement_active_version_property = lambda_host.input_string('displacement_active_version_property', 'displacement_active_version_property', '')
 qtree_active_version_property = lambda_host.input_string('qtree_active_version_property', 'qtree_active_version_property', '')
 tools_active_version_property = lambda_host.input_string('tools_active_version_property', 'tools_active_version_property', '')
+tileinfo_active_version_property = lambda_host.input_string('tileinfo_active_version_property', 'tileinfo_active_version_property', '')
 
 lambda_host.log('pythoncode_active_version_property: ' + pythoncode_active_version_property)
 lambda_host.log('treelist_active_version_property: ' + treelist_active_version_property)
@@ -1881,6 +1882,7 @@ lambda_host.log('basemeshes_active_version_property: ' + basemeshes_active_versi
 lambda_host.log('displacement_active_version_property: ' + displacement_active_version_property)
 lambda_host.log('qtree_active_version_property: ' + qtree_active_version_property)
 lambda_host.log('tools_active_version_property: ' + tools_active_version_property)
+lambda_host.log('tileinfo_active_version_property: ' + tileinfo_active_version_property)
 
 is_run_update_basemeshes_assets = lambda_host.input_string('run_update_basemeshes_assets', 'run_update_basemeshes_assets', '') 
 is_run_road_exe = lambda_host.input_string('run_road_exe', 'run_road_exe', '')
@@ -1918,6 +1920,7 @@ basemeshes_data_path = lambda_host.download_entity_files(basemeshes_active_versi
 displacement_data_path = lambda_host.download_entity_files(displacement_active_version_property)
 qtree_data_path = lambda_host.download_entity_files(qtree_active_version_property)
 tools_data_path = lambda_host.download_entity_files(tools_active_version_property)
+tileinfo_data_path = lambda_host.download_entity_files(tileinfo_active_version_property)
 
 lambda_host.log('pythoncode_data_folder: ' + pythoncode_data_folder)
 lambda_host.log('treelist_data_folder: ' + treelist_data_folder)
@@ -1926,6 +1929,7 @@ lambda_host.log('basemeshes_data_path: ' + basemeshes_data_path)
 lambda_host.log('displacement_data_path: ' + displacement_data_path)
 lambda_host.log('qtree_data_path: ' + qtree_data_path)
 lambda_host.log('tools_data_path: ' + tools_data_path)
+lambda_host.log('tileinfo_data_path: ' + tileinfo_data_path)
 
 Tree_Data_Folder_Name = 'Tree_Instances_Creation'
 Data_folder = os.path.join(scrap_folder, Tree_Data_Folder_Name)
@@ -1963,6 +1967,20 @@ lambda_host.log(f'start to copy from {qtree_data_path} to {Data_folder}')
 copy_files_in_folder(qtree_data_path, Data_folder)
 lambda_host.log(f'end to copy from {qtree_data_path} to {Data_folder}')
 
+lambda_host.log(f'start to copy from {tileinfo_data_path} to {Data_folder}')
+copy_files_in_folder(tileinfo_data_path, Data_folder)
+lambda_host.log(f'end to copy from {tileinfo_data_path} to {Data_folder}')
+
+Tile_Info_ini_name = 'TileInfo.ini'
+Tile_Info_ini_path = os.path.join(Data_folder, Tile_Info_ini_name)
+if os.path.exists(Tile_Info_ini_path):
+    tile_size = read_ini_value(Tile_Info_ini_path, section_tiles, 'Tiles_Count', value_type=int)
+    tile_x = read_ini_value(Tile_Info_ini_path, section_tiles, 'Tiles_X_Index', value_type=int)
+    tiles_y = read_ini_value(Tile_Info_ini_path, section_tiles, 'Tiles_Y_Index', value_type=int)
+    lambda_host.log(f'Tiles_Count of {Tile_Info_ini_path} is {tile_size}')
+    lambda_host.log(f'Tiles_X_Index of {Tile_Info_ini_path} is {tile_x}')
+    lambda_host.log(f'Tiles_Y_Index of {Tile_Info_ini_path} is {tile_y}')
+    
 #lambda_host.progress(15, 'Start to download tools files')
 #lambda_host.log(f'start to copy from {tools_data_path} to {Tools_folder}')
 #copy_files_in_folder(tools_data_path, Tools_folder)
@@ -1982,6 +2000,7 @@ lambda_host.log(f'Workflow_Output_Result_Folder_id: {Workflow_Output_Result_Fold
 Tiles_size = tile_size if tile_size else 10
 Tiles_x = tile_x if tile_x else 8
 Tiles_y = tile_y if tile_y else 5
+
 lambda_host.log(f'Tiles_size: {Tiles_size}')
 lambda_host.log(f'Tiles_x: {Tiles_x}')
 lambda_host.log(f'Tiles_y: {Tiles_y}')

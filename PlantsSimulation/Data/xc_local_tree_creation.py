@@ -1725,11 +1725,11 @@ print(f'system tools: {tools} \n')
 
 workflow_project_id = '7AE3CAAE2F4742E392E6B66E28D6BF1F'
 print(f'project_id: {workflow_project_id}')
-tile_size = 10
+tile_size = 25 #10
 print(f'tile_size: {tile_size}')
-tile_x = 8
+tile_x = 12 #8
 print(f'tile_x: {tile_x}')
-tile_y = 5
+tile_y = 11 #5
 print(f'tile_y: {tile_y}')
 level = 6
 print(f'level: {level}')
@@ -1753,6 +1753,7 @@ basemeshes_active_version_property = f'D:\\Downloads\\XCTreeWorkFlow\\BaseMeshes
 displacement_active_version_property = f'D:\\Downloads\\XCTreeWorkFlow\\DisplacementMaps'
 qtree_active_version_property = f'D:\\Downloads\\XCTreeWorkFlow\\QTree'
 tools_active_version_property = f'D:\\Downloads\\XCTreeWorkFlow\\Tools'
+tileinfo_active_version_property = f'D:\\Downloads\\XCTreeWorkFlow\\TileInfo'
 
 print('pythoncode_active_version_property: ' + pythoncode_active_version_property)
 print('treelist_active_version_property: ' + treelist_active_version_property)
@@ -1761,19 +1762,20 @@ print('basemeshes_active_version_property: ' + basemeshes_active_version_propert
 print('displacement_active_version_property: ' + displacement_active_version_property)
 print('qtree_active_version_property: ' + qtree_active_version_property)
 print('tools_active_version_property: ' + tools_active_version_property)
+print('tileinfo_active_version_property: ' + tileinfo_active_version_property)
 
 ###############
 # XC Options
 is_run_update_basemeshes_assets = False
 is_run_road_exe = True
 is_run_worldgen_road = True
-is_run_upload_smooth_layer = False
+is_run_upload_smooth_layer = True
 is_run_make_basemeshes = True
 is_run_upload_basemeshes = False
 is_run_make_tree_instances = True
-is_run_upload_tree_instances = False
-is_run_create_geochem_entity = False
-is_run_generate_road_input = True
+is_run_upload_tree_instances = True
+is_run_create_geochem_entity = True
+is_run_generate_road_input = False
 
 print(f'is_run_update_basemeshes_assets: {is_run_update_basemeshes_assets}')
 print(f'is_run_road_exe: {is_run_road_exe}')
@@ -1800,6 +1802,7 @@ basemeshes_data_path = basemeshes_active_version_property
 displacement_data_path = displacement_active_version_property
 qtree_data_path = qtree_active_version_property
 tools_data_path = tools_active_version_property
+tileinfo_data_path = tileinfo_active_version_property
 
 print('pythoncode_data_folder: ' + pythoncode_data_folder)
 print('treelist_data_folder: ' + treelist_data_folder)
@@ -1808,8 +1811,9 @@ print('basemeshes_data_path: ' + basemeshes_data_path)
 print('displacement_data_path: ' + displacement_data_path)
 print('qtree_data_path: ' + qtree_data_path)
 print('tools_data_path: ' + tools_data_path)
+print('tileinfo_data_path: ' + tileinfo_data_path)
 
-Tree_Data_Folder_Name = 'Tree_Instances_Creation'
+Tree_Data_Folder_Name = 'Tree_Big_Creation'
 Data_folder = os.path.join(scrap_folder, Tree_Data_Folder_Name)
 g_Lambda_Info_ini_name = 'lambda_info.ini'
 g_Lambda_Info_ini_path = os.path.join(Data_folder, g_Lambda_Info_ini_name)
@@ -1844,6 +1848,20 @@ print('Start to copy big files')
 print(f'start to copy from {qtree_data_path} to {Data_folder}')
 copy_files_in_folder(qtree_data_path, Data_folder)
 print(f'end to copy from {qtree_data_path} to {Data_folder}')
+
+print(f'start to copy from {tileinfo_data_path} to {Data_folder}')
+copy_files_in_folder(tileinfo_data_path, Data_folder)
+print(f'end to copy from {tileinfo_data_path} to {Data_folder}')
+
+Tile_Info_ini_name = 'TileInfo.ini'
+Tile_Info_ini_path = os.path.join(Data_folder, Tile_Info_ini_name)
+if os.path.exists(Tile_Info_ini_path):
+    tile_size = read_ini_value(Tile_Info_ini_path, section_tiles, 'Tiles_Count', value_type=int)
+    tile_x = read_ini_value(Tile_Info_ini_path, section_tiles, 'Tiles_X_Index', value_type=int)
+    tiles_y = read_ini_value(Tile_Info_ini_path, section_tiles, 'Tiles_Y_Index', value_type=int)
+    print(f'Tiles_Count of {Tile_Info_ini_path} is {tile_size}')
+    print(f'Tiles_X_Index of {Tile_Info_ini_path} is {tile_x}')
+    print(f'Tiles_Y_Index of {Tile_Info_ini_path} is {tile_y}')
 
 print('Start to get input parameters')
 Cloud_url = 'https://demo.voxelfarm.com/'

@@ -8,7 +8,7 @@ g_trigger_others = False
 
 road_input_width = 300
 road_input_height = 300
-tile_size = 10
+tile_size = 25
 tile_x = 8
 tile_y = 5
 level = 6
@@ -59,6 +59,7 @@ def common_generation_on_receive_data(
     displacement_active_version_property = request.get_product_property('DISPLACEMENT_MAPS_FILES', 'raw_data')
     qtree_active_version_property = request.get_product_property('QUADTREE_FILES', 'raw_data')
     tools_active_version_property = request.get_product_property('TOOLS_FILES', 'raw_data')
+    tileinfo_active_version_property = request.get_product_property('TILE_INFO', 'raw_data')
     
     game_tree_entity_id_property = "3A3CFEBA226B4692A8719C78335470DD"  #game entity 
     if test_tree_result:
@@ -84,6 +85,7 @@ def common_generation_on_receive_data(
             'displacement_active_version_property': displacement_active_version_property,
             'qtree_active_version_property': qtree_active_version_property,
             'tools_active_version_property': tools_active_version_property,
+            'tileinfo_active_version_property': tileinfo_active_version_property,
             'run_update_basemeshes_assets': False,
             'run_road_exe': run_road_exe,
             'run_worldgen_road': run_worldgen_road,
@@ -158,7 +160,7 @@ def python_code_on_receive_data(
         vf : voxelfarmclient.rest, 
         request : workflow_lambda.request, 
         lambda_host : workflow_lambda.workflow_lambda_host):
-    lambda_host.log('Received Python code')
+    lambda_host.log('Received Python Code')
 
     entity_id = request.raw_entity_id
     project_id = request.project_id
@@ -170,7 +172,34 @@ def python_code_on_receive_data(
         project=project_id, 
         fields={
             'file_type' : vf.entity_type.RawMesh,
-            'name' : 'Input files', 
+            'name' : 'Python Code Input files', 
+            'file_folder' : folder_id
+        })
+    if not result.success:
+        return {'success': False, 'error_info': result.error_info}
+    
+    # Save the entity ID that has the input files in the request properties
+    request.properties['raw_data'] = result.id
+
+    return {'success': True, 'complete': True, 'error_info': 'None'}
+
+def tile_info_on_receive_data(
+        vf : voxelfarmclient.rest, 
+        request : workflow_lambda.request, 
+        lambda_host : workflow_lambda.workflow_lambda_host):
+    lambda_host.log('Received Tile Info File')
+
+    entity_id = request.raw_entity_id
+    project_id = request.project_id
+    folder_id = request.version_folder_id
+
+    lambda_host.log('Updating Tile Info File raw entity...') 
+    result = vf.update_entity(
+        id= entity_id,
+        project=project_id, 
+        fields={
+            'file_type' : vf.entity_type.RawMesh,
+            'name' : 'Tile Info File Input files', 
             'file_folder' : folder_id
         })
     if not result.success:
@@ -197,7 +226,7 @@ def tree_list_on_receive_data(
         project=project_id, 
         fields={
             'file_type' : vf.entity_type.RawMesh,
-            'name' : 'Input files', 
+            'name' : 'Tree list Input files', 
             'file_folder' : folder_id
         })
     if not result.success:
@@ -235,7 +264,7 @@ def road_data_on_receive_data(
         project=project_id, 
         fields={
             'file_type' : vf.entity_type.RawMesh,
-            'name' : 'Input files', 
+            'name' : 'Road Data Input files', 
             'file_folder' : folder_id
         })
     if not result.success:
@@ -278,7 +307,7 @@ def base_meshes_on_receive_data(
         project=project_id, 
         fields={
             'file_type' : vf.entity_type.RawMesh,
-            'name' : 'Input files', 
+            'name' : 'Base Meshes Input files', 
             'file_folder' : folder_id
         })
     if not result.success:
@@ -305,7 +334,7 @@ def displacement_maps_on_receive_data(
         project=project_id, 
         fields={
             'file_type' : vf.entity_type.RawMesh,
-            'name' : 'Input files', 
+            'name' : 'Displacement Maps Input Files', 
             'file_folder' : folder_id
         })
     if not result.success:
@@ -332,7 +361,7 @@ def quadtree_on_receive_data(
         project=project_id, 
         fields={
             'file_type' : vf.entity_type.RawMesh,
-            'name' : 'Input files', 
+            'name' : 'Quad Tree Input files', 
             'file_folder' : folder_id
         })
     if not result.success:
@@ -359,7 +388,7 @@ def tools_on_receive_data(
         project=project_id, 
         fields={
             'file_type' : vf.entity_type.RawMesh,
-            'name' : 'Input files', 
+            'name' : 'Tools Input files', 
             'file_folder' : folder_id
         })
     if not result.success:
@@ -701,6 +730,13 @@ lambda_host.set_workflow_definition(
                         'description': 'A collection of tree classes',
                         'icon': 'mesh',
                         'on_receive_data': tree_list_on_receive_data,
+                    },
+                    {
+                        'id': 'TILE_INFO',
+                        'name': 'Tile Info File',
+                        'description': 'A tile info files',
+                        'icon': 'mesh',
+                        'on_receive_data': tile_info_on_receive_data,
                     },
                     {
                         'id': 'PYTHON_CODE_FILES',
