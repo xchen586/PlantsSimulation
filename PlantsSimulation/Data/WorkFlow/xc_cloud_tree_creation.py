@@ -1958,7 +1958,7 @@ Tile_Info_ini_path = os.path.join(Data_folder, Tile_Info_ini_name)
 if os.path.exists(Tile_Info_ini_path):
     tile_size = read_ini_value(Tile_Info_ini_path, section_tiles, 'Tiles_Count', value_type=int)
     tile_x = read_ini_value(Tile_Info_ini_path, section_tiles, 'Tiles_X_Index', value_type=int)
-    tiles_y = read_ini_value(Tile_Info_ini_path, section_tiles, 'Tiles_Y_Index', value_type=int)
+    tile_y = read_ini_value(Tile_Info_ini_path, section_tiles, 'Tiles_Y_Index', value_type=int)
     lambda_host.log(f'Tiles_Count of {Tile_Info_ini_path} is {tile_size}')
     lambda_host.log(f'Tiles_X_Index of {Tile_Info_ini_path} is {tile_x}')
     lambda_host.log(f'Tiles_Y_Index of {Tile_Info_ini_path} is {tile_y}')
