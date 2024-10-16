@@ -680,64 +680,6 @@ def on_upload_db_succeessfull(vf, project_id, entity_id, output_dir):
         
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------
 '''
-def do_swarm_db_upload(projectId, itemId, outputDBFolder, dbName, dbTitle):
-    # Log progress for creating configuration file
-    print('XC Create configuration file for uploading dataset')
-    
-    # Define organization ID
-    OrgId = 2343243456678890
-    
-    # Create configuration string
-    uploaddb_cfg = f'''
-#[Configuration]
-#Organization={OrgId}
-#Instance={itemId}
-#Project={projectId}
-#OutputFolder={outputDBFolder}
-#dbName={dbName}
-#dbTitle={dbTitle}
-#azure_container_name=vfcloudstorage
-#azure_storage_connection_string=DefaultEndpointsProtocol=https;AccountName=vfstpangea;AccountKey=qo+5MnyJBELDbjQUBIOyl7mlyg9FlYnz7XShIyao2wd6Et+vVNMv3Szuvc5uY++zhba8TaWq/uXc+AStuouKIQ==;EndpointSuffix=core.windows.net
-#storage_provider=AZURE
-'''
-
-    # Log the configuration string
-    print(f'XC Tool.UploadDB.exe surveys configuration ini file content is : ')
-    print(f'{uploaddb_cfg}')
-    
-    # Create path for the ini file
-    ini_file = os.path.join(scrap_folder, f'uploaddb_{dbName}.ini')
-    print(f'XC Create surveys configuration file {ini_file}')
-    
-    # Write configuration string to the ini file
-    with open(ini_file, "w") as ini:
-        ini.write(uploaddb_cfg)
-    
-    # Log the configuration string again
-    print(f'{uploaddb_cfg}')
-    
-    # Define swarm index and size
-    swarmIndex = 0
-    swarmSize = 1
-    
-    # Construct the path for the upload tool
-    uploaddb_path = f'{tools}\\Tool.UploadDB.exe {ini_file} {swarmIndex} {swarmSize}'
-
-    # Attach the configuration file for logging
-    lambda_host.attach_file(ini_file)
-
-    # Execute the upload tool and time the operation
-    start = timer()
-    return_code = xc_run_tool(uploaddb_path, 0, 100)
-    end = timer()
-    
-    # Log the duration and exit code of the upload operation
-    print(f'XC Swarm UploadDB: {timedelta(seconds=end - start)}, exit code: {return_code}')
-    
-    # Return the exit code
-    return return_code
-
-#---------------------------------------------------------------------------------------------------------------------------------------------------------------
 def do_simple_upload_basemeshes(api : voxelfarmclient.rest, project_id, basemeshes_db_folderId, file_path : str, version : int, entity_name : str, code_path : str):
     print(f'Start do_simple_upload_basemeshes Created entity {entity_name}')
 
@@ -798,69 +740,6 @@ def do_simple_upload_basemeshes(api : voxelfarmclient.rest, project_id, basemesh
     
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-def do_simple_upload_basemeshes_swarm(api : voxelfarmclient.rest, project_id, basemeshes_db_folderId, file_path : str, version : int, entity_name : str, code_path : str):
-    print(f'Start do_simple_upload_basemeshes_swarm Created entity {entity_name}')
-
-    result = api.get_project_crs(project_id)
-    crs = result.crs
-    entity_id = None
-
-    print(f'start create_entity_raw file for entity {entity_name}')
-    result = api.create_entity_raw(project=project_id, 
-        type=api.entity_type.VoxelPC, 
-        name=entity_name, 
-        fields={
-            'state': 'PARTIAL',
-            'file_folder': basemeshes_db_folderId,
-        }, crs = crs)
-    entity_id = result.id
-    print(f'end create_entity_raw file for entity {entity_name}')
-    if not result.success:
-        print(f'Fail to create_entity_raw Created entity for {entity_name} : {result.error_info}')
-    else:
-        print(f'Successfully to create_entity_raw Created entity for {result.id} for {entity_name}')
-        
-    dbName = f'vox-mesh-{entity_name}'
-    dbTitle = f'Voxel Mesh Data For {entity_name}'
-    print(f'Start to do_swarm_db_upload entity_id : {entity_id} ---- with folder ; {file_path}')
-    
-    uploadcode = None
-    try:
-        # Attempt to upload the database
-        #dbName = f'vox-mesh-{entity_name}'
-        #dbTitle = f'Voxel Mesh Data For {entity_name}'
-        dbName = f'vox-pc'
-        dbTitle = f'Voxel Data'
-        uploadcode = do_swarm_db_upload(project_id, entity_id, file_path, dbName, dbTitle)
-    except Exception as e:
-        # Log any exceptions that occur during the upload
-        print(f'Exception during do_swarm_db_upload: files folder: {file_path} to entity {entity_id} with exception: {str(e)}')
-    
-    # Check if uploadcode was assigned
-    if uploadcode is not None:
-        # Proceed with further logic if needed
-        print(f'Upload completed with exit code: {uploadcode}')
-    else:
-        # Handle the case where uploadcode was not assigned (likely due to an exception)
-        print('Upload did not complete successfully. Please check the logs for details.')
-
-    result = api.update_entity(
-    id=entity_id,
-    project=project_id, 
-    fields={
-        'state' : 'COMPLETE'
-    })
-    
-    create_or_update_ini_file(g_Lambda_Info_ini_path, section_entity, entity_name, entity_id)
-    
-    if not result.success:
-        print(result.error_info)
-        exit_code(111)
-
-    print(f'End do_simple_upload_basemeshes_swarm Created entity {result.id} for {entity_name}')
-''' 
-#---------------------------------------------------------------------------------------------------------------------------------------------------------------
-'''
 def do_upload_base_meshes_swarm(api : voxelfarmclient.rest, project_id, basemeshes_db_folderId, file_path : str, version : int, entity_name : str, code_path : str):
     print(f'Start do_upload_base_meshes_swarm Created entity {entity_name}')
 
@@ -912,8 +791,10 @@ def do_upload_base_meshes_swarm(api : voxelfarmclient.rest, project_id, basemesh
     uploadcode = None
     try:
         # Attempt to upload the database
-        dbName = f'vox-mesh-{entity_name}'
-        dbTitle = f'Voxel Mesh Data For {entity_name}'
+        #dbName = f'vox-mesh-{entity_name}'
+        #dbTitle = f'Voxel Mesh Data For {entity_name}'
+        dbName = f'vox-pc'
+        dbTitle = f'Voxel Data'
         uploadcode = do_swarm_db_upload(project_id, entity_id, file_path, dbName, dbTitle)
     except Exception as e:
         # Log any exceptions that occur during the upload
@@ -943,6 +824,126 @@ def do_upload_base_meshes_swarm(api : voxelfarmclient.rest, project_id, basemesh
     print(f'End do_upload_base_meshes_swarm Created entity {result.id} for {entity_name}')
 '''
 #-----------------------------------------------------------------------------------------------------------
+
+def do_swarm_db_upload(projectId, itemId, outputDBFolder, dbName, dbTitle):
+    # Log progress for creating configuration file
+    print('XC Create configuration file for uploading dataset')
+    
+    # Define organization ID
+    OrgId = 2343243456678890
+    
+    # Create configuration string
+    uploaddb_cfg = f'''
+#[Configuration]
+#Organization={OrgId}
+#Instance={itemId}
+#Project={projectId}
+#OutputFolder={outputDBFolder}
+#dbName={dbName}
+#dbTitle={dbTitle}
+#azure_container_name=vfcloudstorage
+#azure_storage_connection_string=DefaultEndpointsProtocol=https;AccountName=vfstpangea;AccountKey=qo+5MnyJBELDbjQUBIOyl7mlyg9FlYnz7XShIyao2wd6Et+vVNMv3Szuvc5uY++zhba8TaWq/uXc+AStuouKIQ==;EndpointSuffix=core.windows.net
+#storage_provider=AZURE
+'''
+
+    # Log the configuration string
+    print(f'XC Tool.UploadDB.exe surveys configuration ini file content is : ')
+    print(f'{uploaddb_cfg}')
+    
+    # Create path for the ini file
+    ini_file = os.path.join(scrap_folder, f'uploaddb_{dbName}.ini')
+    print(f'XC Create surveys configuration file {ini_file}')
+    
+    # Write configuration string to the ini file
+    with open(ini_file, "w") as ini:
+        ini.write(uploaddb_cfg)
+    
+    # Log the configuration string again
+    print(f'{uploaddb_cfg}')
+    
+    # Define swarm index and size
+    swarmIndex = 0
+    swarmSize = 1
+    
+    # Construct the path for the upload tool
+    uploaddb_path = f'{tools}\\Tool.UploadDB.exe {ini_file} {swarmIndex} {swarmSize}'
+
+    # Attach the configuration file for logging
+    #lambda_host.attach_file(ini_file)
+
+    # Execute the upload tool and time the operation
+    start = timer()
+    return_code = xc_run_tool(uploaddb_path, 0, 100)
+    end = timer()
+    
+    # Log the duration and exit code of the upload operation
+    print(f'XC Swarm UploadDB: {timedelta(seconds=end - start)}, exit code: {return_code}')
+    
+    # Return the exit code
+    return return_code
+
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+def do_simple_upload_basemeshes_swarm(api : voxelfarmclient.rest, project_id, basemeshes_db_folderId, file_path : str, version : int, entity_name : str, code_path : str):
+    print(f'Start do_simple_upload_basemeshes_swarm Created entity {entity_name}')
+
+    result = api.get_project_crs(project_id)
+    crs = result.crs
+    entity_id = None
+
+    print(f'start create_entity_raw file for entity {entity_name}')
+    result = api.create_entity_raw(project=project_id, 
+        type=api.entity_type.VoxelPC, 
+        name=entity_name, 
+        fields={
+            'state': 'PARTIAL',
+            'file_folder': basemeshes_db_folderId,
+        }, crs = crs)
+    entity_id = result.id
+    print(f'end create_entity_raw file for entity {entity_name}')
+    if not result.success:
+        print(f'Fail to create_entity_raw Created entity for {entity_name} : {result.error_info}')
+    else:
+        print(f'Successfully to create_entity_raw Created entity for {result.id} for {entity_name}')
+        
+    #dbName = f'vox-mesh-{entity_name}'
+    #dbTitle = f'Voxel Mesh Data For {entity_name}'
+    print(f'Start to do_swarm_db_upload entity_id : {entity_id} ---- with folder ; {file_path}')
+    
+    uploadcode = None
+    try:
+        # Attempt to upload the database
+        #dbName = f'vox-mesh-{entity_name}'
+        #dbTitle = f'Voxel Mesh Data For {entity_name}'
+        dbName = f'vox-pc'
+        dbTitle = f'Voxel Data'
+        uploadcode = do_swarm_db_upload(project_id, entity_id, file_path, dbName, dbTitle)
+    except Exception as e:
+        # Log any exceptions that occur during the upload
+        print(f'Exception during do_swarm_db_upload: files folder: {file_path} to entity {entity_id} with exception: {str(e)}')
+    
+    # Check if uploadcode was assigned
+    if uploadcode is not None:
+        # Proceed with further logic if needed
+        print(f'Upload completed with exit code: {uploadcode}')
+    else:
+        # Handle the case where uploadcode was not assigned (likely due to an exception)
+        print('Upload did not complete successfully. Please check the logs for details.')
+
+    result = api.update_entity(
+    id=entity_id,
+    project=project_id, 
+    fields={
+        'state' : 'COMPLETE'
+    })
+    
+    create_or_update_ini_file(g_Lambda_Info_ini_path, section_entity, entity_name, entity_id)
+    
+    if not result.success:
+        print(result.error_info)
+        exit_code(111)
+
+    print(f'End do_simple_upload_basemeshes_swarm Created entity {result.id} for {entity_name}')
 
     
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1084,8 +1085,8 @@ def xc_process_base_meshes(api : voxelfarmclient.rest, basemeshes_output_folder_
     #do_simple_upload_basemeshes(api, basemeshes_project_id, basemeshes_db_folder_Id, level0_db_output_folder, basemeshes_version, level0_entity_name, pythoncode_data_folder)
     #do_simple_upload_basemeshes(api, basemeshes_project_id, basemeshes_db_folder_Id, level1_db_output_folder, basemeshes_version, level1_entity_name, pythoncode_data_folder)
     
-    #do_simple_upload_basemeshes_swarm(api, basemeshes_project_id, basemeshes_db_folder_Id, level0_db_output_folder, basemeshes_version, level0_entity_name, pythoncode_data_folder)
-    #do_simple_upload_basemeshes_swarm(api, basemeshes_project_id, basemeshes_db_folder_Id, level1_db_output_folder, basemeshes_version, level1_entity_name, pythoncode_data_folder)
+    do_simple_upload_basemeshes_swarm(api, basemeshes_project_id, basemeshes_db_folder_Id, level0_db_output_folder, basemeshes_version, level0_entity_name, pythoncode_data_folder)
+    do_simple_upload_basemeshes_swarm(api, basemeshes_project_id, basemeshes_db_folder_Id, level1_db_output_folder, basemeshes_version, level1_entity_name, pythoncode_data_folder)
     
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------
 def create_basemeshes_result_entity(api : voxelfarmclient.rest, basemeshes_output_folder_path, basemeshes_result_project_id, basemeshes_result_folder_id):
@@ -1160,8 +1161,8 @@ def create_basemeshes_result_entity(api : voxelfarmclient.rest, basemeshes_outpu
 '''
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-#def exit_code(code):
-#    lambda_host.set_exit_code(code)
+def exit_code(code):
+    exit(code)
 
 def tree_instances_generation(config_path):
     print(f'start for step tree_instances_generation')
@@ -1180,7 +1181,6 @@ def tree_instances_generation(config_path):
     #tree_entity_id = "3A3CFEBA226B4692A8719C78335470DD"  #xc tesst
     
     tree_entity_id = read_ini_value(config_path, section_main, 'tree_entity_id')
-    basemeshes_entity_id = read_ini_value(config_path, section_main, 'basemeshes_entity_id')
     
     tiles_count = read_ini_value(config_path, section_tiles, 'tiles_count', value_type=int)
     tiles_x = read_ini_value(config_path, section_tiles, 'tiles_x', value_type=int)
@@ -1206,7 +1206,6 @@ def tree_instances_generation(config_path):
     
     tree_output_base_folder = read_ini_value(config_path, section_output, 'tree_output_base_folder')
 
-    run_update_basemeshes_assets = read_ini_value(config_path, section_run, 'run_update_basemeshes_assets', value_type=bool)
     run_road_exe = read_ini_value(config_path, section_run, 'run_road_exe', value_type=bool)
     run_worldgen_road = read_ini_value(config_path, section_run, 'run_worldgen_road', value_type=bool)
     run_upload_smooth_layer = read_ini_value(config_path, section_run, 'run_upload_smooth_layer', value_type=bool)
@@ -1299,8 +1298,6 @@ def tree_instances_generation(config_path):
     project_output_version = int(project_entity['version']) + 1 if 'version' in project_entity else 1
     api.update_entity(project=project_id, id=project_id, fields={'version': project_output_version})
     
-    basemeshes_asset_download_parent_folder = os.path.join(qtree_assets_folder, f'BaseMeshes_Versions')
-    basemeshes_asset_download_folder = os.path.join(basemeshes_asset_download_parent_folder, basemeshes_entity_id)
     dont_run_road_game = 1
     road_exe_command = f'{road_exe_path} {tiles_count} {tiles_x} {tiles_y} {road_Heightmap_width} {road_heightmap_height} {road_input_folder} {road_output_folder} {dont_run_road_game}'
     worldgen_level = 5
@@ -1428,18 +1425,6 @@ def tree_instances_generation(config_path):
         tree_ini_string = ini_file_to_string(tree_ini_path)
         print(f'Tree ini file content is :')
         print(f'{tree_ini_string}')
-    
-    if run_update_basemeshes_assets:
-        print(f'step for to run_update_basemeshes_assets')
-        ##### Download BaseMeshes(version) assets from Cloud!
-        file_list = api.get_file_list(project_id, basemeshes_entity_id)
-        for index, file_name in enumerate(file_list):
-            print(f"Index: {index}, File Path: {file_name}")
-            file_data = api.get_file(project_id, basemeshes_entity_id, file_name)
-            file_path = os.path.join(basemeshes_asset_download_folder, file_name)
-            save_data_to_file(file_data, file_path)
-        ##### Copy BaseMeshes(version) assets to BaseMeshes asset folder!
-        copy_files(basemeshes_asset_download_folder, qtree_assets_folder)
   
     if run_road_exe:
         ##### Generate the road obj and image for smooth layer. 
@@ -1647,7 +1632,6 @@ def tree_config_creation(ini_path):
     create_or_update_ini_file(ini_path, section_main, 'cloud_url', Cloud_url)
     create_or_update_ini_file(ini_path, section_main, 'project_id', Project_id)
     create_or_update_ini_file(ini_path, section_main, 'tree_entity_id', Game_Tree_Entity_id)
-    create_or_update_ini_file(ini_path, section_main, 'basemeshes_entity_id', Latest_basemeshes_entity_id)
 
     create_or_update_ini_file(ini_path, section_tiles, 'tiles_count', Tiles_size)
     create_or_update_ini_file(ini_path, section_tiles, 'tiles_x', Tiles_x)
@@ -1669,7 +1653,6 @@ def tree_config_creation(ini_path):
     create_or_update_ini_file(ini_path, section_output, 'basemeshes_heightmap_folder', basemeshes_heightmap_folder)
     create_or_update_ini_file(ini_path, section_output, 'tree_output_base_folder', tree_output_base_folder)
 
-    create_or_update_ini_file(ini_path, section_run, 'run_update_basemeshes_assets', is_run_update_basemeshes_assets)
     create_or_update_ini_file(ini_path, section_run, 'run_road_exe', is_run_road_exe)
     create_or_update_ini_file(ini_path, section_run, 'run_worldgen_road', is_run_worldgen_road)
     create_or_update_ini_file(ini_path, section_run, 'run_upload_smooth_layer', is_run_upload_smooth_layer)
@@ -1723,7 +1706,7 @@ print(f'scrap_folder: {scrap_folder} \n')
 tools = f'D:\\Downloads\\XCTreeWorkFlow\\Tools'
 print(f'system tools: {tools} \n')
 
-workflow_project_id = '7AE3CAAE2F4742E392E6B66E28D6BF1F'
+workflow_project_id = '1D4CBBD1D957477E8CC3FF376FB87470' #Pangea Next Project
 print(f'project_id: {workflow_project_id}')
 tile_size = 25 #10
 print(f'tile_size: {tile_size}')
@@ -1766,7 +1749,6 @@ print('tileinfo_active_version_property: ' + tileinfo_active_version_property)
 
 ###############
 # XC Options
-is_run_update_basemeshes_assets = False
 is_run_road_exe = True
 is_run_worldgen_road = True
 is_run_upload_smooth_layer = True
@@ -1777,7 +1759,118 @@ is_run_upload_tree_instances = True
 is_run_create_geochem_entity = True
 is_run_generate_road_input = False
 
-print(f'is_run_update_basemeshes_assets: {is_run_update_basemeshes_assets}')
+Game_Tree_Entity_id = '0B4C084415C744B48B4BD13D9990E713' # xuan test 
+#Game_Tree_Entity_id = "3A3CFEBA226B4692A8719C78335470DD"  #game entity 
+Workflow_Output_Result_Folder_id = '19AACA0A507546C192C4179E8370CC92' #Pangea Next > Workflow Output
+
+tree_generation = False
+basemeshes_generation = False
+smooth_layer_generation = False
+road_input_generation = False
+whole_result_generation = False
+test_tree_generation = False
+test_whole_result_generation = False
+
+road_input_generation = True
+
+if tree_generation:
+    print("Choose tree_generation to Run")
+    Game_Tree_Entity_id = "3A3CFEBA226B4692A8719C78335470DD"  #game entity 
+    Workflow_Output_Result_Folder_id = 'C2C9E711B8A74E0FB8401646BCF3396C'  #Pangea Next > Workflow Output > Workflow Tree GeoChems Output
+    is_run_road_exe = True
+    is_run_worldgen_road = True
+    is_run_upload_smooth_layer = False
+    is_run_make_basemeshes = True
+    is_run_upload_basemeshes = False
+    is_run_make_tree_instances = True
+    is_run_upload_tree_instances = True
+    is_run_create_geochem_entity = True
+    is_run_generate_road_input = False
+    
+if basemeshes_generation:
+    print("Choose basemeshes_generation to Run")
+    Game_Tree_Entity_id = "3A3CFEBA226B4692A8719C78335470DD"  #game entity 
+    Workflow_Output_Result_Folder_id = '68396F90F7CE48B4BA1412EA020ED92A'  #Pangea Next > Workflow Output > Workflow BaseMeshes Output
+    is_run_road_exe = False
+    is_run_worldgen_road = False
+    is_run_upload_smooth_layer = False
+    is_run_make_basemeshes = True
+    is_run_upload_basemeshes = True
+    is_run_make_tree_instances = False
+    is_run_upload_tree_instances = False
+    is_run_create_geochem_entity = False
+    is_run_generate_road_input = False
+    
+if smooth_layer_generation:
+    print("Choose smooth_layer_generation to Run")
+    Game_Tree_Entity_id = "3A3CFEBA226B4692A8719C78335470DD"  #game entity 
+    Workflow_Output_Result_Folder_id = 'B24E708E13C5473FA3BFDBCBA0E68B42'  #Pangea Next > Workflow Output > Workflow Smooth layer Output
+    is_run_road_exe = True
+    is_run_worldgen_road = True
+    is_run_upload_smooth_layer = True
+    is_run_make_basemeshes = False
+    is_run_upload_basemeshes = False
+    is_run_make_tree_instances = True
+    is_run_upload_tree_instances = True
+    is_run_create_geochem_entity = True
+    is_run_generate_road_input = False
+        
+if road_input_generation:
+    print("Choose road_input_generation to Run")
+    Game_Tree_Entity_id = "3A3CFEBA226B4692A8719C78335470DD"  #game entity 
+    Workflow_Output_Result_Folder_id = '971A16307C4B44838A3BA72A974C1F43'  #Pangea Next > Workflow Output > Workflow Road Input Output
+    is_run_road_exe = False
+    is_run_worldgen_road = True
+    is_run_upload_smooth_layer = False
+    is_run_make_basemeshes = True
+    is_run_upload_basemeshes = False
+    is_run_make_tree_instances = True
+    is_run_upload_tree_instances = False
+    is_run_create_geochem_entity = False
+    is_run_generate_road_input = True
+    
+if whole_result_generation:
+    print("Choose whole_result_generation to Run")
+    Game_Tree_Entity_id = "3A3CFEBA226B4692A8719C78335470DD"  #game entity 
+    Workflow_Output_Result_Folder_id = '5D29A65F612D4EEEBFABC4ECF439A88C'  #Pangea Next > Workflow Output > Workflow Whole Result Output
+    is_run_road_exe = True
+    is_run_worldgen_road = True
+    is_run_upload_smooth_layer = True
+    is_run_make_basemeshes = True
+    is_run_upload_basemeshes = True
+    is_run_make_tree_instances = True
+    is_run_upload_tree_instances = True
+    is_run_create_geochem_entity = True
+    is_run_generate_road_input = False
+    
+if test_tree_generation:
+    print("Choose test_tree_generation to Run")
+    Game_Tree_Entity_id = "0B4C084415C744B48B4BD13D9990E713"  #xuan chen 
+    Workflow_Output_Result_Folder_id = '82EC2324CC584DCEB3FF3281676F42A4'  #Pangea Next > Workflow Output > Workflow Tree GeoChems Output
+    is_run_road_exe = True
+    is_run_worldgen_road = True
+    is_run_upload_smooth_layer = False
+    is_run_make_basemeshes = True
+    is_run_upload_basemeshes = False
+    is_run_make_tree_instances = True
+    is_run_upload_tree_instances = True
+    is_run_create_geochem_entity = True
+    is_run_generate_road_input = False
+    
+if test_whole_result_generation:
+    print("Choose test_whole_result_generation to Run")
+    Game_Tree_Entity_id = "0B4C084415C744B48B4BD13D9990E713"  #xuan chen 
+    Workflow_Output_Result_Folder_id = '75FDBF01261147F3A50E4A6CFDE059D3'  #Pangea Next > Workflow Output > Workflow Test Whole Result Output
+    is_run_road_exe = True
+    is_run_worldgen_road = True
+    is_run_upload_smooth_layer = True
+    is_run_make_basemeshes = True
+    is_run_upload_basemeshes = True
+    is_run_make_tree_instances = True
+    is_run_upload_tree_instances = True
+    is_run_create_geochem_entity = True
+    is_run_generate_road_input = False
+
 print(f'is_run_road_exe: {is_run_road_exe}')
 print(f'is_run_worldgen_road: {is_run_worldgen_road}')
 print(f'is_run_upload_smooth_layer: {is_run_upload_smooth_layer}')
@@ -1867,11 +1960,8 @@ print('Start to get input parameters')
 Cloud_url = 'https://demo.voxelfarm.com/'
 Project_id = workflow_project_id
 
-Latest_basemeshes_entity_id = basemeshes_active_version_property #the entity id of the lastest the basemsehes asset entity
-Game_Tree_Entity_id = '0B4C084415C744B48B4BD13D9990E713' # xuan test 
-#Game_Tree_Entity_id = "3A3CFEBA226B4692A8719C78335470DD"  #game entity 
 print(f'Game_Tree_Entity_id: {Game_Tree_Entity_id}')
-Workflow_Output_Result_Folder_id = '19AACA0A507546C192C4179E8370CC92' #Pangea Next > Workflow Output
+
 print(f'Workflow_Output_Result_Folder_id: {Workflow_Output_Result_Folder_id}')
 
 Tiles_size = tile_size if tile_size else 10
