@@ -1534,7 +1534,8 @@ def tree_instances_generation(config_path):
         print(f'original_road_humidity_file_path is : {original_road_humidity_file_path}')
         print(f'road_regions_name_file_path is : {road_regions_name_file_path}')
     
-        shutil.copy2(new_road_heightmap_file_path, original_road_heightmap_file_path)
+        #shutil.copy2(new_road_heightmap_file_path, original_road_heightmap_file_path)
+        shutil.copy2(new_road_heightmap_file_path, roaddata_active_version_property)
             
         print(f'End to run_generate_road_input')
 
@@ -1771,7 +1772,6 @@ whole_result_generation = False
 test_tree_generation = False
 test_whole_result_generation = False
 
-road_input_generation = True
 
 if tree_generation:
     print("Choose tree_generation to Run")
