@@ -818,8 +818,8 @@ def do_simple_upload_basemeshes_swarm(api : voxelfarmclient.rest, project_id, ba
     else:
         lambda_host.log(f'Successfully to create_entity_raw Created entity for {result.id} for {entity_name}')
         
-    dbName = f'vox-mesh-{entity_name}'
-    dbTitle = f'Voxel Mesh Data For {entity_name}'
+    #dbName = f'vox-mesh-{entity_name}'
+    #dbTitle = f'Voxel Mesh Data For {entity_name}'
     lambda_host.log(f'Start to do_swarm_db_upload entity_id : {entity_id} ---- with folder ; {file_path}')
     
     uploadcode = None
@@ -981,8 +981,10 @@ def do_upload_base_meshes_swarm(api : voxelfarmclient.rest, project_id, basemesh
     uploadcode = None
     try:
         # Attempt to upload the database
-        dbName = f'vox-mesh-{entity_name}'
-        dbTitle = f'Voxel Mesh Data For {entity_name}'
+        #dbName = f'vox-mesh-{entity_name}'
+        #dbTitle = f'Voxel Mesh Data For {entity_name}'
+        dbName = f'vox-pc'
+        dbTitle = f'Voxel Data'
         uploadcode = do_swarm_db_upload(project_id, entity_id, file_path, dbName, dbTitle)
     except Exception as e:
         # Log any exceptions that occur during the upload
@@ -1282,7 +1284,6 @@ def tree_instances_generation(config_path):
     #tree_entity_id = "3A3CFEBA226B4692A8719C78335470DD"  #xc tesst
     
     tree_entity_id = read_ini_value(config_path, section_main, 'tree_entity_id')
-    basemeshes_entity_id = read_ini_value(config_path, section_main, 'basemeshes_entity_id')
     
     tiles_count = read_ini_value(config_path, section_tiles, 'tiles_count', value_type=int)
     tiles_x = read_ini_value(config_path, section_tiles, 'tiles_x', value_type=int)
@@ -1308,7 +1309,6 @@ def tree_instances_generation(config_path):
     
     tree_output_base_folder = read_ini_value(config_path, section_output, 'tree_output_base_folder')
 
-    run_update_basemeshes_assets = read_ini_value(config_path, section_run, 'run_update_basemeshes_assets', value_type=bool)
     run_road_exe = read_ini_value(config_path, section_run, 'run_road_exe', value_type=bool)
     run_worldgen_road = read_ini_value(config_path, section_run, 'run_worldgen_road', value_type=bool)
     run_upload_smooth_layer = read_ini_value(config_path, section_run, 'run_upload_smooth_layer', value_type=bool)
@@ -1401,8 +1401,6 @@ def tree_instances_generation(config_path):
     project_output_version = int(project_entity['version']) + 1 if 'version' in project_entity else 1
     api.update_entity(project=project_id, id=project_id, fields={'version': project_output_version})
     
-    basemeshes_asset_download_parent_folder = os.path.join(qtree_assets_folder, f'BaseMeshes_Versions')
-    basemeshes_asset_download_folder = os.path.join(basemeshes_asset_download_parent_folder, basemeshes_entity_id)
     dont_run_road_game = 1
     road_exe_command = f'{road_exe_path} {tiles_count} {tiles_x} {tiles_y} {road_Heightmap_width} {road_heightmap_height} {road_input_folder} {road_output_folder} {dont_run_road_game}'
     worldgen_level = 5
@@ -1530,18 +1528,6 @@ def tree_instances_generation(config_path):
         tree_ini_string = ini_file_to_string(tree_ini_path)
         lambda_host.log(f'Tree ini file content is :')
         lambda_host.log(f'{tree_ini_string}')
-    
-    if run_update_basemeshes_assets:
-        lambda_host.log(f'step for to run_update_basemeshes_assets')
-        ##### Download BaseMeshes(version) assets from Cloud!
-        file_list = api.get_file_list(project_id, basemeshes_entity_id)
-        for index, file_name in enumerate(file_list):
-            lambda_host.log(f"Index: {index}, File Path: {file_name}")
-            file_data = api.get_file(project_id, basemeshes_entity_id, file_name)
-            file_path = os.path.join(basemeshes_asset_download_folder, file_name)
-            save_data_to_file(file_data, file_path)
-        ##### Copy BaseMeshes(version) assets to BaseMeshes asset folder!
-        copy_files(basemeshes_asset_download_folder, qtree_assets_folder)
   
     if run_road_exe:
         ##### Generate the road obj and image for smooth layer. 
@@ -1763,7 +1749,6 @@ def tree_config_creation(ini_path):
     create_or_update_ini_file(ini_path, section_main, 'cloud_url', Cloud_url)
     create_or_update_ini_file(ini_path, section_main, 'project_id', Project_id)
     create_or_update_ini_file(ini_path, section_main, 'tree_entity_id', Game_Tree_Entity_id)
-    create_or_update_ini_file(ini_path, section_main, 'basemeshes_entity_id', Latest_basemeshes_entity_id)
 
     create_or_update_ini_file(ini_path, section_tiles, 'tiles_count', Tiles_size)
     create_or_update_ini_file(ini_path, section_tiles, 'tiles_x', Tiles_x)
@@ -1785,7 +1770,6 @@ def tree_config_creation(ini_path):
     create_or_update_ini_file(ini_path, section_output, 'basemeshes_heightmap_folder', basemeshes_heightmap_folder)
     create_or_update_ini_file(ini_path, section_output, 'tree_output_base_folder', tree_output_base_folder)
 
-    create_or_update_ini_file(ini_path, section_run, 'run_update_basemeshes_assets', is_run_update_basemeshes_assets)
     create_or_update_ini_file(ini_path, section_run, 'run_road_exe', is_run_road_exe)
     create_or_update_ini_file(ini_path, section_run, 'run_worldgen_road', is_run_worldgen_road)
     create_or_update_ini_file(ini_path, section_run, 'run_upload_smooth_layer', is_run_upload_smooth_layer)
@@ -1884,7 +1868,6 @@ lambda_host.log('qtree_active_version_property: ' + qtree_active_version_propert
 lambda_host.log('tools_active_version_property: ' + tools_active_version_property)
 lambda_host.log('tileinfo_active_version_property: ' + tileinfo_active_version_property)
 
-is_run_update_basemeshes_assets = lambda_host.input_string('run_update_basemeshes_assets', 'run_update_basemeshes_assets', '') 
 is_run_road_exe = lambda_host.input_string('run_road_exe', 'run_road_exe', '')
 is_run_worldgen_road = lambda_host.input_string('run_worldgen_road', 'run_worldgen_road', '')
 is_run_upload_smooth_layer = lambda_host.input_string('run_upload_smooth_layer', 'run_upload_smooth_layer', '')
@@ -1895,7 +1878,6 @@ is_run_upload_tree_instances = lambda_host.input_string('run_upload_tree_instanc
 is_run_create_geochem_entity = lambda_host.input_string('run_create_geochem_entity', 'run_create_geochem_entity', '')
 is_run_generate_road_input = lambda_host.input_string('run_generate_road_input', 'run_generate_road_input', '')
 
-lambda_host.log('is_run_update_basemeshes_assets: ' + is_run_update_basemeshes_assets)
 lambda_host.log('is_run_road_exe: ' + is_run_road_exe)
 lambda_host.log('is_run_worldgen_road: ' + is_run_worldgen_road)
 lambda_host.log('is_run_upload_smooth_layer: ' + is_run_upload_smooth_layer)
@@ -1990,8 +1972,6 @@ lambda_host.progress(15, 'Start to get input parameters')
 Cloud_url = 'http://localhost/'
 Project_id = workflow_project_id
 
-Latest_basemeshes_entity_id = basemeshes_active_version_property #the entity id of the lastest the basemsehes asset entity
-
 Game_Tree_Entity_id = lambda_host.input_string('game_tree_entity_id_property', 'Game Tree Entity id', '')
 lambda_host.log(f'Game_Tree_Entity_id: {Game_Tree_Entity_id}')
 Workflow_Output_Result_Folder_id = lambda_host.input_string('workflow_output_version_folder_id_property', 'Output Result Basemeshes Folder id', '')
@@ -2020,7 +2000,6 @@ lambda_host.log(f'end tree_config_creation: {configfile_path}')
 lambda_host.log(f'start tree_instances_generation: {configfile_path}')
 run_result = tree_instances_generation(configfile_path)
 lambda_host.log(f'end tree_instances_generation: {configfile_path}')
-
 
 end_time = time.time()
 execution_time_seconds = end_time - start_time

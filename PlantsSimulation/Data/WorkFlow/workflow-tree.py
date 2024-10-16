@@ -86,7 +86,6 @@ def common_generation_on_receive_data(
             'qtree_active_version_property': qtree_active_version_property,
             'tools_active_version_property': tools_active_version_property,
             'tileinfo_active_version_property': tileinfo_active_version_property,
-            'run_update_basemeshes_assets': False,
             'run_road_exe': run_road_exe,
             'run_worldgen_road': run_worldgen_road,
             'run_upload_smooth_layer': run_upload_smooth_layer,
@@ -533,6 +532,7 @@ def road_input_generation_on_stage_complete(
         request : workflow_lambda.request,
         lambda_host : workflow_lambda.workflow_lambda_host):
     
+    lambda_host.log(f'Start road_input_generation_on_stage_complete')
     # Check if the lambda completed sucessuflly
     lambda_entity_id = request.properties['road_input_generation_lambda_id']
     lambda_entity = lambda_host.get_entity(lambda_entity_id)
