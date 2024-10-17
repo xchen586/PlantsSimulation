@@ -810,6 +810,7 @@ def do_simple_upload_basemeshes_swarm(api : voxelfarmclient.rest, project_id, ba
         fields={
             'state': 'PARTIAL',
             'file_folder': basemeshes_db_folderId,
+            'virtual': '0',
         }, crs = crs)
     entity_id = result.id
     lambda_host.log(f'end create_entity_raw file for entity {entity_name}')
