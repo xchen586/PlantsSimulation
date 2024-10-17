@@ -25,6 +25,19 @@ from voxelfarm import voxelfarmclient
 from voxelfarm import workflow_lambda
 from voxelfarm import process_lambda
 
+class DualOutput:
+    def __init__(self, file_path):
+        self.console = sys.stdout  # Save the current console output stream
+        self.log_file = open(file_path, 'a')  # Open a file for logging
+
+    def write(self, message):
+        self.console.write(message)  # Write to the console
+        self.log_file.write(message)  # Write to the log file
+
+    def flush(self):
+        self.console.flush()
+        self.log_file.flush()
+        
 def find_files_of_type_in_folder(folder_path, file_extension):
     files = []
     # Recursively traverse through all subdirectories
@@ -1678,7 +1691,23 @@ def tree_config_creation(ini_path):
     print(f'{ini_string}')
     return
 
+#-------Program Main Start ---------------------------------------------------------------------------------------------------------------------------------------------------------
+
+scrap_folder= f'D:\\Downloads\\XCTreeWorkFlow\\Creation'
+
 start_time = time.time()
+
+now = datetime.datetime.now()
+
+# Format the current time into a string (e.g., 2024-10-17_14-35-50)
+filename = now.strftime("%Y-%m-%d_%H-%M-%S")
+
+# Add file extension if needed (e.g., .txt)
+log_file_name = f"{filename}.log"
+log_file_path = os.path.join(scrap_folder, log_file_name)
+sys.stdout = DualOutput(log_file_path)  # Redirect stdout
+
+print(f'This message will go to both the console and the log file : {log_file_path}.')
 
 params = sys.argv[1:]
 
@@ -1702,7 +1731,6 @@ print(f'use_basemesh_original_program is {use_basemesh_original_program}')
 
 print(f'Start workflow')
 
-scrap_folder= f'D:\\Downloads\\XCTreeWorkFlow'
 print(f'scrap_folder: {scrap_folder} \n')
 tools = f'D:\\Downloads\\XCTreeWorkFlow\\Tools'
 print(f'system tools: {tools} \n')
@@ -1772,7 +1800,7 @@ whole_result_generation = False
 test_tree_generation = False
 test_whole_result_generation = False
 
-road_input_generation = True
+tree_generation = True
 
 if tree_generation:
     print("Choose tree_generation to Run")
@@ -1811,9 +1839,9 @@ if smooth_layer_generation:
     is_run_upload_smooth_layer = True
     is_run_make_basemeshes = False
     is_run_upload_basemeshes = False
-    is_run_make_tree_instances = True
-    is_run_upload_tree_instances = True
-    is_run_create_geochem_entity = True
+    is_run_make_tree_instances = False
+    is_run_upload_tree_instances = False
+    is_run_create_geochem_entity = False
     is_run_generate_road_input = False
         
 if road_input_generation:
@@ -1907,7 +1935,8 @@ print('qtree_data_path: ' + qtree_data_path)
 print('tools_data_path: ' + tools_data_path)
 print('tileinfo_data_path: ' + tileinfo_data_path)
 
-Tree_Data_Folder_Name = 'Tree_Big_Creation'
+Tree_Data_Folder_Name = 'Tree_Instances_Creation'
+#Tree_Data_Folder_Name = 'Tree_Big_Creation'
 Data_folder = os.path.join(scrap_folder, Tree_Data_Folder_Name)
 g_Lambda_Info_ini_name = 'lambda_info.ini'
 g_Lambda_Info_ini_path = os.path.join(Data_folder, g_Lambda_Info_ini_name)
