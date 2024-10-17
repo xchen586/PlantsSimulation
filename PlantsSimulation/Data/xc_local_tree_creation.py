@@ -864,7 +864,7 @@ def do_swarm_db_upload(projectId, itemId, outputDBFolder, dbName, dbTitle):
     print(f'{uploaddb_cfg}')
     
     # Create path for the ini file
-    ini_file = os.path.join(scrap_folder, f'uploaddb_{dbName}.ini')
+    ini_file = os.path.join(Data_folder, f'uploaddb_{dbName}.ini')
     print(f'XC Create surveys configuration file {ini_file}')
     
     # Write configuration string to the ini file
@@ -894,7 +894,96 @@ def do_swarm_db_upload(projectId, itemId, outputDBFolder, dbName, dbTitle):
     
     # Return the exit code
     return return_code
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------
+def swarmDBUploadThread(api : voxelfarmclient.rest, project_id, itemId, outputDBFolder, dbName, dbTitle):
+    try:
+        print("swarmDBUploadThread")
+        
+        OrgId = 2343243456678890
+    
+        # Create configuration string
+        uploaddb_cfg = f'''
+    #[Configuration]
+    #Organization={OrgId}
+    #Instance={itemId}
+    #Project={project_id}
+    #OutputFolder={outputDBFolder}
+    #dbName={dbName}
+    #dbTitle={dbTitle}
+    #azure_container_name=vfcloudstorage
+    #azure_storage_connection_string=DefaultEndpointsProtocol=https;AccountName=vfstpangea;AccountKey=qo+5MnyJBELDbjQUBIOyl7mlyg9FlYnz7XShIyao2wd6Et+vVNMv3Szuvc5uY++zhba8TaWq/uXc+AStuouKIQ==;EndpointSuffix=core.windows.net
+    #storage_provider=AZURE
+    '''
 
+        # Log the configuration string
+        print(f'XC Tool.UploadDB.exe surveys configuration ini file content is : ')
+        print(f'{uploaddb_cfg}')
+        
+        # Create path for the ini file
+        ini_file = os.path.join(Data_folder, f'uploaddb_{dbName}.ini')
+        print(f'XC Create surveys configuration file {ini_file}')
+        
+        # Write configuration string to the ini file
+        with open(ini_file, "w") as ini:
+            ini.write(uploaddb_cfg)
+        
+        # Log the configuration string again
+        print(f'{uploaddb_cfg}')
+        
+        # Define swarm index and size
+        swarmIndex = 0
+        swarmSize = 1
+    
+        # Create the command to run the external process
+        command = [
+            f'{tools}\\Tool.UploadDB.exe', 
+            ini_file,
+            str(swarmIndex), 
+            str(swarmSize)
+        ]
+        
+        print("Command arguments: " + " ".join(command))
+        
+        # Start the process
+        process = subprocess.Popen(
+            command,
+            cwd=tools,  # Working directory
+            stdin=subprocess.PIPE,  # Redirecting input
+            stdout=subprocess.PIPE,  # Redirecting output
+            stderr=subprocess.PIPE,  # Redirecting errors (optional)
+            text=True  # This allows reading/writing strings instead of bytes
+        )
+        
+        entity = api.get_entity(itemId)
+        
+        is_virtual = False
+        virtual_value = entity['virtual']
+        if virtual_value == "1":
+            is_virtual = True
+
+        if not is_virtual:
+            # Read the output line by line (non-blocking)
+            for line in process.stdout:
+                print(f'{itemId}, {project_id}, {line.strip()}')
+
+        # Wait for the process to exit
+        process.wait()
+
+        # Check the exit code
+        success = process.returncode == 33
+        print("UploadDB.exe exit code: " + str(process.returncode))
+
+        if success:
+            print(f'swarmDBUploadThread is successful!')
+        else:
+            print(f'swarmDBUploadThread is failed!')
+            
+        print("swarmDBUploadThread done")
+        return process.returncode
+
+    except Exception as e:
+        print(f"Tool.UploadDB.exe Error: {str(e)}")
+        return False
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 def do_simple_upload_basemeshes_swarm(api : voxelfarmclient.rest, project_id, basemeshes_db_folderId, file_path : str, version : int, entity_name : str, code_path : str):
@@ -911,6 +1000,7 @@ def do_simple_upload_basemeshes_swarm(api : voxelfarmclient.rest, project_id, ba
         fields={
             'state': 'PARTIAL',
             'file_folder': basemeshes_db_folderId,
+            'virtual': '0',
         }, crs = crs)
     entity_id = result.id
     print(f'end create_entity_raw file for entity {entity_name}')
@@ -930,7 +1020,8 @@ def do_simple_upload_basemeshes_swarm(api : voxelfarmclient.rest, project_id, ba
         #dbTitle = f'Voxel Mesh Data For {entity_name}'
         dbName = f'vox-pc'
         dbTitle = f'Voxel Data'
-        uploadcode = do_swarm_db_upload(project_id, entity_id, file_path, dbName, dbTitle)
+        #uploadcode = do_swarm_db_upload(project_id, entity_id, file_path, dbName, dbTitle)
+        uploadcode = swarmDBUploadThread(api, project_id, entity_id, file_path, dbName, dbTitle)
     except Exception as e:
         # Log any exceptions that occur during the upload
         print(f'Exception during do_swarm_db_upload: files folder: {file_path} to entity {entity_id} with exception: {str(e)}')
@@ -1633,6 +1724,8 @@ def tree_config_creation(ini_path):
     tree_exe_name = f'PlantsSimulation.exe'
     tree_exe_path = os.path.join(Tools_folder, tree_exe_name)
     qtree_assets_folder = Data_folder
+    
+    treelist_data_path = os.path.join(Data_folder, 'TreeList.csv')
 
     road_output_folder = os.path.join(Data_folder, f'RoadObjInfo')
     smoothlayer_output_base_folder = os.path.join(Data_folder, f'sommothlayer_output')
@@ -1693,7 +1786,7 @@ def tree_config_creation(ini_path):
 
 #-------Program Main Start ---------------------------------------------------------------------------------------------------------------------------------------------------------
 
-scrap_folder= f'D:\\Downloads\\XCTreeWorkFlow\\Creation'
+scrap_folder= f'D:\\Downloads\\XCTreeCreation'
 
 start_time = time.time()
 
@@ -1777,6 +1870,7 @@ print('tools_active_version_property: ' + tools_active_version_property)
 print('tileinfo_active_version_property: ' + tileinfo_active_version_property)
 
 ###############
+Need_Copy_Assets = False
 # XC Options
 is_run_road_exe = True
 is_run_worldgen_road = True
@@ -1799,8 +1893,9 @@ road_input_generation = False
 whole_result_generation = False
 test_tree_generation = False
 test_whole_result_generation = False
+basemeshes_upload_generation = False
 
-tree_generation = True
+basemeshes_upload_generation = True
 
 if tree_generation:
     print("Choose tree_generation to Run")
@@ -1899,6 +1994,21 @@ if test_whole_result_generation:
     is_run_upload_tree_instances = True
     is_run_create_geochem_entity = True
     is_run_generate_road_input = False
+    
+if basemeshes_upload_generation:
+    print("Choose basemeshes_generation to Run")
+    Game_Tree_Entity_id = "3A3CFEBA226B4692A8719C78335470DD"  #game entity 
+    Workflow_Output_Result_Folder_id = '68396F90F7CE48B4BA1412EA020ED92A'  #Pangea Next > Workflow Output > Workflow BaseMeshes Output
+    is_run_road_exe = False
+    is_run_worldgen_road = False
+    is_run_upload_smooth_layer = False
+    is_run_make_basemeshes = False
+    is_run_upload_basemeshes = True
+    is_run_make_tree_instances = False
+    is_run_upload_tree_instances = False
+    is_run_create_geochem_entity = False
+    is_run_generate_road_input = False
+    
 
 print(f'is_run_road_exe: {is_run_road_exe}')
 print(f'is_run_worldgen_road: {is_run_worldgen_road}')
@@ -1950,31 +2060,30 @@ print(f'Tools_folder: {Tools_folder}')
 if not os.path.exists(Tools_folder):
     os.makedirs(Tools_folder)
 
-print('Start to copy files')
-print(f'start to copy from {pythoncode_data_folder} to {Data_folder}')
-copy_files_in_folder(pythoncode_data_folder, Data_folder)
-print(f'end to copy from {pythoncode_data_folder} to {Data_folder}')
-print(f'start to copy from {treelist_data_folder} to {Data_folder}')
-copy_files_in_folder(treelist_data_folder, Data_folder)
-print(f'end to copy from {treelist_data_folder} to {Data_folder}')
-treelist_data_path = os.path.join(Data_folder, 'TreeList.csv')
-print(f'start to copy from {roaddata_data_path} to {Data_folder}')
-copy_files_in_folder(roaddata_data_path, Data_folder)
-print(f'end to copy from {roaddata_data_path} to {Data_folder}')
-print(f'start to copy from {basemeshes_data_path} to {Data_folder}')
-copy_files_in_folder(basemeshes_data_path, Data_folder)
-print(f'end to copy from {basemeshes_data_path} to {Data_folder}')
-print(f'start to copy from {displacement_data_path} to {Data_folder}')
-copy_files_in_folder(displacement_data_path, Data_folder)
-print(f'end to copy from {displacement_data_path} to {Data_folder}')
-print('Start to copy big files')
-print(f'start to copy from {qtree_data_path} to {Data_folder}')
-copy_files_in_folder(qtree_data_path, Data_folder)
-print(f'end to copy from {qtree_data_path} to {Data_folder}')
-
-print(f'start to copy from {tileinfo_data_path} to {Data_folder}')
-copy_files_in_folder(tileinfo_data_path, Data_folder)
-print(f'end to copy from {tileinfo_data_path} to {Data_folder}')
+if Need_Copy_Assets:
+    print('Start to copy files')
+    print(f'start to copy from {pythoncode_data_folder} to {Data_folder}')
+    copy_files_in_folder(pythoncode_data_folder, Data_folder)
+    print(f'end to copy from {pythoncode_data_folder} to {Data_folder}')
+    print(f'start to copy from {treelist_data_folder} to {Data_folder}')
+    copy_files_in_folder(treelist_data_folder, Data_folder)
+    print(f'end to copy from {treelist_data_folder} to {Data_folder}')
+    print(f'start to copy from {roaddata_data_path} to {Data_folder}')
+    copy_files_in_folder(roaddata_data_path, Data_folder)
+    print(f'end to copy from {roaddata_data_path} to {Data_folder}')
+    print(f'start to copy from {basemeshes_data_path} to {Data_folder}')
+    copy_files_in_folder(basemeshes_data_path, Data_folder)
+    print(f'end to copy from {basemeshes_data_path} to {Data_folder}')
+    print(f'start to copy from {displacement_data_path} to {Data_folder}')
+    copy_files_in_folder(displacement_data_path, Data_folder)
+    print(f'end to copy from {displacement_data_path} to {Data_folder}')
+    print('Start to copy big files')
+    print(f'start to copy from {qtree_data_path} to {Data_folder}')
+    copy_files_in_folder(qtree_data_path, Data_folder)
+    print(f'end to copy from {qtree_data_path} to {Data_folder}')
+    print(f'start to copy from {tileinfo_data_path} to {Data_folder}')
+    copy_files_in_folder(tileinfo_data_path, Data_folder)
+    print(f'end to copy from {tileinfo_data_path} to {Data_folder}')
 
 Tile_Info_ini_name = 'TileInfo.ini'
 Tile_Info_ini_path = os.path.join(Data_folder, Tile_Info_ini_name)
