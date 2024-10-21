@@ -920,7 +920,7 @@ def swarmDBUploadThread(api : voxelfarmclient.rest, project_id, itemId, outputDB
         print(f'{uploaddb_cfg}')
         
         # Create path for the ini file
-        ini_file = os.path.join(Data_folder, f'uploaddb_{dbName}.ini')
+        ini_file = os.path.join(Data_folder, f'uploaddb_{dbName}_{itemId}.ini')
         print(f'XC Create surveys configuration file {ini_file}')
         
         # Write configuration string to the ini file
@@ -1189,8 +1189,8 @@ def xc_process_base_meshes(api : voxelfarmclient.rest, basemeshes_output_folder_
     #do_simple_upload_basemeshes(api, basemeshes_project_id, basemeshes_db_folder_Id, level0_db_output_folder, basemeshes_version, level0_entity_name, pythoncode_data_folder)
     #do_simple_upload_basemeshes(api, basemeshes_project_id, basemeshes_db_folder_Id, level1_db_output_folder, basemeshes_version, level1_entity_name, pythoncode_data_folder)
     
-    do_simple_upload_basemeshes_swarm(api, basemeshes_project_id, basemeshes_db_folder_Id, level0_db_output_folder, basemeshes_version, level0_entity_name, pythoncode_data_folder)
     do_simple_upload_basemeshes_swarm(api, basemeshes_project_id, basemeshes_db_folder_Id, level1_db_output_folder, basemeshes_version, level1_entity_name, pythoncode_data_folder)
+    do_simple_upload_basemeshes_swarm(api, basemeshes_project_id, basemeshes_db_folder_Id, level0_db_output_folder, basemeshes_version, level0_entity_name, pythoncode_data_folder)
     
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------
 def create_basemeshes_result_entity(api : voxelfarmclient.rest, basemeshes_output_folder_path, basemeshes_result_project_id, basemeshes_result_folder_id):
