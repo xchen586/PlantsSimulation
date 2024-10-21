@@ -903,16 +903,16 @@ def swarmDBUploadThread(api : voxelfarmclient.rest, project_id, itemId, outputDB
     
         # Create configuration string
         uploaddb_cfg = f'''
-    #[Configuration]
-    #Organization={OrgId}
-    #Instance={itemId}
-    #Project={project_id}
-    #OutputFolder={outputDBFolder}
-    #dbName={dbName}
-    #dbTitle={dbTitle}
-    #azure_container_name=vfcloudstorage
-    #azure_storage_connection_string=DefaultEndpointsProtocol=https;AccountName=vfstpangea;AccountKey=qo+5MnyJBELDbjQUBIOyl7mlyg9FlYnz7XShIyao2wd6Et+vVNMv3Szuvc5uY++zhba8TaWq/uXc+AStuouKIQ==;EndpointSuffix=core.windows.net
-    #storage_provider=AZURE
+    [Configuration]
+    Organization={OrgId}
+    Instance={itemId}
+    Project={project_id}
+    OutputFolder={outputDBFolder}
+    dbName={dbName}
+    dbTitle={dbTitle}
+    azure_container_name=vfcloudstorage
+    azure_storage_connection_string=DefaultEndpointsProtocol=https;AccountName=vfstpangea;AccountKey=qo+5MnyJBELDbjQUBIOyl7mlyg9FlYnz7XShIyao2wd6Et+vVNMv3Szuvc5uY++zhba8TaWq/uXc+AStuouKIQ==;EndpointSuffix=core.windows.net
+    storage_provider=AZURE
     '''
 
         # Log the configuration string
