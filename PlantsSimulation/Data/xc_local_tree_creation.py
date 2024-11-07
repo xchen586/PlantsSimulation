@@ -1463,7 +1463,7 @@ def tree_instances_generation(config_path):
         create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_GET_HEIGHT_BY_RAYTEST_RTREE_WC', True)
         
         create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_ALSO_OUTPUT_CACHE_MESHES_IN_WC', False)
-        create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_OUTPUT_WHOLE_MESHES_WC', False)
+        create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_OUTPUT_WHOLE_MESHES_WC', True)
         
         create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_AVERAGE_HEIGHT', False)
         create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_OUTPUT_HEIGHTMAP_MASK', True)
@@ -1580,6 +1580,7 @@ def tree_instances_generation(config_path):
             
             print(f'step for run basemeshes with ini level : {basemeshes_level1}')
             if run_upload_basemeshes:
+                create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_OUTPUT_WHOLE_MESHES_WC', False)
                 create_or_update_ini_file(basemeshes_ini_path, section_others, 'Level', basemeshes_level1)
                 create_or_update_ini_file(basemeshes_ini_path, section_others, 'LodDebugLevel', basemeshes_all_level)
                 print(f'Adjust base meshes ini level {basemeshes_level1} to all LOD level')
@@ -1595,6 +1596,7 @@ def tree_instances_generation(config_path):
             
             print(f'step for run basemeshes with ini level : {basemeshes_level0}')
             if run_upload_basemeshes:
+                create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_OUTPUT_WHOLE_MESHES_WC', False)
                 create_or_update_ini_file(basemeshes_ini_path, section_others, 'Level', basemeshes_level0)
                 create_or_update_ini_file(basemeshes_ini_path, section_others, 'LodDebugLevel', basemeshes_all_level)
                 print(f'Adjust base meshes ini level {basemeshes_level0} to all LOD level')
@@ -1916,6 +1918,7 @@ whole_result_generation = False
 test_tree_generation = False
 test_whole_result_generation = False
 basemeshes_upload_generation = False
+test_only_tree_generation = False
 
 smooth_layer_generation = True
 
@@ -2031,6 +2034,19 @@ if basemeshes_upload_generation:
     is_run_create_geochem_entity = False
     is_run_generate_road_input = False
     
+if test_only_tree_generation:
+    print("Choose test_only_tree_generation to Run")
+    Game_Tree_Entity_id = "0B4C084415C744B48B4BD13D9990E713"  #xuan chen 
+    Workflow_Output_Result_Folder_id = '82EC2324CC584DCEB3FF3281676F42A4'  #Pangea Next > Workflow Output > Workflow Test Tree GeoChems Output
+    is_run_road_exe = False
+    is_run_worldgen_road = False
+    is_run_upload_smooth_layer = False
+    is_run_make_basemeshes = False
+    is_run_upload_basemeshes = False
+    is_run_make_tree_instances = True
+    is_run_upload_tree_instances = True
+    is_run_create_geochem_entity = True
+    is_run_generate_road_input = False
 
 print(f'is_run_road_exe: {is_run_road_exe}')
 print(f'is_run_worldgen_road: {is_run_worldgen_road}')
