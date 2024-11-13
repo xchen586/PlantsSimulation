@@ -1574,6 +1574,29 @@ def tree_instances_generation(config_path):
             print(f'Error: The process ({worldgen_command}) returned a non-zero exit code ({return_code_worldgen_road}).')
             return -1
         
+    basemeshes_output_folder = basemeshes_db_base_folder
+    
+    level0_db_output_folder = os.path.join(basemeshes_output_folder, f'{tile_size}_{tile_x}_{tile_y}_0')
+    level1_db_output_folder = os.path.join(basemeshes_output_folder, f'{tile_size}_{tile_x}_{tile_y}_1')
+    index_db_file_name = f'index.vf'
+    data_db_file_name = f'data.vf'
+    level0_index_db_file_path = os.path.join(level0_db_output_folder, index_db_file_name)
+    level0_data_db_file_path = os.path.join(level0_db_output_folder, data_db_file_name)
+    level1_index_db_file_path = os.path.join(level1_db_output_folder, index_db_file_name)
+    level1_data_db_file_path = os.path.join(level1_db_output_folder, data_db_file_name)
+    if os.path.exists(level0_index_db_file_path):
+        os.remove(level0_index_db_file_path)  # Remove the file
+        print(f"File '{level0_index_db_file_path}' has been removed.")
+    if os.path.exists(level0_data_db_file_path):
+        os.remove(level0_data_db_file_path)  # Remove the file
+        print(f"File '{level0_data_db_file_path}' has been removed.")
+    if os.path.exists(level1_index_db_file_path):
+        os.remove(level1_index_db_file_path)  # Remove the file
+        print(f"File '{level1_index_db_file_path}' has been removed.")
+    if os.path.exists(level1_data_db_file_path):
+        os.remove(level1_data_db_file_path)  # Remove the file
+        print(f"File '{level1_data_db_file_path}' has been removed.")
+    
     if run_make_basemeshes:
         if use_basemesh_ini:
             print(f'step for run basemeshes with ini : {basemeshvoxelizer_ini_command}')
@@ -1709,7 +1732,6 @@ def tree_instances_generation(config_path):
     if run_upload_basemeshes:
         print(f'step for to run_upload_basemeshes')
         ##### upload basemeshes voxel database to cloud.
-        basemeshes_output_folder = basemeshes_db_base_folder
         
         basemeshes_result_folder_id = Workflow_Output_Result_Folder_id
         xc_process_base_meshes(api, basemeshes_output_folder, Project_id, basemeshes_result_folder_id, project_output_version)
@@ -1920,7 +1942,7 @@ test_whole_result_generation = False
 basemeshes_upload_generation = False
 test_only_tree_generation = False
 
-smooth_layer_generation = True
+basemeshes_generation = True
 
 if tree_generation:
     print("Choose tree_generation to Run")
