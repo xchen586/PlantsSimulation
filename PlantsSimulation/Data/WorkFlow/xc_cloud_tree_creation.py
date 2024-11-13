@@ -1510,6 +1510,7 @@ def tree_instances_generation(config_path):
         
     ##### Make ini config file for tree exe.
     #clear_all_sections(tree_ini_path)
+    useWithBaseMeshesLevel1 = True
     if run_make_tree_instances:
         lambda_host.log(f'Start to write tree instance ini files : {tree_ini_path}')
         create_or_overwrite_empty_file(tree_ini_path)
@@ -1538,6 +1539,7 @@ def tree_instances_generation(config_path):
         create_or_update_ini_file(tree_ini_path, section_others, 'Tree_Iteration', tree_iteration)
         
         create_or_update_ini_file(tree_ini_path, section_options,'Only_Road_Data', run_generate_road_input)
+        create_or_update_ini_file(tree_ini_path, section_options,'Use_With_BaseMeshes_Level1', useWithBaseMeshesLevel1)
         
         lambda_host.log(f'End to write tree instance ini files : {tree_ini_path}')
         tree_ini_string = ini_file_to_string(tree_ini_path)
