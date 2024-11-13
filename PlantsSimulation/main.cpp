@@ -60,6 +60,7 @@ int iniAbsolutePathMain(int argc, const char* argv[])
     const char* tree_iteration_str = GetIniValue(iniParser, Others_Section, "Tree_Iteration");
 
     const char* only_road_data_str = GetIniValue(iniParser, Options_Section, "Only_Road_Data");
+    const char* use_with_basemeshes_level1_str = GetIniValue(iniParser, Options_Section, "Use_With_BaseMeshes_Level1");
 
     const int t = atoi(t_str);
     const int x = atoi(x_str);
@@ -74,6 +75,15 @@ int iniAbsolutePathMain(int argc, const char* argv[])
         if (isOnlyRoadDataValue)
         {
             isOnlyRoadData = isOnlyRoadDataValue;
+        }
+    }
+    bool useBaseMeshesLevel1 = true;
+    if (use_with_basemeshes_level1_str)
+    {
+        bool useBaseMeshesLevel1Value = stringToBool(use_with_basemeshes_level1_str);
+        if (!useBaseMeshesLevel1Value)
+        {
+            useBaseMeshesLevel1 = useBaseMeshesLevel1Value;
         }
     }
 
@@ -102,6 +112,7 @@ int iniAbsolutePathMain(int argc, const char* argv[])
     std::cout << "Forest Age is : " << (forest_age_str ? forest_age_str : "") << std::endl;
     std::cout << "Tree iteration count is : " << (tree_iteration_str ? tree_iteration_str : "") << std::endl;
     std::cout << "Only generate road data : " << (only_road_data_str ? only_road_data_str : "") << std::endl;
+    std::cout << "Use with base meshes level1  : " << (use_with_basemeshes_level1_str ? use_with_basemeshes_level1_str : "") << std::endl;
     std::cout << std::endl;
 
     int tiles = t;
@@ -147,7 +158,7 @@ int iniAbsolutePathMain(int argc, const char* argv[])
 
     CPlantsSimulation ps(output_final_path, tree_list_csv, input_image_name, input_meta_name, mesh_heightmap_raw_name, mesh2_heightmap_raw_name, pc_heightmap_raw_name, l1_heightmap_raw_name
         , mesh_heightmap_masks_name, mesh2_heightmap_masks_name, pc_heightmap_masks_name, l1_heightmap_masks_name
-        , point_most_travelled_name, point_most_distant_name, regions_raw_name, regions_info_name, output_file, fullOutput_file, pcFullOutput_file, lod, forestAge, iteration, tiles, tileX, tileY);
+        , point_most_travelled_name, point_most_distant_name, regions_raw_name, regions_info_name, output_file, fullOutput_file, pcFullOutput_file, lod, forestAge, iteration, tiles, tileX, tileY, useBaseMeshesLevel1);
 
     bool isLoad = ps.LoadInputData();
     if (!isLoad)

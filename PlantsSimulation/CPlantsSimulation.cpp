@@ -575,11 +575,16 @@ bool CPlantsSimulation::LoadInputHeightMap()
 			}
 			//short value = std::max(meshValue, pcValue);
 			//short value = FindMaxIn3(meshValue, mesh2Value, pcValue);
-#if USE_WITH_BASEMESHES_LEVEL1
-			short value = FindMaxIn4(meshValue, mesh2Value, pcValue, l1Value);
-#else
-			short value = FindMaxIn3(meshValue, pcValue, l1Value);
-#endif // USE_WITH_BASEMESHES_LEVEL1
+			short value = 0;
+			if (m_useBaseMeshesLevel1)
+			{
+				value = FindMaxIn4(meshValue, mesh2Value, pcValue, l1Value);
+			}
+			else
+			{
+				value = FindMaxIn3(meshValue, pcValue, l1Value);
+			}
+
 			heightMasksShort4096[x][y] = value;
 			if (needMaskPositive)
 			{
@@ -682,11 +687,17 @@ bool CPlantsSimulation::LoadInputHeightMap()
 			short mesh2Value = mesh2HeightMapShort4096[x][y];
 			short pcValue = pcHeightMapShort4096[x][y];
 			short l1Value = l1HeightMapShort4096[x][y];
-#if USE_WITH_BASEMESHES_LEVEL1
-			short value = FindMaxIn4(meshValue, mesh2Value, pcValue, l1Value);
-#else
-			short value = FindMaxIn3(meshValue, pcValue, l1Value);
-#endif
+
+			short value = 0;
+			if (m_useBaseMeshesLevel1)
+			{
+				value = FindMaxIn4(meshValue, mesh2Value, pcValue, l1Value);
+			}
+			else
+			{
+				value = FindMaxIn3(meshValue, pcValue, l1Value);
+			}
+
 			if (needHeightPositive && (value < 0))
 			{
 				value = 0;

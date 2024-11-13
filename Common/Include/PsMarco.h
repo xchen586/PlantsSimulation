@@ -46,10 +46,6 @@
 #define USE_OUTPUT_INSTANCE_IDSTRING 0
 #endif
 
-#ifndef USE_WITH_BASEMESHES_LEVEL1 
-#define USE_WITH_BASEMESHES_LEVEL1 1
-#endif
-
 #ifndef PI
 #define PI       3.14159265358979323846   // pi
 #endif // !PI
