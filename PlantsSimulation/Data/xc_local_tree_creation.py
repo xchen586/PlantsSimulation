@@ -1584,20 +1584,22 @@ def tree_instances_generation(config_path):
     level0_data_db_file_path = os.path.join(level0_db_output_folder, data_db_file_name)
     level1_index_db_file_path = os.path.join(level1_db_output_folder, index_db_file_name)
     level1_data_db_file_path = os.path.join(level1_db_output_folder, data_db_file_name)
-    if os.path.exists(level0_index_db_file_path):
-        os.remove(level0_index_db_file_path)  # Remove the file
-        print(f"File '{level0_index_db_file_path}' has been removed.")
-    if os.path.exists(level0_data_db_file_path):
-        os.remove(level0_data_db_file_path)  # Remove the file
-        print(f"File '{level0_data_db_file_path}' has been removed.")
-    if os.path.exists(level1_index_db_file_path):
-        os.remove(level1_index_db_file_path)  # Remove the file
-        print(f"File '{level1_index_db_file_path}' has been removed.")
-    if os.path.exists(level1_data_db_file_path):
-        os.remove(level1_data_db_file_path)  # Remove the file
-        print(f"File '{level1_data_db_file_path}' has been removed.")
     
     if run_make_basemeshes:
+        
+        if os.path.exists(level0_index_db_file_path):
+            os.remove(level0_index_db_file_path)  # Remove the file
+        print(f"File '{level0_index_db_file_path}' has been removed.")
+        if os.path.exists(level0_data_db_file_path):
+            os.remove(level0_data_db_file_path)  # Remove the file
+            print(f"File '{level0_data_db_file_path}' has been removed.")
+        if os.path.exists(level1_index_db_file_path):
+            os.remove(level1_index_db_file_path)  # Remove the file
+            print(f"File '{level1_index_db_file_path}' has been removed.")
+        if os.path.exists(level1_data_db_file_path):
+            os.remove(level1_data_db_file_path)  # Remove the file
+            print(f"File '{level1_data_db_file_path}' has been removed.")
+            
         if use_basemesh_ini:
             print(f'step for run basemeshes with ini : {basemeshvoxelizer_ini_command}')
             
