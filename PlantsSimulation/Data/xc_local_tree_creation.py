@@ -1331,10 +1331,15 @@ def tree_instances_generation(config_path):
     print(f'End to read value from {config_path}')
 
     print(f'Start to prepare input data parameter for TreesInstancesAbsolutePathWin.ini')
+    basemeshes_all_level = 0 # use all level for base meshes 
+    
     basemeshes_level0 = 0
     basemeshes_level1 = 1
     version = 80
 
+    basemeshes_actual_run_level = basemeshes_all_level if run_upload_basemeshes else basemeshes_debug_level
+    print(f'basemeshes_actual_run_level is {basemeshes_actual_run_level}')
+        
     road_heightmap_file_name = f'{tiles_count}_{tiles_x}_{tiles_y}_{road_Heightmap_width}_{road_heightmap_height}_ushort_height_map_raw.raw'
     road_humidity_file_name = f'{tiles_count}_{tiles_x}_{tiles_y}_{road_Heightmap_width}_{road_heightmap_height}_byte_humidity_map_raw.raw'
     road_regions_name_file_name = f'{tiles_count}_{tiles_x}_{tiles_y}_regions_name.csv'
@@ -1417,20 +1422,18 @@ def tree_instances_generation(config_path):
     worldgen_command =  f'{worldgen_exe_path} {tiles_count} {tiles_x} {tiles_y} {worldgen_level} {qtree_assets_folder} {smoothlayer_output_base_folder} {road_output_folder}'
     if run_generate_road_input:
         worldgen_command =  f'{worldgen_exe_path} {tiles_count} {tiles_x} {tiles_y} {worldgen_level} {qtree_assets_folder} {smoothlayer_output_base_folder}'
-    basemeshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_debug_level} {basemeshes_heightmap_folder}'
-    basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_debug_level} {basemeshes_heightmap_folder}'
+    basemeshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_actual_run_level} {basemeshes_heightmap_folder}'
+    basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_actual_run_level} {basemeshes_heightmap_folder}'
     if use_basemesh_original_program:
         basemeshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder}'
         basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder}'
     basemeshvoxelizer_ini_command = f'{basemeshes_exe_path} {basemeshes_ini_path}'
     tree_exe_command = f'{tree_exe_path} {tree_ini_path}'
     
-    basemeshes_all_level = 0 # use all level for base meshes 
-    
     if run_upload_basemeshes:
         if not use_basemesh_original_program:
-            basemeshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_all_level} {basemeshes_heightmap_folder}'
-            basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_all_level} {basemeshes_heightmap_folder}'
+            basemeshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_actual_run_level} {basemeshes_heightmap_folder}'
+            basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_actual_run_level} {basemeshes_heightmap_folder}'
             print("Adjust base meshes command line to all level")
     
     if run_upload_basemeshes and use_basemesh_ini:
@@ -1616,7 +1619,7 @@ def tree_instances_generation(config_path):
             if run_upload_basemeshes:
                 create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_OUTPUT_WHOLE_MESHES_WC', False)
                 create_or_update_ini_file(basemeshes_ini_path, section_others, 'Level', basemeshes_level1)
-                create_or_update_ini_file(basemeshes_ini_path, section_others, 'LodDebugLevel', basemeshes_all_level)
+                create_or_update_ini_file(basemeshes_ini_path, section_others, 'LodDebugLevel', basemeshes_actual_run_level)
                 print(f'Adjust base meshes ini level {basemeshes_level1} to all LOD level')
             basemeshes_ini_string = ini_file_to_string(basemeshes_ini_path)
             print(f'Basemeshes ini file for level {basemeshes_level1} content is :')
@@ -1632,7 +1635,7 @@ def tree_instances_generation(config_path):
             if run_upload_basemeshes:
                 create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_OUTPUT_WHOLE_MESHES_WC', False)
                 create_or_update_ini_file(basemeshes_ini_path, section_others, 'Level', basemeshes_level0)
-                create_or_update_ini_file(basemeshes_ini_path, section_others, 'LodDebugLevel', basemeshes_all_level)
+                create_or_update_ini_file(basemeshes_ini_path, section_others, 'LodDebugLevel', basemeshes_actual_run_level)
                 print(f'Adjust base meshes ini level {basemeshes_level0} to all LOD level')
             basemeshes_ini_string = ini_file_to_string(basemeshes_ini_path)
             print(f'Basemeshes ini file for level {basemeshes_level0} content is :')
@@ -1952,6 +1955,7 @@ test_tree_generation = False
 test_whole_result_generation = False
 basemeshes_upload_generation = False
 test_only_tree_generation = False
+only_tree_generation = False
 
 basemeshes_generation = True
 
@@ -2071,6 +2075,20 @@ if test_only_tree_generation:
     print("Choose test_only_tree_generation to Run")
     Game_Tree_Entity_id = "0B4C084415C744B48B4BD13D9990E713"  #xuan chen 
     Workflow_Output_Result_Folder_id = '82EC2324CC584DCEB3FF3281676F42A4'  #Pangea Next > Workflow Output > Workflow Test Tree GeoChems Output
+    is_run_road_exe = False
+    is_run_worldgen_road = False
+    is_run_upload_smooth_layer = False
+    is_run_make_basemeshes = False
+    is_run_upload_basemeshes = False
+    is_run_make_tree_instances = True
+    is_run_upload_tree_instances = True
+    is_run_create_geochem_entity = True
+    is_run_generate_road_input = False
+    
+if only_tree_generation:
+    print("Choose only_tree_generation to Run")
+    Game_Tree_Entity_id = "3A3CFEBA226B4692A8719C78335470DD"  #game entity 
+    Workflow_Output_Result_Folder_id = 'C2C9E711B8A74E0FB8401646BCF3396C'  #Pangea Next > Workflow Output > Workflow Tree GeoChems Output
     is_run_road_exe = False
     is_run_worldgen_road = False
     is_run_upload_smooth_layer = False
