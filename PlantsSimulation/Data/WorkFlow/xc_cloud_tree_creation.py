@@ -1488,7 +1488,7 @@ def tree_instances_generation(config_path):
         create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_APPLY_NO_TOP_DELTA_FOR_BASEMESH_MASK', False)
         
         create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_APPLY_QUICK_VOXELIZE_MESH_DEBUG', False)
-        create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_APPLY_IGNORE_LOWER_MINHEIGHT_MESHES', True)
+        create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_APPLY_IGNORE_LOWER_MINHEIGHT_MESHES', False)
 
         create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_OUTPUT_WHOLE_MESH_POINT_CLOUD', False)
         create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_OUTPUT_WHOLE_MESH_HEIGHT_DIFFERENT', False)
