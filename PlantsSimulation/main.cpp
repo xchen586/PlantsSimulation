@@ -44,11 +44,13 @@ int iniAbsolutePathMain(int argc, const char* argv[])
     const char* mesh_heightmap_raw_name = GetIniValue(iniParser, Input_Section, "BaseMeshes_Level_0_HeightMap");
     const char* mesh2_heightmap_raw_name = GetIniValue(iniParser, Input_Section, "BaseMeshes_Level_1_HeightMap");
     const char* pc_heightmap_raw_name = GetIniValue(iniParser, Input_Section, "TopLayer_HeightMap");
-    const char* l1_heightmap_raw_name = GetIniValue(iniParser, Input_Section, "Level1Layer_heightMap");;
+    const char* l1_heightmap_raw_name = GetIniValue(iniParser, Input_Section, "Level1Layer_heightMap");
+    const char* bedrock_heightmap_raw_name = GetIniValue(iniParser, Input_Section, "BedrokLayer_heightMap");
     const char* mesh_heightmap_masks_name = GetIniValue(iniParser, Input_Section, "BaseMeshes_Level_0_HeightMap_Mask");
     const char* mesh2_heightmap_masks_name = GetIniValue(iniParser, Input_Section, "BaseMeshes_Level_1_HeightMap_Mask");
     const char* pc_heightmap_masks_name = GetIniValue(iniParser, Input_Section, "TopLayer_HeightMap_Mask");
     const char* l1_heightmap_masks_name = GetIniValue(iniParser, Input_Section, "Level1Layer_heightMap_Mask");
+    const char* bedrock_heightmap_masks_name = GetIniValue(iniParser, Input_Section, "Bedrock_heightMap_Mask");
     const char* point_most_travelled_name = GetIniValue(iniParser, Input_Section, "Most_Travelled_Points");
     const char* point_most_distant_name = GetIniValue(iniParser, Input_Section, "Most_Distant_Points");
     const char* regions_raw_name = GetIniValue(iniParser, Input_Section, "Regions_Raw");
@@ -99,10 +101,12 @@ int iniAbsolutePathMain(int argc, const char* argv[])
     std::cout << "Mesh 1 height map file name is : " << (mesh2_heightmap_raw_name ? mesh2_heightmap_raw_name : "") << std::endl;
     std::cout << "Point cloud top level height map file name is : " << (pc_heightmap_raw_name ? pc_heightmap_raw_name : "") << std::endl;
     std::cout << "Point cloud level 1 height map file name is : " << (l1_heightmap_raw_name ? l1_heightmap_raw_name : "") << std::endl;
+    std::cout << "Point cloud bedrock height map file name is : " << (bedrock_heightmap_raw_name ? bedrock_heightmap_raw_name : "") << std::endl;
     std::cout << "Mesh 0 height map mask file name is : " << (mesh_heightmap_masks_name ? mesh_heightmap_masks_name : "") << std::endl;
     std::cout << "Mesh 1 height map mask file name is : " << (mesh2_heightmap_masks_name ? mesh2_heightmap_masks_name : "") << std::endl;
     std::cout << "Point cloud top level height mask map file name is : " << (pc_heightmap_masks_name ? pc_heightmap_masks_name : "") << std::endl;
     std::cout << "Point cloud level 1 height mask map file name is : " << (l1_heightmap_masks_name ? l1_heightmap_masks_name : "") << std::endl;
+    std::cout << "Point cloud bedrock height mask map file name is : " << (bedrock_heightmap_masks_name ? bedrock_heightmap_masks_name : "") << std::endl;
     std::cout << "Most travelled point file name is : " << (point_most_travelled_name ? point_most_travelled_name : "") << std::endl;
     std::cout << "Most distant point file name is : " << (point_most_distant_name ? point_most_distant_name : "") << std::endl;
     std::cout << "Regions Raw file name is : " << (regions_raw_name ? regions_raw_name : "") << std::endl;
@@ -156,8 +160,8 @@ int iniAbsolutePathMain(int argc, const char* argv[])
         }
     }
 
-    CPlantsSimulation ps(output_final_path, tree_list_csv, input_image_name, input_meta_name, mesh_heightmap_raw_name, mesh2_heightmap_raw_name, pc_heightmap_raw_name, l1_heightmap_raw_name
-        , mesh_heightmap_masks_name, mesh2_heightmap_masks_name, pc_heightmap_masks_name, l1_heightmap_masks_name
+    CPlantsSimulation ps(output_final_path, tree_list_csv, input_image_name, input_meta_name, mesh_heightmap_raw_name, mesh2_heightmap_raw_name, pc_heightmap_raw_name, l1_heightmap_raw_name, bedrock_heightmap_raw_name
+        , mesh_heightmap_masks_name, mesh2_heightmap_masks_name, pc_heightmap_masks_name, l1_heightmap_masks_name, bedrock_heightmap_masks_name
         , point_most_travelled_name, point_most_distant_name, regions_raw_name, regions_info_name, output_file, fullOutput_file, pcFullOutput_file, lod, forestAge, iteration, tiles, tileX, tileY, useBaseMeshesLevel1);
 
     bool isLoad = ps.LoadInputData();
@@ -188,10 +192,12 @@ int iniAbsolutePathMain(int argc, const char* argv[])
     if (mesh2_heightmap_raw_name) delete mesh2_heightmap_raw_name;
     if (pc_heightmap_raw_name) delete pc_heightmap_raw_name;
     if (l1_heightmap_raw_name) delete l1_heightmap_raw_name;
+    if (bedrock_heightmap_raw_name) delete bedrock_heightmap_raw_name;
     if (mesh_heightmap_masks_name) delete mesh_heightmap_masks_name;
     if (mesh2_heightmap_masks_name) delete mesh2_heightmap_masks_name;
     if (pc_heightmap_masks_name) delete pc_heightmap_masks_name;
     if (l1_heightmap_masks_name) delete l1_heightmap_masks_name;
+    if (bedrock_heightmap_masks_name) delete bedrock_heightmap_masks_name;
     if (point_most_travelled_name) delete point_most_travelled_name;
     if (regions_raw_name) delete regions_raw_name;
     if (regions_info_name) delete regions_info_name;

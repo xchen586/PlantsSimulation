@@ -202,6 +202,29 @@ T FindMaxIn4(T num1, T num2, T num3, T num4) {
 }
 
 template <typename T>
+T FindMaxIn5(T num1, T num2, T num3, T num4, T num5) {
+	T max_num = num1; // Assume num1 is the maximum
+
+	if (num2 > max_num) {
+		max_num = num2;
+	}
+
+	if (num3 > max_num) {
+		max_num = num3;
+	}
+
+	if (num4 > max_num) {
+		max_num = num4;
+	}
+
+	if (num5 > max_num) {
+		max_num = num5;
+	}
+
+	return max_num;
+}
+
+template <typename T>
 bool Output2DVectorToRawFile(const std::vector<std::vector<T>>& data, const std::string& filePath) {
 	
 	std::cout << "start to Output2DVectorToRawFile to : " << filePath << std::endl;

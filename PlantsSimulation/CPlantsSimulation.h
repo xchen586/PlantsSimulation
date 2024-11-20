@@ -18,8 +18,8 @@ using namespace std;
 class CPlantsSimulation
 {
 public:
-	CPlantsSimulation(const string& outputDir, const string& inputTreeList, const string& inputImageFile, const string& inputImageMataFile, const string& mesh_HeightMapFile, const string& mesh2_HeightMapFile, const string& pc_HeightMapFile, const string& l1_HeightMapFile,
-		const string& mesh_HeightMasksFile, const string& mesh2_HeightMasksFile, const string& pc_HeightMasksFile, const string& l1_HeightMasksFile, const string& mostTravelledPointFile, const string& mostDistantPointFile, 
+	CPlantsSimulation(const string& outputDir, const string& inputTreeList, const string& inputImageFile, const string& inputImageMataFile, const string& mesh_HeightMapFile, const string& mesh2_HeightMapFile, const string& pc_HeightMapFile, const string& l1_HeightMapFile, const string& bedrock_HeightMapFile,
+		const string& mesh_HeightMasksFile, const string& mesh2_HeightMasksFile, const string& pc_HeightMasksFile, const string& l1_HeightMasksFile, const string& bedrock_HeightMaskFile, const string& mostTravelledPointFile, const string& mostDistantPointFile,
 		const string& regionsRawFile, const string& regionsInfoFile, const string& outputFile, const string& fullOutputFile, const string& pcFullOutputFile, int32_t lod, float forestAge, int iteration, int tiles, int tileX, int tileY, bool useBaseMeshesLevel1)
 		: m_outputDir(outputDir)
 		, m_inputTreeListCsv(inputTreeList)
@@ -29,10 +29,12 @@ public:
 		, m_mesh2HeightMapFile(mesh2_HeightMapFile)
 		, m_pcHeightMapFile(pc_HeightMapFile)
 		, m_l1HeightMapFile(l1_HeightMapFile)
+		, m_bedrockHeightMapFile(bedrock_HeightMapFile)
 		, m_meshHeightMasksFile(mesh_HeightMasksFile)
 		, m_mesh2HeightMasksFile(mesh2_HeightMasksFile)
 		, m_pcHeightMasksFile(pc_HeightMasksFile)
 		, m_l1HeightMasksFile(l1_HeightMasksFile)
+		, m_bedrockHeightMasksFile(bedrock_HeightMaskFile)
 		, m_mostTravelledPointFile(mostTravelledPointFile)
 		, m_mostDistantPointFile(mostDistantPointFile)
 		, m_regionsRawFile(regionsRawFile)
@@ -66,10 +68,12 @@ private:
 	string m_mesh2HeightMapFile;
 	string m_pcHeightMapFile;
 	string m_l1HeightMapFile;
+	string m_bedrockHeightMapFile;
 	string m_meshHeightMasksFile;
 	string m_mesh2HeightMasksFile;
 	string m_pcHeightMasksFile;
 	string m_l1HeightMasksFile;
+	string m_bedrockHeightMasksFile;
 	string m_mostTravelledPointFile;
 	string m_mostDistantPointFile;
 	string m_regionsRawFile;
