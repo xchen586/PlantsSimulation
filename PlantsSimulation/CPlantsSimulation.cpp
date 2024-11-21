@@ -804,6 +804,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	char mesh2_heightmap_raw_export[MAX_PATH];
 	char pc_heightmap_raw_export[MAX_PATH];
 	char l1_heightmap_raw_export[MAX_PATH];
+	char bedrock_heightmap_raw_export[MAX_PATH];
 	char short_height_map_export[MAX_PATH];
 	char double_height_map_exportout[MAX_PATH];
 	char height_slope_map_exportout[MAX_PATH];
@@ -815,6 +816,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	memset(mesh2_heightmap_raw_export, 0, sizeof(char) * MAX_PATH);
 	memset(pc_heightmap_raw_export, 0, sizeof(char) * MAX_PATH);
 	memset(l1_heightmap_raw_export, 0, sizeof(char) * MAX_PATH);
+	memset(bedrock_heightmap_raw_export, 0, sizeof(char)* MAX_PATH);
 	memset(short_height_map_export, 0, sizeof(char) * MAX_PATH);
 	memset(double_height_map_exportout, 0, sizeof(char) * MAX_PATH);
 	memset(height_slope_map_exportout, 0, sizeof(char) * MAX_PATH);
@@ -828,12 +830,14 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	snprintf(mesh2_heightmap_raw_export, MAX_PATH, "%s/%d_%d_%d_mesh2_heightmap_raw_export.csv", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 	snprintf(pc_heightmap_raw_export, MAX_PATH, "%s/%d_%d_%d_pc_heightmap_raw_export.csv", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 	snprintf(l1_heightmap_raw_export, MAX_PATH, "%s/%d_%d_%d_l1_heightmap_raw_export.csv", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	snprintf(bedrock_heightmap_raw_export, MAX_PATH, "%s/%d_%d_%d_bedrock_heightmap_raw_export.csv", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 	snprintf(short_height_map_export, MAX_PATH, "%s/%d_%d_%d_short_height_map_export.csv", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 #else
 	snprintf(mesh_heightmap_raw_export, MAX_PATH, "%s/%d_%d_%d_mesh_heightmap_raw_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 	snprintf(mesh2_heightmap_raw_export, MAX_PATH, "%s/%d_%d_%d_mesh2_heightmap_raw_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 	snprintf(pc_heightmap_raw_export, MAX_PATH, "%s/%d_%d_%d_pc_heightmap_raw_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 	snprintf(l1_heightmap_raw_export, MAX_PATH, "%s/%d_%d_%d_11_heightmap_raw_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	snprintf(bedrock_heightmap_raw_export, MAX_PATH, "%s/%d_%d_%d_bedrock_heightmap_raw_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 	snprintf(short_height_map_export, MAX_PATH, "%s/%d_%d_%d_short_height_map_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 #endif
 	snprintf(double_height_map_exportout, MAX_PATH, "%s/%d_%d_%d_double_height_map_exportout.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
@@ -846,12 +850,14 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	sprintf_s(mesh2_heightmap_raw_export, MAX_PATH, "%s\\%d_%d_%d_mesh2_heightmap_raw_export.csv", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 	sprintf_s(pc_heightmap_raw_export, MAX_PATH, "%s\\%d_%d_%d_pc_heightmap_raw_export.csv", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 	sprintf_s(l1_heightmap_raw_export, MAX_PATH, "%s\\%d_%d_%d_1l_heightmap_raw_export.csv", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	sprintf_s(bedrock_heightmap_raw_export, MAX_PATH, "%s\\%d_%d_%d_bedrock_heightmap_raw_export.csv", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 	sprintf_s(short_height_map_export, MAX_PATH, "%s\\%d_%d_%d_short_height_map_export.csv", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 #else
 	sprintf_s(mesh_heightmap_raw_export, MAX_PATH, "%s\\%d_%d_%d_mesh_heightmap_raw_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 	sprintf_s(mesh2_heightmap_raw_export, MAX_PATH, "%s\\%d_%d_%d_mesh2_heightmap_raw_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 	sprintf_s(pc_heightmap_raw_export, MAX_PATH, "%s\\%d_%d_%d_pc_heightmap_raw_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 	sprintf_s(l1_heightmap_raw_export, MAX_PATH, "%s\\%d_%d_%d_l1_heightmap_raw_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	sprintf_s(bedrock_heightmap_raw_export, MAX_PATH, "%s\\%d_%d_%d_bedrock_heightmap_raw_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 	sprintf_s(short_height_map_export, MAX_PATH, "%s\\%d_%d_%d_short_height_map_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 #endif
 	sprintf_s(double_height_map_exportout, MAX_PATH, "%s\\%d_%d_%d_double_height_map_exportout.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
@@ -875,12 +881,14 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	ExportShortHeightMap(mesh2HeightMapShort4096, mesh2_heightmap_raw_export, 0x00FF0000, true);
 	ExportShortHeightMap(pcHeightMapShort4096, pc_heightmap_raw_export, 0x0000FF00, true);
 	ExportShortHeightMap(l1HeightMapShort4096, l1_heightmap_raw_export, 0x0000FF00, true);
+	ExportShortHeightMap(bedrockHeightMapShort4096, bedrock_heightmap_raw_export, 0x0000FF00, true);
 	ExportShortHeightMap(heightMapShort4096, short_height_map_export, 0x000000FF, true);
 #else
 	ExportShortHeightMapWithMask(meshHeightMapShort4096, meshHeightMasksShort4096, mesh_heightmap_raw_export, 0x00FF0000, false, true);
 	ExportShortHeightMapWithMask(mesh2HeightMapShort4096, mesh2HeightMasksShort4096, mesh2_heightmap_raw_export,  0x00FF0000, false, true);
 	ExportShortHeightMapWithMask(pcHeightMapShort4096, pcHeightMasksShort4096, pc_heightmap_raw_export, 0x0000FF00, false, true);
 	ExportShortHeightMapWithMask(l1HeightMapShort4096, l1HeightMasksShort4096, l1_heightmap_raw_export, 0x0000FF00, false, true);
+	ExportShortHeightMapWithMask(bedrockHeightMapShort4096, bedrockHeightMasksShort4096, bedrock_heightmap_raw_export, 0x0000FF00, false, true);
 	ExportShortHeightMapWithMask(heightMapShort4096, heightMasksShort4096, short_height_map_export, 0x000000FF, false, true);
 #endif
 	ExportDoubleHeightMap(heightMapDouble4096, double_height_map_exportout, 0x00FFFF00, false);
