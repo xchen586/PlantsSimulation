@@ -53,7 +53,7 @@ CTimeCounter::CTimeCounter(string& title)
 #else
 	ctime_s(startTimeStr, sizeof(startTimeStr), &startTime);
 #endif
-	std::cout << title << " Start time: " << startTimeStr << std::endl;
+	std::cout << m_title << " Start time: " << startTimeStr << std::endl;
 }
 
 CTimeCounter::~CTimeCounter() 
@@ -66,7 +66,7 @@ CTimeCounter::~CTimeCounter()
 #else
 	ctime_s(endTimeStr, sizeof(endTimeStr), &endTime);
 #endif
-	std::cout << "End time: " << endTimeStr << std::endl;
+	std::cout << m_title << " End time: " << endTimeStr << std::endl;
 
 	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);
 	// Convert microseconds to days, hours, minutes, seconds, and microseconds
@@ -87,7 +87,8 @@ CTimeCounter::~CTimeCounter()
 	long long microseconds = remainingTime.count();
 
 	// Print the time interval in the desired format
-	std::cout << "Time interval: " << days << " days, "
+	std::cout << m_title
+		<< " Time interval: " << days << " days, "
 		<< hours << " hours, "
 		<< minutes << " minutes, "
 		<< seconds << " seconds, "
