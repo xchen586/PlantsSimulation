@@ -1337,9 +1337,6 @@ def tree_instances_generation(config_path):
     basemeshes_level1 = 1
     version = 80
 
-    basemeshes_actual_run_level = basemeshes_all_level if run_upload_basemeshes else basemeshes_debug_level
-    lambda_host.log(f'basemeshes_actual_run_level is {basemeshes_actual_run_level}')
-
     road_heightmap_file_name = f'{tiles_count}_{tiles_x}_{tiles_y}_{road_Heightmap_width}_{road_heightmap_height}_ushort_height_map_raw.raw'
     road_humidity_file_name = f'{tiles_count}_{tiles_x}_{tiles_y}_{road_Heightmap_width}_{road_heightmap_height}_byte_humidity_map_raw.raw'
     road_regions_name_file_name = f'{tiles_count}_{tiles_x}_{tiles_y}_regions_name.csv'
@@ -1365,10 +1362,10 @@ def tree_instances_generation(config_path):
     basemeshes_csv_path = os.path.join(Data_folder, basemeshes_csv_name)
 
     basemeshes_assets_folder = qtree_assets_folder
-    basemeshes_0_heightmap_name = f'{tiles_count}_{tiles_x}_{tiles_y}_{basemeshes_level0}_{basemeshes_actual_run_level}_heightarray.bin'
-    basemeshes_1_heightmap_name = f'{tiles_count}_{tiles_x}_{tiles_y}_{basemeshes_level1}_{basemeshes_actual_run_level}_heightarray.bin'
-    basemeshes_0_heightmap_mask_name = f'{tiles_count}_{tiles_x}_{tiles_y}_{basemeshes_level0}_{basemeshes_actual_run_level}_heightmasks.bin'
-    basemeshes_1_heightmap_mask_name = f'{tiles_count}_{tiles_x}_{tiles_y}_{basemeshes_level1}_{basemeshes_actual_run_level}_heightmasks.bin'
+    basemeshes_0_heightmap_name = f'{tiles_count}_{tiles_x}_{tiles_y}_{basemeshes_level0}_{basemeshes_debug_level}_heightarray.bin'
+    basemeshes_1_heightmap_name = f'{tiles_count}_{tiles_x}_{tiles_y}_{basemeshes_level1}_{basemeshes_debug_level}_heightarray.bin'
+    basemeshes_0_heightmap_mask_name = f'{tiles_count}_{tiles_x}_{tiles_y}_{basemeshes_level0}_{basemeshes_debug_level}_heightmasks.bin'
+    basemeshes_1_heightmap_mask_name = f'{tiles_count}_{tiles_x}_{tiles_y}_{basemeshes_level1}_{basemeshes_debug_level}_heightmasks.bin'
     basemeshes_0_heightmap_path = os.path.join(basemeshes_heightmap_folder, basemeshes_0_heightmap_name)
     basemeshes_1_heightmap_path = os.path.join(basemeshes_heightmap_folder, basemeshes_1_heightmap_name)
     basemeshes_0_heightmap_mask_path = os.path.join(basemeshes_heightmap_folder, basemeshes_0_heightmap_mask_name)
@@ -1427,8 +1424,8 @@ def tree_instances_generation(config_path):
     worldgen_command =  f'{worldgen_exe_path} {tiles_count} {tiles_x} {tiles_y} {worldgen_level} {qtree_assets_folder} {smoothlayer_output_base_folder} {road_output_folder}'
     if run_generate_road_input:
         worldgen_command =  f'{worldgen_exe_path} {tiles_count} {tiles_x} {tiles_y} {worldgen_level} {qtree_assets_folder} {smoothlayer_output_base_folder}'
-    basemeshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_actual_run_level} {basemeshes_heightmap_folder}'
-    basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_actual_run_level} {basemeshes_heightmap_folder}'
+    basemeshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_debug_level} {basemeshes_heightmap_folder}'
+    basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_debug_level} {basemeshes_heightmap_folder}'
     if use_basemesh_original_program:
         basemeshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder}'
         basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder}'
@@ -1437,8 +1434,8 @@ def tree_instances_generation(config_path):
     
     if run_upload_basemeshes:
         if not use_basemesh_original_program:
-            basemeshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_actual_run_level} {basemeshes_heightmap_folder}'
-            basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_actual_run_level} {basemeshes_heightmap_folder}'
+            basemeshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_all_level} {basemeshes_heightmap_folder}'
+            basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_all_level} {basemeshes_heightmap_folder}'
             lambda_host.log("Adjust base meshes command line to all level")
     
     if run_upload_basemeshes and use_basemesh_ini:
@@ -1602,7 +1599,7 @@ def tree_instances_generation(config_path):
             lambda_host.log(f'step for run basemeshes with ini level : {basemeshes_level1}')
             if run_upload_basemeshes:
                 create_or_update_ini_file(basemeshes_ini_path, section_others, 'Level', basemeshes_level1)
-                create_or_update_ini_file(basemeshes_ini_path, section_others, 'LodDebugLevel', basemeshes_actual_run_level)
+                create_or_update_ini_file(basemeshes_ini_path, section_others, 'LodDebugLevel', basemeshes_all_level)
                 lambda_host.log(f'Adjust base meshes ini level {basemeshes_level1} to all LOD level')
             basemeshes_ini_string = ini_file_to_string(basemeshes_ini_path)
             lambda_host.log(f'Basemeshes ini file for level {basemeshes_level1} content is :')
@@ -1618,7 +1615,7 @@ def tree_instances_generation(config_path):
             lambda_host.log(f'step for run basemeshes with ini level : {basemeshes_level0}')
             if run_upload_basemeshes:
                 create_or_update_ini_file(basemeshes_ini_path, section_others, 'Level', basemeshes_level0)
-                create_or_update_ini_file(basemeshes_ini_path, section_others, 'LodDebugLevel', basemeshes_actual_run_level)
+                create_or_update_ini_file(basemeshes_ini_path, section_others, 'LodDebugLevel', basemeshes_all_level)
                 lambda_host.log(f'Adjust base meshes ini level {basemeshes_level0} to all LOD level')
             basemeshes_ini_string = ini_file_to_string(basemeshes_ini_path)
             lambda_host.log(f'Basemeshes ini file for level {basemeshes_level0} content is :')
