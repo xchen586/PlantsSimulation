@@ -1340,10 +1340,12 @@ def tree_instances_generation(config_path):
     road_heightmap_file_name = f'{tiles_count}_{tiles_x}_{tiles_y}_{road_Heightmap_width}_{road_heightmap_height}_ushort_height_map_raw.raw'
     road_humidity_file_name = f'{tiles_count}_{tiles_x}_{tiles_y}_{road_Heightmap_width}_{road_heightmap_height}_byte_humidity_map_raw.raw'
     road_regions_name_file_name = f'{tiles_count}_{tiles_x}_{tiles_y}_regions_name.csv'
+    road_regions_namelist_file_name = f'{tiles_count}_{tiles_x}_{tiles_y}_regions_namelist.csv'
     
     original_road_heightmap_file_path = os.path.join(road_input_folder, road_heightmap_file_name)
     original_road_humidity_file_path = os.path.join(road_input_folder, road_humidity_file_name)
     road_regions_name_file_path = os.path.join(road_input_folder, road_regions_name_file_name)
+    road_regions_namelist_file_path = os.path.join(road_input_folder, road_regions_namelist_file_name)
 
     most_travelled_points_path = os.path.join(road_output_folder, f'{tiles_count}_{tiles_x}_{tiles_y}_Most_Travelled_Points.csv') 
     most_distant_points_path = os.path.join(road_output_folder, f'{tiles_count}_{tiles_x}_{tiles_y}_Most_Distant_Points.csv') 
@@ -1424,17 +1426,14 @@ def tree_instances_generation(config_path):
     worldgen_command =  f'{worldgen_exe_path} {tiles_count} {tiles_x} {tiles_y} {worldgen_level} {qtree_assets_folder} {smoothlayer_output_base_folder} {road_output_folder}'
     if run_generate_road_input:
         worldgen_command =  f'{worldgen_exe_path} {tiles_count} {tiles_x} {tiles_y} {worldgen_level} {qtree_assets_folder} {smoothlayer_output_base_folder}'
-    basemeshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_debug_level} {basemeshes_heightmap_folder}'
-    basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_debug_level} {basemeshes_heightmap_folder}'
+    
     basemeshvoxelizer_ini_command = f'{basemeshes_exe_path} {basemeshes_ini_path}'
     tree_exe_command = f'{tree_exe_path} {tree_ini_path}'
     
-    if run_upload_basemeshes:
-        basemeshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_all_level} {basemeshes_heightmap_folder}'
-        basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_all_level} {basemeshes_heightmap_folder}'
-        lambda_host.log("Adjust base meshes command line to all level")
+    basemeshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_debug_level} {basemeshes_heightmap_folder}'
+    basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_debug_level} {basemeshes_heightmap_folder}'   
     
-    if run_upload_basemeshes and use_basemesh_ini:
+    if use_basemesh_ini:
         lambda_host.log(f'Start to write standard basemeshes ini files : {basemeshes_ini_path}')
         create_or_overwrite_empty_file(basemeshes_ini_path)
         
@@ -1464,7 +1463,7 @@ def tree_instances_generation(config_path):
         create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_GET_HEIGHT_BY_RAYTEST_RTREE_WC', True)
         
         create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_ALSO_OUTPUT_CACHE_MESHES_IN_WC', False)
-        create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_OUTPUT_WHOLE_MESHES_WC', False)
+        create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_OUTPUT_WHOLE_MESHES_WC', True)
         
         create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_AVERAGE_HEIGHT', False)
         create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_OUTPUT_HEIGHTMAP_MASK', True)
@@ -1486,7 +1485,7 @@ def tree_instances_generation(config_path):
         
         create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_APPLY_SIZE_LIMIT_FOR_VOXELIZE_NODE', True)
         create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_APPLY_NO_TOP_DELTA_FOR_BASEMESH_MASK', False)
-        
+
         create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_APPLY_QUICK_VOXELIZE_MESH_DEBUG', False)
         create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_APPLY_IGNORE_LOWER_MINHEIGHT_MESHES', False)
 
@@ -1515,46 +1514,6 @@ def tree_instances_generation(config_path):
         
     lambda_host.log(f'End to prepare command line for programs')
         
-    ##### Make ini config file for tree exe.
-    #clear_all_sections(tree_ini_path)
-    useWithBaseMeshesLevel1 = True
-    if run_make_tree_instances:
-        lambda_host.log(f'Start to write tree instance ini files : {tree_ini_path}')
-        create_or_overwrite_empty_file(tree_ini_path)
-        create_or_update_ini_file(tree_ini_path, section_tiles, 'Tiles_Count', tiles_count)
-        create_or_update_ini_file(tree_ini_path, section_tiles, 'Tiles_X_Index', tiles_x)
-        create_or_update_ini_file(tree_ini_path, section_tiles, 'Tiles_Y_Index', tiles_y)
-        create_or_update_ini_file(tree_ini_path, section_input, 'Toplayer_Image', toplayer_image_path)
-        create_or_update_ini_file(tree_ini_path, section_input, 'Toplayer_Image_Meta', toplayer_image_meta_path)
-        create_or_update_ini_file(tree_ini_path, section_input, 'BaseMeshes_Level_0_HeightMap', basemeshes_0_heightmap_path)
-        create_or_update_ini_file(tree_ini_path, section_input, 'BaseMeshes_Level_1_HeightMap', basemeshes_1_heightmap_path)
-        create_or_update_ini_file(tree_ini_path, section_input, 'TopLayer_HeightMap', toplayer_heightmap_path)
-        create_or_update_ini_file(tree_ini_path, section_input, 'Level1Layer_heightMap', level1_heightmap_path)
-        create_or_update_ini_file(tree_ini_path, section_input, 'BedrokLayer_heightMap', bedrock_heightmap_path)
-        create_or_update_ini_file(tree_ini_path, section_input, 'BaseMeshes_Level_0_HeightMap_Mask', basemeshes_0_heightmap_mask_path)
-        create_or_update_ini_file(tree_ini_path, section_input, 'BaseMeshes_Level_1_HeightMap_Mask', basemeshes_1_heightmap_mask_path)
-        create_or_update_ini_file(tree_ini_path, section_input, 'TopLayer_HeightMap_Mask', toplayer_heightmap_mask_path)
-        create_or_update_ini_file(tree_ini_path, section_input, 'Level1Layer_heightMap_Mask', level1_heightmap_mask_path)
-        create_or_update_ini_file(tree_ini_path, section_input, 'Bedrock_heightMap_Mask', bedrock_heightmap_mask_path)
-        create_or_update_ini_file(tree_ini_path, section_input, 'Most_Travelled_Points', most_travelled_points_path)
-        create_or_update_ini_file(tree_ini_path, section_input, 'Most_Distant_Points', most_distant_points_path)
-        create_or_update_ini_file(tree_ini_path, section_input, 'Tree_List', tree_list)
-        create_or_update_ini_file(tree_ini_path, section_input, 'Regions_Raw', regions_raw_path)
-        create_or_update_ini_file(tree_ini_path, section_input, 'Regions_Info', regions_info_path)
-        
-        create_or_update_ini_file(tree_ini_path, section_output, 'Output_Dir', tree_output_base_folder)
-        create_or_update_ini_file(tree_ini_path, section_others, 'Lod', tree_lod)
-        create_or_update_ini_file(tree_ini_path, section_others, 'Forest_Age', forest_age)
-        create_or_update_ini_file(tree_ini_path, section_others, 'Tree_Iteration', tree_iteration)
-        
-        create_or_update_ini_file(tree_ini_path, section_options,'Only_Road_Data', run_generate_road_input)
-        create_or_update_ini_file(tree_ini_path, section_options,'Use_With_BaseMeshes_Level1', useWithBaseMeshesLevel1)
-        
-        lambda_host.log(f'End to write tree instance ini files : {tree_ini_path}')
-        tree_ini_string = ini_file_to_string(tree_ini_path)
-        lambda_host.log(f'Tree ini file content is :')
-        lambda_host.log(f'{tree_ini_string}')
-  
     if run_road_exe:
         ##### Generate the road obj and image for smooth layer. 
         #return_code_road = launch_process(road_exe_command)
@@ -1599,18 +1558,19 @@ def tree_instances_generation(config_path):
     level1_index_db_file_path = os.path.join(level1_db_output_folder, index_db_file_name)
     level1_data_db_file_path = os.path.join(level1_db_output_folder, data_db_file_name)
     
-    if run_make_basemeshes:
-        
+    if (run_generate_road_input or run_make_tree_instances) and run_make_basemeshes:
         RemoveBaseMeshesdata(level0_index_db_file_path, level0_data_db_file_path, level1_index_db_file_path, level1_data_db_file_path)
-        
+            
         if use_basemesh_ini:
             lambda_host.log(f'step for run basemeshes with ini : {basemeshvoxelizer_ini_command}')
             
             lambda_host.log(f'step for run basemeshes with ini level : {basemeshes_level1}')
-            if run_upload_basemeshes:
-                create_or_update_ini_file(basemeshes_ini_path, section_others, 'Level', basemeshes_level1)
-                create_or_update_ini_file(basemeshes_ini_path, section_others, 'LodDebugLevel', basemeshes_all_level)
-                lambda_host.log(f'Adjust base meshes ini level {basemeshes_level1} to all LOD level')
+            if run_generate_road_input:
+                create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_OUTPUT_WHOLE_MESHES_WC', False)
+            else:
+                create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_OUTPUT_WHOLE_MESHES_WC', True)
+            create_or_update_ini_file(basemeshes_ini_path, section_others, 'LodDebugLevel', basemeshes_debug_level)
+            create_or_update_ini_file(basemeshes_ini_path, section_others, 'Level', basemeshes_level1)
             basemeshes_ini_string = ini_file_to_string(basemeshes_ini_path)
             lambda_host.log(f'Basemeshes ini file for level {basemeshes_level1} content is :')
             lambda_host.log(f'{basemeshes_ini_string}')
@@ -1619,14 +1579,10 @@ def tree_instances_generation(config_path):
                 lambda_host.log(f'Process level {basemeshes_level1} with ({basemeshvoxelizer_ini_command}) executed successfully.')
             else:
                 lambda_host.log(f'Error: The process level {basemeshes_level1} with ({basemeshvoxelizer_ini_command}) returned a non-zero exit code ({return_code_basemesh_ini_1}).')
-                exit_code(2)
                 return -1
             
             lambda_host.log(f'step for run basemeshes with ini level : {basemeshes_level0}')
-            if run_upload_basemeshes:
-                create_or_update_ini_file(basemeshes_ini_path, section_others, 'Level', basemeshes_level0)
-                create_or_update_ini_file(basemeshes_ini_path, section_others, 'LodDebugLevel', basemeshes_all_level)
-                lambda_host.log(f'Adjust base meshes ini level {basemeshes_level0} to all LOD level')
+            create_or_update_ini_file(basemeshes_ini_path, section_others, 'Level', basemeshes_level0)
             basemeshes_ini_string = ini_file_to_string(basemeshes_ini_path)
             lambda_host.log(f'Basemeshes ini file for level {basemeshes_level0} content is :')
             lambda_host.log(f'{basemeshes_ini_string}')
@@ -1635,39 +1591,68 @@ def tree_instances_generation(config_path):
                 lambda_host.log(f'Process level {basemeshes_level0} with ({basemeshvoxelizer_ini_command}) executed successfully.')
             else:
                 lambda_host.log(f'Error: The process level {basemeshes_level0} with ({basemeshvoxelizer_ini_command}) returned a non-zero exit code ({return_code_basemesh_ini_0}).')
-                exit_code(2)
                 return -1
-            
             
         else:
             ##### Generate the height map from level 0 of BaseMeshes.  
-             #return_code_basemash0 = launch_process(basemeshvoxelizer0_command)
             lambda_host.log(f'step for to run_make_basemeshes : {basemeshvoxelizer0_command}')
-            #return_code_basemash0 = xc_run_tool(basemeshvoxelizer0_command, 81, 90)
             return_code_basemash0 = xc_run_tool(basemeshvoxelizer0_command, 0, 100)
             if return_code_basemash0 == 0:
                 lambda_host.log(f'Process ({basemeshvoxelizer0_command}) executed successfully.')
             else:
                 lambda_host.log(f'Error: The process ({basemeshvoxelizer0_command}) returned a non-zero exit code ({return_code_basemash0}).')
-                exit_code(2)
                 return -1
             
             ##### Generate the height map from level 1 of BaseMeshes. 
             lambda_host.log(f'step for to run_make_basemeshes : {basemeshvoxelizer1_command}')
-            #return_code_basemash1 = launch_process(basemeshvoxelizer1_command)
-            #return_code_basemash1 = xc_run_tool(basemeshvoxelizer1_command, 61, 80)
             return_code_basemash1 = xc_run_tool(basemeshvoxelizer1_command, 0, 100)
             if return_code_basemash1 == 0:
                 lambda_host.log(f'Process ({basemeshvoxelizer1_command}) executed successfully.')
             else:
                 lambda_host.log(f'Error: The process ({basemeshvoxelizer1_command}) returned a non-zero exit code ({return_code_basemash1}).')
-                exit_code(2)
                 return -1
         
     if run_make_tree_instances:
+        ##### Make ini config file for tree exe.
+        #clear_all_sections(tree_ini_path)
+        useWithBaseMeshesLevel1 = True
+        lambda_host.log(f'Start to write tree instance ini files : {tree_ini_path}')
+        create_or_overwrite_empty_file(tree_ini_path)
+        create_or_update_ini_file(tree_ini_path, section_tiles, 'Tiles_Count', tiles_count)
+        create_or_update_ini_file(tree_ini_path, section_tiles, 'Tiles_X_Index', tiles_x)
+        create_or_update_ini_file(tree_ini_path, section_tiles, 'Tiles_Y_Index', tiles_y)
+        create_or_update_ini_file(tree_ini_path, section_input, 'Toplayer_Image', toplayer_image_path)
+        create_or_update_ini_file(tree_ini_path, section_input, 'Toplayer_Image_Meta', toplayer_image_meta_path)
+        create_or_update_ini_file(tree_ini_path, section_input, 'BaseMeshes_Level_0_HeightMap', basemeshes_0_heightmap_path)
+        create_or_update_ini_file(tree_ini_path, section_input, 'BaseMeshes_Level_1_HeightMap', basemeshes_1_heightmap_path)
+        create_or_update_ini_file(tree_ini_path, section_input, 'TopLayer_HeightMap', toplayer_heightmap_path)
+        create_or_update_ini_file(tree_ini_path, section_input, 'Level1Layer_heightMap', level1_heightmap_path)
+        create_or_update_ini_file(tree_ini_path, section_input, 'BedrokLayer_heightMap', bedrock_heightmap_path)
+        create_or_update_ini_file(tree_ini_path, section_input, 'BaseMeshes_Level_0_HeightMap_Mask', basemeshes_0_heightmap_mask_path)
+        create_or_update_ini_file(tree_ini_path, section_input, 'BaseMeshes_Level_1_HeightMap_Mask', basemeshes_1_heightmap_mask_path)
+        create_or_update_ini_file(tree_ini_path, section_input, 'TopLayer_HeightMap_Mask', toplayer_heightmap_mask_path)
+        create_or_update_ini_file(tree_ini_path, section_input, 'Level1Layer_heightMap_Mask', level1_heightmap_mask_path)
+        create_or_update_ini_file(tree_ini_path, section_input, 'Bedrock_heightMap_Mask', bedrock_heightmap_mask_path)
+        create_or_update_ini_file(tree_ini_path, section_input, 'Most_Travelled_Points', most_travelled_points_path)
+        create_or_update_ini_file(tree_ini_path, section_input, 'Most_Distant_Points', most_distant_points_path)
+        create_or_update_ini_file(tree_ini_path, section_input, 'Tree_List', tree_list)
+        create_or_update_ini_file(tree_ini_path, section_input, 'Regions_Raw', regions_raw_path)
+        create_or_update_ini_file(tree_ini_path, section_input, 'Regions_Info', regions_info_path)
+        
+        create_or_update_ini_file(tree_ini_path, section_output, 'Output_Dir', tree_output_base_folder)
+        create_or_update_ini_file(tree_ini_path, section_others, 'Lod', tree_lod)
+        create_or_update_ini_file(tree_ini_path, section_others, 'Forest_Age', forest_age)
+        create_or_update_ini_file(tree_ini_path, section_others, 'Tree_Iteration', tree_iteration)
+        
+        create_or_update_ini_file(tree_ini_path, section_options,'Only_Road_Data', run_generate_road_input)
+        create_or_update_ini_file(tree_ini_path, section_options,'Use_With_BaseMeshes_Level1', useWithBaseMeshesLevel1)
+        
+        lambda_host.log(f'End to write tree instance ini files : {tree_ini_path}')
+        tree_ini_string = ini_file_to_string(tree_ini_path)
+        lambda_host.log(f'Tree standard ini file content is :')
+        lambda_host.log(f'{tree_ini_string}')
         lambda_host.log(f'step for to run_make_tree_instances : {tree_exe_command}')
         ##### Run tree exe to generate to tree instances.
-        #return_code_tree = launch_process(tree_exe_command)
         return_code_tree = xc_run_tool(tree_exe_command, 91, 100)
         if return_code_tree == 0:
             lambda_host.log(f'Process ({tree_exe_command}) executed successfully.')
@@ -1688,10 +1673,12 @@ def tree_instances_generation(config_path):
         lambda_host.log(f'original_road_heightmap_file_path is : {original_road_heightmap_file_path}')
         lambda_host.log(f'original_road_humidity_file_path is : {original_road_humidity_file_path}')
         lambda_host.log(f'road_regions_name_file_path is : {road_regions_name_file_path}')
+        lambda_host.log(f'road_regions_namelist_file_path is : {road_regions_namelist_file_path}')
     
         attach_file_to_lambda(api, workflow_project_id, lambda_entity_id, new_road_heightmap_file_path)
         attach_file_to_lambda(api, workflow_project_id, lambda_entity_id, original_road_humidity_file_path)
         attach_file_to_lambda(api, workflow_project_id, lambda_entity_id, road_regions_name_file_path)
+        attach_file_to_lambda(api, workflow_project_id, lambda_entity_id, road_regions_namelist_file_path)
             
         lambda_host.log(f'End to run_generate_road_input')
 
@@ -1707,10 +1694,6 @@ def tree_instances_generation(config_path):
         process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, lakes_bottom_file_path, api.entity_type.VoxelTerrain, lakes_bottom_layer_entity_base_name, project_output_version, color=True)
         process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, lakes_bottom_level1_file_path, api.entity_type.VoxelTerrain, lakes_bottom_level1_layer_entity_base_name, project_output_version, color=True)
         process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, lakes_level1_file_path, api.entity_type.VoxelTerrain, lakes_level1_layer_entity_base_name, project_output_version, color=True)
-        
-        #process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, toplevel_file_path, api.entity_type.IndexedPointCloud, toplevel_layer_entity_base_name, project_output_version, color=True)
-        #process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, level1_file_path, api.entity_type.IndexedPointCloud, level1_layer_entity_base_name, project_output_version, color=True)
-        #process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, bedrock_file_path, api.entity_type.IndexedPointCloud, bedrock_layer_entity_base_name, project_output_version, color=True)
         
     tree_instance_output_folder_name = 'instanceoutput'
     regions_output_folder_name = 'regionoutput'
@@ -1738,6 +1721,60 @@ def tree_instances_generation(config_path):
         geochem_entity_base_name = f'GeoChemical_instances_{Tiles_size}_{Tiles_x}_{Tiles_y}'
         create_geochem_tree_entity(api, Project_id, geochem_result_folder_id, geo_chemical_folder_path, geochem_entity_base_name, project_output_version)
         lambda_host.log(f'create_geochem_tree_entity from {geo_chemical_folder_path}')
+
+    if run_make_basemeshes and run_upload_basemeshes: 
+        RemoveBaseMeshesdata(level0_index_db_file_path, level0_data_db_file_path, level1_index_db_file_path, level1_data_db_file_path)
+            
+        if use_basemesh_ini:
+            lambda_host.log(f'step for run basemeshes with ini : {basemeshvoxelizer_ini_command}')
+            lambda_host.log(f'step for run basemeshes with ini level : {basemeshes_level1}')
+            create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_OUTPUT_WHOLE_MESHES_WC', False)
+            create_or_update_ini_file(basemeshes_ini_path, section_others, 'LodDebugLevel', basemeshes_all_level)
+            create_or_update_ini_file(basemeshes_ini_path, section_others, 'Level', basemeshes_level1)
+            lambda_host.log(f'Adjust base meshes ini level {basemeshes_level1} to all LOD level')
+            basemeshes_ini_string = ini_file_to_string(basemeshes_ini_path)
+            lambda_host.log(f'Basemeshes ini file for level {basemeshes_level1} content is :')
+            lambda_host.log(f'{basemeshes_ini_string}')
+            return_code_basemesh_ini_1 = xc_run_tool(basemeshvoxelizer_ini_command, 61, 80)
+            if return_code_basemesh_ini_1 == 0:
+                lambda_host.log(f'Process level {basemeshes_level1} with ({basemeshvoxelizer_ini_command}) executed successfully.')
+            else:
+                lambda_host.log(f'Error: The process level {basemeshes_level1} with ({basemeshvoxelizer_ini_command}) returned a non-zero exit code ({return_code_basemesh_ini_1}).')
+                return -1
+            
+            lambda_host.log(f'step for run basemeshes with ini level : {basemeshes_level0}')
+            create_or_update_ini_file(basemeshes_ini_path, section_others, 'Level', basemeshes_level0)
+            lambda_host.log(f'Adjust base meshes ini level {basemeshes_level0} to all LOD level')
+            basemeshes_ini_string = ini_file_to_string(basemeshes_ini_path)
+            lambda_host.log(f'Basemeshes ini file for level {basemeshes_level0} content is :')
+            lambda_host.log(f'{basemeshes_ini_string}')
+            return_code_basemesh_ini_0 = xc_run_tool(basemeshvoxelizer_ini_command, 81, 90)
+            if return_code_basemesh_ini_0 == 0:
+                lambda_host.log(f'Process level {basemeshes_level0} with ({basemeshvoxelizer_ini_command}) executed successfully.')
+            else:
+                lambda_host.log(f'Error: The process level {basemeshes_level0} with ({basemeshvoxelizer_ini_command}) returned a non-zero exit code ({return_code_basemesh_ini_0}).')
+                return -1
+        else:
+            basemeshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_all_level} {basemeshes_heightmap_folder}'
+            basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_all_level} {basemeshes_heightmap_folder}'
+            lambda_host.log("Adjust base meshes command line to all level")
+            ##### Generate the height map from level 0 of BaseMeshes.  
+            lambda_host.log(f'step for to run_make_basemeshes : {basemeshvoxelizer0_command}')
+            return_code_basemash0 = xc_run_tool(basemeshvoxelizer0_command, 0, 100)
+            if return_code_basemash0 == 0:
+                lambda_host.log(f'Process ({basemeshvoxelizer0_command}) executed successfully.')
+            else:
+                lambda_host.log(f'Error: The process ({basemeshvoxelizer0_command}) returned a non-zero exit code ({return_code_basemash0}).')
+                return -1
+            
+            ##### Generate the height map from level 1 of BaseMeshes. 
+            lambda_host.log(f'step for to run_make_basemeshes : {basemeshvoxelizer1_command}')
+            return_code_basemash1 = xc_run_tool(basemeshvoxelizer1_command, 0, 100)
+            if return_code_basemash1 == 0:
+                lambda_host.log(f'Process ({basemeshvoxelizer1_command}) executed successfully.')
+            else:
+                lambda_host.log(f'Error: The process ({basemeshvoxelizer1_command}) returned a non-zero exit code ({return_code_basemash1}).')
+                return -1
 
     if run_upload_basemeshes:
         lambda_host.log(f'step for to run_upload_basemeshes')
@@ -1778,9 +1815,11 @@ def tree_config_creation(ini_path):
     road_exe_path = os.path.join(Tools_folder, road_exe_name)
     
     basemeshes_exe_name = f'BaseMeshVoxelizer.exe'
+   
     if not use_basemesh_ini:
         basemeshes_exe_name = f'BaseMeshVoxelizerCmd.exe'
-    
+           
+            
     lambda_host.log(f'basemeshes_exe_name is {basemeshes_exe_name}')
 
     basemeshes_exe_path = os.path.join(Tools_folder, basemeshes_exe_name)
