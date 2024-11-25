@@ -1592,7 +1592,21 @@ def tree_instances_generation(config_path):
             exit_code(2)
             return -1
         
+    basemeshes_output_folder = basemeshes_db_base_folder
+    
+    level0_db_output_folder = os.path.join(basemeshes_output_folder, f'{tile_size}_{tile_x}_{tile_y}_0')
+    level1_db_output_folder = os.path.join(basemeshes_output_folder, f'{tile_size}_{tile_x}_{tile_y}_1')
+    index_db_file_name = f'index.vf'
+    data_db_file_name = f'data.vf'
+    level0_index_db_file_path = os.path.join(level0_db_output_folder, index_db_file_name)
+    level0_data_db_file_path = os.path.join(level0_db_output_folder, data_db_file_name)
+    level1_index_db_file_path = os.path.join(level1_db_output_folder, index_db_file_name)
+    level1_data_db_file_path = os.path.join(level1_db_output_folder, data_db_file_name)
+    
     if run_make_basemeshes:
+        
+        RemoveBaseMeshesdata(level0_index_db_file_path, level0_data_db_file_path, level1_index_db_file_path, level1_data_db_file_path)
+        
         if use_basemesh_ini:
             lambda_host.log(f'step for run basemeshes with ini : {basemeshvoxelizer_ini_command}')
             
@@ -1745,6 +1759,20 @@ def tree_instances_generation(config_path):
     lambda_host.log(f'end for step tree_instances_generation')
     return 0
 
+def RemoveBaseMeshesdata(level0_index_db_file_path, level0_data_db_file_path, level1_index_db_file_path, level1_data_db_file_path):
+    if os.path.exists(level0_index_db_file_path):
+        os.remove(level0_index_db_file_path)  # Remove the file
+        lambda_host.log(f"File '{level0_index_db_file_path}' has been removed.")
+    if os.path.exists(level0_data_db_file_path):
+        os.remove(level0_data_db_file_path)  # Remove the file
+        lambda_host.log(f"File '{level0_data_db_file_path}' has been removed.")
+    if os.path.exists(level1_index_db_file_path):
+        os.remove(level1_index_db_file_path)  # Remove the file
+        lambda_host.log(f"File '{level1_index_db_file_path}' has been removed.")
+    if os.path.exists(level1_data_db_file_path):
+        os.remove(level1_data_db_file_path)  # Remove the file
+        lambda_host.log(f"File '{level1_data_db_file_path}' has been removed.")
+        
 def tree_config_creation(ini_path):
     #road_input_folder = f'{Data_folder}\\RoadRawInit'
     lambda_host.log(f'start to create tree_config_creation : {ini_path}')
