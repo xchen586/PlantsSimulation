@@ -1425,18 +1425,14 @@ def tree_instances_generation(config_path):
         worldgen_command =  f'{worldgen_exe_path} {tiles_count} {tiles_x} {tiles_y} {worldgen_level} {qtree_assets_folder} {smoothlayer_output_base_folder}'
     basemeshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_debug_level} {basemeshes_heightmap_folder}'
     basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_debug_level} {basemeshes_heightmap_folder}'
-    if use_basemesh_original_program:
-        basemeshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder}'
-        basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder}'
     basemeshvoxelizer_ini_command = f'{basemeshes_exe_path} {basemeshes_ini_path}'
     tree_exe_command = f'{tree_exe_path} {tree_ini_path}'
     
     if run_upload_basemeshes:
-        if not use_basemesh_original_program:
-            basemeshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_all_level} {basemeshes_heightmap_folder}'
-            basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_all_level} {basemeshes_heightmap_folder}'
-            print("Adjust base meshes command line to all level")
-    
+        basemeshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_all_level} {basemeshes_heightmap_folder}'
+        basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_all_level} {basemeshes_heightmap_folder}'
+        print("Adjust base meshes command line to all level")
+
     if run_upload_basemeshes and use_basemesh_ini:
         print(f'Start to write standard basemeshes ini files : {basemeshes_ini_path}')
         create_or_overwrite_empty_file(basemeshes_ini_path)
@@ -1602,18 +1598,7 @@ def tree_instances_generation(config_path):
     
     if run_make_basemeshes:
         
-        if os.path.exists(level0_index_db_file_path):
-            os.remove(level0_index_db_file_path)  # Remove the file
-        print(f"File '{level0_index_db_file_path}' has been removed.")
-        if os.path.exists(level0_data_db_file_path):
-            os.remove(level0_data_db_file_path)  # Remove the file
-            print(f"File '{level0_data_db_file_path}' has been removed.")
-        if os.path.exists(level1_index_db_file_path):
-            os.remove(level1_index_db_file_path)  # Remove the file
-            print(f"File '{level1_index_db_file_path}' has been removed.")
-        if os.path.exists(level1_data_db_file_path):
-            os.remove(level1_data_db_file_path)  # Remove the file
-            print(f"File '{level1_data_db_file_path}' has been removed.")
+        RemoveBaseMeshesdata(level0_index_db_file_path, level0_data_db_file_path, level1_index_db_file_path, level1_data_db_file_path)
             
         if use_basemesh_ini:
             print(f'step for run basemeshes with ini : {basemeshvoxelizer_ini_command}')
@@ -1757,6 +1742,20 @@ def tree_instances_generation(config_path):
     print(f'end for step tree_instances_generation')
     return 0
 
+def RemoveBaseMeshesdata(level0_index_db_file_path, level0_data_db_file_path, level1_index_db_file_path, level1_data_db_file_path):
+    if os.path.exists(level0_index_db_file_path):
+        os.remove(level0_index_db_file_path)  # Remove the file
+    print(f"File '{level0_index_db_file_path}' has been removed.")
+    if os.path.exists(level0_data_db_file_path):
+        os.remove(level0_data_db_file_path)  # Remove the file
+        print(f"File '{level0_data_db_file_path}' has been removed.")
+    if os.path.exists(level1_index_db_file_path):
+        os.remove(level1_index_db_file_path)  # Remove the file
+        print(f"File '{level1_index_db_file_path}' has been removed.")
+    if os.path.exists(level1_data_db_file_path):
+        os.remove(level1_data_db_file_path)  # Remove the file
+        print(f"File '{level1_data_db_file_path}' has been removed.")
+
 def tree_config_creation(ini_path):
     #road_input_folder = f'{Data_folder}\\RoadRawInit'
     print(f'start to create tree_config_creation : {ini_path}')
@@ -1766,16 +1765,9 @@ def tree_config_creation(ini_path):
     road_exe_path = os.path.join(Tools_folder, road_exe_name)
     
     basemeshes_exe_name = f'BaseMeshVoxelizer.exe'
-    #basemeshes_exe_name = f'BaseMeshVoxelizerCmd.exe'
     if not use_basemesh_ini:
-        if not use_basemesh_original_program:
-            basemeshes_exe_name = f'BaseMeshVoxelizerCmd.exe'
-            #basemeshes_exe_name = f'BaseMeshVoxelizerAZ.exe'
-        else:
-            #basemeshes_exe_name = f'Tool.BaseMeshVoxelizer.exe'
-            basemeshes_exe_name = f'BaseMeshVoxelizerOrigin.exe'
-            
-    print(f'use_basemesh_original_program is {use_basemesh_original_program}')
+        basemeshes_exe_name = f'BaseMeshVoxelizerCmd.exe'
+                
     print(f'basemeshes_exe_name is {basemeshes_exe_name}')
 
     basemeshes_exe_path = os.path.join(Tools_folder, basemeshes_exe_name)
@@ -1879,11 +1871,8 @@ section_options = 'Options'
 section_config = 'Configuration'
 
 use_basemesh_ini = False
-use_basemesh_original_program = False
 
 #lambda_host = process_lambda.process_lambda_host()
-
-print(f'use_basemesh_original_program is {use_basemesh_original_program}')
 
 print(f'Start workflow')
 
@@ -2113,9 +2102,6 @@ print(f'is_run_create_geochem_entity: {is_run_create_geochem_entity}')
 print(f'is_run_generate_road_input: {is_run_generate_road_input}')
 
 print(f'is_run_make_tree_instances is: {is_run_make_tree_instances}')
-if is_run_make_tree_instances == "True":
-    print('is_run_make_tree_instances is true, set use_basemesh_original_program = False' )
-    use_basemesh_original_program = False
 
 print('Start to download files')
 pythoncode_data_folder = pythoncode_active_version_property

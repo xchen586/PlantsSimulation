@@ -1426,17 +1426,13 @@ def tree_instances_generation(config_path):
         worldgen_command =  f'{worldgen_exe_path} {tiles_count} {tiles_x} {tiles_y} {worldgen_level} {qtree_assets_folder} {smoothlayer_output_base_folder}'
     basemeshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_debug_level} {basemeshes_heightmap_folder}'
     basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_debug_level} {basemeshes_heightmap_folder}'
-    if use_basemesh_original_program:
-        basemeshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder}'
-        basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder}'
     basemeshvoxelizer_ini_command = f'{basemeshes_exe_path} {basemeshes_ini_path}'
     tree_exe_command = f'{tree_exe_path} {tree_ini_path}'
     
     if run_upload_basemeshes:
-        if not use_basemesh_original_program:
-            basemeshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_all_level} {basemeshes_heightmap_folder}'
-            basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_all_level} {basemeshes_heightmap_folder}'
-            lambda_host.log("Adjust base meshes command line to all level")
+        basemeshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_all_level} {basemeshes_heightmap_folder}'
+        basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_all_level} {basemeshes_heightmap_folder}'
+        lambda_host.log("Adjust base meshes command line to all level")
     
     if run_upload_basemeshes and use_basemesh_ini:
         lambda_host.log(f'Start to write standard basemeshes ini files : {basemeshes_ini_path}')
@@ -1782,16 +1778,9 @@ def tree_config_creation(ini_path):
     road_exe_path = os.path.join(Tools_folder, road_exe_name)
     
     basemeshes_exe_name = f'BaseMeshVoxelizer.exe'
-    #basemeshes_exe_name = f'BaseMeshVoxelizerCmd.exe'
     if not use_basemesh_ini:
-        if not use_basemesh_original_program:
-            basemeshes_exe_name = f'BaseMeshVoxelizerCmd.exe'
-            #basemeshes_exe_name = f'BaseMeshVoxelizerAZ.exe'
-        else:
-            #basemeshes_exe_name = f'Tool.BaseMeshVoxelizer.exe'
-            basemeshes_exe_name = f'BaseMeshVoxelizerOrigin.exe'
-            
-    lambda_host.log(f'use_basemesh_original_program is {use_basemesh_original_program}')
+        basemeshes_exe_name = f'BaseMeshVoxelizerCmd.exe'
+    
     lambda_host.log(f'basemeshes_exe_name is {basemeshes_exe_name}')
 
     basemeshes_exe_path = os.path.join(Tools_folder, basemeshes_exe_name)
@@ -1877,11 +1866,8 @@ section_options = 'Options'
 section_config = 'Configuration'
 
 use_basemesh_ini = False
-use_basemesh_original_program = False
 
 lambda_host = process_lambda.process_lambda_host()
-
-lambda_host.log(f'use_basemesh_original_program is {use_basemesh_original_program}')
 
 lambda_host.progress(0, 'Starting Lambda...')
 scrap_folder= lambda_host.get_scrap_folder()
@@ -1956,9 +1942,6 @@ lambda_host.log('is_run_create_geochem_entity: ' + is_run_create_geochem_entity)
 lambda_host.log('is_run_generate_road_input: ' + is_run_generate_road_input)
 
 lambda_host.log('is_run_make_tree_instances is ' + is_run_make_tree_instances)
-if is_run_make_tree_instances == "True":
-    lambda_host.log('is_run_make_tree_instances is true, set use_basemesh_original_program = False' )
-    use_basemesh_original_program = False
 
 lambda_host.progress(1, 'Start to download files')
 pythoncode_data_folder = lambda_host.download_entity_files(pythoncode_active_version_property)
