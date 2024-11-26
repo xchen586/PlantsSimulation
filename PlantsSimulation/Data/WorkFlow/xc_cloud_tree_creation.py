@@ -1698,10 +1698,24 @@ def tree_instances_generation(config_path):
     tree_instance_output_folder_name = 'instanceoutput'
     regions_output_folder_name = 'regionoutput'
     geo_chemical_folder_name = 'GeoChemical'
+    tree_height_file_name = f'{tiles_count}_{tiles_x}_{tiles_y}_short_height_map_export.xyz'
     
     tree_instance_output_folder_path = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', tree_instance_output_folder_name)
     regions_output_folder_path = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', regions_output_folder_name)
     geo_chemical_folder_path = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', geo_chemical_folder_name)
+    tree_height_file_path = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', tree_height_file_name)
+    final_height_layer_entity_base_name = f'final_height_{tiles_count}_{tile_x}_{tiles_y}'
+    
+    if run_create_geochem_entity:
+        lambda_host.log(f'step for to run_create_geochem_entity!')
+        ##### create the geochem entity for tree instance files.
+        geochem_result_folder_id = Workflow_Output_Result_Folder_id
+        geochem_entity_base_name = f'GeoChemical_instances_{Tiles_size}_{Tiles_x}_{Tiles_y}'
+        create_geochem_tree_entity(api, Project_id, geochem_result_folder_id, geo_chemical_folder_path, geochem_entity_base_name, project_output_version)
+        lambda_host.log(f'create_geochem_tree_entity from {geo_chemical_folder_path}')
+        
+        if os.path.exists(tree_height_file_path):
+            process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, tree_height_file_path, api.entity_type.VoxelTerrain, final_height_layer_entity_base_name, project_output_version, color=True)
     
     if run_upload_tree_instances:
         lambda_host.log(f'step for to run_upload_tree_instances')
@@ -1713,14 +1727,6 @@ def tree_instances_generation(config_path):
         ##### Update the tree region files of tree entity. 
         update_attach_files_for_entity(api, project_id, tree_entity_id, regions_output_folder_path)
         lambda_host.log(f'update_attach_files_for_entity cell regions from {regions_output_folder_path} for {tree_entity_id}')
-
-    if run_create_geochem_entity:
-        lambda_host.log(f'step for to run_create_geochem_entity!')
-        ##### create the geochem entity for tree instance files.
-        geochem_result_folder_id = Workflow_Output_Result_Folder_id
-        geochem_entity_base_name = f'GeoChemical_instances_{Tiles_size}_{Tiles_x}_{Tiles_y}'
-        create_geochem_tree_entity(api, Project_id, geochem_result_folder_id, geo_chemical_folder_path, geochem_entity_base_name, project_output_version)
-        lambda_host.log(f'create_geochem_tree_entity from {geo_chemical_folder_path}')
 
     if run_make_basemeshes and run_upload_basemeshes: 
         RemoveBaseMeshesdata(level0_index_db_file_path, level0_data_db_file_path, level1_index_db_file_path, level1_data_db_file_path)

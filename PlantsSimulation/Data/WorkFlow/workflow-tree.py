@@ -409,7 +409,7 @@ def tree_generation_on_receive_data(
                                              , test_tree_result=False
                                              , run_road_exe=True
                                              , run_worldgen_road=True
-                                             , run_upload_smooth_layer=False
+                                             , run_upload_smooth_layer=True
                                              , run_make_basemeshes=True
                                              , run_upload_basemeshes=False
                                              , run_make_tree_instances=True
@@ -615,7 +615,7 @@ def test_tree_generation_on_receive_data(
                                              , test_tree_result=True
                                              , run_road_exe=True
                                              , run_worldgen_road=True
-                                             , run_upload_smooth_layer=False
+                                             , run_upload_smooth_layer=True
                                              , run_make_basemeshes=True
                                              , run_upload_basemeshes=False
                                              , run_make_tree_instances=True
