@@ -1937,9 +1937,9 @@ print(f'level: {level}')
 
 Tree_load = 8
 print(f'Tree_load: {Tree_load}')
-Forest_age = 45000
+Forest_age = 15000
 print(f'foreForest_agest_age: {Forest_age}')
-Tree_iteration = 500
+Tree_iteration = 300
 print(f'Tree_iteration: {Tree_iteration}')
 
 Road_Input_Width = 300
