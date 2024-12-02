@@ -1691,11 +1691,25 @@ def tree_instances_generation(config_path):
     tree_instance_output_folder_name = 'instanceoutput'
     regions_output_folder_name = 'regionoutput'
     geo_chemical_folder_name = 'GeoChemical'
+    tree_height_file_name = f'{tiles_count}_{tiles_x}_{tiles_y}_short_height_map_export.xyz'
     
     tree_instance_output_folder_path = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', tree_instance_output_folder_name)
     regions_output_folder_path = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', regions_output_folder_name)
     geo_chemical_folder_path = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', geo_chemical_folder_name)
+    tree_height_file_path = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', tree_height_file_name)
+    final_height_layer_entity_base_name = f'final_height_{tiles_count}_{tile_x}_{tiles_y}'
     
+    if run_create_geochem_entity:
+        print(f'step for to run_create_geochem_entity!')
+        ##### create the geochem entity for tree instance files.
+        geochem_result_folder_id = Workflow_Output_Result_Folder_id
+        geochem_entity_base_name = f'GeoChemical_instances_{Tiles_size}_{Tiles_x}_{Tiles_y}'
+        create_geochem_tree_entity(api, Project_id, geochem_result_folder_id, geo_chemical_folder_path, geochem_entity_base_name, project_output_version)
+        print(f'create_geochem_tree_entity from {geo_chemical_folder_path}')
+        
+        if os.path.exists(tree_height_file_path):
+            process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, tree_height_file_path, api.entity_type.VoxelTerrain, final_height_layer_entity_base_name, project_output_version, color=True)
+        
     if run_upload_tree_instances:
         print(f'step for to run_upload_tree_instances')
         ##### Update the tree instance files of tree entity. 
@@ -1707,14 +1721,6 @@ def tree_instances_generation(config_path):
         update_attach_files_for_entity(api, project_id, tree_entity_id, regions_output_folder_path)
         print(f'update_attach_files_for_entity cell regions from {regions_output_folder_path} for {tree_entity_id}')
 
-    if run_create_geochem_entity:
-        print(f'step for to run_create_geochem_entity!')
-        ##### create the geochem entity for tree instance files.
-        geochem_result_folder_id = Workflow_Output_Result_Folder_id
-        geochem_entity_base_name = f'GeoChemical_instances_{Tiles_size}_{Tiles_x}_{Tiles_y}'
-        create_geochem_tree_entity(api, Project_id, geochem_result_folder_id, geo_chemical_folder_path, geochem_entity_base_name, project_output_version)
-        print(f'create_geochem_tree_entity from {geo_chemical_folder_path}')
-        
     if run_make_basemeshes and run_upload_basemeshes: 
         RemoveBaseMeshesdata(level0_index_db_file_path, level0_data_db_file_path, level1_index_db_file_path, level1_data_db_file_path)
             
@@ -1931,9 +1937,9 @@ print(f'level: {level}')
 
 Tree_load = 8
 print(f'Tree_load: {Tree_load}')
-Forest_age = 15000
+Forest_age = 45000
 print(f'foreForest_agest_age: {Forest_age}')
-Tree_iteration = 300
+Tree_iteration = 500
 print(f'Tree_iteration: {Tree_iteration}')
 
 Road_Input_Width = 300
@@ -1984,10 +1990,14 @@ whole_result_generation = False
 test_tree_generation = False
 test_whole_result_generation = False
 basemeshes_upload_generation = False
+
 test_only_tree_generation = False
 only_tree_generation = False
+only_upload_smooth_layer_generation = False
+test_only_upload_tree_generation = False
+only_upload_tree_generation = False
 
-test_whole_result_generation = True
+test_only_tree_generation = True
 
 if tree_generation:
     print("Choose tree_generation to Run")
@@ -1995,7 +2005,7 @@ if tree_generation:
     Workflow_Output_Result_Folder_id = 'C2C9E711B8A74E0FB8401646BCF3396C'  #Pangea Next > Workflow Output > Workflow Tree GeoChems Output
     is_run_road_exe = True
     is_run_worldgen_road = True
-    is_run_upload_smooth_layer = False
+    is_run_upload_smooth_layer = True
     is_run_make_basemeshes = True
     is_run_upload_basemeshes = False
     is_run_make_tree_instances = True
@@ -2065,7 +2075,7 @@ if test_tree_generation:
     Workflow_Output_Result_Folder_id = '82EC2324CC584DCEB3FF3281676F42A4'  #Pangea Next > Workflow Output > Workflow Tree GeoChems Output
     is_run_road_exe = True
     is_run_worldgen_road = True
-    is_run_upload_smooth_layer = False
+    is_run_upload_smooth_layer = True
     is_run_make_basemeshes = True
     is_run_upload_basemeshes = False
     is_run_make_tree_instances = True
@@ -2127,6 +2137,48 @@ if only_tree_generation:
     is_run_make_tree_instances = True
     is_run_upload_tree_instances = True
     is_run_create_geochem_entity = True
+    is_run_generate_road_input = False
+    
+if test_only_upload_tree_generation:
+    print("Choose test_only_upload_tree_generation to Run")
+    Game_Tree_Entity_id = "0B4C084415C744B48B4BD13D9990E713"  #xuan chen 
+    Workflow_Output_Result_Folder_id = '82EC2324CC584DCEB3FF3281676F42A4'  #Pangea Next > Workflow Output > Workflow Test Tree GeoChems Output
+    is_run_road_exe = False
+    is_run_worldgen_road = False
+    is_run_upload_smooth_layer = False
+    is_run_make_basemeshes = False
+    is_run_upload_basemeshes = False
+    is_run_make_tree_instances = False
+    is_run_upload_tree_instances = True
+    is_run_create_geochem_entity = True
+    is_run_generate_road_input = False
+    
+if only_upload_tree_generation:
+    print("Choose only_upload_tree_generation to Run")
+    Game_Tree_Entity_id = "3A3CFEBA226B4692A8719C78335470DD"  #game entity 
+    Workflow_Output_Result_Folder_id = 'C2C9E711B8A74E0FB8401646BCF3396C'  #Pangea Next > Workflow Output > Workflow Tree GeoChems Output
+    is_run_road_exe = False
+    is_run_worldgen_road = False
+    is_run_upload_smooth_layer = False
+    is_run_make_basemeshes = False
+    is_run_upload_basemeshes = False
+    is_run_make_tree_instances = False
+    is_run_upload_tree_instances = True
+    is_run_create_geochem_entity = True
+    is_run_generate_road_input = False
+    
+if only_upload_smooth_layer_generation:
+    print("Choose only_upload_smooth_layer_generation to Run")
+    Game_Tree_Entity_id = "3A3CFEBA226B4692A8719C78335470DD"  #game entity 
+    Workflow_Output_Result_Folder_id = 'B24E708E13C5473FA3BFDBCBA0E68B42'  #Pangea Next > Workflow Output > Workflow Smooth layer Output
+    is_run_road_exe = False
+    is_run_worldgen_road = False
+    is_run_upload_smooth_layer = True
+    is_run_make_basemeshes = False
+    is_run_upload_basemeshes = False
+    is_run_make_tree_instances = False
+    is_run_upload_tree_instances = False
+    is_run_create_geochem_entity = False
     is_run_generate_road_input = False
 
 print(f'is_run_road_exe: {is_run_road_exe}')
