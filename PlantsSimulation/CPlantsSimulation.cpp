@@ -547,7 +547,7 @@ bool CPlantsSimulation::LoadAndOutputRegions()
 
 bool CPlantsSimulation::LoadInputHeightMap()
 {
-	bool needMaskPositive = true;
+	bool needMaskPositive = false;
 	if (!m_topLayerImage || !m_pCellTable)
 	{
 		return false;
@@ -702,26 +702,109 @@ bool CPlantsSimulation::LoadInputHeightMap()
 			short l1Value = l1HeightMapShort4096[x][y];
 			short bedrockValue = bedrockHeightMapShort4096[x][y];
 
-			short value = 0;
-			short smoothValue = 0;
-			if (bedrockValue > pcValue)
+			bool hasMeshValue = meshHeightMasksShort4096[x][y] ? true : false;
+			bool hasMesh2Value = mesh2HeightMasksShort4096[x][y] ? true : false;
+			bool hasPcValue = pcHeightMasksShort4096[x][y] ? true : false;
+			bool hasl1Value = l1HeightMasksShort4096[x][y] ? true : false;
+			bool hasBedRockValue = bedrockHeightMasksShort4096[x][y] ? true : false;
+			bool hasValue = heightMasksShort4096[x][y] ? true : false;
+
+			bool hasSmoothValue = (hasPcValue || hasl1Value || hasBedRockValue);
+			bool hasBaseMeshValue = hasMeshValue || hasMesh2Value;
+
+			short value = UNAVAILBLE_NEG_HEIGHT;
+			short smoothValue = UNAVAILBLE_NEG_HEIGHT;
+			short baseMeshValue = UNAVAILBLE_NEG_HEIGHT;
+
+			if (hasSmoothValue)
 			{
-				smoothValue = l1Value;
-			}
-			else
-			{
-				smoothValue = pcValue;
-			}
-			if (m_useBaseMeshesLevel1)
-			{
-				value = FindMaxIn3(meshValue, mesh2Value, smoothValue);
-			}
-			else
-			{
-				value = std::max(meshValue, smoothValue);
+				if (hasPcValue && hasl1Value && hasBedRockValue)
+				{
+					if (bedrockValue > pcValue)
+					{
+						smoothValue = l1Value;
+					}
+					else
+					{
+						smoothValue = pcValue;
+					}
+				}
+				else
+				{
+					if (hasPcValue && hasl1Value)
+					{
+						smoothValue = pcValue;
+					}
+					else if (hasPcValue && bedrockValue)
+					{
+						smoothValue = pcValue;
+					}
+					else if (hasBedRockValue && hasl1Value)
+					{
+						smoothValue = l1Value;
+					}
+					else
+					{
+						if (hasPcValue)
+						{
+							smoothValue = pcValue;
+						}
+						else if (hasl1Value)
+						{
+							smoothValue = l1Value;
+						}
+						else if (hasBedRockValue)
+						{
+							smoothValue = bedrockValue;
+						}
+					}
+				}
 			}
 
-			if (needHeightPositive && (value < 0))
+			if (hasBaseMeshValue)
+			{
+				if (m_useBaseMeshesLevel1)
+				{
+					if (hasMeshValue && hasMesh2Value)
+					{
+						baseMeshValue = std::max(meshValue, mesh2Value);
+					}
+					else if (hasMeshValue)
+					{
+						baseMeshValue = meshValue;
+					}
+					else if (hasMesh2Value)
+					{
+						hasBaseMeshValue = mesh2Value;
+					}
+				}
+				else
+				{
+					if (hasMeshValue && hasMesh2Value)
+					{
+						baseMeshValue = meshValue;
+					}
+					else if (hasMeshValue)
+					{
+						baseMeshValue = meshValue;
+					}
+				}
+			}
+			
+			if (hasBaseMeshValue && hasSmoothValue)
+			{
+				value = std::max(baseMeshValue, smoothValue);
+			}
+			else if (hasBaseMeshValue)
+			{
+				value = baseMeshValue;
+			}
+			else if (hasSmoothValue)
+			{
+				value = smoothValue;
+			}
+
+			if (needHeightPositive && (value < 0) && (value != UNAVAILBLE_NEG_HEIGHT))
 			{
 				value = 0;
 			}
@@ -950,51 +1033,49 @@ bool CPlantsSimulation::ExportShortHeightMap(std::vector<std::vector<short>>& he
 				//int raw = clamp(static_cast<int>(width / xRatio), 0, mapWidth - 1);
 				//int col = clamp(static_cast<int>(width / xRatio), 0, mapWidth - 1);
 				short value = (static_cast<short>(heightMap[i][j]));
-				if (value != 0)
+				if (value != UNAVAILBLE_NEG_HEIGHT)
 				{
-					//std::cout << "height map value is not 0 :  value : " << value << ", i = " << i << " , j = " << j << std::endl;
-				}
 #if USE_OUTPUT_ONLY_POSITIVE_HEIGHT
-				if (value >= 0)
-				{
+					if (value >= 0)
+					{
 #endif
-					double posX = static_cast<double>(i * xRatio);
-					double posY = static_cast<double>(j * yRatio);
-					double fullPosX = batch_min_x + x0 + posX;
-					double fullPoxY = batch_min_y + y0 + posY;
-					outputFile
-						<< fullPosX << ","
-						<< fullPoxY << ","
-						//<< heightMap[raw][col] << ","
-						<< value << ","
-						<< redColor << ","
-						<< greenColor << ","
-						<< blueColor << std::endl;
+						double posX = static_cast<double>(i * xRatio);
+						double posY = static_cast<double>(j * yRatio);
+						double fullPosX = batch_min_x + x0 + posX;
+						double fullPoxY = batch_min_y + y0 + posY;
+						outputFile
+							<< fullPosX << ","
+							<< fullPoxY << ","
+							//<< heightMap[raw][col] << ","
+							<< value << ","
+							<< redColor << ","
+							<< greenColor << ","
+							<< blueColor << std::endl;
 #if USE_OUTPUT_ONLY_POSITIVE_HEIGHT
-				}
+					}
 #endif
+				}
 			}
 			else
 			{
 				short value = static_cast<short>(heightMap[i][j] / xRatio);
-				if (value != 0)
+				if (value != UNAVAILBLE_NEG_HEIGHT)
 				{
-					//std::cout << "height map value is not 0 :  value : " << value << ", i = " << i << " , j = " << j << std::endl;
-				}
 #if USE_OUTPUT_ONLY_POSITIVE_HEIGHT
-				if (value >= 0)
-				{
+					if (value >= 0)
+					{
 #endif
-					outputFile
-						<< i << ","
-						<< j << ","
-						<< value << ","
-						<< redColor << ","
-						<< greenColor << ","
-						<< blueColor << std::endl;
+						outputFile
+							<< i << ","
+							<< j << ","
+							<< value << ","
+							<< redColor << ","
+							<< greenColor << ","
+							<< blueColor << std::endl;
 #if USE_OUTPUT_ONLY_POSITIVE_HEIGHT
-				}
+					}
 #endif
+				}
 			}
 			
 		}
@@ -1056,52 +1137,50 @@ bool CPlantsSimulation::ExportShortHeightMapWithMask(std::vector<std::vector<sho
 					//int raw = clamp(static_cast<int>(width / xRatio), 0, mapWidth - 1);
 					//int col = clamp(static_cast<int>(width / xRatio), 0, mapWidth - 1);
 					short value = (static_cast<short>(heightMap[i][j]));
-					if (value != 0)
+					if (value != UNAVAILBLE_NEG_HEIGHT)
 					{
-						//std::cout << "height map value is not 0 :  value : " << value << ", i = " << i << " , j = " << j << std::endl;
-					}
 #if USE_OUTPUT_ONLY_POSITIVE_HEIGHT
-					if (value >= 0)
-					{
+						if (value >= 0)
+						{
 #endif
-						double posX = static_cast<double>(i * xRatio);
-						double posY = static_cast<double>(j * yRatio);
-						double fullPosX = batch_min_x + x0 + posX;
-						double fullPoxY = batch_min_y + y0 + posY;
-						outputFile
-							<< fullPosX << ","
-							<< fullPoxY << ","
-							//<< heightMap[raw][col] << ","
-							<< value << ","
-							<< redColor << ","
-							<< greenColor << ","
-							<< blueColor << std::endl;
+							double posX = static_cast<double>(i * xRatio);
+							double posY = static_cast<double>(j * yRatio);
+							double fullPosX = batch_min_x + x0 + posX;
+							double fullPoxY = batch_min_y + y0 + posY;
+							outputFile
+								<< fullPosX << ","
+								<< fullPoxY << ","
+								//<< heightMap[raw][col] << ","
+								<< value << ","
+								<< redColor << ","
+								<< greenColor << ","
+								<< blueColor << std::endl;
 #if USE_OUTPUT_ONLY_POSITIVE_HEIGHT
-					}
+						}
 #endif
+					}
 				}
 				else
 				{
 
 					short value = static_cast<short>(heightMap[i][j] / xRatio);
-					if (value != 0)
+					if (value != UNAVAILBLE_NEG_HEIGHT)
 					{
-						//std::cout << "height map value is not 0 :  value : " << value << ", i = " << i << " , j = " << j << std::endl;
-					}
 #if USE_OUTPUT_ONLY_POSITIVE_HEIGHT
-					if (value >= 0)
-					{
+						if (value >= 0)
+						{
 #endif
-						outputFile
-							<< i << ","
-							<< j << ","
-							<< value << ","
-							<< redColor << ","
-							<< greenColor << ","
-							<< blueColor << std::endl;
+							outputFile
+								<< i << ","
+								<< j << ","
+								<< value << ","
+								<< redColor << ","
+								<< greenColor << ","
+								<< blueColor << std::endl;
 #if USE_OUTPUT_ONLY_POSITIVE_HEIGHT
-					}
+						}
 #endif
+					}
 				}
 			}
 		}

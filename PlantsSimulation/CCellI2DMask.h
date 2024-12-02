@@ -63,7 +63,7 @@ public:
 				return pCellData->GetHeight();
 			}
 		}
-		return -1000;
+		return UNAVAILBLE_NEG_HEIGHT;
 	}
 };
 
@@ -87,7 +87,7 @@ public:
 #endif
 			}
 		}
-		return -1000;
+		return UNAVAILBLE_NEG_HEIGHT;
 	}
 };
 
