@@ -997,6 +997,8 @@ bool CForest::outputFullTreeInstanceResults(const std::string& fileName, bool ha
 			std::cout << "Can not find the Cell Data at X : " << tree.x << ", at Y : " << tree.y << ", at rowIdx : " << rowIdx << ", at colIdx : " << colIdx << std::endl;
 		}
 	}
+	std::cout << "FullOutputs TreeInstanceFullOutput count is " << fullOutputs.size() << std::endl;
+
 	bool exportCSV = exportTreeInstanceFullOutput(fullOutputs, fileName, hasHeader, withRatio);
 	return true;
 }
