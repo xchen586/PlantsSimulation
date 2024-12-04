@@ -1388,7 +1388,8 @@ def tree_instances_generation(config_path):
     bedrock_heightmap_path = os.path.join(smoothlayer_output_folder, bedrock_heightmap_name)
     bedrock_heightmap_mask_path = os.path.join(smoothlayer_output_folder, bedrock_heightmap_mask_name)
     
-    toplayer_image_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.jpg'
+    #toplayer_image_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.jpg'
+    toplayer_image_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.png'
     toplayer_image_meta_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.jgw'
     
     toplevel_file_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz'
@@ -1997,7 +1998,7 @@ only_upload_smooth_layer_generation = False
 test_only_upload_tree_generation = False
 only_upload_tree_generation = False
 
-test_only_tree_generation = True
+test_whole_result_generation = True
 
 if tree_generation:
     print("Choose tree_generation to Run")
