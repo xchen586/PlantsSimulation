@@ -1034,7 +1034,7 @@ bool CPlantsSimulation::ExportShortHeightMap(std::vector<std::vector<short>>& he
 				//int raw = clamp(static_cast<int>(width / xRatio), 0, mapWidth - 1);
 				//int col = clamp(static_cast<int>(width / xRatio), 0, mapWidth - 1);
 				short value = (static_cast<short>(heightMap[i][j]));
-				if (value != UNAVAILBLE_NEG_HEIGHT)
+				if (value > UNAVAILBLE_NEG_HEIGHT)
 				{
 #if USE_OUTPUT_ONLY_POSITIVE_HEIGHT
 					if (value >= 0)
@@ -1060,7 +1060,7 @@ bool CPlantsSimulation::ExportShortHeightMap(std::vector<std::vector<short>>& he
 			else
 			{
 				short value = static_cast<short>(heightMap[i][j] / xRatio);
-				if (value != UNAVAILBLE_NEG_HEIGHT)
+				if (value > UNAVAILBLE_NEG_HEIGHT)
 				{
 #if USE_OUTPUT_ONLY_POSITIVE_HEIGHT
 					if (value >= 0)
@@ -1138,7 +1138,7 @@ bool CPlantsSimulation::ExportShortHeightMapWithMask(std::vector<std::vector<sho
 					//int raw = clamp(static_cast<int>(width / xRatio), 0, mapWidth - 1);
 					//int col = clamp(static_cast<int>(width / xRatio), 0, mapWidth - 1);
 					short value = (static_cast<short>(heightMap[i][j]));
-					if (value != UNAVAILBLE_NEG_HEIGHT)
+					if (value > UNAVAILBLE_NEG_HEIGHT)
 					{
 #if USE_OUTPUT_ONLY_POSITIVE_HEIGHT
 						if (value >= 0)
@@ -1165,7 +1165,7 @@ bool CPlantsSimulation::ExportShortHeightMapWithMask(std::vector<std::vector<sho
 				{
 
 					short value = static_cast<short>(heightMap[i][j] / xRatio);
-					if (value != UNAVAILBLE_NEG_HEIGHT)
+					if (value > UNAVAILBLE_NEG_HEIGHT)
 					{
 #if USE_OUTPUT_ONLY_POSITIVE_HEIGHT
 						if (value >= 0)

@@ -983,11 +983,14 @@ bool CForest::outputFullTreeInstanceResults(const std::string& fileName, bool ha
 		{
 			index++;
 			TreeInstanceFullOutput output = TreeInstanceFullOutput(tree, pCell, m_pMetaInfo, index);
-#if USE_OUTPUT_ONLY_POSITIVE_HEIGHT
-			if (output.posZ >= 0)
-#endif
+			if (output.posZ > UNAVAILBLE_NEG_HEIGHT)
 			{
-				fullOutputs.push_back(output);
+#if USE_OUTPUT_ONLY_POSITIVE_HEIGHT
+				if (output.posZ >= 0)
+#endif
+				{
+					fullOutputs.push_back(output);
+				}
 			}
 		}
 		else {
