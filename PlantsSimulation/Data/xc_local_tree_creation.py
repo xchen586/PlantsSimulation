@@ -2232,17 +2232,23 @@ print(f'Tools_folder: {Tools_folder}')
 if not os.path.exists(Tools_folder):
     os.makedirs(Tools_folder)
 
+print('Start to copy files')
+
+print(f'start to copy from {tileinfo_data_path} to {Data_folder}')
+copy_files_in_folder(tileinfo_data_path, Data_folder)
+print(f'end to copy from {tileinfo_data_path} to {Data_folder}')
+print(f'start to copy from {roaddata_data_path} to {Data_folder}')
+copy_files_in_folder(roaddata_data_path, Data_folder)
+print(f'end to copy from {roaddata_data_path} to {Data_folder}')
+
 if Need_Copy_Assets:
-    print('Start to copy files')
     print(f'start to copy from {pythoncode_data_folder} to {Data_folder}')
     copy_files_in_folder(pythoncode_data_folder, Data_folder)
     print(f'end to copy from {pythoncode_data_folder} to {Data_folder}')
     print(f'start to copy from {treelist_data_folder} to {Data_folder}')
     copy_files_in_folder(treelist_data_folder, Data_folder)
     print(f'end to copy from {treelist_data_folder} to {Data_folder}')
-    print(f'start to copy from {roaddata_data_path} to {Data_folder}')
-    copy_files_in_folder(roaddata_data_path, Data_folder)
-    print(f'end to copy from {roaddata_data_path} to {Data_folder}')
+    
     print(f'start to copy from {basemeshes_data_path} to {Data_folder}')
     copy_files_in_folder(basemeshes_data_path, Data_folder)
     print(f'end to copy from {basemeshes_data_path} to {Data_folder}')
@@ -2253,9 +2259,8 @@ if Need_Copy_Assets:
     print(f'start to copy from {qtree_data_path} to {Data_folder}')
     copy_files_in_folder(qtree_data_path, Data_folder)
     print(f'end to copy from {qtree_data_path} to {Data_folder}')
-    print(f'start to copy from {tileinfo_data_path} to {Data_folder}')
-    copy_files_in_folder(tileinfo_data_path, Data_folder)
-    print(f'end to copy from {tileinfo_data_path} to {Data_folder}')
+    
+print('End to copy files')  
 
 Tile_Info_ini_name = 'TileInfo.ini'
 Tile_Info_ini_path = os.path.join(Data_folder, Tile_Info_ini_name)
