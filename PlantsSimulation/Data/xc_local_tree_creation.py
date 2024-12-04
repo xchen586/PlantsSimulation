@@ -1673,6 +1673,9 @@ def tree_instances_generation(config_path):
     
         #shutil.copy2(new_road_heightmap_file_path, original_road_heightmap_file_path)
         shutil.copy2(new_road_heightmap_file_path, roaddata_active_version_property)
+        
+        #shutil.copy2(new_road_humidity_file_path, original_road_humidity_file_path)
+        shutil.copy2(new_road_humidity_file_path, roaddata_active_version_property)
             
         print(f'End to run_generate_road_input')
 
