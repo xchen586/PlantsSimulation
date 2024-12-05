@@ -1388,7 +1388,7 @@ def tree_instances_generation(config_path):
     bedrock_heightmap_path = os.path.join(smoothlayer_output_folder, bedrock_heightmap_name)
     bedrock_heightmap_mask_path = os.path.join(smoothlayer_output_folder, bedrock_heightmap_mask_name)
     
-    #toplayer_image_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.jpg'
+    toplayer_image_upload_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.jpg'
     toplayer_image_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.png'
     toplayer_image_meta_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.jgw'
     
@@ -1400,6 +1400,7 @@ def tree_instances_generation(config_path):
     lakes_bottom_level1_file_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_lakes_bottom_level1.xyz'
     lakes_level1_file_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_lakes_level1.xyz'
     
+    toplayer_image_upload_path = os.path.join(smoothlayer_output_folder, toplayer_image_upload_name)
     toplayer_image_path = os.path.join(smoothlayer_output_folder, toplayer_image_name)
     toplayer_image_meta_path = os.path.join(smoothlayer_output_folder, toplayer_image_meta_name)
     toplevel_file_path = os.path.join(smoothlayer_output_folder, toplevel_file_name)
@@ -1685,7 +1686,7 @@ def tree_instances_generation(config_path):
 
     if run_upload_smooth_layer:
         lambda_host.log(f'step for to run_upload_smooth_layer : {worldgen_command}')
-        process_file_image(api, Project_id, Workflow_Output_Result_Folder_id, toplayer_image_path, toplayer_image_meta_path, toplevel_image_entity_base_name, project_output_version)
+        process_file_image(api, Project_id, Workflow_Output_Result_Folder_id, toplayer_image_upload_path, toplayer_image_meta_path, toplevel_image_entity_base_name, project_output_version)
         
         process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, toplevel_file_path, api.entity_type.VoxelTerrain, toplevel_layer_entity_base_name, project_output_version, color=True)
         process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, level1_file_path, api.entity_type.VoxelTerrain, level1_layer_entity_base_name, project_output_version, color=True)
