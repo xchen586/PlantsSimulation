@@ -288,7 +288,7 @@ tools = f'D:\\Downloads\\XCTreeWorkFlow\\Tools'
 Tree_Data_Folder_Name = 'Tree_Big_Creation'
 Data_folder = os.path.join(scrap_folder, Tree_Data_Folder_Name)
 cloud_url = 'https://demo.voxelfarm.com/'
-Project_id = workflow_project_id
+project_id = workflow_project_id
 api = voxelfarmclient.rest(cloud_url)
 
 tiles = 25
@@ -299,8 +299,10 @@ basemeshes_db_folder_Id = '75FDBF01261147F3A50E4A6CFDE059D3'
 db_output_folder = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\cavesdb\\{tiles}_{x}_{y}'
 
 
-project_entity = api.get_entity(Project_id)
+project_entity = api.get_entity(project_id)
 version = int(project_entity['version']) + 1 if 'version' in project_entity else 1
+
+api.update_entity(project=project_id, id=project_id, fields={'version': version})
 entity_name = f'TopCaves_{tiles}_{x}_{y}-{version}'
 
-do_simple_upload_basemeshes_swarm(api, Project_id, basemeshes_db_folder_Id, db_output_folder, version, entity_name, pythoncode_data_folder)
+do_simple_upload_basemeshes_swarm(api, project_id, basemeshes_db_folder_Id, db_output_folder, version, entity_name, pythoncode_data_folder)
