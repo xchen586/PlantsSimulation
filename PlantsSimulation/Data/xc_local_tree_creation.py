@@ -1399,6 +1399,8 @@ def tree_instances_generation(config_path):
     lakes_bottom_file_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_lakes_bottom.xyz'
     lakes_bottom_level1_file_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_lakes_bottom_level1.xyz'
     lakes_level1_file_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_lakes_level1.xyz'
+    ocean_top_file_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_ocean_top.xyz'
+    ocean_bottom_file_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_ocean_bottom.xyz'
     
     toplayer_image_upload_path = os.path.join(smoothlayer_output_folder, toplayer_image_upload_name)
     toplayer_image_path = os.path.join(smoothlayer_output_folder, toplayer_image_name)
@@ -1410,6 +1412,8 @@ def tree_instances_generation(config_path):
     lakes_bottom_file_path = os.path.join(smoothlayer_output_folder, lakes_bottom_file_name)
     lakes_bottom_level1_file_path = os.path.join(smoothlayer_output_folder, lakes_bottom_level1_file_name)
     lakes_level1_file_path = os.path.join(smoothlayer_output_folder, lakes_level1_file_name)
+    ocean_top_file_path = os.path.join(smoothlayer_output_folder, ocean_top_file_name)
+    ocean_bottom_file_path = os.path.join(smoothlayer_output_folder, ocean_bottom_file_name)
 
     print(f'End to to prepare input data parameter for TreesInstancesAbsolutePathWin.ini')
 
@@ -1692,6 +1696,8 @@ def tree_instances_generation(config_path):
         process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, lakes_bottom_file_path, api.entity_type.VoxelTerrain, lakes_bottom_layer_entity_base_name, project_output_version, color=True)
         process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, lakes_bottom_level1_file_path, api.entity_type.VoxelTerrain, lakes_bottom_level1_layer_entity_base_name, project_output_version, color=True)
         process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, lakes_level1_file_path, api.entity_type.VoxelTerrain, lakes_level1_layer_entity_base_name, project_output_version, color=True)
+        process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, ocean_top_file_path, api.entity_type.VoxelTerrain, lakes_bottom_level1_layer_entity_base_name, project_output_version, color=True)
+        process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, ocean_bottom_file_path, api.entity_type.VoxelTerrain, lakes_level1_layer_entity_base_name, project_output_version, color=True)
         
     tree_instance_output_folder_name = 'instanceoutput'
     regions_output_folder_name = 'regionoutput'
@@ -2002,7 +2008,7 @@ only_upload_smooth_layer_generation = False
 test_only_upload_tree_generation = False
 only_upload_tree_generation = False
 
-test_whole_result_generation = True
+basemeshes_generation = True
 
 if tree_generation:
     print("Choose tree_generation to Run")
@@ -2103,7 +2109,7 @@ if test_whole_result_generation:
     is_run_generate_road_input = False
     
 if basemeshes_upload_generation:
-    print("Choose basemeshes_generation to Run")
+    print("Choose basemeshes_upload_generation to Run")
     Game_Tree_Entity_id = "3A3CFEBA226B4692A8719C78335470DD"  #game entity 
     Workflow_Output_Result_Folder_id = '68396F90F7CE48B4BA1412EA020ED92A'  #Pangea Next > Workflow Output > Workflow BaseMeshes Output
     is_run_road_exe = False

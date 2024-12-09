@@ -1399,6 +1399,8 @@ def tree_instances_generation(config_path):
     lakes_bottom_file_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_lakes_bottom.xyz'
     lakes_bottom_level1_file_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_lakes_bottom_level1.xyz'
     lakes_level1_file_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_lakes_level1.xyz'
+    ocean_top_file_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_ocean_top.xyz'
+    ocean_bottom_file_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_ocean_bottom.xyz'
     
     toplayer_image_upload_path = os.path.join(smoothlayer_output_folder, toplayer_image_upload_name)
     toplayer_image_path = os.path.join(smoothlayer_output_folder, toplayer_image_name)
@@ -1411,6 +1413,8 @@ def tree_instances_generation(config_path):
     lakes_bottom_file_path = os.path.join(smoothlayer_output_folder, lakes_bottom_file_name)
     lakes_bottom_level1_file_path = os.path.join(smoothlayer_output_folder, lakes_bottom_level1_file_name)
     lakes_level1_file_path = os.path.join(smoothlayer_output_folder, lakes_level1_file_name)
+    ocean_top_file_path = os.path.join(smoothlayer_output_folder, ocean_top_file_name)
+    ocean_bottom_file_path = os.path.join(smoothlayer_output_folder, ocean_bottom_file_name)
 
     lambda_host.log(f'End to to prepare input data parameter for TreesInstancesAbsolutePathWin.ini')
 
@@ -1696,6 +1700,8 @@ def tree_instances_generation(config_path):
         process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, lakes_bottom_file_path, api.entity_type.VoxelTerrain, lakes_bottom_layer_entity_base_name, project_output_version, color=True)
         process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, lakes_bottom_level1_file_path, api.entity_type.VoxelTerrain, lakes_bottom_level1_layer_entity_base_name, project_output_version, color=True)
         process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, lakes_level1_file_path, api.entity_type.VoxelTerrain, lakes_level1_layer_entity_base_name, project_output_version, color=True)
+        process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, ocean_top_file_path, api.entity_type.VoxelTerrain, lakes_bottom_level1_layer_entity_base_name, project_output_version, color=True)
+        process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, ocean_bottom_file_path, api.entity_type.VoxelTerrain, lakes_level1_layer_entity_base_name, project_output_version, color=True)
         
     tree_instance_output_folder_name = 'instanceoutput'
     regions_output_folder_name = 'regionoutput'
