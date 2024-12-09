@@ -1302,6 +1302,7 @@ def tree_instances_generation(config_path):
     road_output_folder = read_ini_value(config_path, section_output, 'road_output_folder')
     smoothlayer_output_base_folder = read_ini_value(config_path, section_output, 'smoothlayer_output_base_folder')
     basemeshes_db_base_folder = read_ini_value(config_path, section_output, 'basemeshes_db_base_folder')
+    basemeshes_caves_db_base_folder = read_ini_value(config_path, section_output, 'basemeshes_caves_db_base_folder')
     basemeshes_cache_base_folder = read_ini_value(config_path, section_output, 'basemeshes_cache_base_folder')
     basemeshes_heightmap_folder = read_ini_value(config_path, section_output, 'basemeshes_heightmap_folder')
     
@@ -1451,6 +1452,7 @@ def tree_instances_generation(config_path):
         create_or_update_ini_file(basemeshes_ini_path, section_input, 'BaseMeshesCSV_Name', basemeshes_csv_name)
         
         create_or_update_ini_file(basemeshes_ini_path, section_output, 'DB_Base_Folder', basemeshes_db_base_folder)
+        create_or_update_ini_file(basemeshes_ini_path, section_output, 'Caves_DB_Base_Folder', basemeshes_caves_db_base_folder)
         create_or_update_ini_file(basemeshes_ini_path, section_output, 'Cache_Base_Folder', basemeshes_cache_base_folder)
         create_or_update_ini_file(basemeshes_ini_path, section_output, 'Heightmap_Folder', basemeshes_heightmap_folder)
         create_or_update_ini_file(basemeshes_ini_path, section_output, 'Whole_WC_Cache_Folder', basemeshes_whole_cache_folder)
@@ -1793,7 +1795,6 @@ def tree_instances_generation(config_path):
     if run_upload_basemeshes:
         lambda_host.log(f'step for to run_upload_basemeshes')
         ##### upload basemeshes voxel database to cloud.
-        basemeshes_output_folder = basemeshes_db_base_folder
         
         basemeshes_result_folder_id = Workflow_Output_Result_Folder_id
         xc_process_base_meshes(api, basemeshes_output_folder, Project_id, basemeshes_result_folder_id, project_output_version)
@@ -1849,6 +1850,7 @@ def tree_config_creation(ini_path):
     road_output_folder = os.path.join(Data_folder, f'RoadObjInfo')
     smoothlayer_output_base_folder = os.path.join(Data_folder, f'sommothlayer_output')
     basemeshes_db_base_folder = os.path.join(Data_folder, f'db')
+    basemeshes_caves_db_base_folder = os.path.join(Data_folder, f'cavesdb')
     basemeshes_cache_base_folder = os.path.join(Data_folder, f'cache')
     basemeshes_heightmap_folder = os.path.join(Data_folder, f'heightmap')
     tree_output_base_folder = os.path.join(Data_folder, f'tree_output')
@@ -1875,6 +1877,7 @@ def tree_config_creation(ini_path):
     create_or_update_ini_file(ini_path, section_output, 'road_output_folder', road_output_folder)
     create_or_update_ini_file(ini_path, section_output, 'smoothlayer_output_base_folder', smoothlayer_output_base_folder)
     create_or_update_ini_file(ini_path, section_output, 'basemeshes_db_base_folder', basemeshes_db_base_folder)
+    create_or_update_ini_file(ini_path, section_output, 'basemeshes_caves_db_base_folder', basemeshes_caves_db_base_folder)
     create_or_update_ini_file(ini_path, section_output, 'basemeshes_cache_base_folder', basemeshes_cache_base_folder)
     create_or_update_ini_file(ini_path, section_output, 'basemeshes_heightmap_folder', basemeshes_heightmap_folder)
     create_or_update_ini_file(ini_path, section_output, 'tree_output_base_folder', tree_output_base_folder)
