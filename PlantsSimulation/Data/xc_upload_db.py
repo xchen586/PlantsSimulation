@@ -305,7 +305,7 @@ basemeshes_db_folder_Id = '75FDBF01261147F3A50E4A6CFDE059D3' # Pangea Next > Wor
 db_output_folder = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\cavesdb\\{tiles}_{x}_{y}_{l}'
 entity_name = f'TopCaves_{tiles}_{x}_{y}_{l}-{version}'
 
-db_output_folder = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\db\\{tiles}_{x}_{y}_{l}'
-entity_name = f'Workflow_Basemeshes_{tiles}_{x}_{y}_{l}-ver-{version}'
+#db_output_folder = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\db\\{tiles}_{x}_{y}_{l}'
+#entity_name = f'Workflow_Basemeshes_{tiles}_{x}_{y}_{l}-ver-{version}'
 
 do_simple_upload_basemeshes_swarm(api, project_id, basemeshes_db_folder_Id, db_output_folder, version, entity_name, pythoncode_data_folder)

@@ -33,7 +33,8 @@ def process_file_image(api : voxelfarmclient.rest, project_id, folder_id, file_p
     print(f'Successful to create image file folder {entity_folder_id} for version!')
 
     result = api.create_entity_raw(project=project_id, 
-            type=api.entity_type.IndexedOrthoImagery, 
+            #type=api.entity_type.IndexedOrthoImagery, 
+            type=api.entity_type.OrthoImagery, 
             name=f'{name}-{version}_src', 
             fields={
                 'file_folder': entity_folder_id,
@@ -61,14 +62,21 @@ def process_file_image(api : voxelfarmclient.rest, project_id, folder_id, file_p
 api = voxelfarmclient.rest('http://52.226.195.5/')
 workflow_api = workflow_lambda.workflow_lambda_host()
 
-tiles = 10
+tiles = 25
 x = 8
-y = 5
+#y = 5
+y = 6
 
 project_id = '1D4CBBD1D957477E8CC3FF376FB87470' #Pangea Next
-folder_id = '90F6348AD5D94FCEA85C7C1CD081CE97' #Pangea Next > instances
-image_file_path = f'D:\\Downloads\\Low\\sommothlayer_output\\10_8_5\\points_{tiles}_{x}_{y}_toplevel.xyz.jpg'
-image_meta_path = f'D:\\Downloads\\Low\\sommothlayer_output\\10_8_5\\points_{tiles}_{x}_{y}_toplevel.xyz.jgw'
+#folder_id = '90F6348AD5D94FCEA85C7C1CD081CE97' #Pangea Next > instances
+folder_id = '218233195003437A881AEFB3DAFE364A' #Pangea Next > Smooth
+#folder_id = '75FDBF01261147F3A50E4A6CFDE059D3' #Pangea Next > Workflow Output > Workflow Test Whole Result Output
 
+
+#image_file_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\sommothlayer_output\\25_8_5\\points_{tiles}_{x}_{y}_toplevel.xyz.jpg'
+#image_meta_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\sommothlayer_output\\25_8_5\\points_{tiles}_{x}_{y}_toplevel.xyz.jgw'
+
+image_file_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\sommothlayer_output\\{tiles}_{x}_{y}\\points_{tiles}_{x}_{y}_toplevel.xyz.jpg'
+image_meta_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\sommothlayer_output\\{tiles}_{x}_{y}\\points_{tiles}_{x}_{y}_toplevel.xyz.jgw'
 
 process_file_image(api, project_id, folder_id, image_file_path, image_meta_path, f'RoadImage_{tiles}_{x}_{y}')
