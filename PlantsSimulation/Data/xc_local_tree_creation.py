@@ -1540,6 +1540,8 @@ def tree_instances_generation(config_path):
     lakes_bottom_layer_entity_base_name = f'lakes_bottom_{tiles_count}_{tile_x}_{tiles_y}'
     lakes_bottom_level1_layer_entity_base_name = f'lakes_bottom_level1_{tiles_count}_{tile_x}_{tiles_y}'
     lakes_level1_layer_entity_base_name = f'lakes_level1_{tiles_count}_{tile_x}_{tiles_y}'
+    ocean_top_layer_entity_base_name = f'ocean_top_{tiles_count}_{tile_x}_{tiles_y}'
+    ocean_bottom_layer_entity_base_name = f'ocean_bottom_{tiles_count}_{tile_x}_{tiles_y}'
     
     if run_worldgen_road:
         print(f'step for to run_worldgen_road : {worldgen_command}')
@@ -1698,8 +1700,8 @@ def tree_instances_generation(config_path):
         process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, lakes_bottom_file_path, api.entity_type.VoxelTerrain, lakes_bottom_layer_entity_base_name, project_output_version, color=True)
         process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, lakes_bottom_level1_file_path, api.entity_type.VoxelTerrain, lakes_bottom_level1_layer_entity_base_name, project_output_version, color=True)
         process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, lakes_level1_file_path, api.entity_type.VoxelTerrain, lakes_level1_layer_entity_base_name, project_output_version, color=True)
-        process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, ocean_top_file_path, api.entity_type.VoxelTerrain, lakes_bottom_level1_layer_entity_base_name, project_output_version, color=True)
-        process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, ocean_bottom_file_path, api.entity_type.VoxelTerrain, lakes_level1_layer_entity_base_name, project_output_version, color=True)
+        process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, ocean_top_file_path, api.entity_type.VoxelTerrain, ocean_top_layer_entity_base_name, project_output_version, color=True)
+        process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, ocean_bottom_file_path, api.entity_type.VoxelTerrain, ocean_bottom_layer_entity_base_name, project_output_version, color=True)
         
     tree_instance_output_folder_name = 'instanceoutput'
     regions_output_folder_name = 'regionoutput'
@@ -2012,7 +2014,7 @@ only_upload_smooth_layer_generation = False
 test_only_upload_tree_generation = False
 only_upload_tree_generation = False
 
-basemeshes_generation = True
+test_whole_result_generation = True
 
 if tree_generation:
     print("Choose tree_generation to Run")
