@@ -41,11 +41,11 @@ game_tree_entity_id_property = "3A3CFEBA226B4692A8719C78335470DD"  #game entity
 #entity_id = "536674D5E8D440D9A7EFCD1D879AD57A" # cosmin old
 #entity_id = "3A3CFEBA226B4692A8719C78335470DD"  #xc tesst
 
-tiles = 10
+#tiles = 10
 
-x = 8
+#x = 8
 
-y = 5
+#y = 5
 
 #update_attach_files_for_entity(api, project_id, entity_id, f'D:\\Downloads\\Low\\tree_output\\{tiles}_{x}_{y}\\instanceoutput')
 #update_attach_files_for_entity(api, project_id, entity_id, f'D:\\Downloads\\Low\\tree_output\\{tiles}_{x}_{y}\\regionoutput')
@@ -62,5 +62,9 @@ x = 8
 y = 5
 #update_attach_files_for_entity(api, project_id, entity_id, f'D:\\Downloads\\XCTreeBackup\\Output\\WholeTree\\20241222\\tree_output\\{tiles}_{x}_{y}\\regionoutput')
 #update_attach_files_for_entity(api, project_id, entity_id, f'D:\\Downloads\\XCTreeBackup\\Output\\WholeTree\\20241222\\tree_output\\{tiles}_{x}_{y}\\instanceoutput')
-update_attach_files_for_entity(api, project_id, entity_id, f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\{tiles}_{x}_{y}\\regionoutput')
-update_attach_files_for_entity(api, project_id, entity_id, f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\{tiles}_{x}_{y}\\instanceoutput')
+
+#update_attach_files_for_entity(api, project_id, entity_id, f'D:\\Downloads\\XCTreeBackup\\Output\\Tree_output\\20241213QTree16Ver436For25_8_5\\{tiles}_{x}_{y}\\regionoutput')
+#update_attach_files_for_entity(api, project_id, entity_id, f'D:\\Downloads\\XCTreeBackup\\Output\\Tree_output\\20241213QTree16Ver436For25_8_5\\{tiles}_{x}_{y}\\instanceoutput')
+
+#update_attach_files_for_entity(api, project_id, entity_id, f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\{tiles}_{x}_{y}\\regionoutput')
+#update_attach_files_for_entity(api, project_id, entity_id, f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\{tiles}_{x}_{y}\\instanceoutput')
