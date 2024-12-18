@@ -400,7 +400,7 @@ bool OutputCSVFileForSubInstances(const string& filePath, std::shared_ptr<Instan
 		return false;
 	}
 #if !USE_OUTPUT_INSTANCE_IDSTRING
-	outputFile << "X,Y,Z,ScaleX,ScaleY,ScaleZ,RotationX,RotationY,RotaionZ,InstanceType,Variant,Age,XWorld,YWorld,ZWorld" << std::endl;
+	outputFile << "X,Y,Z,ScaleX,ScaleY,ScaleZ,RotationX,RotationY,RotaionZ,InstanceType,Variant,Age,XWorld,YWorld,ZWorld,InstanceIndex" << std::endl;
 #else
 	outputFile << "X,Y,Z,ScaleX,ScaleY,ScaleZ,RotationX,RotationY,RotaionZ,InstanceType,Variant,Age,XWorld,YWorld,ZWorld, idString" << std::endl;
 #endif
@@ -428,7 +428,8 @@ bool OutputCSVFileForSubInstances(const string& filePath, std::shared_ptr<Instan
 			<< sub->posX << ","
 			<< sub->posY << ","
 #if !USE_OUTPUT_INSTANCE_IDSTRING
-			<< sub->posZ << std::endl;
+			<< sub->posZ << ","
+			<< sub->index << std::endl;
 #else
 			<< sub->posZ << ","
 			<< sub->idString << std::endl;

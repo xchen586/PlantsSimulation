@@ -28,7 +28,7 @@ bool CPsInstanceExporter::OutputAllInstanceGeoChem(string outputFilePath, const 
 	double x0 = m_pMetaInfo->x0;
 	double y0 = m_pMetaInfo->y0;
 
-	outputFile << "VX,VY,VZ,InstanceType,Variant" << std::endl;
+	outputFile << "VX,VY,VZ,InstanceType,Variant,Index" << std::endl;
 
 	for (auto pair : allInstances)
 	{
@@ -48,7 +48,8 @@ bool CPsInstanceExporter::OutputAllInstanceGeoChem(string outputFilePath, const 
 					<< sub->posY << ","
 					<< sub->posZ << ","
 					<< sub->instanceType << ","
-					<< sub->variant << std::endl;
+					<< sub->variant << ","
+					<< sub->index << std::endl;
 			}
 		}
 	}
