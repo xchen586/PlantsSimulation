@@ -53,6 +53,8 @@ int iniAbsolutePathMain(int argc, const char* argv[])
     const char* bedrock_heightmap_masks_name = GetIniValue(iniParser, Input_Section, "Bedrock_heightMap_Mask");
     const char* point_most_travelled_name = GetIniValue(iniParser, Input_Section, "Most_Travelled_Points");
     const char* point_most_distant_name = GetIniValue(iniParser, Input_Section, "Most_Distant_Points");
+    const char* caves_point_cloud_level_0_name = GetIniValue(iniParser, Input_Section, "Caves_Point_Cloud_Level_0");
+    const char* caves_point_cloud_level_1_name = GetIniValue(iniParser, Input_Section, "Caves_Point_Cloud_Level_1");
     const char* regions_raw_name = GetIniValue(iniParser, Input_Section, "Regions_Raw");
     const char* regions_info_name = GetIniValue(iniParser, Input_Section, "Regions_Info");
     const char* tree_list_csv_name = GetIniValue(iniParser, Input_Section, "Tree_List");
@@ -109,6 +111,8 @@ int iniAbsolutePathMain(int argc, const char* argv[])
     std::cout << "Point cloud bedrock height mask map file name is : " << (bedrock_heightmap_masks_name ? bedrock_heightmap_masks_name : "") << std::endl;
     std::cout << "Most travelled point file name is : " << (point_most_travelled_name ? point_most_travelled_name : "") << std::endl;
     std::cout << "Most distant point file name is : " << (point_most_distant_name ? point_most_distant_name : "") << std::endl;
+    std::cout << "Cave point cloud level 0 file name is : " << (caves_point_cloud_level_0_name ? caves_point_cloud_level_0_name : "") << std::endl;
+    std::cout << "Cave point cloud level 1 file name is : " << (caves_point_cloud_level_1_name ? caves_point_cloud_level_1_name : "") << std::endl;
     std::cout << "Regions Raw file name is : " << (regions_raw_name ? regions_raw_name : "") << std::endl;
     std::cout << "Regions Info file name is : " << (regions_info_name ? regions_info_name : "") << std::endl;
     std::cout << "Tree list csv file name is : " << (tree_list_csv_name ? tree_list_csv_name : "") << std::endl;
@@ -162,7 +166,7 @@ int iniAbsolutePathMain(int argc, const char* argv[])
 
     CPlantsSimulation ps(output_final_path, tree_list_csv, input_image_name, input_meta_name, mesh_heightmap_raw_name, mesh2_heightmap_raw_name, pc_heightmap_raw_name, l1_heightmap_raw_name, bedrock_heightmap_raw_name
         , mesh_heightmap_masks_name, mesh2_heightmap_masks_name, pc_heightmap_masks_name, l1_heightmap_masks_name, bedrock_heightmap_masks_name
-        , point_most_travelled_name, point_most_distant_name, regions_raw_name, regions_info_name, output_file, fullOutput_file, pcFullOutput_file, lod, forestAge, iteration, tiles, tileX, tileY, useBaseMeshesLevel1);
+        , point_most_travelled_name, point_most_distant_name, caves_point_cloud_level_0_name, caves_point_cloud_level_1_name, regions_raw_name, regions_info_name, output_file, fullOutput_file, pcFullOutput_file, lod, forestAge, iteration, tiles, tileX, tileY, useBaseMeshesLevel1);
 
     bool isLoad = ps.LoadInputData();
     if (!isLoad)
@@ -199,9 +203,11 @@ int iniAbsolutePathMain(int argc, const char* argv[])
     if (l1_heightmap_masks_name) delete l1_heightmap_masks_name;
     if (bedrock_heightmap_masks_name) delete bedrock_heightmap_masks_name;
     if (point_most_travelled_name) delete point_most_travelled_name;
+    if (point_most_distant_name) delete point_most_distant_name;
+    if (caves_point_cloud_level_0_name) delete caves_point_cloud_level_0_name;
+    if (caves_point_cloud_level_1_name) delete caves_point_cloud_level_1_name;
     if (regions_raw_name) delete regions_raw_name;
     if (regions_info_name) delete regions_info_name;
-    if (point_most_distant_name) delete point_most_distant_name;
     if (lod_str) delete lod_str;
     if (only_road_data_str) delete only_road_data_str;
 

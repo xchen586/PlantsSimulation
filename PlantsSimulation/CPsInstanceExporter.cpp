@@ -84,10 +84,13 @@ bool CPsInstanceExporter::loadPointInstanceFromCSV(const string& filePath, const
 
 	int negativeHeightCount = 0;
 	int index = 0;
+	int originalCount = 0;
 
 	while (std::getline(file, line)) {
 		std::stringstream lineStream(line);
 		std::string field;
+
+		originalCount++;
 
 		double xPos = 0.0;
 		double yPos = 0.0;
@@ -144,7 +147,18 @@ bool CPsInstanceExporter::loadPointInstanceFromCSV(const string& filePath, const
 		double posZ = zPos;
 		//double posZ = zPos ? zPos : 0;
 
-		if (hasHeight)
+		bool beRemoved = false;
+		if (m_p2dCaveLevel0Nodes)
+		{
+			Point p(xPos, yPos);
+			double distance = GetDistanceToCaveNodes(p, m_p2dCaveLevel0Nodes, CAVE_DISTANCE_LIMIT);
+			beRemoved = (distance < CAVE_DISTANCE_LIMIT) ? true : false;
+			if (beRemoved)
+			{
+				//std::cout << "Remove the POI from Cave x : " << xPos << "  y : " << yPos << std::endl;
+			}
+		}
+		if (hasHeight && (!beRemoved))
 		{
 			std::shared_ptr<PointInstanceSubOutput> sub = std::make_shared<PointInstanceSubOutput>();
 			SetupInstanceSubOutput(posX, posY, posZ, transform, cellSize, lod, sub);
@@ -168,6 +182,12 @@ bool CPsInstanceExporter::loadPointInstanceFromCSV(const string& filePath, const
 	}
 
 	std::cout << "The points of negative height count is : " << negativeHeightCount << std::endl;
+
+	std::cout << "The original count of POI in " << filePath << " is : " << originalCount << std::endl;
+	std::cout << "After the reomve from Caves Node count of POI in " << filePath << " is : " << index << std::endl;
+	
+	double percentageCount = static_cast<double>(100 * index / originalCount);
+	std::cout << "For file " << filePath << " After Cave removal the rest of POI has pencentage of " << percentageCount << " before POI count!" << std::endl;
 
 	file.close();
     return true;

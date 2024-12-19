@@ -57,6 +57,16 @@ void CPlantsSimulation::DeInitialize()
 		delete m_pForest;
 		m_pForest = nullptr;
 	}
+	if (m_p2dCaveLevel0Nodes)
+	{
+		delete m_p2dCaveLevel0Nodes;
+		m_p2dCaveLevel0Nodes = nullptr;
+	}
+	if (m_p2dCaveLevel1Nodes)
+	{
+		delete m_p2dCaveLevel1Nodes;
+		m_p2dCaveLevel1Nodes = nullptr;
+	}
 }
 
 bool CPlantsSimulation::LoadInputImage()
@@ -1345,12 +1355,15 @@ bool CPlantsSimulation::LoadInputData()
 		DeInitialize();
 		return ret;
 	}
+
 	ret = LoadImageMetaFile();
 	if (!ret)
 	{
 		DeInitialize();
 		return ret;
 	}
+
+	m_p2dCaveLevel0Nodes = LoadCaveNodesFromPointCloud(m_cavesPointCloudLevel0File);
 
 	ret = LoadAndOutputRegions();
 
@@ -1365,6 +1378,58 @@ bool CPlantsSimulation::LoadInputData()
 	return ret;
 }
 
+std::vector<std::pair<std::vector<Point>, int>>* CPlantsSimulation::LoadCaveNodesFromPointCloud(const std::string& filePath)
+{
+	std::ifstream file(filePath);
+	if (!file.is_open()) {
+		std::cerr << "Failed to open the cave point cloud file :" << filePath << std::endl;
+		return nullptr;
+	}
+	std::string line;
+
+	double xRatio = m_topLayerMeta->xRatio;
+	double yRatio = m_topLayerMeta->yRatio;
+	double batch_min_x = m_topLayerMeta->batch_min_x;
+	double batch_min_y = m_topLayerMeta->batch_min_y;
+	double x0 = m_topLayerMeta->x0;
+	double y0 = m_topLayerMeta->y0;
+
+	std::vector<CavesPointInfo> cavePointInfoList;
+	while (std::getline(file, line)) {
+		std::stringstream lineStream(line);
+		std::string field;
+		CavesPointInfo cavePointInfo;
+		if (std::getline(lineStream, field, ',')) {
+			double xValue = std::stod(field);
+			cavePointInfo.x = xValue - batch_min_x - x0;
+		}
+		if (std::getline(lineStream, field, ',')) {
+			double yValue = std::stod(field);
+			cavePointInfo.y = yValue - batch_min_y - y0;
+		}
+		if (std::getline(lineStream, field, ',')) {
+			cavePointInfo.z = std::stod(field);
+		}
+		if (std::getline(lineStream, field, ',')) {
+			cavePointInfo.seq = std::stoi(field);
+		}
+		if (std::getline(lineStream, field, ',')) {
+			cavePointInfo.index = std::stoi(field);
+		}
+		if (std::getline(lineStream, field, ',')) {
+			cavePointInfo.order = std::stoi(field);
+		}
+		cavePointInfoList.push_back(cavePointInfo);
+	}
+	std::cout << "CavePointInfoList has " << cavePointInfoList.size() << " cave points!" << std::endl;
+	std::vector<std::pair<std::vector<Point>, int>>* pRet = ConvertCaveInfoToCaveNodes(cavePointInfoList);
+	if (pRet)
+	{
+		std::cout << "Cave nodes lines number is " << pRet->size() << std::endl;
+	}
+	return pRet;
+}
+
 bool CPlantsSimulation::LoadForest()
 {
 	m_pForest = new CForest();
@@ -1374,6 +1439,9 @@ bool CPlantsSimulation::LoadForest()
 
 	m_pForest->setCellTable(m_pCellTable);
 	m_pForest->setMetaInfo(m_topLayerMeta);
+	
+	m_pForest->set2dCaveLevel0Nodes(m_p2dCaveLevel0Nodes);
+	m_pForest->set2dCaveLevel1Nodes(m_p2dCaveLevel1Nodes);
 
 	if (!m_topLayerImage) {
 		return false;
@@ -1393,8 +1461,8 @@ bool CPlantsSimulation::LoadForest()
 	m_pForest->xo = 0;
 	m_pForest->zo = 0;
 	m_pForest->maxHeight = m_maxHeight;
-	cout << "Forest xSize is : " << m_pForest->xSize << endl;
-	cout << "Forest zSize is : " << m_pForest->zSize << endl;
+	std::cout << "Forest xSize is : " << m_pForest->xSize << std::endl;
+	std::cout << "Forest zSize is : " << m_pForest->zSize << std::endl;
 
 	bool loadTreeList = m_pForest->parseTreeListCsv(m_inputTreeListCsv);
 	if (!loadTreeList)
@@ -1420,6 +1488,9 @@ bool CPlantsSimulation::LoadInstanceExporter()
 	m_pInstanceExporter->setMostTravelledPointFilePath(m_mostTravelledPointFile);
 	m_pInstanceExporter->setMostDistantPointFilePath(m_mostDistantPointFile);
 
+	m_pInstanceExporter->set2dCaveLevel0Nodes(m_p2dCaveLevel0Nodes);
+	m_pInstanceExporter->set2dCaveLevel1Nodes(m_p2dCaveLevel1Nodes);
+
 	m_pInstanceExporter->setFullTreeOutputs(m_pForest->getTreeInstanceFullOutput());
 	m_pInstanceExporter->setTilesInfo(m_tiles, m_tileX, m_tileY);
 	m_pInstanceExporter->setLod(m_currentLod);
@@ -1439,8 +1510,8 @@ bool CPlantsSimulation::BuildForest()
 	//float forestAge = 500;
 	//int iteration = 100;
 
-	cout << "Forest Age is : " << m_forestAge << endl;
-	cout << "Toatal iteration count is : " << m_iteration << endl;
+	std::cout << "Forest Age is : " << m_forestAge << std::endl;
+	std::cout << "Toatal iteration count is : " << m_iteration << std::endl;
 	m_pForest->generate(m_forestAge, m_iteration);
 
 	return true;

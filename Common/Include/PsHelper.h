@@ -72,11 +72,63 @@ struct InputImageMetaInfo
 
 };
 
+struct CavesPointInfo
+{
+	double x;
+	double y;
+	double z;
+	int seq;
+	int index;
+	int order;
+
+	CavesPointInfo()
+		: x(0.0)
+		, y(0.0)
+		, z(0.0)
+		, seq(0)
+		, index(0)
+		, order(0)
+	{
+
+	}
+	CavesPointInfo& operator= (const CavesPointInfo& other)
+	{
+		x = other.x;
+		y = other.y;
+		z = other.z;
+		seq = other.seq;
+		index = other.index;
+		order = other.order;
+		return *this;
+	};
+};
+
 struct PixelRGB {
 	unsigned char red;
 	unsigned char green;
 	unsigned char blue;
 };
+
+struct Point {
+	double x, y;
+	Point()
+		: x(0.0)
+		, y(0.0)
+	{
+
+	}
+	Point(double x_, double y_)
+	{
+		x = x_;
+		y = y_;
+	}
+};
+
+double DistanceSquared(const Point& a, const Point& b);
+double PointToSegmentDistance(const Point& p, const Point& a, const Point& b, double distanceLimit = 0.0);
+double PointToPolylineDistance(const Point& p, const std::vector<Point>& polyline, double distanceLimit = 0.0);
+double GetDistanceToCaveNodes(const Point& p, const std::vector<std::pair<std::vector<Point>, int>>* lines, double distanceLimit = 0.0);
+std::vector<std::pair<std::vector<Point>, int>>* ConvertCaveInfoToCaveNodes(const std::vector<CavesPointInfo>& points);
 
 VoxelFarm::CellId GetVFCellIDFromVF(double vfX, double vfY, double vfZ, const CAffineTransform& transform, int32_t lod);
 VoxelFarm::CellId GetVFCellIDFromWorld(double posX, double posY, double posZ, const CAffineTransform& transform, int32_t lod);

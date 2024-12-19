@@ -20,6 +20,140 @@ InputImageDataInfo* LoadInputImageFile(const string& inputImageFile)
 	}
 }
 
+// Function to calculate the squared distance between two points
+double DistanceSquared(const Point& a, const Point& b) {
+    return (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y);
+}
+
+// Function to calculate the distance from a point to a line segment
+double PointToSegmentDistance(const Point& p, const Point& a, const Point& b, double distanceLimit/* = 0.0*/) {
+
+    // Quick rejection: check if endpoints are within distance limit
+    double distToA = std::sqrt(DistanceSquared(p, a));
+    if (distToA < distanceLimit) return distToA;
+
+    double distToB = std::sqrt(DistanceSquared(p, b));
+    if (distToB < distanceLimit) return distToB;
+
+    // Vector AB
+    double abx = b.x - a.x;
+    double aby = b.y - a.y;
+
+    // Vector AP
+    double apx = p.x - a.x;
+    double apy = p.y - a.y;
+
+    // Dot product of AB and AP
+    double dot = apx * abx + apy * aby;
+
+    // Squared length of AB
+    double lengthSquared = abx * abx + aby * aby;
+
+    // Parameter of the projection of P onto AB
+    double t = (lengthSquared > 0) ? dot / lengthSquared : 0;
+
+    // Clamp t to the range [0, 1]
+    t = std::max(0.0, std::min(1.0, t));
+
+    // Closest point on the segment
+    Point closest = { a.x + t * abx, a.y + t * aby };
+
+    // Calculate the squared distance to the closest point
+    double distanceSquared = DistanceSquared(p, closest);
+
+    return std::sqrt(distanceSquared);
+}
+
+// Function to calculate the distance from a point to a polyline
+double PointToPolylineDistance(const Point& p, const std::vector<Point>& polyline, double distanceLimit/* = 0.0*/) {
+    if (polyline.empty()) {
+        throw std::invalid_argument("Polyline must have at least one point.");
+    }
+
+    // Special case: Degenerate polyline with one point
+    if (polyline.size() == 1) {
+        return std::sqrt(DistanceSquared(p, polyline[0]));
+    }
+
+    double minDistance = std::numeric_limits<double>::max();
+   
+    // Iterate through each segment of the polyline
+    for (size_t i = 0; i < polyline.size() - 1; ++i) {
+        // Calculate the squared distance to the current segment
+        double segmentDistance = PointToSegmentDistance(p, polyline[i], polyline[i + 1], distanceLimit);
+        minDistance = std::min(minDistance, segmentDistance);
+
+        // Early exit if the distance is within the limit
+        if (minDistance < distanceLimit) {
+            return minDistance;
+        }
+    }
+
+    return minDistance;
+}
+
+// Function to calculate the minimum distance from a point to a group of lines
+double GetDistanceToCaveNodes(const Point& p, const std::vector<std::pair<std::vector<Point>, int>>* lines, double distanceLimit/* = 0.0*/) {
+    double minDistance = std::numeric_limits<double>::max();
+
+    for (const auto& [points, groupIndex] : *lines) {
+        for (size_t i = 1; i < points.size(); ++i) {
+            double distance = PointToPolylineDistance(p, points, distanceLimit);
+            minDistance = std::min(minDistance, distance);
+
+            // Early exit if we're already below the distance limit
+            if (minDistance < distanceLimit) {
+                return minDistance;
+            }
+        }
+    }
+
+    return minDistance;
+}
+
+std::vector<std::pair<std::vector<Point>, int>>* ConvertCaveInfoToCaveNodes(
+    const std::vector<CavesPointInfo>& points) {
+    try {
+        // Dynamically allocate with exception handling
+        auto* result = new std::vector<std::pair<std::vector<Point>, int>>();
+        result->reserve(points.size());  // Reserve space to avoid reallocations
+
+        // Group points by index and seq
+        std::map<int, std::map<int, std::vector<CavesPointInfo>>> groupedData;
+        for (const auto& point : points) {
+            groupedData[point.index][point.seq].push_back(point);
+        }
+
+        // Process grouped data
+        for (const auto& [index, seqMap] : groupedData) {
+            for (const auto& [seq, pointsVec] : seqMap) {
+                // Sort by order
+                std::vector<CavesPointInfo> sortedGroup = pointsVec;
+                std::sort(sortedGroup.begin(), sortedGroup.end(),
+                    [](const CavesPointInfo& a, const CavesPointInfo& b) {
+                        return a.order < b.order;
+                    });
+
+                // Convert to Points
+                std::vector<Point> pointGroup;
+                pointGroup.reserve(sortedGroup.size());
+                for (const auto& point : sortedGroup) {
+                    pointGroup.emplace_back(point.x, point.y);
+                }
+
+                result->emplace_back(std::move(pointGroup), index);
+            }
+        }
+
+        return result;
+
+    }
+    catch (const std::exception& e) {
+        // Handle any exceptions (memory allocation, etc.)
+        return nullptr;  // Or handle error differently based on your needs
+    }
+}
+
 VoxelFarm::CellId GetVFCellIDFromVF(double vfX, double vfY, double vfZ, const CAffineTransform& transform, int32_t lod)
 {
     const double cellScale = (1 << lod) * VoxelFarm::CELL_SIZE;

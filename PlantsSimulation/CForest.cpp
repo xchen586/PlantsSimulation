@@ -13,13 +13,19 @@
 	#include "../Common/include/PsMarco.h"
 	#include "../Common/include/PsHelper.h"
 	#include "../Common/Include/PointInstance.h"
+	#include "../Common/Include/CTimeCounter.h"
 #else
 	#include "..\Common\include\PsMarco.h"
     #include "..\Common\include\PsHelper.h"
 	#include "..\Common\Include\PointInstance.h"
+	#include "..\Common\Include\CTimeCounter.h"
 #endif
 
 CForest::CForest(void)
+	: m_pCellTable(nullptr)
+	, m_pMetaInfo(nullptr)
+	, m_p2dCaveLevel0Nodes(nullptr)
+	, m_p2dCaveLevel1Nodes(nullptr)
 {
 	grid = NULL;
 	maxHeight = 10000;
@@ -362,6 +368,9 @@ TreeClass* CForest::getTreeClassFromStringVector(const std::vector<std::string>&
 
 void CForest::generate(float forestAge, int iterations)
 {
+	string title = "CForest::generate generate whole tree instances : ";
+	CTimeCounter timeCounter(title);
+
 	// allocate grid
 	//int gridDelta = 8;
 	int gridDelta = 30;
@@ -768,6 +777,44 @@ void CForest::generate(float forestAge, int iterations)
 		}
 	}
 
+	if (m_p2dCaveLevel0Nodes)
+	{
+		string title = "Remove the tree instances from caves level 0 : ";
+		CTimeCounter timeCounter(title);
+
+		int sizeBefore = trees.size();
+		std::cout << "Before remove tree from cave level 0, Trees Size is :" << " " << sizeBefore << std::endl;
+			
+		// Method 3: Using remove_if and erase (erase-remove idiom)
+		// Best when you can express removal condition as a predicate
+		trees.erase(
+			std::remove_if(trees.begin(), trees.end(),
+				[this](auto tree) {  
+					Point p(tree.x, tree.z);
+					double distance = GetDistanceToCaveNodes(p, m_p2dCaveLevel0Nodes, CAVE_DISTANCE_LIMIT);
+					bool beRemoved = (distance < CAVE_DISTANCE_LIMIT) ? true : false;
+					return beRemoved; 
+				}
+			),
+			trees.end()
+		);
+		/*
+		// Method 2: Using iterator and erase (backwards iteration)
+		// This is safer because erasing doesn't affect elements we haven't processed yet
+		for (auto it = trees.end(); it != trees.begin();) {
+			--it;
+			if ((*m_pCave0Array)[(*it).z][(*it).x]) {
+				it = trees.erase(it);
+			}
+		}*/
+		int sizeAfter = trees.size();
+		std::cout << "After remove tree from cave level 0, Trees Size is :" << " " << sizeAfter << std::endl;
+
+		double percentageCount = static_cast<double>(100 * sizeAfter / sizeBefore);
+		std::cout << "After Cave removal the rest of tree has pencentage of " << percentageCount << " before tree count!" << std::endl;
+
+	}
+	
 	std::cout << "Trees Size :" << " " << trees.size() << std::endl;
 
 	delete instances;

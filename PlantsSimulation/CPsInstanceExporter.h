@@ -45,6 +45,14 @@ public:
 		m_tileIndexX = x;
 		m_tileIndexY = y;
 	}
+	void set2dCaveLevel0Nodes(std::vector<std::pair<std::vector<Point>, int>>* p2dCaveLevel0Nodes)
+	{
+		m_p2dCaveLevel0Nodes = p2dCaveLevel0Nodes;
+	}
+	void set2dCaveLevel1Nodes(std::vector<std::pair<std::vector<Point>, int>>* p2dCaveLevel1Nodes)
+	{
+		m_p2dCaveLevel1Nodes = p2dCaveLevel1Nodes;
+	}
 	bool loadPointInstanceFromCSV(const string& filePath, const string& outputSubDir, InstanceSubOutputMap& outputMap, unsigned int variant, CAffineTransform transform, double voxelSize, int32_t lod);
 	bool outputSubfiles(const std::string& outputSubsDir);
 	bool OutputAllInstanceGeoChem(string outputFilePath, const InstanceSubOutputMap& allInstances);
@@ -57,6 +65,8 @@ protected:
 	vector<TreeInstanceFullOutput> * m_pFullTreeOutputs;
 	InstanceSubOutputMap m_outputMap;
 	int32_t m_lod; 
+	std::vector<std::pair<std::vector<Point>, int>>* m_p2dCaveLevel0Nodes;
+	std::vector<std::pair<std::vector<Point>, int>>* m_p2dCaveLevel1Nodes;
 	int m_tiles;
 	int m_tileIndexX;
 	int m_tileIndexY;

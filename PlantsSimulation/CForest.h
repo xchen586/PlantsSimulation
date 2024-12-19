@@ -46,7 +46,7 @@ public:
 	void resetMasks();
 	void resetGlobalMasks();
 	void resetRawI2DMasks();
-	
+
 	void setCellTable(std::vector<std::vector<CCellInfo*>>* pCellTable) {
 		m_pCellTable = pCellTable;
 	}
@@ -58,7 +58,15 @@ public:
 	{
 		return &fullOutputs;
 	}
-
+	void set2dCaveLevel0Nodes(std::vector<std::pair<std::vector<Point>, int>>* p2dCaveLevel0Nodes)
+	{
+		m_p2dCaveLevel0Nodes = p2dCaveLevel0Nodes;
+	}
+	void set2dCaveLevel1Nodes(std::vector<std::pair<std::vector<Point>, int>>* p2dCaveLevel1Nodes)
+	{
+		m_p2dCaveLevel1Nodes = p2dCaveLevel1Nodes;
+	}
+	
 	TreeInstanceOutput GetTreeOutputFromInstance(const CTreeInstance& instance);
 	bool exportTreeInstanceOutput(const std::vector<TreeInstanceOutput>& data, const std::string& filename, bool hasHeader);
 	bool exportTreeInstanceFullOutput(const std::vector<TreeInstanceFullOutput>& data, const std::string& filename, bool hasHeader, bool withRatio = false);
@@ -81,7 +89,7 @@ public:
 	vector<CTreeInstance> trees;
 	vector<TreeInstanceOutput> treeoutputs;
 	vector<TreeInstanceFullOutput> fullOutputs;
-	
+
 	int xo;
 	int zo;
 	int xSize;
@@ -91,5 +99,7 @@ public:
 protected:
 	std::vector<std::vector<CCellInfo*>>* m_pCellTable;
 	InputImageMetaInfo* m_pMetaInfo;
+	std::vector<std::pair<std::vector<Point>, int>>* m_p2dCaveLevel0Nodes;
+	std::vector<std::pair<std::vector<Point>, int>>* m_p2dCaveLevel1Nodes;
 };
 
