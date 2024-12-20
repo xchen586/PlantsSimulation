@@ -32,15 +32,16 @@ project_id = '1D4CBBD1D957477E8CC3FF376FB87470' # Pangea Next
 
 folder_id = '90F6348AD5D94FCEA85C7C1CD081CE97' # Pangea Next > Instances
 
-entity_id = '3A3CFEBA226B4692A8719C78335470DD' # cosmin new
+#entity_id = '3A3CFEBA226B4692A8719C78335470DD' # cosmin new
 
-#game_tree_entity_id_property = '0B4C084415C744B48B4BD13D9990E713' # xc test
+game_tree_entity_id_property = '0B4C084415C744B48B4BD13D9990E713' # xc test
 #game_tree_entity_id_property = "536674D5E8D440D9A7EFCD1D879AD57A" # cosmin old
-game_tree_entity_id_property = "3A3CFEBA226B4692A8719C78335470DD"  #game entity 
+#game_tree_entity_id_property = "3A3CFEBA226B4692A8719C78335470DD"  #game entity 
 
 #entity_id = "536674D5E8D440D9A7EFCD1D879AD57A" # cosmin old
 #entity_id = "3A3CFEBA226B4692A8719C78335470DD"  #xc tesst
 
+entity_id = game_tree_entity_id_property
 #tiles = 10
 
 #x = 8
@@ -66,5 +67,5 @@ y = 5
 #update_attach_files_for_entity(api, project_id, entity_id, f'D:\\Downloads\\XCTreeBackup\\Output\\Tree_output\\20241213QTree16Ver436For25_8_5\\{tiles}_{x}_{y}\\regionoutput')
 #update_attach_files_for_entity(api, project_id, entity_id, f'D:\\Downloads\\XCTreeBackup\\Output\\Tree_output\\20241213QTree16Ver436For25_8_5\\{tiles}_{x}_{y}\\instanceoutput')
 
-#update_attach_files_for_entity(api, project_id, entity_id, f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\{tiles}_{x}_{y}\\regionoutput')
-#update_attach_files_for_entity(api, project_id, entity_id, f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\{tiles}_{x}_{y}\\instanceoutput')
+update_attach_files_for_entity(api, project_id, entity_id, f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\{tiles}_{x}_{y}\\regionoutput')
+update_attach_files_for_entity(api, project_id, entity_id, f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\{tiles}_{x}_{y}\\instanceoutput')
