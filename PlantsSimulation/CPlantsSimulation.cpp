@@ -1411,7 +1411,7 @@ std::vector<std::pair<std::vector<Point>, int>>* CPlantsSimulation::LoadCaveNode
 			cavePointInfo.z = std::stod(field);
 		}
 		if (std::getline(lineStream, field, ',')) {
-			cavePointInfo.seq = std::stoi(field);
+			cavePointInfo.generation = std::stoi(field);
 		}
 		if (std::getline(lineStream, field, ',')) {
 			cavePointInfo.index = std::stoi(field);

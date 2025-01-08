@@ -96,15 +96,14 @@ double PointToPolylineDistance(const Point& p, const std::vector<Point>& polylin
 double GetDistanceToCaveNodes(const Point& p, const std::vector<std::pair<std::vector<Point>, int>>* lines, double distanceLimit/* = 0.0*/) {
     double minDistance = std::numeric_limits<double>::max();
 
-    for (const auto& [points, groupIndex] : *lines) {
-        for (size_t i = 1; i < points.size(); ++i) {
-            double distance = PointToPolylineDistance(p, points, distanceLimit);
-            minDistance = std::min(minDistance, distance);
+    for (const auto& [points, generation] : *lines) {
 
-            // Early exit if we're already below the distance limit
-            if (minDistance < distanceLimit) {
-                return minDistance;
-            }
+        double distance = PointToPolylineDistance(p, points, distanceLimit);
+        minDistance = std::min(minDistance, distance);
+
+        // Early exit if we're already below the distance limit
+        if (minDistance < distanceLimit) {
+            return minDistance;
         }
     }
 
@@ -121,12 +120,17 @@ std::vector<std::pair<std::vector<Point>, int>>* ConvertCaveInfoToCaveNodes(
         // Group points by index and seq
         std::map<int, std::map<int, std::vector<CavesPointInfo>>> groupedData;
         for (const auto& point : points) {
-            groupedData[point.index][point.seq].push_back(point);
+            groupedData[point.index][point.generation].push_back(point);
         }
 
         // Process grouped data
-        for (const auto& [index, seqMap] : groupedData) {
-            for (const auto& [seq, pointsVec] : seqMap) {
+        for (const auto& [index, generationMap] : groupedData) {
+            int generationCount = generationMap.size();
+            if (generationCount > 1)
+            {
+                std::cout << "There are more than 1 generation in cave segment." << std::endl;
+            }
+            for (const auto& [generation, pointsVec] : generationMap) {
                 // Sort by order
                 std::vector<CavesPointInfo> sortedGroup = pointsVec;
                 std::sort(sortedGroup.begin(), sortedGroup.end(),
@@ -141,7 +145,7 @@ std::vector<std::pair<std::vector<Point>, int>>* ConvertCaveInfoToCaveNodes(
                     pointGroup.emplace_back(point.x, point.y);
                 }
 
-                result->emplace_back(std::move(pointGroup), index);
+                result->emplace_back(std::move(pointGroup), generation);
             }
         }
 

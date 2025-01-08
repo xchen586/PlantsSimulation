@@ -77,7 +77,7 @@ struct CavesPointInfo
 	double x;
 	double y;
 	double z;
-	int seq;
+	int generation;
 	int index;
 	int order;
 
@@ -85,7 +85,7 @@ struct CavesPointInfo
 		: x(0.0)
 		, y(0.0)
 		, z(0.0)
-		, seq(0)
+		, generation(0)
 		, index(0)
 		, order(0)
 	{
@@ -96,7 +96,7 @@ struct CavesPointInfo
 		x = other.x;
 		y = other.y;
 		z = other.z;
-		seq = other.seq;
+		generation = other.generation;
 		index = other.index;
 		order = other.order;
 		return *this;
