@@ -1856,7 +1856,7 @@ def tree_instances_generation(config_path):
         print(f'xc_process_base_meshes for {basemeshes_output_folder}')
         
     if run_make_caves:
-        RemoveBaseMeshesdata(level0_index_db_file_path, level0_data_db_file_path, level1_index_db_file_path, level1_data_db_file_path)
+        RemoveBaseMeshesdata(level0_index_cave_file_path, level0_data_cave_file_path, level1_index_cave_file_path, level1_data_cave_file_path)
         return_code_cave_mash0 = xc_run_tool(cave_meshvoxelizer0_command, 0, 100)
         if return_code_cave_mash0 == 0:
             print(f'Process ({cave_meshvoxelizer0_command}) executed successfully.')
@@ -2097,7 +2097,8 @@ test_only_upload_tree_generation = False
 only_upload_tree_generation = False
 caves_voxelization_generation = False
 
-test_only_tree_generation = True
+#test_only_tree_generation = True
+caves_voxelization_generation = True
 
 if tree_generation:
     print("Choose tree_generation to Run")
