@@ -61,6 +61,10 @@ bool CPsInstanceExporter::OutputAllInstanceGeoChem(string outputFilePath, const 
 
 bool CPsInstanceExporter::loadPointInstanceFromCSV(const string& filePath, const string& outputSubDir, InstanceSubOutputMap& outputMap, unsigned int variant, CAffineTransform transform, double cellSize, int32_t lod)
 {
+	char delimiter = ',';
+	int columnCount = countColumnsInCSV(filePath, delimiter);
+	std::cout << "The PointInstance csv file " << filePath << " has " << columnCount << " columns" << std::endl;
+
 	std::ifstream file(filePath);
 	if (!file.is_open()) {
 		std::cerr << "Failed to open the csv file :" << filePath << std::endl;
@@ -117,6 +121,12 @@ bool CPsInstanceExporter::loadPointInstanceFromCSV(const string& filePath, const
 		if (std::getline(lineStream, field, ',')) {
 
 		}
+		if (7 == columnCount) //Has regionId column
+		{
+			if (std::getline(lineStream, field, ',')) {
+
+			}
+		}
 #if USE_CELLINFO_HEIGHT_FOR_POINT_INSTANCE
 		int rowIdx = static_cast<int>(xPos / xRatio);
 		int colIdx = static_cast<int>(yPos / yRatio);
@@ -151,8 +161,8 @@ bool CPsInstanceExporter::loadPointInstanceFromCSV(const string& filePath, const
 		if (m_p2dCaveLevel0Nodes)
 		{
 			Point p(xPos, yPos);
-			double distance = GetDistanceToCaveNodes(p, m_p2dCaveLevel0Nodes, CAVE_DISTANCE_LIMIT);
-			beRemoved = (distance < CAVE_DISTANCE_LIMIT) ? true : false;
+			double distance = GetDistanceToCaveNodes(p, m_p2dCaveLevel0Nodes, CAVE_DISTANCE_LIMIT_POI);
+			beRemoved = (distance < CAVE_DISTANCE_LIMIT_POI) ? true : false;
 			if (beRemoved)
 			{
 				//std::cout << "Remove the POI from Cave x : " << xPos << "  y : " << yPos << std::endl;

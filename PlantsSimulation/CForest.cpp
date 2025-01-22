@@ -791,8 +791,8 @@ void CForest::generate(float forestAge, int iterations)
 			std::remove_if(trees.begin(), trees.end(),
 				[this](auto tree) {  
 					Point p(tree.x, tree.z);
-					double distance = GetDistanceToCaveNodes(p, m_p2dCaveLevel0Nodes, CAVE_DISTANCE_LIMIT);
-					bool beRemoved = (distance < CAVE_DISTANCE_LIMIT) ? true : false;
+					double distance = GetDistanceToCaveNodes(p, m_p2dCaveLevel0Nodes, CAVE_DISTANCE_LIMIT_TREE);
+					bool beRemoved = (distance < CAVE_DISTANCE_LIMIT_TREE) ? true : false;
 					return beRemoved; 
 				}
 			),

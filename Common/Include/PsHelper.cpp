@@ -982,3 +982,40 @@ bool stringToBool(const std::string& str) {
     // or you can return false as a default
     return false;
 }
+
+// Helper function to trim whitespace
+std::string trim(const std::string& str) {
+    size_t start = str.find_first_not_of(" \t");
+    size_t end = str.find_last_not_of(" \t");
+    return (start == std::string::npos) ? "" : str.substr(start, end - start + 1);
+}
+
+// Function to count columns in a CSV file
+int countColumnsInCSV(const std::string& filePath, char delimiter = ',') {
+    std::ifstream file(filePath);
+
+    if (!file.is_open()) {
+        std::cerr << "Error: Could not open file '" << filePath << "'." << std::endl;
+        return -1;
+    }
+
+    std::string line;
+    if (std::getline(file, line)) { // Read the first line
+        std::stringstream ss(line);
+        std::string column;
+        int columnCount = 0;
+
+        // Count columns separated by the specified delimiter
+        while (std::getline(ss, column, delimiter)) {
+            column = trim(column); // Trim whitespace from each column
+            columnCount++;
+        }
+
+        file.close();
+        return columnCount;
+    }
+
+    file.close();
+    std::cerr << "Error: File is empty or only contains whitespace." << std::endl;
+    return -1;
+}
