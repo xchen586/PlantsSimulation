@@ -498,3 +498,6 @@ bool Write2DArrayAsRaw(const std::string& filePath, const std::vector<std::vecto
 
 	return ret;
 }
+
+std::string trim(const std::string& str);
+int countColumnsInCSV(const std::string& filePath, char delimiter);
