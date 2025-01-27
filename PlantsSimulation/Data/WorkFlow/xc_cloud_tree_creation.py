@@ -1159,6 +1159,30 @@ def xc_process_base_meshes(api : voxelfarmclient.rest, basemeshes_output_folder_
     
     #do_simple_upload_basemeshes_swarm(api, basemeshes_project_id, basemeshes_db_folder_Id, level0_db_output_folder, basemeshes_version, level0_entity_name, pythoncode_data_folder)
     #do_simple_upload_basemeshes_swarm(api, basemeshes_project_id, basemeshes_db_folder_Id, level1_db_output_folder, basemeshes_version, level1_entity_name, pythoncode_data_folder)
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------
+def xc_process_cave_meshes(api : voxelfarmclient.rest, cave_meshes_output_folder_path, cave_meshes_result_project_id, cave_meshes_result_folder_id, version : int):
+    
+    level0_cave_output_folder = os.path.join(cave_meshes_output_folder_path, f'{tile_size}_{tile_x}_{tile_y}_0')
+    level1_cave_output_folder = os.path.join(cave_meshes_output_folder_path, f'{tile_size}_{tile_x}_{tile_y}_1')
+
+    cave_meshes_project_id = Project_id #Project: "My Projects > Pangea Next"
+    
+    cave_meshes_version = version
+    level0_entity_name = f'TopCaves_{tile_size}_{tile_x}_{tile_y}_0-ver-{cave_meshes_version}'
+    level1_entity_name = f'TopCaves_{tile_size}_{tile_x}_{tile_y}_1-ver-{cave_meshes_version}'
+
+    print(f'cave_meshes_result_project_id :  {cave_meshes_result_project_id}')
+    print(f'cave_meshes_result_folder_id :  {cave_meshes_result_folder_id}')
+    print(f'level0_db_output_folder :  {level0_cave_output_folder}')
+    print(f'level1_db_output_folder :  {level1_cave_output_folder}')
+    print(f'version :  {cave_meshes_version}')
+    print(f'level0_entity_name :  {level0_entity_name}')
+    print(f'level1_entity_name :  {level1_entity_name}')
+    
+    cave_meshes_db_folder_Id = cave_meshes_result_folder_id
+    
+    do_simple_upload_basemeshes(api, cave_meshes_project_id, cave_meshes_db_folder_Id, level0_cave_output_folder, cave_meshes_version, level0_entity_name, pythoncode_data_folder)
+    #do_simple_upload_basemeshes(api, cave_meshes_project_id, cave_meshes_db_folder_Id, level1_cave_output_folder, cave_meshes_version, level1_entity_name, pythoncode_data_folder)
     
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------
 def xc_attach_ini_to_lambda(api : voxelfarmclient.rest, workflow_project_id):
@@ -1317,6 +1341,8 @@ def tree_instances_generation(config_path):
     run_make_basemeshes = read_ini_value(config_path, section_run, 'run_make_basemeshes', value_type=bool)
     run_upload_basemeshes = read_ini_value(config_path, section_run, 'run_upload_basemeshes', value_type=bool)
     run_make_tree_instances = read_ini_value(config_path, section_run, 'run_make_tree_instances', value_type=bool)
+    run_make_caves = read_ini_value(config_path, section_run, 'run_make_caves', value_type=bool)
+    run_upload_caves = read_ini_value(config_path, section_run, 'run_upload_caves', value_type=bool)
     run_upload_tree_instances = read_ini_value(config_path, section_run, 'run_upload_tree_instances', value_type=bool)
     run_create_geochem_entity = read_ini_value(config_path, section_run, 'run_create_geochem_entity', value_type=bool)
     run_generate_road_input = read_ini_value(config_path, section_run, 'run_generate_road_input', value_type=bool)
@@ -1416,6 +1442,13 @@ def tree_instances_generation(config_path):
     lakes_level1_file_path = os.path.join(smoothlayer_output_folder, lakes_level1_file_name)
     ocean_top_file_path = os.path.join(smoothlayer_output_folder, ocean_top_file_name)
     ocean_bottom_file_path = os.path.join(smoothlayer_output_folder, ocean_bottom_file_name)
+    
+    basemeshes_caves_db_output_level0_folder = os.path.join(basemeshes_caves_db_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}_0')
+    basemeshes_caves_db_output_level1_folder = os.path.join(basemeshes_caves_db_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}_1')
+    caves_point_cloud_level_0_file_name = f'{tiles_count}_{tiles_x}_{tiles_y}_0_caves.xyz'
+    caves_point_cloud_level_1_file_name = f'{tiles_count}_{tiles_x}_{tiles_y}_1_caves.xyz'
+    caves_point_cloud_level_0_file_path = os.path.join(basemeshes_caves_db_output_level0_folder, caves_point_cloud_level_0_file_name)
+    caves_point_cloud_level_1_file_path = os.path.join(basemeshes_caves_db_output_level1_folder, caves_point_cloud_level_1_file_name)
 
     lambda_host.log(f'End to to prepare input data parameter for TreesInstancesAbsolutePathWin.ini')
 
@@ -1439,6 +1472,9 @@ def tree_instances_generation(config_path):
     
     basemeshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_debug_level} {basemeshes_heightmap_folder}'
     basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_debug_level} {basemeshes_heightmap_folder}'   
+    cave_meshes_flag = 1
+    cave_meshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_all_level} {basemeshes_heightmap_folder} {basemeshes_caves_db_base_folder} {cave_meshes_flag}'
+    cave_meshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_all_level} {basemeshes_heightmap_folder} {basemeshes_caves_db_base_folder} {cave_meshes_flag}'       
     
     if use_basemesh_ini:
         lambda_host.log(f'Start to write standard basemeshes ini files : {basemeshes_ini_path}')
@@ -1567,6 +1603,11 @@ def tree_instances_generation(config_path):
     level0_data_db_file_path = os.path.join(level0_db_output_folder, data_db_file_name)
     level1_index_db_file_path = os.path.join(level1_db_output_folder, index_db_file_name)
     level1_data_db_file_path = os.path.join(level1_db_output_folder, data_db_file_name)
+    
+    level0_index_cave_file_path = os.path.join(basemeshes_caves_db_output_level0_folder, index_db_file_name)
+    level0_data_cave_file_path = os.path.join(basemeshes_caves_db_output_level0_folder, data_db_file_name)
+    level1_index_cave_file_path = os.path.join(basemeshes_caves_db_output_level1_folder, index_db_file_name)
+    level1_data_cave_file_path = os.path.join(basemeshes_caves_db_output_level1_folder, data_db_file_name)
     
     if (run_generate_road_input or run_make_tree_instances) and run_make_basemeshes:
         RemoveBaseMeshesdata(level0_index_db_file_path, level0_data_db_file_path, level1_index_db_file_path, level1_data_db_file_path)
@@ -1805,6 +1846,29 @@ def tree_instances_generation(config_path):
     if run_make_basemeshes and run_upload_basemeshes:
         lambda_host.log(f'step for to xc_attach_ini_to_lambda')
         xc_attach_ini_to_lambda(api, Project_id)
+        
+    if run_make_caves:
+        RemoveBaseMeshesdata(level0_index_cave_file_path, level0_data_cave_file_path, level1_index_cave_file_path, level1_data_cave_file_path)
+        return_code_cave_mash0 = xc_run_tool(cave_meshvoxelizer0_command, 0, 100)
+        if return_code_cave_mash0 == 0:
+            lambda_host.log(f'Process ({cave_meshvoxelizer0_command}) executed successfully.')
+        else:
+            lambda_host.log(f'Error: The process ({cave_meshvoxelizer0_command}) returned a non-zero exit code ({return_code_cave_mash0}).')
+            return -1
+        '''
+        return_code_cave_mash1 = xc_run_tool(cave_meshvoxelizer1_command, 0, 100)
+        if return_code_cave_mash1 == 0:
+            lambda_host.log(f'Process ({cave_meshvoxelizer1_command}) executed successfully.')
+        else:
+            lambda_host.log(f'Error: The process ({cave_meshvoxelizer1_command}) returned a non-zero exit code ({return_code_cave_mash1}).')
+            return -1
+        '''
+        
+    if run_upload_caves:
+        print(f'step for to run_upload_caves')
+        cave_meshes_result_folder_id = Workflow_Output_Result_Folder_id
+        xc_process_cave_meshes(api, basemeshes_caves_db_base_folder, Project_id, cave_meshes_result_folder_id, project_output_version)
+        print(f'xc_process_cave_meshes for {basemeshes_caves_db_base_folder}')
 
     lambda_host.log(f'end for step tree_instances_generation')
     return 0
@@ -1890,6 +1954,8 @@ def tree_config_creation(ini_path):
     create_or_update_ini_file(ini_path, section_run, 'run_make_basemeshes', is_run_make_basemeshes)
     create_or_update_ini_file(ini_path, section_run, 'run_upload_basemeshes', is_run_upload_basemeshes)
     create_or_update_ini_file(ini_path, section_run, 'run_make_tree_instances', is_run_make_tree_instances)
+    create_or_update_ini_file(ini_path, section_run, 'run_make_caves', is_run_make_caves)
+    create_or_update_ini_file(ini_path, section_run, 'run_upload_caves', is_run_upload_caves)
     create_or_update_ini_file(ini_path, section_run, 'run_upload_tree_instances', is_run_upload_tree_instances)
     create_or_update_ini_file(ini_path, section_run, 'run_create_geochem_entity', is_run_create_geochem_entity)
     create_or_update_ini_file(ini_path, section_run, 'run_generate_road_input', is_run_generate_road_input)
@@ -1984,6 +2050,10 @@ is_run_worldgen_road = lambda_host.input_string('run_worldgen_road', 'run_worldg
 is_run_upload_smooth_layer = lambda_host.input_string('run_upload_smooth_layer', 'run_upload_smooth_layer', '')
 is_run_make_basemeshes = lambda_host.input_string('run_make_basemeshes', 'run_make_basemeshes', '')
 is_run_upload_basemeshes = lambda_host.input_string('run_upload_basemeshes', 'run_upload_basemeshes', '')
+is_run_make_caves = False
+is_run_upload_caves = False
+is_run_make_caves = lambda_host.input_string('run_make_caves', 'run_make_caves', '')
+is_run_upload_caves = lambda_host.input_string('run_upload_caves', 'run_upload_caves', '')
 is_run_make_tree_instances = lambda_host.input_string('run_make_tree_instances', 'run_make_tree_instances', '')
 is_run_upload_tree_instances = lambda_host.input_string('run_upload_tree_instances', 'run_upload_tree_instances', '')
 is_run_create_geochem_entity = lambda_host.input_string('run_create_geochem_entity', 'run_create_geochem_entity', '')
