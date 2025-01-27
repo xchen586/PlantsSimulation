@@ -1227,7 +1227,7 @@ def xc_process_cave_meshes(api : voxelfarmclient.rest, cave_meshes_output_folder
     cave_meshes_db_folder_Id = cave_meshes_result_folder_id
     
     do_simple_upload_basemeshes_swarm(api, cave_meshes_project_id, cave_meshes_db_folder_Id, level0_cave_output_folder, cave_meshes_version, level0_entity_name, pythoncode_data_folder)
-    do_simple_upload_basemeshes_swarm(api, cave_meshes_project_id, cave_meshes_db_folder_Id, level1_cave_output_folder, cave_meshes_version, level1_entity_name, pythoncode_data_folder)
+    #do_simple_upload_basemeshes_swarm(api, cave_meshes_project_id, cave_meshes_db_folder_Id, level1_cave_output_folder, cave_meshes_version, level1_entity_name, pythoncode_data_folder)
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------
 def create_basemeshes_result_entity(api : voxelfarmclient.rest, basemeshes_output_folder_path, basemeshes_result_project_id, basemeshes_result_folder_id):
@@ -1863,12 +1863,14 @@ def tree_instances_generation(config_path):
         else:
             print(f'Error: The process ({cave_meshvoxelizer0_command}) returned a non-zero exit code ({return_code_cave_mash0}).')
             return -1
+        '''
         return_code_cave_mash1 = xc_run_tool(cave_meshvoxelizer1_command, 0, 100)
         if return_code_cave_mash1 == 0:
             print(f'Process ({cave_meshvoxelizer1_command}) executed successfully.')
         else:
             print(f'Error: The process ({cave_meshvoxelizer1_command}) returned a non-zero exit code ({return_code_cave_mash1}).')
             return -1
+        '''
         
     if run_upload_caves:
         print(f'step for to run_upload_caves')
@@ -2096,9 +2098,11 @@ only_upload_smooth_layer_generation = False
 test_only_upload_tree_generation = False
 only_upload_tree_generation = False
 caves_voxelization_generation = False
+caves_upload_generation = False
 
-test_only_tree_generation = True
-#caves_voxelization_generation = True
+#test_only_tree_generation = True
+caves_upload_generation = True
+
 
 if tree_generation:
     print("Choose tree_generation to Run")
@@ -2318,6 +2322,22 @@ if caves_voxelization_generation:
     is_run_make_basemeshes = False
     is_run_upload_basemeshes = False
     is_run_make_caves = True
+    is_run_upload_caves = True
+    is_run_make_tree_instances = False
+    is_run_upload_tree_instances = False
+    is_run_create_geochem_entity = False
+    is_run_generate_road_input = False
+    
+if caves_upload_generation:
+    print("Choose only_upload_smooth_layer_generation to Run")
+    Game_Tree_Entity_id = "3A3CFEBA226B4692A8719C78335470DD"  #game entity 
+    Workflow_Output_Result_Folder_id = '68396F90F7CE48B4BA1412EA020ED92A'  #Pangea Next > Workflow Output > Workflow BaseMeshes Output
+    is_run_road_exe = False
+    is_run_worldgen_road = False
+    is_run_upload_smooth_layer = False
+    is_run_make_basemeshes = False
+    is_run_upload_basemeshes = False
+    is_run_make_caves = False
     is_run_upload_caves = True
     is_run_make_tree_instances = False
     is_run_upload_tree_instances = False
