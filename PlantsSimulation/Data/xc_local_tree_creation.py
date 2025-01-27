@@ -1213,8 +1213,8 @@ def xc_process_cave_meshes(api : voxelfarmclient.rest, cave_meshes_output_folder
     cave_meshes_project_id = Project_id #Project: "My Projects > Pangea Next"
     
     cave_meshes_version = version
-    level0_entity_name = f'TopCaves_Basemeshes_{tile_size}_{tile_x}_{tile_y}_0-ver-{cave_meshes_version}'
-    level1_entity_name = f'TopCaves_Basemeshes_{tile_size}_{tile_x}_{tile_y}_1-ver-{cave_meshes_version}'
+    level0_entity_name = f'TopCaves_{tile_size}_{tile_x}_{tile_y}_0-ver-{cave_meshes_version}'
+    level1_entity_name = f'TopCaves_{tile_size}_{tile_x}_{tile_y}_1-ver-{cave_meshes_version}'
 
     print(f'cave_meshes_result_project_id :  {cave_meshes_result_project_id}')
     print(f'cave_meshes_result_folder_id :  {cave_meshes_result_folder_id}')
