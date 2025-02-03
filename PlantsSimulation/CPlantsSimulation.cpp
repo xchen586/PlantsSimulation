@@ -1380,6 +1380,8 @@ bool CPlantsSimulation::LoadInputData()
 
 std::vector<std::pair<std::vector<Point>, int>>* CPlantsSimulation::LoadCaveNodesFromPointCloud(const std::string& filePath)
 {
+	char delimiter = ',';
+	int columnCount = countColumnsInCSV(filePath, delimiter);
 	std::ifstream file(filePath);
 	if (!file.is_open()) {
 		std::cerr << "Failed to open the cave point cloud file :" << filePath << std::endl;
@@ -1415,6 +1417,12 @@ std::vector<std::pair<std::vector<Point>, int>>* CPlantsSimulation::LoadCaveNode
 		}
 		if (std::getline(lineStream, field, ',')) {
 			cavePointInfo.index = std::stoi(field);
+		}
+		if (columnCount >= 7) //New .xyz file has new column not useful for this case
+		{
+			if (std::getline(lineStream, field, ',')) {
+
+			}
 		}
 		if (std::getline(lineStream, field, ',')) {
 			cavePointInfo.order = std::stoi(field);
