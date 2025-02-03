@@ -53,7 +53,7 @@ public:
 	{
 		m_p2dCaveLevel1Nodes = p2dCaveLevel1Nodes;
 	}
-	bool loadPointInstanceFromCSV(const string& filePath, const string& outputSubDir, InstanceSubOutputMap& outputMap, unsigned int variant, CAffineTransform transform, double voxelSize, int32_t lod);
+	bool loadPointInstanceFromCSV(const string& filePath, const string& outputSubDir, InstanceSubOutputMap& outputMap, CAffineTransform transform, double voxelSize, int32_t lod, InstanceType instanceType);
 	bool outputSubfiles(const std::string& outputSubsDir);
 	bool OutputAllInstanceGeoChem(string outputFilePath, const InstanceSubOutputMap& allInstances);
 	

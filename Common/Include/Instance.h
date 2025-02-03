@@ -3,10 +3,12 @@
 
 enum struct InstanceType
 {
-	InstanceType_None,
-	InstanceType_Tree,
-	InstanceType_Point,
-	InstanceType_End,
+	//InstanceType_None,
+	InstanceType_Tree = 0,
+	InstanceType_spawn_Point = 1,
+	InstanceType_NPC = 2,
+	InstanceType_Resource = 3,
+	InstanceType_Count = 4
 };
 
 struct InstanceSubOutput

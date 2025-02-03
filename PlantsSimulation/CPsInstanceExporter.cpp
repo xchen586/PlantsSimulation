@@ -59,7 +59,7 @@ bool CPsInstanceExporter::OutputAllInstanceGeoChem(string outputFilePath, const 
 	return true;
 }
 
-bool CPsInstanceExporter::loadPointInstanceFromCSV(const string& filePath, const string& outputSubDir, InstanceSubOutputMap& outputMap, unsigned int variant, CAffineTransform transform, double cellSize, int32_t lod)
+bool CPsInstanceExporter::loadPointInstanceFromCSV(const string& filePath, const string& outputSubDir, InstanceSubOutputMap& outputMap, CAffineTransform transform, double cellSize, int32_t lod, InstanceType instanceType)
 {
 	char delimiter = ',';
 	int columnCount = countColumnsInCSV(filePath, delimiter);
@@ -89,6 +89,8 @@ bool CPsInstanceExporter::loadPointInstanceFromCSV(const string& filePath, const
 	int negativeHeightCount = 0;
 	int index = 0;
 	int originalCount = 0;
+
+	unsigned int variant = 0;
 
 	while (std::getline(file, line)) {
 		std::stringstream lineStream(line);
@@ -121,10 +123,16 @@ bool CPsInstanceExporter::loadPointInstanceFromCSV(const string& filePath, const
 		if (std::getline(lineStream, field, ',')) {
 
 		}
-		if (7 == columnCount) //Has regionId column
+		if (columnCount >= 7) //Has regionId column
 		{
 			if (std::getline(lineStream, field, ',')) {
 
+			}
+		}
+		if (columnCount >= 8) //Has resource type (or variant) column
+		{
+			if (std::getline(lineStream, field, ',')) {
+				variant = std::stoi(field);
 			}
 		}
 #if USE_CELLINFO_HEIGHT_FOR_POINT_INSTANCE
@@ -172,7 +180,7 @@ bool CPsInstanceExporter::loadPointInstanceFromCSV(const string& filePath, const
 		{
 			std::shared_ptr<PointInstanceSubOutput> sub = std::make_shared<PointInstanceSubOutput>();
 			SetupInstanceSubOutput(posX, posY, posZ, transform, cellSize, lod, sub);
-			sub->instanceType = static_cast<unsigned int>(InstanceType::InstanceType_Point);
+			sub->instanceType = static_cast<unsigned int>(instanceType);
 			sub->variant = variant;
 			sub->age = 1.0;
 			index++;
@@ -263,10 +271,10 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 		subVector->push_back(sub);
 	}
 	std::cout << "The trees of negative height count is : " << negativeHeightCount << std::endl;
-	unsigned int mostTravelledVariant = static_cast<unsigned int>(PointType::Point_MostTravelled);
-	bool getMostTravelledPoint = loadPointInstanceFromCSV(m_mostTravelledPointFilePath, outputSubsDir, m_outputMap, mostTravelledVariant, transform, cellSize, m_lod);
-	unsigned int mostDistantVariant = static_cast<unsigned int>(PointType::Point_MostDistant);
-	bool getMostDistantPoint = loadPointInstanceFromCSV(m_mostDistantPointFilePath, outputSubsDir, m_outputMap, mostDistantVariant, transform, cellSize, m_lod);
+	//unsigned int mostTravelledVariant = static_cast<unsigned int>(PointType::Point_MostTravelled);
+	bool getMostTravelledPoint = loadPointInstanceFromCSV(m_mostTravelledPointFilePath, outputSubsDir, m_outputMap, transform, cellSize, m_lod, InstanceType::InstanceType_NPC);
+	//unsigned int mostDistantVariant = static_cast<unsigned int>(PointType::Point_MostDistant);
+	bool getMostDistantPoint = loadPointInstanceFromCSV(m_mostDistantPointFilePath, outputSubsDir, m_outputMap, transform, cellSize, m_lod, InstanceType::InstanceType_Resource);
 
 	std::filesystem::path outputSubsDirPath = outputSubsDir;
 	std::filesystem::path outputDirPath = outputSubsDirPath.parent_path();
