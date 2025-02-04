@@ -328,13 +328,15 @@ def xc_run_tool(tool_path, progress_start, progress_end):
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-TREE_INSTANCE = 1
-POI_INSTANCE = 2
+TREE_INSTANCE = 0
+SPAWN_INSTANCE = 1
+NPC_INSTANCE = 2
+RESOURCE_INSTANCE = 3
 InstanceType_Attribute = 'InstanceType'
 Variant_Attribute = 'Variant'
 Index_Attribute = 'Index'
 
-def calculate_id_for_instance(instance_type, tree_index, poi_index):
+def calculate_id_for_instance(instance_type, tree_index, spawn_index, npc_index, resource_index):
     # Calculate the extra column value based on the instance type and indices
     instance_string = 'Others'
     index = 0
@@ -342,9 +344,15 @@ def calculate_id_for_instance(instance_type, tree_index, poi_index):
     if instance_type == TREE_INSTANCE:
         instance_string = 'Tree'
         index = tree_index
-    elif instance_type == POI_INSTANCE:
-        instance_string = 'POI'
-        index = poi_index
+    elif instance_type == SPAWN_INSTANCE:
+        instance_string = 'Spawn'
+        index = spawn_index
+    elif instance_type == NPC_INSTANCE:
+        instance_string = 'NPC'
+        index = npc_index
+    elif instance_type == RESOURCE_INSTANCE:
+        instance_string = 'Resource'
+        index = resource_index
     
     extra_value = f'{instance_string} {index}'
     return extra_value
@@ -379,7 +387,7 @@ def add_extra_column_to_csv(input_file, output_file, extra_column_name):
         instance_type = row[InstanceType_Attribute]
         instance_index = row[Index_Attribute]
         extra_id = instance_index
-        return calculate_id_for_instance(instance_type, extra_id, extra_id)
+        return calculate_id_for_instance(instance_type, extra_id, extra_id, extra_id, extra_id)
     
     merged_df[extra_column_name] = merged_df.apply(update_id, axis=1)
 
@@ -2100,8 +2108,7 @@ only_upload_tree_generation = False
 caves_voxelization_generation = False
 caves_upload_generation = False
 
-#test_only_tree_generation = True
-caves_upload_generation = True
+test_only_tree_generation = True
 
 
 if tree_generation:
