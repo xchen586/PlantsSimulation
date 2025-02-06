@@ -1495,6 +1495,7 @@ bool CPlantsSimulation::LoadInstanceExporter()
 	m_pInstanceExporter->setMetaInfo(m_topLayerMeta);
 	m_pInstanceExporter->setMostTravelledPointFilePath(m_mostTravelledPointFile);
 	m_pInstanceExporter->setMostDistantPointFilePath(m_mostDistantPointFile);
+	m_pInstanceExporter->setCentroidPointFilePath(m_centroidPointFile);
 
 	m_pInstanceExporter->set2dCaveLevel0Nodes(m_p2dCaveLevel0Nodes);
 	m_pInstanceExporter->set2dCaveLevel1Nodes(m_p2dCaveLevel1Nodes);

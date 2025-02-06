@@ -19,7 +19,7 @@ class CPlantsSimulation
 {
 public:
 	CPlantsSimulation(const string& outputDir, const string& inputTreeList, const string& inputImageFile, const string& inputImageMataFile, const string& mesh_HeightMapFile, const string& mesh2_HeightMapFile, const string& pc_HeightMapFile, const string& l1_HeightMapFile, const string& bedrock_HeightMapFile,
-		const string& mesh_HeightMasksFile, const string& mesh2_HeightMasksFile, const string& pc_HeightMasksFile, const string& l1_HeightMasksFile, const string& bedrock_HeightMaskFile, const string& mostTravelledPointFile, const string& mostDistantPointFile, const string& cavesPointCloudLevel0File, const string& cavesPointCloudLevel1File,
+		const string& mesh_HeightMasksFile, const string& mesh2_HeightMasksFile, const string& pc_HeightMasksFile, const string& l1_HeightMasksFile, const string& bedrock_HeightMaskFile, const string& mostTravelledPointFile, const string& mostDistantPointFile, const string& centroidPointFile, const string& cavesPointCloudLevel0File, const string& cavesPointCloudLevel1File,
 		const string& regionsRawFile, const string& regionsInfoFile, const string& outputFile, const string& fullOutputFile, const string& pcFullOutputFile, int32_t lod, float forestAge, int iteration, int tiles, int tileX, int tileY, bool useBaseMeshesLevel1)
 		: m_outputDir(outputDir)
 		, m_inputTreeListCsv(inputTreeList)
@@ -37,6 +37,7 @@ public:
 		, m_bedrockHeightMasksFile(bedrock_HeightMaskFile)
 		, m_mostTravelledPointFile(mostTravelledPointFile)
 		, m_mostDistantPointFile(mostDistantPointFile)
+		, m_centroidPointFile(centroidPointFile)
 		, m_cavesPointCloudLevel0File(cavesPointCloudLevel0File)
 		, m_cavesPointCloudLevel1File(cavesPointCloudLevel1File)
 		, m_regionsRawFile(regionsRawFile)
@@ -80,6 +81,7 @@ private:
 	string m_bedrockHeightMasksFile;
 	string m_mostTravelledPointFile;
 	string m_mostDistantPointFile;
+	string m_centroidPointFile;
 	string m_cavesPointCloudLevel0File;
 	string m_cavesPointCloudLevel1File;
 	string m_regionsRawFile;

@@ -31,6 +31,10 @@ public:
 	{
 		m_mostDistantPointFilePath = filePath;
 	}
+	void setCentroidPointFilePath(const string& filePath)
+	{
+		m_centroidPointFilePath = filePath;
+	}
 	void setFullTreeOutputs(vector<TreeInstanceFullOutput>* pFullTreeOutputs)
 	{
 		m_pFullTreeOutputs = pFullTreeOutputs;
@@ -62,6 +66,7 @@ protected:
 	InputImageMetaInfo* m_pMetaInfo;
 	string m_mostTravelledPointFilePath;
 	string m_mostDistantPointFilePath;
+	string m_centroidPointFilePath;
 	vector<TreeInstanceFullOutput> * m_pFullTreeOutputs;
 	InstanceSubOutputMap m_outputMap;
 	int32_t m_lod; 

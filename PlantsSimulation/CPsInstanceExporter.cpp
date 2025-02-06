@@ -275,6 +275,7 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 	bool getMostTravelledPoint = loadPointInstanceFromCSV(m_mostTravelledPointFilePath, outputSubsDir, m_outputMap, transform, cellSize, m_lod, InstanceType::InstanceType_NPC);
 	//unsigned int mostDistantVariant = static_cast<unsigned int>(PointType::Point_MostDistant);
 	bool getMostDistantPoint = loadPointInstanceFromCSV(m_mostDistantPointFilePath, outputSubsDir, m_outputMap, transform, cellSize, m_lod, InstanceType::InstanceType_Resource);
+	bool getCentroidPoint = loadPointInstanceFromCSV(m_centroidPointFilePath, outputSubsDir, m_outputMap, transform, cellSize, m_lod, InstanceType::InstanceType_spawn_Point);
 
 	std::filesystem::path outputSubsDirPath = outputSubsDir;
 	std::filesystem::path outputDirPath = outputSubsDirPath.parent_path();
