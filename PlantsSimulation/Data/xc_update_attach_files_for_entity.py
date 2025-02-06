@@ -32,11 +32,14 @@ project_id = '1D4CBBD1D957477E8CC3FF376FB87470' # Pangea Next
 
 folder_id = '90F6348AD5D94FCEA85C7C1CD081CE97' # Pangea Next > Instances
 
-#game_tree_entity_id_property = '0B4C084415C744B48B4BD13D9990E713' # xc test
+#game_tree_entity_id_property = 'E0070AD37D4543FCB9E70D60AE47541D' # cosmin new
 #game_tree_entity_id_property = "536674D5E8D440D9A7EFCD1D879AD57A" # cosmin old
-game_tree_entity_id_property = "3A3CFEBA226B4692A8719C78335470DD"  #game entity 
+#game_tree_entity_id_property = "3A3CFEBA226B4692A8719C78335470DD"  #game entity 
+#game_tree_entity_id_property = '0B4C084415C744B48B4BD13D9990E713' # xuan test 
+
+game_tree_entity_id_property = "6387B1C0BBC24AC3A7830F27807657A7"  #game entity 
 if isTestResult:
-    game_tree_entity_id_property = '0B4C084415C744B48B4BD13D9990E713' # xc test
+    game_tree_entity_id_property = 'BE04D7A0D18142AE9D024C1A3FD50BED' # xc test
 
 entity_id = game_tree_entity_id_property
 
@@ -51,29 +54,10 @@ needDeleteFiles = False
 ########################
 # Delete all files inside an entity
 # lambda_code = r'PATH TO YOUR PYTHON FILE' # For example c:\workspace\voxel\merging_old_gradeblocks_to_maxreturn\xuan_delete_file_inside_entity\delete_attached_files.py
-lambda_code = r'D:\xWork\VoxelFarm\PlantsSimulation\PlantsSimulation\Data\delete_attached_files.py'
-
-vf = api
-if needDeleteFiles:
-    result = vf.create_process_entity(
-        project=project_id,
-        name='Delete Attached Files',
-        code='delete_attached_files.py',
-        fields={
-            'file_folder' : project_id  #Change to any folder you want, right now the process will be created at the root of your project.
-        },
-        inputs={
-            'project_id' : project_id,
-            'entity_id' : entity_id,
-        },
-        files=[lambda_code]
-    )
-    print(f'Created processed entity {result.id} to remove all attached files from entity {entity_id}')
-
 
 tiles = 25
 x = 8
 y = 5
 
-update_attach_files_for_entity(api, project_id, entity_id, f'D:\\Downloads\\XCTreeBackup\\Output\\Tree_output\\20250127QTree16Ver460For25_8_5_NewCave_Tree_150_POI_100\\{tiles}_{x}_{y}\\regionoutput')
-update_attach_files_for_entity(api, project_id, entity_id, f'D:\\Downloads\\XCTreeBackup\\Output\\Tree_output\\20250127QTree16Ver460For25_8_5_NewCave_Tree_150_POI_100\\{tiles}_{x}_{y}\\instanceoutput')
+update_attach_files_for_entity(api, project_id, entity_id, f'D:\\Downloads\\XCTreeBackup\\Output\\Tree_output\\20250203QTree16Ver460For25_8_5_NewCave_Tree_150_POI_100\\{tiles}_{x}_{y}\\regionoutput')
+update_attach_files_for_entity(api, project_id, entity_id, f'D:\\Downloads\\XCTreeBackup\\Output\\Tree_output\\20250203QTree16Ver460For25_8_5_NewCave_Tree_150_POI_100\\{tiles}_{x}_{y}\\instanceoutput')
