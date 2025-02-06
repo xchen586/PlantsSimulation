@@ -73,8 +73,8 @@ tiles = 25
 #        process_point_cloud(api, project_id, folder_id, f'C:\\Work\\Voxel Games\\ProcgrenAssets\\output\\pc\\points_{tiles}_{x}_{y}_bedrock.xyz', f'bottom_{tiles}_{x}_{y}', version=version, color=False)
 #        process_point_cloud(api, project_id, folder_id, f'C:\\Work\\Voxel Games\\ProcgrenAssets\\output\\pc\\points_{tiles}_{x}_{y}_level1.xyz', f'level1_{tiles}_{x}_{y}', version=version, color=False)
 
-x = 9
-y = 6
+x = 8
+y = 5
 level = 0
 #file_path_txt2las = '/Users/xchen586/xWork/VoxelFarm/LAStools/bin/txt2las'
 file_path_txt2las = 'D:\\Downloads\\XCTreeWorkFlow\\Tools\\txt2las.exe'
