@@ -59,5 +59,5 @@ tiles = 25
 x = 8
 y = 5
 
-update_attach_files_for_entity(api, project_id, entity_id, f'D:\\Downloads\\XCTreeBackup\\Output\\Tree_output\\20250203QTree16Ver460For25_8_5_NewCave_Tree_150_POI_100\\{tiles}_{x}_{y}\\regionoutput')
-update_attach_files_for_entity(api, project_id, entity_id, f'D:\\Downloads\\XCTreeBackup\\Output\\Tree_output\\20250203QTree16Ver460For25_8_5_NewCave_Tree_150_POI_100\\{tiles}_{x}_{y}\\instanceoutput')
+update_attach_files_for_entity(api, project_id, entity_id, f'D:\\Downloads\\XCTreeBackup\\Output\\Tree_output\\20250206QTree16Ver464For25_8_5_NewCave_Tree_150_POI_100_Spwan_DecreaseNPC\\{tiles}_{x}_{y}\\regionoutput')
+update_attach_files_for_entity(api, project_id, entity_id, f'D:\\Downloads\\XCTreeBackup\\Output\\Tree_output\\20250206QTree16Ver464For25_8_5_NewCave_Tree_150_POI_100_Spwan_DecreaseNPC\\{tiles}_{x}_{y}\\instanceoutput')
