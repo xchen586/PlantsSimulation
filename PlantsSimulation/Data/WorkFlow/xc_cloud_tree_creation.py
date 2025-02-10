@@ -314,12 +314,15 @@ def xc_run_tool(tool_path, progress_start, progress_end):
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-TREE_INSTANCE = 1
-POI_INSTANCE = 2
+TREE_INSTANCE = 0
+SPAWN_INSTANCE = 1
+NPC_INSTANCE = 2
+RESOURCE_INSTANCE = 3
 InstanceType_Attribute = 'InstanceType'
 Variant_Attribute = 'Variant'
+Index_Attribute = 'Index'
 
-def calculate_id_for_instance(instance_type, tree_index, poi_index):
+def calculate_id_for_instance(instance_type, tree_index, spawn_index, npc_index, resource_index):
     # Calculate the extra column value based on the instance type and indices
     instance_string = 'Others'
     index = 0
@@ -327,21 +330,20 @@ def calculate_id_for_instance(instance_type, tree_index, poi_index):
     if instance_type == TREE_INSTANCE:
         instance_string = 'Tree'
         index = tree_index
-    elif instance_type == POI_INSTANCE:
-        instance_string = 'POI'
-        index = poi_index
+    elif instance_type == SPAWN_INSTANCE:
+        instance_string = 'Spawn'
+        index = spawn_index
+    elif instance_type == NPC_INSTANCE:
+        instance_string = 'NPC'
+        index = npc_index
+    elif instance_type == RESOURCE_INSTANCE:
+        instance_string = 'Resource'
+        index = resource_index
     
     extra_value = f'{instance_string} {index}'
     return extra_value
 
-def add_extra_column_to_csv(input_file, output_file, extra_column_name):
-    # Read the CSV file
-    merged_df = pd.read_csv(input_file)
-
-    # Initialize index variables
-    current_tree_id = 1
-    current_poi_id = 1
-
+'''
     # Assign unique IDs to corresponding rows and update index variables
     def update_id(row):
         nonlocal current_tree_id, current_poi_id
@@ -355,6 +357,23 @@ def add_extra_column_to_csv(input_file, output_file, extra_column_name):
         else:
             extra_id = 0
         return calculate_id_for_instance(instance_type, extra_id, extra_id)
+'''
+
+def add_extra_column_to_csv(input_file, output_file, extra_column_name):
+    # Read the CSV file
+    merged_df = pd.read_csv(input_file)
+
+    # Initialize index variables
+    current_tree_id = 1
+    current_poi_id = 1
+
+    # Assign unique IDs to corresponding rows and update index variables
+    def update_id(row):
+        nonlocal current_tree_id, current_poi_id
+        instance_type = row[InstanceType_Attribute]
+        instance_index = row[Index_Attribute]
+        extra_id = instance_index
+        return calculate_id_for_instance(instance_type, extra_id, extra_id, extra_id, extra_id)
     
     merged_df[extra_column_name] = merged_df.apply(update_id, axis=1)
 
