@@ -26,7 +26,7 @@ def update_attach_files_for_entity(api : voxelfarmclient.rest, project_id, entit
 api = voxelfarmclient.rest('http://52.226.195.5/')
 workflow_api = workflow_lambda.workflow_lambda_host()
 
-isTestResult = True
+isTestResult = False
 # create point cloud from a file
 project_id = '1D4CBBD1D957477E8CC3FF376FB87470' # Pangea Next
 
@@ -37,9 +37,9 @@ folder_id = '90F6348AD5D94FCEA85C7C1CD081CE97' # Pangea Next > Instances
 #game_tree_entity_id_property = "3A3CFEBA226B4692A8719C78335470DD"  #game entity 
 #game_tree_entity_id_property = '0B4C084415C744B48B4BD13D9990E713' # xuan test 
 
-game_tree_entity_id_property = "6387B1C0BBC24AC3A7830F27807657A7"  #game entity 
+game_tree_entity_id_property = 'BE04D7A0D18142AE9D024C1A3FD50BED'  #game entity 
 if isTestResult:
-    game_tree_entity_id_property = 'BE04D7A0D18142AE9D024C1A3FD50BED' # xc test
+    game_tree_entity_id_property = '6387B1C0BBC24AC3A7830F27807657A7' # xc test
 
 entity_id = game_tree_entity_id_property
 
