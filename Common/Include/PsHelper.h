@@ -128,6 +128,7 @@ double DistanceSquared(const Point& a, const Point& b);
 double PointToSegmentDistance(const Point& p, const Point& a, const Point& b, double distanceLimit = 0.0);
 double PointToPolylineDistance(const Point& p, const std::vector<Point>& polyline, double distanceLimit = 0.0);
 double GetDistanceToCaveNodes(const Point& p, const std::vector<std::pair<std::vector<Point>, int>>* lines, double distanceLimit = 0.0);
+double GetDistancesToPOIs(const Point& p, const std::vector<Point>* poisLocations, double distanceLimit = 0.0);
 std::vector<std::pair<std::vector<Point>, int>>* ConvertCaveInfoToCaveNodes(const std::vector<CavesPointInfo>& points);
 
 VoxelFarm::CellId GetVFCellIDFromVF(double vfX, double vfY, double vfZ, const CAffineTransform& transform, int32_t lod);

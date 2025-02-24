@@ -792,8 +792,8 @@ void CForest::generate(float forestAge, int iterations)
 				[this](auto tree) {  
 					Point p(tree.x, tree.z);
 					double distance = GetDistanceToCaveNodes(p, m_p2dCaveLevel0Nodes, CAVE_DISTANCE_LIMIT_TREE);
-					bool beRemoved = (distance < CAVE_DISTANCE_LIMIT_TREE) ? true : false;
-					return beRemoved; 
+					bool beRemovedFromCave = (distance < CAVE_DISTANCE_LIMIT_TREE) ? true : false;
+					return beRemovedFromCave; 
 				}
 			),
 			trees.end()
@@ -812,6 +812,34 @@ void CForest::generate(float forestAge, int iterations)
 
 		double percentageCount = static_cast<double>(100 * sizeAfter / sizeBefore);
 		std::cout << "After Cave removal the rest of tree has pencentage of " << percentageCount << " before tree count!" << std::endl;
+
+	}
+	if (m_pPoisLocations)
+	{
+		string title = "Remove the tree instances from pois : ";
+		CTimeCounter timeCounter(title);
+
+		int sizeBefore = trees.size();
+		std::cout << "Before remove tree from pois, Trees Size is :" << " " << sizeBefore << std::endl;
+
+		// Method 3: Using remove_if and erase (erase-remove idiom)
+		// Best when you can express removal condition as a predicate
+		trees.erase(
+			std::remove_if(trees.begin(), trees.end(),
+				[this](auto tree) {
+					Point p(tree.x, tree.z);
+					double distance = GetDistancesToPOIs(p, m_pPoisLocations, TREE_FROM_POI_DISTANCE_LIMIT);
+					bool beRemovedFromTree = (distance < TREE_FROM_POI_DISTANCE_LIMIT) ? true : false;
+					return beRemovedFromTree;
+				}
+			),
+			trees.end()
+		);
+		int sizeAfter = trees.size();
+		std::cout << "After remove tree from pois, Trees Size is :" << " " << sizeAfter << std::endl;
+
+		double percentageCount = static_cast<double>(100 * sizeAfter / sizeBefore);
+		std::cout << "After removal from pois the rest of tree has pencentage of " << percentageCount << " before tree count!" << std::endl;
 
 	}
 	

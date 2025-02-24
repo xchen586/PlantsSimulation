@@ -110,6 +110,21 @@ double GetDistanceToCaveNodes(const Point& p, const std::vector<std::pair<std::v
     return minDistance;
 }
 
+// Function to calculate the minimum distance from a point to a list of POIs
+double GetDistancesToPOIs(const Point& p, const std::vector<Point>* poisLocations, double distanceLimit/* = 0.0*/)
+{
+	double minDistance = std::numeric_limits<double>::max();
+	for (const auto& poi : *poisLocations) {
+		double distance = std::sqrt(DistanceSquared(p, poi));
+		minDistance = std::min(minDistance, distance);
+		// Early exit if we're already below the distance limit
+		if (minDistance < distanceLimit) {
+			return minDistance;
+		}
+	}
+	return minDistance;
+}
+
 std::vector<std::pair<std::vector<Point>, int>>* ConvertCaveInfoToCaveNodes(
     const std::vector<CavesPointInfo>& points) {
     try {

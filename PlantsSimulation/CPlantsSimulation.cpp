@@ -1365,6 +1365,8 @@ bool CPlantsSimulation::LoadInputData()
 
 	m_p2dCaveLevel0Nodes = LoadCaveNodesFromPointCloud(m_cavesPointCloudLevel0File);
 
+	bool loadAllPois = loadAllPoisLocationsFromCSV();
+
 	ret = LoadAndOutputRegions();
 
 	ret = LoadInputHeightMap();
@@ -1438,6 +1440,93 @@ std::vector<std::pair<std::vector<Point>, int>>* CPlantsSimulation::LoadCaveNode
 	return pRet;
 }
 
+bool CPlantsSimulation::loadAllPoisLocationsFromCSV()
+{
+	m_PoisLocations.clear();
+	bool loadMostDistant = loadPoisLocationsFromCSV(m_mostDistantPointFile, m_PoisLocations);
+	bool loadMostTravelled = loadPoisLocationsFromCSV(m_mostTravelledPointFile, m_PoisLocations);
+	bool loadCentroid = loadPoisLocationsFromCSV(m_centroidPointFile, m_PoisLocations);
+	return loadMostDistant && loadMostTravelled && loadCentroid;
+}
+
+bool CPlantsSimulation::loadPoisLocationsFromCSV(const string& filePath, std::vector<Point>& poisLocations)
+{
+	char delimiter = ',';
+	int columnCount = countColumnsInCSV(filePath, delimiter);
+	std::cout << "The PointInstance csv file " << filePath << " has " << columnCount << " columns" << std::endl;
+
+	std::ifstream file(filePath);
+	if (!file.is_open()) {
+		std::cerr << "Failed to open the csv file :" << filePath << std::endl;
+		return false;
+	}
+
+	std::string header;
+	std::getline(file, header);
+
+	std::string line;
+
+	int tableRowsCount = (*m_pCellTable).size();
+	int tableColsCount = (*m_pCellTable)[0].size();
+
+	int negativeHeightCount = 0;
+	int index = 0;
+	int originalCount = 0;
+
+	unsigned int variant = 0;
+
+	while (std::getline(file, line)) {
+		std::stringstream lineStream(line);
+		std::string field;
+
+		originalCount++;
+
+		double xPos = 0.0;
+		double yPos = 0.0;
+		double zPos = 0.0;
+
+		bool hasHeight = true;
+		if (std::getline(lineStream, field, ',')) {
+			//xPos = std::stod(field);
+			yPos = std::stod(field);
+		}
+		if (std::getline(lineStream, field, ',')) {
+			//yPos = std::stod(field);
+			xPos = std::stod(field);
+		}
+		if (std::getline(lineStream, field, ',')) {
+			zPos = std::stod(field);
+		}
+		if (std::getline(lineStream, field, ',')) {
+
+		}
+		if (std::getline(lineStream, field, ',')) {
+
+		}
+		if (std::getline(lineStream, field, ',')) {
+
+		}
+		if (columnCount >= 7) //Has regionId column
+		{
+			if (std::getline(lineStream, field, ',')) {
+
+			}
+		}
+		if (columnCount >= 8) //Has resource type (or variant) column
+		{
+			if (std::getline(lineStream, field, ',')) {
+				variant = std::stoi(field);
+			}
+		}
+
+		Point poi = Point(xPos, yPos);
+		poisLocations.push_back(poi);
+	}
+
+	file.close();
+	return true;
+}
+
 bool CPlantsSimulation::LoadForest()
 {
 	m_pForest = new CForest();
@@ -1450,6 +1539,8 @@ bool CPlantsSimulation::LoadForest()
 	
 	m_pForest->set2dCaveLevel0Nodes(m_p2dCaveLevel0Nodes);
 	m_pForest->set2dCaveLevel1Nodes(m_p2dCaveLevel1Nodes);
+
+	m_pForest->setPoisLocations(&m_PoisLocations);
 
 	if (!m_topLayerImage) {
 		return false;

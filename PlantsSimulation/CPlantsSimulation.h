@@ -115,6 +115,7 @@ private:
 
 	std::vector<std::pair<std::vector<Point>, int>>* m_p2dCaveLevel0Nodes;
 	std::vector<std::pair<std::vector<Point>, int>>* m_p2dCaveLevel1Nodes;
+	std::vector<Point> m_PoisLocations;
 	int m_maxHeight;
 public:
 	
@@ -135,6 +136,8 @@ private:
 	bool LoadAndOutputRegions();
 
 	std::vector<std::pair<std::vector<Point>, int>>* LoadCaveNodesFromPointCloud(const std::string& filePath);
+	bool loadPoisLocationsFromCSV(const string& filePath, std::vector<Point>& poisLocations);
+	bool loadAllPoisLocationsFromCSV();
 	
 public:
 	bool LoadInputData();

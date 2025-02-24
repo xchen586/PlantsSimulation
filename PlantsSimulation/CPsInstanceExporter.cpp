@@ -165,18 +165,18 @@ bool CPsInstanceExporter::loadPointInstanceFromCSV(const string& filePath, const
 		double posZ = zPos;
 		//double posZ = zPos ? zPos : 0;
 
-		bool beRemoved = false;
+		bool beRemovedFromCave = false;
 		if (m_p2dCaveLevel0Nodes)
 		{
 			Point p(xPos, yPos);
 			double distance = GetDistanceToCaveNodes(p, m_p2dCaveLevel0Nodes, CAVE_DISTANCE_LIMIT_POI);
-			beRemoved = (distance < CAVE_DISTANCE_LIMIT_POI) ? true : false;
-			if (beRemoved)
+			beRemovedFromCave = (distance < CAVE_DISTANCE_LIMIT_POI) ? true : false;
+			if (beRemovedFromCave)
 			{
 				//std::cout << "Remove the POI from Cave x : " << xPos << "  y : " << yPos << std::endl;
 			}
 		}
-		if (hasHeight && (!beRemoved))
+		if (hasHeight && (!beRemovedFromCave))
 		{
 			std::shared_ptr<PointInstanceSubOutput> sub = std::make_shared<PointInstanceSubOutput>();
 			SetupInstanceSubOutput(posX, posY, posZ, transform, cellSize, lod, sub);
