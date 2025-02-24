@@ -328,16 +328,16 @@ def calculate_id_for_instance(instance_type, tree_index, spawn_index, npc_index,
     index = 0
 
     if instance_type == TREE_INSTANCE:
-        instance_string = 'Tree'
+        instance_string = 'Poi_Tree'
         index = tree_index
     elif instance_type == SPAWN_INSTANCE:
-        instance_string = 'Spawn'
+        instance_string = 'Poi_Spawn'
         index = spawn_index
     elif instance_type == NPC_INSTANCE:
-        instance_string = 'NPC'
+        instance_string = 'Poi_NPC'
         index = npc_index
     elif instance_type == RESOURCE_INSTANCE:
-        instance_string = 'Resource'
+        instance_string = 'Poi_Resource'
         index = resource_index
     
     extra_value = f'{instance_string} {index}'
