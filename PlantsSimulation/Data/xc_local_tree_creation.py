@@ -342,7 +342,7 @@ def calculate_id_for_instance(instance_type, tree_index, spawn_index, npc_index,
     index = 0
 
     if instance_type == TREE_INSTANCE:
-        instance_string = 'Poi_Tree'
+        instance_string = 'Tree'
         index = tree_index
     elif instance_type == SPAWN_INSTANCE:
         instance_string = 'Poi_Spawn'
