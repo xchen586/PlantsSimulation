@@ -68,8 +68,8 @@ int iniAbsolutePathMain(int argc, const char* argv[])
 
     const char* only_road_data_str = GetIniValue(iniParser, Options_Section, "Only_Road_Data");
     const char* use_with_basemeshes_level1_str = GetIniValue(iniParser, Options_Section, "Use_With_BaseMeshes_Level1");
-    const char* level0_instances_str = GetIniValue(iniParser, Options_Section, "level0_Instances");
-    const char* level1_instances_str = GetIniValue(iniParser, Options_Section, "level1_Instances");
+    const char* level0_instances_str = GetIniValue(iniParser, Options_Section, "Level0_Instances");
+    const char* level1_instances_str = GetIniValue(iniParser, Options_Section, "Level1_Instances");
 
     const int t = atoi(t_str);
     const int x = atoi(x_str);
