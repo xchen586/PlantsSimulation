@@ -193,7 +193,7 @@ int iniAbsolutePathMain(int argc, const char* argv[])
     }
 
     CPlantsSimulation ps(output_final_path, tree_list_csv, input_image_name, input_meta_name, mesh_heightmap_raw_name, mesh2_heightmap_raw_name, pc_heightmap_raw_name, l1_heightmap_raw_name, bedrock_heightmap_raw_name
-        , mesh_heightmap_masks_name, mesh2_heightmap_masks_name, pc_heightmap_masks_name, l1_heightmap_masks_name, bedrock_heightmap_masks_name
+		, mesh_heightmap_masks_name, mesh2_heightmap_masks_name, pc_heightmap_masks_name, l1_heightmap_masks_name, bedrock_heightmap_masks_name, lakes_heightmap_masks_name, level1_lakes_heightmap_masks_name
         , point_most_travelled_name, point_most_distant_name, point_centroid_name, caves_point_cloud_level_0_name, caves_point_cloud_level_1_name, regions_raw_name, regions_info_name, output_file, fullOutput_file, pcFullOutput_file, lod, forestAge, iteration, tiles, tileX, tileY, useBaseMeshesLevel1);
 
     bool isLoad = ps.LoadInputData();
