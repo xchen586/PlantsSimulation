@@ -1427,6 +1427,8 @@ def tree_instances_generation(config_path):
     level1_heightmap_mask_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_level1.xyz.height.masks.raw'
     bedrock_heightmap_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_bedrock.xyz.height.raw'
     bedrock_heightmap_mask_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_bedrock.xyz.height.masks.raw'
+    lakes_heightmap_make_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_lakes.xyz.height.masks.raw'
+    level1_lakes_heightmap_make_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_lakes_level1.xyz.height.masks.raw'
     
     toplayer_heightmap_path = os.path.join(smoothlayer_output_folder, toplayer_heightmap_name)
     toplayer_heightmap_mask_path = os.path.join(smoothlayer_output_folder, toplayer_heightmap_mask_name)
@@ -1434,6 +1436,8 @@ def tree_instances_generation(config_path):
     level1_heightmap_mask_path = os.path.join(smoothlayer_output_folder, level1_heightmap_mask_name)
     bedrock_heightmap_path = os.path.join(smoothlayer_output_folder, bedrock_heightmap_name)
     bedrock_heightmap_mask_path = os.path.join(smoothlayer_output_folder, bedrock_heightmap_mask_name)
+    lakes_heightmap_make_path = os.path.join(smoothlayer_output_folder, lakes_heightmap_make_name)
+    level1_lakes_heightmap_make_path = os.path.join(smoothlayer_output_folder, level1_lakes_heightmap_make_name) 
     
     toplayer_image_upload_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.jpg'
     toplayer_image_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.png'
@@ -1687,6 +1691,14 @@ def tree_instances_generation(config_path):
         ##### Make ini config file for tree exe.
         #clear_all_sections(tree_ini_path)
         useWithBaseMeshesLevel1 = True
+        
+        run_level_0_instances = True
+        run_level_1_instances = True
+        if only_run_level_0_instances:
+            run_level_1_instances = False
+        if only_run_level_1_instances:
+            run_level_0_instances = False
+            
         lambda_host.log(f'Start to write tree instance ini files : {tree_ini_path}')
         create_or_overwrite_empty_file(tree_ini_path)
         create_or_update_ini_file(tree_ini_path, section_tiles, 'Tiles_Count', tiles_count)
@@ -1704,6 +1716,8 @@ def tree_instances_generation(config_path):
         create_or_update_ini_file(tree_ini_path, section_input, 'TopLayer_HeightMap_Mask', toplayer_heightmap_mask_path)
         create_or_update_ini_file(tree_ini_path, section_input, 'Level1Layer_heightMap_Mask', level1_heightmap_mask_path)
         create_or_update_ini_file(tree_ini_path, section_input, 'Bedrock_heightMap_Mask', bedrock_heightmap_mask_path)
+        create_or_update_ini_file(tree_ini_path, section_input, 'Lakes_HeightMap_Mask', lakes_heightmap_make_path)
+        create_or_update_ini_file(tree_ini_path, section_input, 'Level1_Lakes_HeightMap_Mask', level1_lakes_heightmap_make_path)
         create_or_update_ini_file(tree_ini_path, section_input, 'Most_Travelled_Points', most_travelled_points_path)
         create_or_update_ini_file(tree_ini_path, section_input, 'Most_Distant_Points', most_distant_points_path)
         create_or_update_ini_file(tree_ini_path, section_input, 'Region_Centroid_Points', region_centroid_points_path)
@@ -1718,6 +1732,8 @@ def tree_instances_generation(config_path):
         
         create_or_update_ini_file(tree_ini_path, section_options,'Only_Road_Data', run_generate_road_input)
         create_or_update_ini_file(tree_ini_path, section_options,'Use_With_BaseMeshes_Level1', useWithBaseMeshesLevel1)
+        create_or_update_ini_file(tree_ini_path, section_options,'Level0_Instances', run_level_0_instances)
+        create_or_update_ini_file(tree_ini_path, section_options,'Level1_Instances', run_level_1_instances)
         
         lambda_host.log(f'End to write tree instance ini files : {tree_ini_path}')
         tree_ini_string = ini_file_to_string(tree_ini_path)
@@ -2111,6 +2127,9 @@ lambda_host.log('displacement_data_path: ' + displacement_data_path)
 lambda_host.log('qtree_data_path: ' + qtree_data_path)
 lambda_host.log('tools_data_path: ' + tools_data_path)
 lambda_host.log('tileinfo_data_path: ' + tileinfo_data_path)
+
+only_run_level_0_instances = False
+only_run_level_1_instances = False
 
 Tree_Data_Folder_Name = 'Tree_Instances_Creation'
 Data_folder = os.path.join(scrap_folder, Tree_Data_Folder_Name)
