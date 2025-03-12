@@ -565,8 +565,9 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	const int width = m_topLayerImage->input_image_width;
 	const int height = m_topLayerImage->input_image_height;
 
-	std::vector<std::vector<short>> meshHeightMasksShort4096 = Read2DShortArray(m_meshHeightMasksFile, width, height);
-	std::vector<std::vector<short>> mesh2HeightMasksShort4096 = Read2DShortArray(m_mesh2HeightMasksFile, width, height);
+	string meshHeightMasksFile = m_isLevel1Instances ? m_mesh2HeightMasksFile : m_meshHeightMasksFile;
+
+	std::vector<std::vector<short>> meshHeightMasksShort4096 = Read2DShortArray(meshHeightMasksFile, width, height);
 	std::vector<std::vector<short>> pcHeightMasksShort4096 = Read2DShortArray(m_pcHeightMasksFile, width, height);
 	std::vector<std::vector<short>> l1HeightMasksShort4096 = Read2DShortArray(m_l1HeightMasksFile, width, height);
 	std::vector<std::vector<short>> bedrockHeightMasksShort4096 = Read2DShortArray(m_bedrockHeightMasksFile, width, height);
@@ -577,7 +578,6 @@ bool CPlantsSimulation::LoadInputHeightMap()
 		for (int y = 0; y < height; y++)
 		{
 			short meshValue = meshHeightMasksShort4096[x][y];
-			short mesh2Value = mesh2HeightMasksShort4096[x][y];
 			short pcValue = pcHeightMasksShort4096[x][y];
 			short l1Value = l1HeightMasksShort4096[x][y];
 			short bedrockValue = bedrockHeightMasksShort4096[x][y];
@@ -589,14 +589,8 @@ bool CPlantsSimulation::LoadInputHeightMap()
 			//short value = std::max(meshValue, pcValue);
 			//short value = FindMaxIn3(meshValue, mesh2Value, pcValue);
 			short value = 0;
-			if (m_useBaseMeshesLevel1)
-			{
-				value = FindMaxIn5(meshValue, mesh2Value, pcValue, l1Value, bedrockValue);
-			}
-			else
-			{
-				value = FindMaxIn4(meshValue, pcValue, l1Value, bedrockValue);
-			}
+
+			value = FindMaxIn4(meshValue, pcValue, l1Value, bedrockValue);
 
 			heightMasksShort4096[x][y] = value;
 			if (needMaskPositive)
@@ -610,31 +604,26 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	}
 
 #if USE_DISPLAY_HEIGHTMAP_MASK_RESULT
-	unsigned int noHeightCountMesh0 = 0;
+	unsigned int noHeightCountMesh = 0;
 	for (int x = 0; x < width; x++)
 	{
 		for (int y = 0; y < height; y++)
 		{
 			if (meshHeightMasksShort4096[x][y] == 0)
 			{
-				noHeightCountMesh0++;
+				noHeightCountMesh++;
 			}
 		}
 	}
-	std::cout << "Mesh level 0 height map mask no data count is : " << noHeightCountMesh0 << std::endl;
-
-	unsigned int noHeightCountMesh1 = 0;
-	for (int x = 0; x < width; x++)
+	if (m_isLevel1Instances)
 	{
-		for (int y = 0; y < height; y++)
-		{
-			if (mesh2HeightMasksShort4096[x][y] == 0)
-			{
-				noHeightCountMesh1++;
-			}
-		}
+		std::cout << "Mesh level 1 height map mask no data count is : " << noHeightCountMesh << std::endl;
 	}
-	std::cout << "Mesh level 1 height map mask no data count is : " << noHeightCountMesh1 << std::endl;
+	else
+	{
+		std::cout << "Mesh level 0 height map mask no data count is : " << noHeightCountMesh << std::endl;
+	}
+	
 
 	unsigned int noHeightCountTopLevel = 0;
 	for (int x = 0; x < width; x++)
@@ -689,8 +678,9 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	std::cout << "Final height map mask no data count is : " << noHeightCountFinal << std::endl;
 #endif
 	
-	std::vector<std::vector<short>> meshHeightMapShort4096 = Read2DShortArray(m_meshHeightMapFile, width, height);
-	std::vector<std::vector<short>> mesh2HeightMapShort4096 = Read2DShortArray(m_mesh2HeightMapFile, width, height);
+	const string meshHeightMapFile = m_isLevel1Instances ? m_mesh2HeightMapFile : m_meshHeightMapFile;
+
+	std::vector<std::vector<short>> meshHeightMapShort4096 = Read2DShortArray(meshHeightMapFile, width, height);
 	std::vector<std::vector<short>> pcHeightMapShort4096 = Read2DShortArray(m_pcHeightMapFile, width, height);
 	std::vector<std::vector<short>> l1HeightMapShort4096 = Read2DShortArray(m_l1HeightMapFile, width, height);
 	std::vector<std::vector<short>> bedrockHeightMapShort4096 = Read2DShortArray(m_bedrockHeightMapFile, width, height);
@@ -707,20 +697,18 @@ bool CPlantsSimulation::LoadInputHeightMap()
 		for (int y = 0; y < height; y++)
 		{
 			short meshValue = meshHeightMapShort4096[x][y];
-			short mesh2Value = mesh2HeightMapShort4096[x][y];
 			short pcValue = pcHeightMapShort4096[x][y];
 			short l1Value = l1HeightMapShort4096[x][y];
 			short bedrockValue = bedrockHeightMapShort4096[x][y];
 
 			bool hasMeshValue = meshHeightMasksShort4096[x][y] ? true : false;
-			bool hasMesh2Value = mesh2HeightMasksShort4096[x][y] ? true : false;
 			bool hasPcValue = pcHeightMasksShort4096[x][y] ? true : false;
 			bool hasl1Value = l1HeightMasksShort4096[x][y] ? true : false;
 			bool hasBedRockValue = bedrockHeightMasksShort4096[x][y] ? true : false;
 			bool hasValue = heightMasksShort4096[x][y] ? true : false;
 
 			bool hasSmoothValue = (hasPcValue || hasl1Value || hasBedRockValue);
-			bool hasBaseMeshValue = hasMeshValue || hasMesh2Value;
+			bool hasBaseMeshValue = hasMeshValue;
 
 			short value = UNAVAILBLE_NEG_HEIGHT;
 			short smoothValue = UNAVAILBLE_NEG_HEIGHT;
@@ -773,32 +761,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 
 			if (hasBaseMeshValue)
 			{
-				if (m_useBaseMeshesLevel1)
-				{
-					if (hasMeshValue && hasMesh2Value)
-					{
-						baseMeshValue = std::max(meshValue, mesh2Value);
-					}
-					else if (hasMeshValue)
-					{
-						baseMeshValue = meshValue;
-					}
-					else if (hasMesh2Value)
-					{
-						hasBaseMeshValue = mesh2Value;
-					}
-				}
-				else
-				{
-					if (hasMeshValue && hasMesh2Value)
-					{
-						baseMeshValue = meshValue;
-					}
-					else if (hasMeshValue)
-					{
-						baseMeshValue = meshValue;
-					}
-				}
+				baseMeshValue = meshValue;
 			}
 			
 			if (hasBaseMeshValue && hasSmoothValue)
