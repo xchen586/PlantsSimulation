@@ -1688,6 +1688,14 @@ def tree_instances_generation(config_path):
          ##### Make ini config file for tree exe.
         #clear_all_sections(tree_ini_path)
         useWithBaseMeshesLevel1 = True   
+        
+        run_level_0_instances = True
+        run_level_1_instances = True
+        if only_run_level_0_instances:
+            run_level_1_instances = False
+        if only_run_level_1_instances:
+            run_level_0_instances = False
+            
         print(f'Start to write tree instance ini files : {tree_ini_path}')
         create_or_overwrite_empty_file(tree_ini_path)
         create_or_update_ini_file(tree_ini_path, section_tiles, 'Tiles_Count', tiles_count)
@@ -1723,8 +1731,8 @@ def tree_instances_generation(config_path):
         
         create_or_update_ini_file(tree_ini_path, section_options,'Only_Road_Data', run_generate_road_input)
         create_or_update_ini_file(tree_ini_path, section_options,'Use_With_BaseMeshes_Level1', useWithBaseMeshesLevel1)
-        create_or_update_ini_file(tree_ini_path, section_options,'Level0_Instances', True)
-        create_or_update_ini_file(tree_ini_path, section_options,'Level1_Instances', True)
+        create_or_update_ini_file(tree_ini_path, section_options,'Level0_Instances', run_level_0_instances)
+        create_or_update_ini_file(tree_ini_path, section_options,'Level1_Instances', run_level_1_instances)
         
         print(f'End to write tree instance ini files : {tree_ini_path}')
         tree_ini_string = ini_file_to_string(tree_ini_path)
@@ -2117,6 +2125,8 @@ caves_upload_generation = False
 
 test_tree_generation = True
 
+only_run_level_0_instances = False
+only_run_level_1_instances = False
 
 if tree_generation:
     print("Choose tree_generation to Run")
