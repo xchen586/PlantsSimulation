@@ -2001,7 +2001,7 @@ now = datetime.datetime.now()
 filename = now.strftime("%Y-%m-%d_%H-%M-%S")
 
 # Add file extension if needed (e.g., .txt)
-log_file_name = f"{filename}.log"
+log_file_name = f"Tree_creation_{filename}.log"
 log_file_path = os.path.join(scrap_folder, log_file_name)
 sys.stdout = DualOutput(log_file_path)  # Redirect stdout
 
@@ -2107,7 +2107,7 @@ only_upload_tree_generation = False
 caves_voxelization_generation = False
 caves_upload_generation = False
 
-test_only_tree_generation = True
+test_tree_generation = True
 
 
 if tree_generation:
