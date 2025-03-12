@@ -26,6 +26,8 @@ CForest::CForest(void)
 	, m_pMetaInfo(nullptr)
 	, m_p2dCaveLevel0Nodes(nullptr)
 	, m_p2dCaveLevel1Nodes(nullptr)
+	, m_isLevel1Instances(false)
+
 {
 	grid = NULL;
 	maxHeight = 10000;
@@ -805,7 +807,7 @@ void CForest::generate(float forestAge, int iterations)
 		std::cout << "After removal from pois the rest of tree has pencentage of " << percentageCount << " before tree count!" << std::endl;
 	}
 
-	if (m_p2dCaveLevel0Nodes)
+	if (m_p2dCaveLevel0Nodes && (!m_isLevel1Instances))
 	{
 		string title = "Remove the tree instances from caves level 0 : ";
 		CTimeCounter timeCounter(title);

@@ -70,6 +70,10 @@ public:
 	{
 		m_pPoisLocations = pPoisLocations;
 	}
+	void setIsLevel1Instances(bool isLevel1Instances)
+	{
+		m_isLevel1Instances = isLevel1Instances;
+	}
 	TreeInstanceOutput GetTreeOutputFromInstance(const CTreeInstance& instance);
 	bool exportTreeInstanceOutput(const std::vector<TreeInstanceOutput>& data, const std::string& filename, bool hasHeader);
 	bool exportTreeInstanceFullOutput(const std::vector<TreeInstanceFullOutput>& data, const std::string& filename, bool hasHeader, bool withRatio = false);
@@ -105,5 +109,6 @@ protected:
 	std::vector<std::pair<std::vector<Point>, int>>* m_p2dCaveLevel0Nodes;
 	std::vector<std::pair<std::vector<Point>, int>>* m_p2dCaveLevel1Nodes;
 	std::vector<Point>* m_pPoisLocations;
+	bool m_isLevel1Instances;
 };
 

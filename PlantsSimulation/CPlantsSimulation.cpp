@@ -30,7 +30,7 @@
 	return true;
 }*/
 
-void CPlantsSimulation::DeInitialize()
+void CPlantsSimulation::DeInitializeForest()
 {
 	if (m_pCellTable) {
 		int rows = m_pCellTable->size();
@@ -45,6 +45,17 @@ void CPlantsSimulation::DeInitialize()
 		}
 		m_pCellTable = nullptr;
 	}
+
+	if (m_pForest) {
+		delete m_pForest;
+		m_pForest = nullptr;
+	}
+}
+
+void CPlantsSimulation::DeInitialize()
+{
+	DeInitializeForest();
+
 	if (m_topLayerImage) {
 		delete m_topLayerImage;
 		m_topLayerImage = nullptr;
@@ -53,10 +64,7 @@ void CPlantsSimulation::DeInitialize()
 		delete m_topLayerMeta;
 		m_topLayerMeta = nullptr;
 	}
-	if (m_pForest) {
-		delete m_pForest;
-		m_pForest = nullptr;
-	}
+	
 	if (m_p2dCaveLevel0Nodes)
 	{
 		delete m_p2dCaveLevel0Nodes;
@@ -1309,7 +1317,34 @@ bool CPlantsSimulation::ExportAngleSlopeMap(std::vector<std::vector<double>>& sl
 
 	return true;
 }
-bool CPlantsSimulation::LoadInputData()
+
+bool CPlantsSimulation::MakeRoadData()
+{
+	setIsLevel0Instances(false);
+	bool ret = LoadPreImage();
+	if (!ret) {
+		DeInitialize();
+		return ret;
+	}
+
+	ret = LoadInputHeightMap();
+	if (!ret) {
+		DeInitialize();
+		return ret;
+	}
+}
+
+bool CPlantsSimulation::MakeInstance(bool islevel1Instances)
+{
+	setIsLevel0Instances(!islevel1Instances);
+	bool isLoad = LoadInputData();
+	bool loadForest = LoadForest();
+	bool buildForest = BuildForest();
+	bool results = OutputResults();
+	return true;
+}
+
+bool CPlantsSimulation::LoadPreImage()
 {
 	bool ret = false;
 	DeInitialize();
@@ -1325,12 +1360,15 @@ bool CPlantsSimulation::LoadInputData()
 		DeInitialize();
 		return ret;
 	}
+}
+
+bool CPlantsSimulation::LoadInputData()
+{
+	bool ret = false;
 
 	m_p2dCaveLevel0Nodes = LoadCaveNodesFromPointCloud(m_cavesPointCloudLevel0File);
 
 	bool loadAllPois = loadAllPoisLocationsFromCSV();
-
-	ret = LoadAndOutputRegions();
 
 	ret = LoadInputHeightMap();
 	if (!ret) {
@@ -1492,11 +1530,16 @@ bool CPlantsSimulation::loadPoisLocationsFromCSV(const string& filePath, std::ve
 
 bool CPlantsSimulation::LoadForest()
 {
+	if (m_pForest) {
+		delete m_pForest;
+		m_pForest = nullptr;
+	}
 	m_pForest = new CForest();
 	if (!m_pForest) {
 		return false;
 	}
 
+	m_pForest->setIsLevel1Instances(m_isLevel1Instances);
 	m_pForest->setCellTable(m_pCellTable);
 	m_pForest->setMetaInfo(m_topLayerMeta);
 	
@@ -1526,7 +1569,8 @@ bool CPlantsSimulation::LoadForest()
 	std::cout << "Forest xSize is : " << m_pForest->xSize << std::endl;
 	std::cout << "Forest zSize is : " << m_pForest->zSize << std::endl;
 
-	bool loadTreeList = m_pForest->parseTreeListCsv(m_inputTreeListCsv);
+	std::string inputTreeListCsv = m_isLevel1Instances ? m_inputLevel1TreeListCsv : m_inputTreeListCsv;
+	bool loadTreeList = m_pForest->parseTreeListCsv(inputTreeListCsv);
 	if (!loadTreeList)
 	{
 		m_pForest->loadDefaultTreeClasses();
