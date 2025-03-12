@@ -46,6 +46,8 @@ int iniAbsolutePathMain(int argc, const char* argv[])
     const char* pc_heightmap_raw_name = GetIniValue(iniParser, Input_Section, "TopLayer_HeightMap");
     const char* l1_heightmap_raw_name = GetIniValue(iniParser, Input_Section, "Level1Layer_heightMap");
     const char* bedrock_heightmap_raw_name = GetIniValue(iniParser, Input_Section, "BedrokLayer_heightMap");
+    const char* lakes_heightmap_masks_name = GetIniValue(iniParser, Input_Section, "Lakes_HeightMap_Mask");
+    const char* level1_lakes_heightmap_masks_name = GetIniValue(iniParser, Input_Section, "Level1_Lakes_HeightMap_Mask");
     const char* mesh_heightmap_masks_name = GetIniValue(iniParser, Input_Section, "BaseMeshes_Level_0_HeightMap_Mask");
     const char* mesh2_heightmap_masks_name = GetIniValue(iniParser, Input_Section, "BaseMeshes_Level_1_HeightMap_Mask");
     const char* pc_heightmap_masks_name = GetIniValue(iniParser, Input_Section, "TopLayer_HeightMap_Mask");
@@ -66,6 +68,8 @@ int iniAbsolutePathMain(int argc, const char* argv[])
 
     const char* only_road_data_str = GetIniValue(iniParser, Options_Section, "Only_Road_Data");
     const char* use_with_basemeshes_level1_str = GetIniValue(iniParser, Options_Section, "Use_With_BaseMeshes_Level1");
+    const char* level0_instances_str = GetIniValue(iniParser, Options_Section, "level0_Instances");
+    const char* level1_instances_str = GetIniValue(iniParser, Options_Section, "level1_Instances");
 
     const int t = atoi(t_str);
     const int x = atoi(x_str);
@@ -91,6 +95,24 @@ int iniAbsolutePathMain(int argc, const char* argv[])
             useBaseMeshesLevel1 = useBaseMeshesLevel1Value;
         }
     }
+    bool islevel0Instances = false;
+    if (level0_instances_str)
+    {
+        bool islevel0InstancesValue = stringToBool(level0_instances_str);
+        if (islevel0InstancesValue)
+        {
+            islevel0Instances = islevel0InstancesValue;
+        }
+    }
+    bool islevel1Instances = false;
+    if (level1_instances_str)
+    {
+        bool islevel1InstancesValue = stringToBool(level1_instances_str);
+        if (islevel1InstancesValue)
+        {
+            islevel1Instances = islevel1InstancesValue;
+        }
+    }
 
     std::cout << "Command line is : " << std::endl;
     std::cout << "Tiles count is : " << (t_str ? t_str : "") << std::endl;
@@ -105,6 +127,8 @@ int iniAbsolutePathMain(int argc, const char* argv[])
     std::cout << "Point cloud top level height map file name is : " << (pc_heightmap_raw_name ? pc_heightmap_raw_name : "") << std::endl;
     std::cout << "Point cloud level 1 height map file name is : " << (l1_heightmap_raw_name ? l1_heightmap_raw_name : "") << std::endl;
     std::cout << "Point cloud bedrock height map file name is : " << (bedrock_heightmap_raw_name ? bedrock_heightmap_raw_name : "") << std::endl;
+    std::cout << "Lakes height map mask file name is : " << (lakes_heightmap_masks_name ? lakes_heightmap_masks_name : "") << std::endl;
+    std::cout << "Lakes level 1 height map mask file name is : " << (level1_lakes_heightmap_masks_name ? level1_lakes_heightmap_masks_name : "") << std::endl;
     std::cout << "Mesh 0 height map mask file name is : " << (mesh_heightmap_masks_name ? mesh_heightmap_masks_name : "") << std::endl;
     std::cout << "Mesh 1 height map mask file name is : " << (mesh2_heightmap_masks_name ? mesh2_heightmap_masks_name : "") << std::endl;
     std::cout << "Point cloud top level height mask map file name is : " << (pc_heightmap_masks_name ? pc_heightmap_masks_name : "") << std::endl;
@@ -123,6 +147,8 @@ int iniAbsolutePathMain(int argc, const char* argv[])
     std::cout << "Tree iteration count is : " << (tree_iteration_str ? tree_iteration_str : "") << std::endl;
     std::cout << "Only generate road data : " << (only_road_data_str ? only_road_data_str : "") << std::endl;
     std::cout << "Use with base meshes level1  : " << (use_with_basemeshes_level1_str ? use_with_basemeshes_level1_str : "") << std::endl;
+    std::cout << "Level 0 instances  : " << (level0_instances_str ? level0_instances_str : "") << std::endl;
+    std::cout << "Level 1 instances  : " << (level1_instances_str ? level1_instances_str : "") << std::endl;
     std::cout << std::endl;
 
     int tiles = t;
@@ -199,6 +225,8 @@ int iniAbsolutePathMain(int argc, const char* argv[])
     if (pc_heightmap_raw_name) delete pc_heightmap_raw_name;
     if (l1_heightmap_raw_name) delete l1_heightmap_raw_name;
     if (bedrock_heightmap_raw_name) delete bedrock_heightmap_raw_name;
+	if (lakes_heightmap_masks_name) delete lakes_heightmap_masks_name;
+    if (level1_lakes_heightmap_masks_name) delete level1_lakes_heightmap_masks_name;
     if (mesh_heightmap_masks_name) delete mesh_heightmap_masks_name;
     if (mesh2_heightmap_masks_name) delete mesh2_heightmap_masks_name;
     if (pc_heightmap_masks_name) delete pc_heightmap_masks_name;
@@ -213,6 +241,9 @@ int iniAbsolutePathMain(int argc, const char* argv[])
     if (regions_info_name) delete regions_info_name;
     if (lod_str) delete lod_str;
     if (only_road_data_str) delete only_road_data_str;
+	if (use_with_basemeshes_level1_str) delete use_with_basemeshes_level1_str;
+	if (level0_instances_str) delete level0_instances_str;
+    if (level1_instances_str) delete level1_instances_str;
 
     return 0;
 }
