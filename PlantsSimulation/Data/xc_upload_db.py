@@ -25,6 +25,19 @@ from voxelfarm import voxelfarmclient
 from voxelfarm import workflow_lambda
 from voxelfarm import process_lambda
 
+class DualOutput:
+    def __init__(self, file_path):
+        self.console = sys.stdout  # Save the current console output stream
+        self.log_file = open(file_path, 'a')  # Open a file for logging
+
+    def write(self, message):
+        self.console.write(message)  # Write to the console
+        self.log_file.write(message)  # Write to the log file
+
+    def flush(self):
+        self.console.flush()
+        self.log_file.flush()
+
 def exit_code(code):
     exit(code)
     
@@ -280,10 +293,23 @@ def do_simple_upload_basemeshes_swarm(api : voxelfarmclient.rest, project_id, ba
         exit_code(111)
 
     print(f'End do_simple_upload_basemeshes_swarm Created entity {result.id} for {entity_name}')
+    
+start_time = time.time()
+now = datetime.datetime.now()
+# Format the current time into a string (e.g., 2024-10-17_14-35-50)
+filename = now.strftime("%Y-%m-%d_%H-%M-%S")
+
+scrap_folder= f'D:\\Downloads\\XCTreeCreation'
+if not os.path.exists(scrap_folder):
+    os.makedirs(scrap_folder)
+# Add file extension if needed (e.g., .txt)
+log_file_name = f"Upload_db_{filename}.log"
+log_file_path = os.path.join(scrap_folder, log_file_name)
+sys.stdout = DualOutput(log_file_path)  # Redirect stdout
 
 pythoncode_data_folder = f'D:\\Downloads\\XCTreeWorkFlow\\PythonCode'
 workflow_project_id = '1D4CBBD1D957477E8CC3FF376FB87470' #Pangea Next Project
-scrap_folder= f'D:\\Downloads\\XCTreeCreation'
+
 tools = f'D:\\Downloads\\XCTreeWorkFlow\\Tools'
 Tree_Data_Folder_Name = 'Tree_Big_Creation'
 Data_folder = os.path.join(scrap_folder, Tree_Data_Folder_Name)
@@ -294,7 +320,7 @@ api = voxelfarmclient.rest(cloud_url)
 tiles = 25
 x = 8
 y = 5
-l = 0
+l = 1
 
 project_entity = api.get_entity(project_id)
 version = int(project_entity['version']) + 1 if 'version' in project_entity else 1
@@ -305,7 +331,7 @@ basemeshes_db_folder_Id = '68396F90F7CE48B4BA1412EA020ED92A' # Pangea Next > Wor
 db_output_folder = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\cavesdb\\{tiles}_{x}_{y}_{l}'
 entity_name = f'TopCaves_{tiles}_{x}_{y}_{l}-ver-{version}'
 
-isBaseMesh = True
+isBaseMesh = False
 if isBaseMesh:
     db_output_folder = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\db\\{tiles}_{x}_{y}_{l}'
     entity_name = f'Workflow_Basemeshes_{tiles}_{x}_{y}_{l}-ver-{version}'
