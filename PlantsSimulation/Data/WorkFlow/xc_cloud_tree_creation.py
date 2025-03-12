@@ -1341,6 +1341,7 @@ def tree_instances_generation(config_path):
     tree_exe_path = read_ini_value(config_path, section_input, 'tree_exe_path')
     qtree_assets_folder = read_ini_value(config_path, section_input, 'qtree_assets_folder')
     tree_list = read_ini_value(config_path, section_input, 'treelist_data_path')
+    level1_tree_list = read_ini_value(config_path, section_input, 'level1_treelist_data_path')
 
     road_output_folder = read_ini_value(config_path, section_output, 'road_output_folder')
     smoothlayer_output_base_folder = read_ini_value(config_path, section_output, 'smoothlayer_output_base_folder')
@@ -1722,6 +1723,7 @@ def tree_instances_generation(config_path):
         create_or_update_ini_file(tree_ini_path, section_input, 'Most_Distant_Points', most_distant_points_path)
         create_or_update_ini_file(tree_ini_path, section_input, 'Region_Centroid_Points', region_centroid_points_path)
         create_or_update_ini_file(tree_ini_path, section_input, 'Tree_List', tree_list)
+        create_or_update_ini_file(tree_ini_path, section_input, 'Level1_Tree_List', level1_tree_list)
         create_or_update_ini_file(tree_ini_path, section_input, 'Regions_Raw', regions_raw_path)
         create_or_update_ini_file(tree_ini_path, section_input, 'Regions_Info', regions_info_path)
         
@@ -1976,6 +1978,7 @@ def tree_config_creation(ini_path):
     create_or_update_ini_file(ini_path, section_input, 'tree_exe_path', tree_exe_path)
     create_or_update_ini_file(ini_path, section_input, 'qtree_assets_folder', qtree_assets_folder)
     create_or_update_ini_file(ini_path, section_input, 'treelist_data_path', treelist_data_path)
+    create_or_update_ini_file(ini_path, section_input, 'level1_treelist_data_path', level1_treelist_data_path)
 
     create_or_update_ini_file(ini_path, section_output, 'road_output_folder', road_output_folder)
     create_or_update_ini_file(ini_path, section_output, 'smoothlayer_output_base_folder', smoothlayer_output_base_folder)
@@ -2153,6 +2156,7 @@ lambda_host.log(f'start to copy from {treelist_data_folder} to {Data_folder}')
 copy_files_in_folder(treelist_data_folder, Data_folder)
 lambda_host.log(f'end to copy from {treelist_data_folder} to {Data_folder}')
 treelist_data_path = os.path.join(Data_folder, 'TreeList.csv')
+level1_treelist_data_path = os.path.join(Data_folder, 'Level1_TreeList.csv')
 lambda_host.log(f'start to copy from {roaddata_data_path} to {Data_folder}')
 copy_files_in_folder(roaddata_data_path, Data_folder)
 lambda_host.log(f'end to copy from {roaddata_data_path} to {Data_folder}')

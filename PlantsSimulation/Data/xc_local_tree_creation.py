@@ -1340,6 +1340,7 @@ def tree_instances_generation(config_path):
     tree_exe_path = read_ini_value(config_path, section_input, 'tree_exe_path')
     qtree_assets_folder = read_ini_value(config_path, section_input, 'qtree_assets_folder')
     tree_list = read_ini_value(config_path, section_input, 'treelist_data_path')
+    level1_tree_list = read_ini_value(config_path, section_input, 'level1_treelist_data_path')
 
     road_output_folder = read_ini_value(config_path, section_output, 'road_output_folder')
     smoothlayer_output_base_folder = read_ini_value(config_path, section_output, 'smoothlayer_output_base_folder')
@@ -1721,6 +1722,7 @@ def tree_instances_generation(config_path):
         create_or_update_ini_file(tree_ini_path, section_input, 'Caves_Point_Cloud_Level_0', caves_point_cloud_level_0_file_path)
         create_or_update_ini_file(tree_ini_path, section_input, 'Caves_Point_Cloud_Level_1', caves_point_cloud_level_1_file_path)
         create_or_update_ini_file(tree_ini_path, section_input, 'Tree_List', tree_list)
+        create_or_update_ini_file(tree_ini_path, section_input, 'Level1_Tree_List', level1_tree_list)
         create_or_update_ini_file(tree_ini_path, section_input, 'Regions_Raw', regions_raw_path)
         create_or_update_ini_file(tree_ini_path, section_input, 'Regions_Info', regions_info_path)
         
@@ -1943,6 +1945,7 @@ def tree_config_creation(ini_path):
     qtree_assets_folder = Data_folder
     
     treelist_data_path = os.path.join(Data_folder, 'TreeList.csv')
+    level1_treelist_data_path = os.path.join(Data_folder, 'Level1_TreeList.csv')
 
     road_output_folder = os.path.join(Data_folder, f'RoadObjInfo')
     smoothlayer_output_base_folder = os.path.join(Data_folder, f'sommothlayer_output')
@@ -1970,6 +1973,7 @@ def tree_config_creation(ini_path):
     create_or_update_ini_file(ini_path, section_input, 'tree_exe_path', tree_exe_path)
     create_or_update_ini_file(ini_path, section_input, 'qtree_assets_folder', qtree_assets_folder)
     create_or_update_ini_file(ini_path, section_input, 'treelist_data_path', treelist_data_path)
+    create_or_update_ini_file(ini_path, section_input, 'level1_treelist_data_path', level1_treelist_data_path)
 
     create_or_update_ini_file(ini_path, section_output, 'road_output_folder', road_output_folder)
     create_or_update_ini_file(ini_path, section_output, 'smoothlayer_output_base_folder', smoothlayer_output_base_folder)
