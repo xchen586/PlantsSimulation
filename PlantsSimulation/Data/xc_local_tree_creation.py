@@ -336,7 +336,7 @@ InstanceType_Attribute = 'InstanceType'
 Variant_Attribute = 'Variant'
 Index_Attribute = 'Index'
 
-def calculate_id_for_instance(instance_type, tree_index, spawn_index, npc_index, resource_index):
+def calculate_id_for_instance(instance_type, tree_index, spawn_index, npc_index, resource_index, level):
     # Calculate the extra column value based on the instance type and indices
     instance_string = 'Others'
     index = 0
@@ -354,7 +354,7 @@ def calculate_id_for_instance(instance_type, tree_index, spawn_index, npc_index,
         instance_string = 'Poi_Resource'
         index = resource_index
     
-    extra_value = f'{instance_string} {index}'
+    extra_value = f'{instance_string} {level} {index}'
     return extra_value
 
 '''
@@ -373,7 +373,7 @@ def calculate_id_for_instance(instance_type, tree_index, spawn_index, npc_index,
         return calculate_id_for_instance(instance_type, extra_id, extra_id)
 '''
 
-def add_extra_column_to_csv(input_file, output_file, extra_column_name):
+def add_extra_column_to_csv(input_file, output_file, extra_column_name, level):
     # Read the CSV file
     merged_df = pd.read_csv(input_file)
 
@@ -387,7 +387,7 @@ def add_extra_column_to_csv(input_file, output_file, extra_column_name):
         instance_type = row[InstanceType_Attribute]
         instance_index = row[Index_Attribute]
         extra_id = instance_index
-        return calculate_id_for_instance(instance_type, extra_id, extra_id, extra_id, extra_id)
+        return calculate_id_for_instance(instance_type, extra_id, extra_id, extra_id, extra_id, level)
     
     merged_df[extra_column_name] = merged_df.apply(update_id, axis=1)
 
@@ -500,18 +500,20 @@ def xc_process_files_entity(api : voxelfarmclient.rest, project_id, folder_id, r
     print(f'--------Created entity {result.id} for {name} --------')
     return result
 
-def create_geochem_tree_entity(api, project_id, folder_id, geo_chemical_folder, entity_basename : str, version : int):
+def create_geochem_tree_entity(api, project_id, folder_id, geo_chemical_folder, tiles_size, tiles_x, tiles_y, level, version : int):
     extra_column_name = 'Id'
     geochems_project_id = project_id
     geochems_folder_id = folder_id
+    
+    entity_basename = f'GeoChemical_instances_{tiles_size}_{tiles_x}_{tiles_y}_{level}'
 
-    merged_csv_name = f'{Tiles_size}_{Tiles_x}_{Tiles_y}_geo_merged.csv'
+    merged_csv_name = f'{tiles_size}_{tiles_x}_{tiles_y}_{level}_geo_merged.csv'
     merged_csv_path = os.path.join(geo_chemical_folder, merged_csv_name)
     geo_meta_name = 'process.meta'
     geo_meta_path = os.path.join(geo_chemical_folder, geo_meta_name)
 
     print('Start to Add Id field to  the csv file {merged_csv_path}')
-    add_extra_column_to_csv(merged_csv_path, merged_csv_path, extra_column_name)
+    add_extra_column_to_csv(merged_csv_path, merged_csv_path, extra_column_name, level)
     print('End with raw data file {merged_csv_path}')
 
     print('Start with geochem meta file {geo_meta_path}')
@@ -1723,13 +1725,14 @@ def tree_instances_generation(config_path):
                 print(f'Error: The process ({basemeshvoxelizer1_command}) returned a non-zero exit code ({return_code_basemash1}).')
                 return -1
         
+    run_level_0_instances = True
+    run_level_1_instances = True
+        
     if run_make_tree_instances:
          ##### Make ini config file for tree exe.
         #clear_all_sections(tree_ini_path)
         useWithBaseMeshesLevel1 = True   
         
-        run_level_0_instances = True
-        run_level_1_instances = True
         if only_run_level_0_instances:
             run_level_1_instances = False
         if only_run_level_1_instances:
@@ -1842,9 +1845,14 @@ def tree_instances_generation(config_path):
         print(f'step for to run_create_geochem_entity!')
         ##### create the geochem entity for tree instance files.
         geochem_result_folder_id = Workflow_Output_Result_Folder_id
-        geochem_entity_base_name = f'GeoChemical_instances_{Tiles_size}_{Tiles_x}_{Tiles_y}'
-        create_geochem_tree_entity(api, Project_id, geochem_result_folder_id, geo_chemical_folder_path, geochem_entity_base_name, project_output_version)
-        print(f'create_geochem_tree_entity from {geo_chemical_folder_path}')
+    
+        if run_level_0_instances:
+            create_geochem_tree_entity(api, Project_id, geochem_result_folder_id, geo_chemical_folder_path, Tiles_size, Tiles_x, Tiles_y, 0, project_output_version)
+            print(f'create_geochem_tree_entity level 0 from {geo_chemical_folder_path}')
+        
+        if run_level_1_instances:
+            create_geochem_tree_entity(api, Project_id, geochem_result_folder_id, geo_chemical_folder_path, Tiles_size, Tiles_x, Tiles_y, 1, project_output_version)
+            print(f'create_geochem_tree_entity level 1 from {geo_chemical_folder_path}')
         
         if os.path.exists(tree_height_file_path):
             process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, tree_height_file_path, api.entity_type.VoxelTerrain, final_height_layer_entity_base_name, project_output_version, color=True)
