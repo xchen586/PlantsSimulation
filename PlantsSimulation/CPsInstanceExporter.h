@@ -57,6 +57,11 @@ public:
 	{
 		m_p2dCaveLevel1Nodes = p2dCaveLevel1Nodes;
 	}
+	void setIsLevel1Instances(bool isLevel1Instances)
+	{
+		m_isLevel1Instances = isLevel1Instances;
+		std::cout << "Set CPsInstanceExporter isLevel1Instances to " << m_isLevel1Instances << std::endl;
+	}
 	bool loadPointInstanceFromCSV(const string& filePath, const string& outputSubDir, InstanceSubOutputMap& outputMap, CAffineTransform transform, double voxelSize, int32_t lod, InstanceType instanceType);
 	bool outputSubfiles(const std::string& outputSubsDir);
 	bool OutputAllInstanceGeoChem(string outputFilePath, const InstanceSubOutputMap& allInstances);
@@ -75,5 +80,6 @@ protected:
 	int m_tiles;
 	int m_tileIndexX;
 	int m_tileIndexY;
+	bool m_isLevel1Instances;
 };
 

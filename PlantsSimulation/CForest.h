@@ -73,6 +73,7 @@ public:
 	void setIsLevel1Instances(bool isLevel1Instances)
 	{
 		m_isLevel1Instances = isLevel1Instances;
+		std::cout << "Set CForest isLevel1Instances to " << m_isLevel1Instances << std::endl;
 	}
 	TreeInstanceOutput GetTreeOutputFromInstance(const CTreeInstance& instance);
 	bool exportTreeInstanceOutput(const std::vector<TreeInstanceOutput>& data, const std::string& filename, bool hasHeader);

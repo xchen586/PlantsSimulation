@@ -281,9 +281,10 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 	std::filesystem::path outputDirPath = outputSubsDirPath.parent_path();
 
 	string geofolder = "GeoChemical";
-	std::string allinstances_file = std::format("{}\\{}_{}_{}_allinstances.csv", outputDirPath.string(), m_tiles, m_tileIndexX, m_tileIndexY);
+	int level = m_isLevel1Instances ? 1 : 0;
+	std::string allinstances_file = std::format("{}\\{}_{}_{}_{}_allinstances.csv", outputDirPath.string(), m_tiles, m_tileIndexX, m_tileIndexY, level);
 	std::string allinstancesGeo_folder = std::format("{}\\{}", outputDirPath.string(), geofolder);
-	std::string allinstancesGeo_Csv = std::format("{}\\{}\\{}_{}_{}_geo_merged.csv", outputDirPath.string(), geofolder, m_tiles, m_tileIndexX, m_tileIndexY);
+	std::string allinstancesGeo_Csv = std::format("{}\\{}\\{}_{}_{}_{}_geo_merged.csv", outputDirPath.string(), geofolder, m_tiles, m_tileIndexX, m_tileIndexY, level);
 	bool outputAll = OutputAllInstance(allinstances_file, m_outputMap);
 
 	std::vector<std::thread> workers;

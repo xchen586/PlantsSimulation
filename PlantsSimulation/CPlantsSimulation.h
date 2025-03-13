@@ -148,7 +148,11 @@ private:
 	bool loadAllPoisLocationsFromCSV();
 	
 public:
-	void setIsLevel0Instances(bool isLevel1Instances) { m_isLevel1Instances = isLevel1Instances; }
+	void setIsLevel0Instances(bool isLevel1Instances) 
+	{ 
+		m_isLevel1Instances = isLevel1Instances; 
+		std::cout << "Set CPlantsSimulation isLevel1Instances to " << m_isLevel1Instances << std::endl;
+	}
 	void DeInitialize();
 	void DeInitializeForest();
 	

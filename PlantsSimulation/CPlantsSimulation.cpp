@@ -1587,12 +1587,18 @@ bool CPlantsSimulation::LoadForest()
 
 bool CPlantsSimulation::LoadInstanceExporter()
 {
+	if (m_pInstanceExporter)
+	{
+		delete m_pInstanceExporter;
+		m_pInstanceExporter = nullptr;
+	}
 	m_pInstanceExporter = new CPsInstanceExporter();
 	if (!m_pInstanceExporter)
 	{
 		return false;
 	}
 
+	m_pInstanceExporter->setIsLevel1Instances(m_isLevel1Instances);
 	m_pInstanceExporter->setCellTable(m_pCellTable);
 	m_pInstanceExporter->setMetaInfo(m_topLayerMeta);
 	m_pInstanceExporter->setMostTravelledPointFilePath(m_mostTravelledPointFile);
