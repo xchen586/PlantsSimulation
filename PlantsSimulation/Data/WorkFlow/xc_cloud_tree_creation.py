@@ -539,6 +539,44 @@ def create_geochem_tree_entity(api, project_id, folder_id, geo_chemical_folder, 
         lambda_host.log(f'Failed to create geochem entity {geochem_entity_name} with {api} basemeshes_result_project_id: {geochems_project_id} geo_chemical_folder: {geo_chemical_folder} raw: api.entity_type.RawGeoChem index: api.entity_type.GeoChem version: {version} !')
         exit(4)
     lambda_host.log('End with create geo chem entity')
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------
+def merge_instances_csv_files(folder_a, folder_b, destination_folder):
+    # Ensure destination folder exists and clear it
+    lambda_host.log(f'start to merge_instances_csv_files from folder_a : {folder_a} and folder_b : {folder_b} to destination_folder : {destination_folder}')
+    if os.path.exists(destination_folder):
+        shutil.rmtree(destination_folder)
+    os.makedirs(destination_folder, exist_ok=True)
+    
+    files_a = set(os.listdir(folder_a))
+    files_b = set(os.listdir(folder_b))
+    
+    all_files = files_a | files_b
+    
+    for file_name in all_files:
+        path_a = os.path.join(folder_a, file_name)
+        path_b = os.path.join(folder_b, file_name)
+        dest_path = os.path.join(destination_folder, file_name)
+        
+        if file_name in files_a and file_name in files_b:
+            # Merge files
+            with open(path_a, 'r', newline='', encoding='utf-8') as file_a:
+                reader_a = file_a.readlines()
+            
+            with open(path_b, 'r', newline='', encoding='utf-8') as file_b:
+                reader_b = file_b.readlines()
+            
+            # Write merged content
+            with open(dest_path, 'w', newline='', encoding='utf-8') as dest_file:
+                dest_file.writelines(reader_a)  # Write all of file A
+                dest_file.writelines(reader_b[1:])  # Append file B (skip header)
+        
+        elif file_name in files_a:
+            shutil.copy(path_a, dest_path)
+        
+        elif file_name in files_b:
+            shutil.copy(path_b, dest_path)
+    
+    lambda_host.log("merge_instances_csv_files completed successfully.")
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -1788,11 +1826,15 @@ def tree_instances_generation(config_path):
         process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, ocean_bottom_file_path, api.entity_type.VoxelTerrain, ocean_bottom_layer_entity_base_name, project_output_version, color=True)
         
     tree_instance_output_folder_name = 'instanceoutput'
+    tree_instance_level0_output_folder_name = 'instanceoutput_level0'
+    tree_instance_level1_output_folder_name = 'instanceoutput_level1'
     regions_output_folder_name = 'regionoutput'
     geo_chemical_folder_name = 'GeoChemical'
     tree_height_file_name = f'{tiles_count}_{tiles_x}_{tiles_y}_short_height_map_export.xyz'
     
     tree_instance_output_folder_path = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', tree_instance_output_folder_name)
+    tree_instance_level0_output_folder_path = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', tree_instance_level0_output_folder_name)
+    tree_instance_level1_output_folder_path = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', tree_instance_level1_output_folder_name)
     regions_output_folder_path = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', regions_output_folder_name)
     geo_chemical_folder_path = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', geo_chemical_folder_name)
     tree_height_file_path = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', tree_height_file_name)
@@ -1813,6 +1855,7 @@ def tree_instances_generation(config_path):
         lambda_host.log(f'step for to run_upload_tree_instances')
         ##### Update the tree instance files of tree entity. 
         #update_attach_files_for_entity(api, project_id, tree_entity_id, tree_instance_output_folder, f'instances_lod8_{tiles_count}_{tiles_x}_{tiles_y}-{version}', version=version, color=True)
+        merge_instances_csv_files(tree_instance_level0_output_folder_path, tree_instance_level1_output_folder_path, tree_instance_output_folder_path)
         update_attach_files_for_entity(api, project_id, tree_entity_id, tree_instance_output_folder_path)
         lambda_host.log(f'update_attach_files_for_entity tree instances from {tree_instance_output_folder_path} for {tree_entity_id}')
         
