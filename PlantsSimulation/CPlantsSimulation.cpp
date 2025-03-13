@@ -580,6 +580,9 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	std::vector<std::vector<short>> l1HeightMasksShort4096 = Read2DShortArray(m_l1HeightMasksFile, width, height);
 	std::vector<std::vector<short>> bedrockHeightMasksShort4096 = Read2DShortArray(m_bedrockHeightMasksFile, width, height);
 
+	string lakesHeightMasksFile = m_isLevel1Instances ? m_level1LakesHeightMasksFile : m_lakesHeightMasksFile;
+	std::vector<std::vector<short>> lakesHeightMasksShort4096 = Read2DShortArray(lakesHeightMasksFile, width, height);
+
 	std::vector<std::vector<short>> heightMasksShort4096(width, std::vector<short>(height));
 	for (int x = 0; x < width; x++)
 	{
@@ -858,7 +861,8 @@ bool CPlantsSimulation::LoadInputHeightMap()
 				//cell->SetHeightValue(pcHeightMapShort4096[i][j]);
 				cell->SetSlopeHeightValue(slopeShort4096[i][j]);
 				cell->SetSlopeAngleValue(slopeDouble4096[i][j]);
-				cell->SetHasHeightValue(heightMasksShort4096[i][j]);
+				short hasHeightValue = (lakesHeightMasksShort4096[i][j] > 0) ? 0 : heightMasksShort4096[i][j];
+				cell->SetHasHeightValue(hasHeightValue);
 			}
 		}
 	}
