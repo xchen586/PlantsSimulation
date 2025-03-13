@@ -1652,11 +1652,25 @@ bool CPlantsSimulation::OutputResults()
 	char subFullOutput_Dir[MAX_PATH];
 	memset(subFullOutput_Dir, 0, sizeof(char) * MAX_PATH);
 
-	#if __APPLE__ 
-		snprintf(subFullOutput_Dir, MAX_PATH, "%s/instanceoutput", m_outputDir.c_str());
-	#else
-		sprintf_s(subFullOutput_Dir, MAX_PATH, "%s\\instanceoutput", m_outputDir.c_str());
-	#endif
+#if __APPLE__ 
+	if (m_isLevel1Instances)
+	{
+		snprintf(subFullOutput_Dir, MAX_PATH, "%s/instanceoutput_level1", m_outputDir.c_str());
+	}
+	else
+	{
+		snprintf(subFullOutput_Dir, MAX_PATH, "%s/instanceoutput_level0", m_outputDir.c_str());
+	}
+#else
+	if (m_isLevel1Instances)
+	{
+		sprintf_s(subFullOutput_Dir, MAX_PATH, "%s\\instanceoutput_level1", m_outputDir.c_str());
+	}
+	else
+	{
+		sprintf_s(subFullOutput_Dir, MAX_PATH, "%s\\instanceoutput_level0", m_outputDir.c_str());
+	}
+#endif
 
 	if (output)
 	{
