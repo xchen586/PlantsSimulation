@@ -320,7 +320,7 @@ api = voxelfarmclient.rest(cloud_url)
 tiles = 25
 x = 8
 y = 5
-l = 1
+l = 0
 
 project_entity = api.get_entity(project_id)
 version = int(project_entity['version']) + 1 if 'version' in project_entity else 1
