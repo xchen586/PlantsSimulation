@@ -15,6 +15,21 @@ struct InputImageMetaInfo;
 class CPsInstanceExporter
 {
 public:
+	CPsInstanceExporter()
+		: m_pCellTable(nullptr)
+		, m_pMetaInfo(nullptr)
+		, m_pFullTreeOutputs(nullptr)
+		, m_lod(0)
+		, m_tiles(0)
+		, m_tileIndexX(0)
+		, m_tileIndexY(0)
+		, m_isLevel1Instances(false)
+	{
+	}
+	~CPsInstanceExporter()
+	{
+		//DeInitialize(); Because m_outputMap use shared_ptr, so no need to call DeInitialize
+	}
 	void setCellTable(std::vector<std::vector<CCellInfo*>>* pCellTable) 
 	{
 		m_pCellTable = pCellTable;
@@ -81,5 +96,6 @@ protected:
 	int m_tileIndexX;
 	int m_tileIndexY;
 	bool m_isLevel1Instances;
+	void DeInitialize();
 };
 

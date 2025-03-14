@@ -18,6 +18,14 @@
 #include "..\Common\Include\PointInstance.h"
 #endif
 
+void CPsInstanceExporter::DeInitialize()
+{
+	for (auto& pair : m_outputMap)
+	{
+		pair.second.reset(); // Release the shared_ptr to InstanceSubOutputVector
+	}
+	m_outputMap.clear(); // Now the map itself is empty	
+}
 bool CPsInstanceExporter::OutputAllInstanceGeoChem(string outputFilePath, const InstanceSubOutputMap& allInstances)
 {
 	std::cout << "Start to OutputAllInstanceGeoChem to : " << outputFilePath << std::endl;
@@ -255,7 +263,8 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 		SetupInstanceSubOutput(instance.posX, instance.posY, instance.posZ, transform, cellSize, m_lod, sub);
 
 		sub->index = instance.index;
-		sub->instanceType = static_cast<unsigned int>(InstanceType::InstanceType_Tree);
+		InstanceType instanceType = m_isLevel1Instances ? InstanceType::IntanceType_Tree_level1 : InstanceType::InstanceType_Tree;
+		sub->instanceType = static_cast<unsigned int>(instanceType);
 		sub->variant = instance.m_instance.treeType;
 		sub->age = static_cast<double>(instance.m_instance.age / instance.m_instance.maxAge);
 		sub->MakeIdString();
@@ -271,12 +280,15 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 		subVector->push_back(sub);
 	}
 	std::cout << "The trees of negative height count is : " << negativeHeightCount << std::endl;
-	//unsigned int mostTravelledVariant = static_cast<unsigned int>(PointType::Point_MostTravelled);
-	bool getMostTravelledPoint = loadPointInstanceFromCSV(m_mostTravelledPointFilePath, outputSubsDir, m_outputMap, transform, cellSize, m_lod, InstanceType::InstanceType_NPC);
-	//unsigned int mostDistantVariant = static_cast<unsigned int>(PointType::Point_MostDistant);
-	bool getMostDistantPoint = loadPointInstanceFromCSV(m_mostDistantPointFilePath, outputSubsDir, m_outputMap, transform, cellSize, m_lod, InstanceType::InstanceType_Resource);
-	bool getCentroidPoint = loadPointInstanceFromCSV(m_centroidPointFilePath, outputSubsDir, m_outputMap, transform, cellSize, m_lod, InstanceType::InstanceType_spawn_Point);
-
+	if (!m_isLevel1Instances)
+	{
+		//unsigned int mostTravelledVariant = static_cast<unsigned int>(PointType::Point_MostTravelled);
+		bool getMostTravelledPoint = loadPointInstanceFromCSV(m_mostTravelledPointFilePath, outputSubsDir, m_outputMap, transform, cellSize, m_lod, InstanceType::InstanceType_NPC);
+		//unsigned int mostDistantVariant = static_cast<unsigned int>(PointType::Point_MostDistant);
+		bool getMostDistantPoint = loadPointInstanceFromCSV(m_mostDistantPointFilePath, outputSubsDir, m_outputMap, transform, cellSize, m_lod, InstanceType::InstanceType_Resource);
+		bool getCentroidPoint = loadPointInstanceFromCSV(m_centroidPointFilePath, outputSubsDir, m_outputMap, transform, cellSize, m_lod, InstanceType::InstanceType_spawn_Point);
+	}
+	
 	std::filesystem::path outputSubsDirPath = outputSubsDir;
 	std::filesystem::path outputDirPath = outputSubsDirPath.parent_path();
 

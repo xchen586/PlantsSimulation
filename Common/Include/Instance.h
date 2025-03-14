@@ -8,7 +8,8 @@ enum struct InstanceType
 	InstanceType_spawn_Point = 1,
 	InstanceType_NPC = 2,
 	InstanceType_Resource = 3,
-	InstanceType_Count = 4
+	IntanceType_Tree_level1 = 4,
+	InstanceType_Count = 5
 };
 
 struct InstanceSubOutput
