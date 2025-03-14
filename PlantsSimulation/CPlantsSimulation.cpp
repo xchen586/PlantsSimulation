@@ -68,16 +68,57 @@ void CPlantsSimulation::DeInitializeForMakeInstances()
 		delete m_p2dCaveLevel1Nodes;
 		m_p2dCaveLevel1Nodes = nullptr;
 	}
+	ClearCellTable();
+	ClearImage();
+	ClearImageMeta();
 }
 
 void CPlantsSimulation::DeInitialize()
 {
 	DeInitializeForMakeInstances();
+}
 
+void CPlantsSimulation::ClearCellTable()
+{
+	if (m_pCellTable != nullptr)
+	{
+		if (m_topLayerImage)
+		{
+			const int newWidth = m_topLayerImage->input_image_width;
+			const int newHeight = m_topLayerImage->input_image_height;
+			for (auto i = 0; i < newWidth; i++) 
+			{
+				for (auto j = 0; j < newHeight; j++) 
+				{
+					CCellInfo* cell = (*m_pCellTable)[i][j];
+					if (cell)
+					{
+						delete cell;
+						(*m_pCellTable)[i][j] = nullptr;
+					}
+				}
+			}
+		}
+		delete m_pCellTable;
+		m_pCellTable = nullptr;
+	}
+}
+
+void CPlantsSimulation::ClearImage()
+{
 	if (m_topLayerImage) {
+		if (m_topLayerImage->input_image_data)
+		{
+			delete m_topLayerImage->input_image_data;
+			m_topLayerImage->input_image_data = nullptr;
+		}
 		delete m_topLayerImage;
 		m_topLayerImage = nullptr;
 	}
+}
+
+void CPlantsSimulation::ClearImageMeta()
+{
 	if (m_topLayerMeta) {
 		delete m_topLayerMeta;
 		m_topLayerMeta = nullptr;
@@ -122,20 +163,9 @@ bool CPlantsSimulation::LoadInputImage()
 	catch (const std::exception& e)
 	{
 		std::cerr << "Error: " << e.what() << std::endl;
-		if (m_topLayerImage) {
-			delete m_topLayerImage;
-			m_topLayerImage = nullptr;
-		}
-		if (m_pCellTable) {
-			delete m_pCellTable;
-			m_pCellTable = nullptr;
-		}
+		ClearCellTable();
+		ClearImage();
 		return false;
-	}
-	if (m_topLayerImage && m_topLayerImage->input_image_data)
-	{
-		delete m_topLayerImage->input_image_data;
-		m_topLayerImage->input_image_data = nullptr;
 	}
 
 	int rows = m_pCellTable->size();
@@ -192,6 +222,7 @@ bool CPlantsSimulation::LoadImageMetaFile()
 		return false;
 	}
 
+	ClearImageMeta();
 	m_topLayerMeta = new InputImageMetaInfo();
 	if (!m_topLayerMeta)
 	{
@@ -218,8 +249,8 @@ bool CPlantsSimulation::LoadImageMetaFile()
 	inputFile.close();
 	if (!ret)
 	{
-		delete m_topLayerMeta;
-		m_topLayerMeta = nullptr;
+		ClearImageMeta();
+		return ret;
 	}
 	std::cout << "Image Meta Info xRatio: " << m_topLayerMeta->xRatio << std::endl;
 	std::cout << "Image Meta Info x0 : " << m_topLayerMeta->x0 << std::endl;
@@ -1331,7 +1362,7 @@ bool CPlantsSimulation::ExportAngleSlopeMap(std::vector<std::vector<double>>& sl
 
 bool CPlantsSimulation::MakeRoadData()
 {
-	setIsLevel0Instances(false);
+	setIsLevel1Instances(false);
 	bool ret = LoadPreImage();
 	if (!ret) {
 		DeInitialize();
@@ -1348,7 +1379,21 @@ bool CPlantsSimulation::MakeRoadData()
 bool CPlantsSimulation::MakeInstance(bool islevel1Instances)
 {
 	DeInitializeForMakeInstances();
-	setIsLevel0Instances(!islevel1Instances);
+	setIsLevel1Instances(islevel1Instances);
+	bool isLoadImage = LoadPreImage();
+	if (!isLoadImage)
+	{
+		std::cout << "Failed to load input image for instance level " << (m_isLevel1Instances ? 1 : 0) << std::endl;
+		DeInitialize();
+		return false;
+	}
+	bool isLoadRegions = LoadAndOutputRegions();
+	if (!isLoadRegions)
+	{
+		std::cout << "Failed to load and output regions for instance level " << (m_isLevel1Instances ? 1 : 0) << std::endl;
+		DeInitialize();
+		return false;
+	}
 	bool isLoad = LoadInputData();
 	if (!isLoad)
 	{
@@ -1384,17 +1429,18 @@ bool CPlantsSimulation::LoadPreImage()
 {
 	bool ret = false;
 	DeInitialize();
-	ret = LoadInputImage();
-	if (!ret) {
-		std::cout << "Failed to load input image!" << std::endl;
-		DeInitialize();
-		return ret;
-	}
 
 	ret = LoadImageMetaFile();
 	if (!ret)
 	{
 		std::cout << "Failed to load image meta file!" << std::endl;
+		DeInitialize();
+		return ret;
+	}
+
+	ret = LoadInputImage();
+	if (!ret) {
+		std::cout << "Failed to load input image!" << std::endl;
 		DeInitialize();
 		return ret;
 	}

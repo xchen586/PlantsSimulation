@@ -133,7 +133,10 @@ public:
 	}
 	
 private:
-	
+	void ClearCellTable();
+	void ClearImage();
+	void ClearImageMeta();
+
 	bool LoadInputImage();
 	bool LoadInputHeightMap();
 	bool LoadImageMetaFile();
@@ -152,7 +155,7 @@ private:
 	bool loadAllPoisLocationsFromCSV();
 	
 public:
-	void setIsLevel0Instances(bool isLevel1Instances) 
+	void setIsLevel1Instances(bool isLevel1Instances) 
 	{ 
 		m_isLevel1Instances = isLevel1Instances; 
 		std::cout << "Set CPlantsSimulation isLevel1Instances to " << m_isLevel1Instances << std::endl;

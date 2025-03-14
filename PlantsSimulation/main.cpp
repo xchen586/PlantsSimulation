@@ -221,28 +221,6 @@ int iniAbsolutePathMain(int argc, const char* argv[])
     }
     else
     {
-		bool ret = ps.LoadPreImage();
-		if (!ret)
-		{
-			std::cout << "Failed to load pre image!" << std::endl;
-			goto mainEnd;
-		}
-        else
-        {
-            std::cout << "Success to load pre image!" << std::endl;
-        }
-        
-        ret = ps.LoadAndOutputRegions();
-		if (!ret)
-		{
-			std::cout << "Failed to load and output regions!" << std::endl;
-			goto mainEnd;
-		}
-		else
-		{
-			std::cout << "Success to load and output regions!" << std::endl;
-		}
-
 		if (islevel0Instances)
 		{
             std::cout << "Start to make instances level 0 !" << std::endl;
