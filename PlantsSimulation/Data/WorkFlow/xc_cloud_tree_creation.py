@@ -318,11 +318,12 @@ TREE_INSTANCE = 0
 SPAWN_INSTANCE = 1
 NPC_INSTANCE = 2
 RESOURCE_INSTANCE = 3
+TREE_LEVEL1_INSTANCE = 4
 InstanceType_Attribute = 'InstanceType'
 Variant_Attribute = 'Variant'
 Index_Attribute = 'Index'
 
-def calculate_id_for_instance(instance_type, tree_index, spawn_index, npc_index, resource_index, level):
+def calculate_id_for_instance(instance_type, tree_index, spawn_index, npc_index, resource_index, tree_level1_index):
     # Calculate the extra column value based on the instance type and indices
     instance_string = 'Others'
     index = 0
@@ -339,8 +340,11 @@ def calculate_id_for_instance(instance_type, tree_index, spawn_index, npc_index,
     elif instance_type == RESOURCE_INSTANCE:
         instance_string = 'Poi_Resource'
         index = resource_index
+    elif instance_type == TREE_LEVEL1_INSTANCE:
+        instance_string = 'Tree_Level1'
+        index = tree_level1_index   
     
-    extra_value = f'{instance_string} {level} {index}'
+    extra_value = f'{instance_string} {index}'
     return extra_value
 
 '''
@@ -359,7 +363,7 @@ def calculate_id_for_instance(instance_type, tree_index, spawn_index, npc_index,
         return calculate_id_for_instance(instance_type, extra_id, extra_id)
 '''
 
-def add_extra_column_to_csv(input_file, output_file, extra_column_name, level):
+def add_extra_column_to_csv(input_file, output_file, extra_column_name):
     # Read the CSV file
     merged_df = pd.read_csv(input_file)
 
@@ -373,7 +377,7 @@ def add_extra_column_to_csv(input_file, output_file, extra_column_name, level):
         instance_type = row[InstanceType_Attribute]
         instance_index = row[Index_Attribute]
         extra_id = instance_index
-        return calculate_id_for_instance(instance_type, extra_id, extra_id, extra_id, extra_id, level)
+        return calculate_id_for_instance(instance_type, extra_id, extra_id, extra_id, extra_id, extra_id)
     
     merged_df[extra_column_name] = merged_df.apply(update_id, axis=1)
 
@@ -499,7 +503,7 @@ def create_geochem_tree_entity(api, project_id, folder_id, geo_chemical_folder, 
     geo_meta_path = os.path.join(geo_chemical_folder, geo_meta_name)
 
     lambda_host.log('Start to Add Id field to  the csv file {merged_csv_path}')
-    add_extra_column_to_csv(merged_csv_path, merged_csv_path, extra_column_name, level)
+    add_extra_column_to_csv(merged_csv_path, merged_csv_path, extra_column_name)
     lambda_host.log('End with raw data file {merged_csv_path}')
 
 
