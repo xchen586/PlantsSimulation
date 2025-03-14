@@ -20,7 +20,7 @@ class CPlantsSimulation
 public:
 	CPlantsSimulation(const string& outputDir, const string& inputTreeList, const string& inputLevel1TreeList, const string& inputImageFile, const string& inputImageMataFile, const string& mesh_HeightMapFile, const string& mesh2_HeightMapFile, const string& pc_HeightMapFile, const string& l1_HeightMapFile, const string& bedrock_HeightMapFile,
 		const string& mesh_HeightMasksFile, const string& mesh2_HeightMasksFile, const string& pc_HeightMasksFile, const string& l1_HeightMasksFile, const string& bedrock_HeightMaskFile, const string& lakes_HeightMasksFile, const string& level1Lakes_HeightMasksFile, const string& mostTravelledPointFile, const string& mostDistantPointFile, const string& centroidPointFile, const string& cavesPointCloudLevel0File, const string& cavesPointCloudLevel1File,
-		const string& regionsRawFile, const string& regionsInfoFile, const string& outputFile, const string& fullOutputFile, const string& pcFullOutputFile, int32_t lod, float forestAge, int iteration, int tiles, int tileX, int tileY)
+		const string& regionsRawFile, const string& regionsInfoFile, const string& outputFile_level0, const string& fullOutputFile_level0, const string& pcFullOutputFile_level0, const string& outputFile_level1, const string& fullOutputFile_level1, const string& pcFullOutputFile_level1, int32_t lod, float forestAge, int iteration, int tiles, int tileX, int tileY)
 		: m_outputDir(outputDir)
 		, m_inputTreeListCsv(inputTreeList)
 		, m_inputLevel1TreeListCsv(inputLevel1TreeList)
@@ -45,9 +45,12 @@ public:
 		, m_cavesPointCloudLevel1File(cavesPointCloudLevel1File)
 		, m_regionsRawFile(regionsRawFile)
 		, m_regionsInfoFile(regionsInfoFile)
-		, m_outputFile(outputFile)
-		, m_fullOutputFile(fullOutputFile)
-		, m_pcFullOutputFile(pcFullOutputFile)
+		, m_outputFile_level0(outputFile_level0)
+		, m_fullOutputFile_level0(fullOutputFile_level0)
+		, m_pcFullOutputFile_level0(pcFullOutputFile_level0)
+		, m_outputFile_level1(outputFile_level1)
+		, m_fullOutputFile_level1(fullOutputFile_level1)
+		, m_pcFullOutputFile_level1(pcFullOutputFile_level1)
 		, m_topLayerImage(nullptr)
 		, m_topLayerMeta(nullptr)
 		, m_pCellTable(nullptr)
@@ -58,7 +61,6 @@ public:
 		, m_tiles(tiles)
 		, m_tileX(tileX)
 		, m_tileY(tileY)
-		, m_hasTreeListCsv(false)
 		, m_maxHeight(10000)
 		, m_p2dCaveLevel0Nodes(nullptr)
 		, m_p2dCaveLevel1Nodes(nullptr)
@@ -91,9 +93,12 @@ private:
 	string m_cavesPointCloudLevel1File;
 	string m_regionsRawFile;
 	string m_regionsInfoFile;
-	string m_outputFile;
-	string m_fullOutputFile;
-	string m_pcFullOutputFile;
+	string m_outputFile_level0;
+	string m_fullOutputFile_level0;
+	string m_pcFullOutputFile_level0;
+	string m_outputFile_level1;
+	string m_fullOutputFile_level1;
+	string m_pcFullOutputFile_level1;
 
 	int32_t m_currentLod;
 
@@ -116,7 +121,6 @@ private:
 	std::vector<std::vector<CCellInfo*>>* m_pCellTable;
 	CForest* m_pForest;
 	CPsInstanceExporter* m_pInstanceExporter;
-	bool m_hasTreeListCsv;
 
 	std::vector<std::pair<std::vector<Point>, int>>* m_p2dCaveLevel0Nodes;
 	std::vector<std::pair<std::vector<Point>, int>>* m_p2dCaveLevel1Nodes;
@@ -154,7 +158,7 @@ public:
 		std::cout << "Set CPlantsSimulation isLevel1Instances to " << m_isLevel1Instances << std::endl;
 	}
 	void DeInitialize();
-	void DeInitializeForest();
+	void DeInitializeForMakeInstances();
 	
 	bool MakeRoadData();
 	bool MakeInstance(bool isLevel1Instance);

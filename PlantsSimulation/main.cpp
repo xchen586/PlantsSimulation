@@ -159,25 +159,37 @@ int iniAbsolutePathMain(int argc, const char* argv[])
     const int MAX_PATH = 250;
 
     char output_final_path[MAX_PATH];
-    char output_file[MAX_PATH];
-    char fullOutput_file[MAX_PATH];
-    char pcFullOutput_file[MAX_PATH];
+    char output_file_level0[MAX_PATH];
+    char fullOutput_file_level0[MAX_PATH];
+    char pcFullOutput_file_level0[MAX_PATH];
+    char output_file_level1[MAX_PATH];
+    char fullOutput_file_level1[MAX_PATH];
+    char pcFullOutput_file_level1[MAX_PATH];
     
     memset(output_final_path, 0, sizeof(char) * MAX_PATH);
-    memset(output_file, 0, sizeof(char) * MAX_PATH);
-    memset(fullOutput_file, 0, sizeof(char) * MAX_PATH);
-    memset(pcFullOutput_file, 0, sizeof(char) * MAX_PATH);
+    memset(output_file_level0, 0, sizeof(char) * MAX_PATH);
+    memset(fullOutput_file_level0, 0, sizeof(char) * MAX_PATH);
+    memset(pcFullOutput_file_level0, 0, sizeof(char) * MAX_PATH);
+    memset(output_file_level1, 0, sizeof(char) * MAX_PATH);
+    memset(fullOutput_file_level1, 0, sizeof(char) * MAX_PATH);
+    memset(pcFullOutput_file_level1, 0, sizeof(char) * MAX_PATH);
 
 #if __APPLE__
     snprintf(output_final_path, MAX_PATH, "%s/%d_%d_%d", output_path, tiles, tileX, tileY);
-    snprintf(output_file, MAX_PATH, "%s/%d_%d_%d_plants.csv", output_final_path, tiles, tileX, tileY);
-    snprintf(fullOutput_file, MAX_PATH, "%s/%d_%d_%d_plantsfulloutput.csv", output_final_path, tiles, tileX, tileY);
-    snprintf(pcFullOutput_file, MAX_PATH, "%s/points_%d_%d_%d_tree.xyz", output_final_path, tiles, tileX, tileY);
+    snprintf(output_file_level0, MAX_PATH, "%s/%d_%d_%d_plants_level0.csv", output_final_path, tiles, tileX, tileY);
+    snprintf(fullOutput_file_level0, MAX_PATH, "%s/%d_%d_%d_plantsfulloutput_level0.csv", output_final_path, tiles, tileX, tileY);
+    snprintf(pcFullOutput_file_level0, MAX_PATH, "%s/points_%d_%d_%d_tree_level0.xyz", output_final_path, tiles, tileX, tileY);
+    snprintf(output_file_level1, MAX_PATH, "%s/%d_%d_%d_plants_level1", output_final_path, tiles, tileX, tileY);
+    snprintf(fullOutput_file_level1, MAX_PATH, "%s/%d_%d_%d_plantsfulloutput_level1.csv", output_final_path, tiles, tileX, tileY);
+    snprintf(pcFullOutput_file_level1, MAX_PATH, "%s/points_%d_%d_%d_tree_level1.xyz", output_final_path, tiles, tileX, tileY);
 #else
     sprintf_s(output_final_path, MAX_PATH, "%s\\%d_%d_%d", output_path, tiles, tileX, tileY);
-    sprintf_s(output_file, MAX_PATH, "%s\\%d_%d_%d_plants.csv", output_final_path, tiles, tileX, tileY);
-    sprintf_s(fullOutput_file, MAX_PATH, "%s\\%d_%d_%d_plantsfulloutput.csv", output_final_path, tiles, tileX, tileY);
-    sprintf_s(pcFullOutput_file, MAX_PATH, "%s\\points_%d_%d_%d_tree.xyz", output_final_path, tiles, tileX, tileY);
+    sprintf_s(output_file_level0, MAX_PATH, "%s\\%d_%d_%d_plants_level0.csv", output_final_path, tiles, tileX, tileY);
+    sprintf_s(fullOutput_file_level0, MAX_PATH, "%s\\%d_%d_%d_plantsfulloutput_level0.csv", output_final_path, tiles, tileX, tileY);
+    sprintf_s(pcFullOutput_file_level0, MAX_PATH, "%s\\points_%d_%d_%d_tree_level0.xyz", output_final_path, tiles, tileX, tileY);
+    sprintf_s(output_file_level1, MAX_PATH, "%s\\%d_%d_%d_plants_level1.csv", output_final_path, tiles, tileX, tileY);
+    sprintf_s(fullOutput_file_level1, MAX_PATH, "%s\\%d_%d_%d_plantsfulloutput_level1.csv", output_final_path, tiles, tileX, tileY);
+    sprintf_s(pcFullOutput_file_level1, MAX_PATH, "%s\\points_%d_%d_%d_tree_level1.xyz", output_final_path, tiles, tileX, tileY);
 #endif
 
     if (!std::filesystem::exists(output_path)) {
@@ -195,7 +207,9 @@ int iniAbsolutePathMain(int argc, const char* argv[])
 
     CPlantsSimulation ps(output_final_path, tree_list_csv_name, level1_tree_list_csv_name, input_image_name, input_meta_name, mesh_heightmap_raw_name, mesh2_heightmap_raw_name, pc_heightmap_raw_name, l1_heightmap_raw_name, bedrock_heightmap_raw_name
 		, mesh_heightmap_masks_name, mesh2_heightmap_masks_name, pc_heightmap_masks_name, l1_heightmap_masks_name, bedrock_heightmap_masks_name, lakes_heightmap_masks_name, level1_lakes_heightmap_masks_name
-        , point_most_travelled_name, point_most_distant_name, point_centroid_name, caves_point_cloud_level_0_name, caves_point_cloud_level_1_name, regions_raw_name, regions_info_name, output_file, fullOutput_file, pcFullOutput_file, lod, forestAge, iteration, tiles, tileX, tileY);
+        , point_most_travelled_name, point_most_distant_name, point_centroid_name, caves_point_cloud_level_0_name, caves_point_cloud_level_1_name, regions_raw_name, regions_info_name
+        , output_file_level0, fullOutput_file_level0, pcFullOutput_file_level0, output_file_level1, fullOutput_file_level1, pcFullOutput_file_level1
+        , lod, forestAge, iteration, tiles, tileX, tileY);
 
     
     
@@ -231,11 +245,15 @@ int iniAbsolutePathMain(int argc, const char* argv[])
 
 		if (islevel0Instances)
 		{
+            std::cout << "Start to make instances level 0 !" << std::endl;
             ps.MakeInstance(false);
+            std::cout << "End to make instances level 0 !" << std::endl;
 		}
         if (islevel1Instances)
         {
+            std::cout << "Start to make instances level 1 !" << std::endl;
 			ps.MakeInstance(true);
+            std::cout << "End to make instances level 1 !" << std::endl;
         }
     }
   

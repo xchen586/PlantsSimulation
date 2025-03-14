@@ -30,8 +30,18 @@
 	return true;
 }*/
 
-void CPlantsSimulation::DeInitializeForest()
+void CPlantsSimulation::DeInitializeForMakeInstances()
 {
+	if (m_pInstanceExporter) {
+		delete m_pInstanceExporter;
+		m_pInstanceExporter = nullptr;
+	}
+
+	if (m_pForest) {
+		delete m_pForest;
+		m_pForest = nullptr;
+	}
+
 	if (m_pCellTable) {
 		int rows = m_pCellTable->size();
 		int cols = (*m_pCellTable)[0].size();
@@ -46,25 +56,8 @@ void CPlantsSimulation::DeInitializeForest()
 		m_pCellTable = nullptr;
 	}
 
-	if (m_pForest) {
-		delete m_pForest;
-		m_pForest = nullptr;
-	}
-}
+	m_PoisLocations.clear();
 
-void CPlantsSimulation::DeInitialize()
-{
-	DeInitializeForest();
-
-	if (m_topLayerImage) {
-		delete m_topLayerImage;
-		m_topLayerImage = nullptr;
-	}
-	if (m_topLayerMeta) {
-		delete m_topLayerMeta;
-		m_topLayerMeta = nullptr;
-	}
-	
 	if (m_p2dCaveLevel0Nodes)
 	{
 		delete m_p2dCaveLevel0Nodes;
@@ -74,6 +67,20 @@ void CPlantsSimulation::DeInitialize()
 	{
 		delete m_p2dCaveLevel1Nodes;
 		m_p2dCaveLevel1Nodes = nullptr;
+	}
+}
+
+void CPlantsSimulation::DeInitialize()
+{
+	DeInitializeForMakeInstances();
+
+	if (m_topLayerImage) {
+		delete m_topLayerImage;
+		m_topLayerImage = nullptr;
+	}
+	if (m_topLayerMeta) {
+		delete m_topLayerMeta;
+		m_topLayerMeta = nullptr;
 	}
 }
 
@@ -1340,11 +1347,36 @@ bool CPlantsSimulation::MakeRoadData()
 
 bool CPlantsSimulation::MakeInstance(bool islevel1Instances)
 {
+	DeInitializeForMakeInstances();
 	setIsLevel0Instances(!islevel1Instances);
 	bool isLoad = LoadInputData();
+	if (!isLoad)
+	{
+		std::cout << "Failed to load input data for instance level " << (m_isLevel1Instances ? 1 : 0) << std::endl;
+		DeInitialize();
+		return false;
+	}
 	bool loadForest = LoadForest();
+	if (!loadForest)
+	{
+		std::cout << "Failed to load forest for instance level " << (m_isLevel1Instances ? 1 : 0) << std::endl;
+		DeInitialize();
+		return false;
+	}
 	bool buildForest = BuildForest();
+	if (!buildForest)
+	{
+		std::cout << "Failed to build forest for instance level " << (m_isLevel1Instances ? 1 : 0) << std::endl;
+		DeInitialize();
+		return false;
+	}
 	bool results = OutputResults();
+	if (!results)
+	{
+		std::cout << "Failed to output results for instance level " << (m_isLevel1Instances ? 1 : 0) << std::endl;
+		DeInitialize();
+		return false;
+	}
 	return true;
 }
 
@@ -1354,6 +1386,7 @@ bool CPlantsSimulation::LoadPreImage()
 	DeInitialize();
 	ret = LoadInputImage();
 	if (!ret) {
+		std::cout << "Failed to load input image!" << std::endl;
 		DeInitialize();
 		return ret;
 	}
@@ -1361,6 +1394,7 @@ bool CPlantsSimulation::LoadPreImage()
 	ret = LoadImageMetaFile();
 	if (!ret)
 	{
+		std::cout << "Failed to load image meta file!" << std::endl;
 		DeInitialize();
 		return ret;
 	}
@@ -1373,9 +1407,14 @@ bool CPlantsSimulation::LoadInputData()
 	m_p2dCaveLevel0Nodes = LoadCaveNodesFromPointCloud(m_cavesPointCloudLevel0File);
 
 	bool loadAllPois = loadAllPoisLocationsFromCSV();
+	if (!loadAllPois)
+	{
+		std::cout << "Failed to load all pois locations!" << std::endl;
+	}
 
 	ret = LoadInputHeightMap();
 	if (!ret) {
+		std::cout << "Failed to load input height map for level : " << (m_isLevel1Instances ? 1 : 0) << std::endl;
 		DeInitialize();
 		return ret;
 	}
@@ -1636,19 +1675,22 @@ bool CPlantsSimulation::BuildForest()
 
 bool CPlantsSimulation::OutputResults()
 {
-	bool output = m_pForest->outputCSVTreeInstanceResults(m_outputFile);
+	string outputFile = m_isLevel1Instances ? m_outputFile_level1: m_outputFile_level0;
+	bool output = m_pForest->outputCSVTreeInstanceResults(outputFile);
 	if (!output)
 	{
-		std::cout << "Fail to m_pForest->outputCSVTreeInstanceResults for file : " << m_outputFile << std::endl;
+		std::cout << "Fail to m_pForest->outputCSVTreeInstanceResults for file : " << outputFile << std::endl;
 		return false;
 	}
-	output = m_pForest->outputCSVFullTreeInstanceResults(m_fullOutputFile);
+	string fullOutputFile = m_isLevel1Instances ? m_fullOutputFile_level1 : m_fullOutputFile_level0;
+	output = m_pForest->outputCSVFullTreeInstanceResults(fullOutputFile);
 	if (!output)
 	{
-		std::cout << "Fail to m_pForest->outputCSVFullTreeInstanceResults for file : " << m_fullOutputFile << std::endl;
+		std::cout << "Fail to m_pForest->outputCSVFullTreeInstanceResults for file : " << fullOutputFile << std::endl;
 		return false;
 	}
-	output = m_pForest->outputPointsCloudFullTreeInstanceResults(m_pcFullOutputFile);
+	string pcFullOutputFile = m_isLevel1Instances ? m_pcFullOutputFile_level1 : m_pcFullOutputFile_level0;
+	output = m_pForest->outputPointsCloudFullTreeInstanceResults(pcFullOutputFile);
 	//std::string pcFullOutputFileWithRatio = m_pcFullOutputFile + ".ratio.xyz";
 	//output = m_pForest->outputPointsCloudFullTreeInstanceResultsWithRatio(pcFullOutputFileWithRatio);
 

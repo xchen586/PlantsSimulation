@@ -35,17 +35,15 @@ CForest::CForest(void)
 
 CForest::~CForest(void)
 {
-	for (vector<TreeClass*>::iterator i = classes.begin(); i != classes.end(); ++i) {
-		TreeClass* tree = *i;
-		delete tree;
-	}
-	for (vector<TreeClass*>::iterator i = classes.begin(); i != classes.end(); ++i) {
-		TreeClass* tree = *i;
-		delete tree;
-	}
-	for (map<string, DensityMap*>::iterator i = globalMasks.begin(); i != globalMasks.end(); ++i) {
-		delete i->second;
-	}
+	ResetMasksAndClasses();
+}
+
+void CForest::ResetMasksAndClasses()
+{
+	resetTreeClasses();
+	resetMasks();
+	resetGlobalMasks();
+	resetRawI2DMasks();
 }
 
 #define SEED_MAX 16*1024*1024
@@ -225,10 +223,7 @@ bool CForest::parseTreeListCsv(const string& inputTreeListCsv)
 
 	std::cout << "Start to parseTreeListCsv : " << inputTreeListCsv << std::endl;
 
-	resetTreeClasses();
-	resetMasks();
-	resetGlobalMasks();
-	resetRawI2DMasks();
+	ResetMasksAndClasses();
 
 	std::string header;
 	std::getline(file, header);

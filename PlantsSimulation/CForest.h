@@ -47,6 +47,8 @@ public:
 	void resetGlobalMasks();
 	void resetRawI2DMasks();
 
+	void ResetMasksAndClasses();
+
 	void setCellTable(std::vector<std::vector<CCellInfo*>>* pCellTable) {
 		m_pCellTable = pCellTable;
 	}
