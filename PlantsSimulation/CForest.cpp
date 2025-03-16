@@ -56,15 +56,6 @@ void CForest::loadDefaultTreeClasses()
 	return;
 }
 
-void CForest::resetTreeClasses()
-{
-	for (vector<TreeClass*>::iterator i = classes.begin(); i != classes.end(); ++i) {
-		TreeClass* tree = *i;
-		delete tree;
-	}
-	classes.clear();
-}
-
 void CForest::doLoadDefaultTreeClasses()
 {
 	TreeClass* treeClassOak = new COakTreeClass();
@@ -90,15 +81,6 @@ void CForest::loadDefaultMasks()
 	doLoadDefaultMasks();
 
 	return;
-}
-
-void CForest::resetMasks()
-{
-	for (map<string, I2DMask*>::iterator iMask = masks.begin(); iMask != masks.end(); ++iMask) {
-		I2DMask* i2DMask = iMask->second;
-		delete i2DMask;
-	}
-	masks.clear();
 }
 
 void CForest::doLoadDefaultMasks()
@@ -163,13 +145,44 @@ void CForest::doLoadDefaultMasks()
 
 void CForest::loadDefaultGlobalMasks()
 {
-	resetGlobalMasks();
+	resetGlobalMasks(); //We don't have global masks(csv file) to load for now.
 
 	return;
 
 	doLoadDefaultGlobalMasks();
 
 	return;
+}
+
+void CForest::doLoadDefaultGlobalMasks()
+{
+	for (vector<TreeClass*>::iterator i = classes.begin(); i != classes.end(); ++i) {
+		TreeClass* tree = *i;
+		for (map<string, DensityMap*>::iterator iMap = tree->masks.begin(); iMap != tree->masks.end(); ++iMap)
+		{
+			//pair<string, DensityMap*> pairMap = *iMap;
+			pair<string, DensityMap*> deepCopyPair(iMap->first, new DensityMap(*(iMap->second)));
+			globalMasks.insert(deepCopyPair);
+		}
+	}
+}
+
+void CForest::resetTreeClasses()
+{
+	for (vector<TreeClass*>::iterator i = classes.begin(); i != classes.end(); ++i) {
+		TreeClass* tree = *i;
+		delete tree;
+	}
+	classes.clear();
+}
+
+void CForest::resetMasks()
+{
+	/*for (map<string, I2DMask*>::iterator iMask = masks.begin(); iMask != masks.end(); ++iMask) {
+		I2DMask* i2DMask = iMask->second;
+		delete i2DMask;
+	}*/ //Don't do that!!! it will release in rawI2DMasks!
+	masks.clear();
 }
 
 void CForest::resetGlobalMasks()
@@ -188,19 +201,6 @@ void CForest::resetRawI2DMasks()
 		delete it->second;
 	}
 	rawI2DMasks.clear();
-}
-
-void CForest::doLoadDefaultGlobalMasks()
-{
-	for (vector<TreeClass*>::iterator i = classes.begin(); i != classes.end(); ++i) {
-		TreeClass* tree = *i;
-		for (map<string, DensityMap*>::iterator iMap = tree->masks.begin(); iMap != tree->masks.end(); ++iMap)
-		{
-			//pair<string, DensityMap*> pairMap = *iMap;
-			pair<string, DensityMap*> deepCopyPair(iMap->first, new DensityMap(*(iMap->second)));
-			globalMasks.insert(deepCopyPair);
-		}
-	}
 }
 
 bool CForest::parseTreeListCsv(const string& inputTreeListCsv)
