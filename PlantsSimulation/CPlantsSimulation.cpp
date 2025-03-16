@@ -895,12 +895,16 @@ bool CPlantsSimulation::LoadInputHeightMap()
 			}
 			else
 			{
-				cell->SetHeightValue(heightMapDouble4096[i][j]);
-				//cell->SetHeightValue(pcHeightMapShort4096[i][j]);
+				//cell->SetHeightValue(heightMapDouble4096[i][j]);
+				////cell->SetHeightValue(pcHeightMapShort4096[i][j]);
+				short hasHeightValue = heightMapDouble4096[i][j];
+				//if (m_isLevel1Instances)
+				{
+					hasHeightValue = (lakesHeightMasksShort4096[i][j] > 0) ? 0 : heightMapDouble4096[i][j];
+				}
+				cell->SetHasHeightValue(hasHeightValue);
 				cell->SetSlopeHeightValue(slopeShort4096[i][j]);
 				cell->SetSlopeAngleValue(slopeDouble4096[i][j]);
-				short hasHeightValue = (lakesHeightMasksShort4096[i][j] > 0) ? 0 : heightMasksShort4096[i][j];
-				cell->SetHasHeightValue(hasHeightValue);
 			}
 		}
 	}
