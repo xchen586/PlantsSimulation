@@ -5,6 +5,7 @@
 #include <fstream>
 #include <filesystem> 
 #include <thread>
+#include <future>
 
 #if __APPLE__
 #include "../Common/include/PsMarco.h"
@@ -294,36 +295,47 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 
 	string geofolder = "GeoChemical";
 	int level = m_isLevel1Instances ? 1 : 0;
-	std::string allinstances_file = std::format("{}\\{}_{}_{}_{}_allinstances.csv", outputDirPath.string(), m_tiles, m_tileIndexX, m_tileIndexY, level);
+	std::string allinstances_file = std::format("{}\\{}_{}_{}_allinstances_level{}.csv", outputDirPath.string(), m_tiles, m_tileIndexX, m_tileIndexY, level);
 	std::string allinstancesGeo_folder = std::format("{}\\{}", outputDirPath.string(), geofolder);
-	std::string allinstancesGeo_Csv = std::format("{}\\{}\\{}_{}_{}_{}_geo_merged.csv", outputDirPath.string(), geofolder, m_tiles, m_tileIndexX, m_tileIndexY, level);
+	std::string allinstancesGeo_Csv = std::format("{}\\{}\\{}_{}_{}_geo_merged_level{}.csv", outputDirPath.string(), geofolder, m_tiles, m_tileIndexX, m_tileIndexY, level);
 	bool outputAll = OutputAllInstance(allinstances_file, m_outputMap);
 
-	std::vector<std::thread> workers;
+	/*std::vector<std::thread> workers;
 	for (const auto& pair : m_outputMap)
 	{
 		workers.emplace_back(std::thread(OutputCSVFileForSubInstances, pair.first, pair.second));
 	}
-	/*for (int i = 0; i < workers.size() - 1; i++)
-	{
-		workers[i].join();
-	}
-	workers.back().join();*/
 	// Join all the threads to wait for them to finish
 	for (std::thread& t : workers) {
-
 		t.join();
 	}
-
 	// Use the function results as needed
 	bool allOk = true;
 	for (const std::thread& t : workers) {
-		bool result = t.joinable(); // Replace with actual result retrieval logic
+		bool result = t.joinable(); // Replace with actual result retrieval logic: 
+		//std::thread::joinable() only checks if a thread can still be joined (i.e., it hasn't been joined or detached yet). It does not return the function's result. After joining, all threads in workers are no longer joinable.
 		if (result) {
 			// Do something when the function returns true
 		}
 		else {
 			// Do something when the function returns false
+			std::cout << "Wait for join threads of OutputCSVFileForSubInstances is failed!" << std::endl;
+			allOk = false;
+		}
+	}*/
+
+	std::vector<std::future<bool>> results;
+
+	// Launch threads using std::async
+	for (const auto& pair : m_outputMap) {
+		results.emplace_back(std::async(std::launch::async, OutputCSVFileForSubInstances, pair.first, pair.second));
+	}
+
+	// Check results
+	bool allOk = true;
+	for (auto& future : results) {
+		if (!future.get()) {  // .get() waits for the result and retrieves it
+			std::cout << "OutputCSVFileForSubInstances Processing failed!" << std::endl;
 			allOk = false;
 		}
 	}
@@ -337,7 +349,7 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 	std::cout << "Start OutputAllInstanceGeoChem : " << allinstancesGeo_Csv << std::endl;
 	bool outputGeo = true;
 	outputGeo = OutputAllInstanceGeoChem(allinstancesGeo_Csv, m_outputMap);
-	std::cout << "Start OutputAllInstanceGeoChem : " << allinstancesGeo_Csv << std::endl;
+	std::cout << "End OutputAllInstanceGeoChem : " << allinstancesGeo_Csv << std::endl;
 
 	std::cout << "End to CPsInstanceExporter::outputSubfiles to : " << outputSubsDir << std::endl;
 
