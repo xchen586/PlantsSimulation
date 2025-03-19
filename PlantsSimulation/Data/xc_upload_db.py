@@ -328,12 +328,17 @@ api.update_entity(project=project_id, id=project_id, fields={'version': version}
 
 basemeshes_db_folder_Id = '68396F90F7CE48B4BA1412EA020ED92A' # Pangea Next > Workflow Output > Workflow BaseMeshes Output
 
-db_output_folder = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\cavesdb\\{tiles}_{x}_{y}_{l}'
-entity_name = f'TopCaves_{tiles}_{x}_{y}_{l}-ver-{version}'
+db_output_folder = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\db\\{tiles}_{x}_{y}_{l}'
+entity_name = f'Workflow_Basemeshes_{tiles}_{x}_{y}_{l}-ver-{version}'
 
-isBaseMesh = False
-if isBaseMesh:
-    db_output_folder = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\db\\{tiles}_{x}_{y}_{l}'
-    entity_name = f'Workflow_Basemeshes_{tiles}_{x}_{y}_{l}-ver-{version}'
+isCaveMesh = False
+if isCaveMesh:
+    db_output_folder = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\cavesdb\\{tiles}_{x}_{y}_{l}'
+    entity_name = f'TopCaves_{tiles}_{x}_{y}_{l}-ver-{version}'
+
+isDungeons = True
+if isDungeons:
+    db_output_folder = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\dungeonsdb\\{tiles}_{x}_{y}_{l}'
+    entity_name = f'Dungeons_{tiles}_{x}_{y}_{l}-ver-{version}'
 
 do_simple_upload_basemeshes_swarm(api, project_id, basemeshes_db_folder_Id, db_output_folder, version, entity_name, pythoncode_data_folder)
