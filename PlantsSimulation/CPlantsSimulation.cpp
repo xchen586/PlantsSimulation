@@ -630,13 +630,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 			short pcValue = pcHeightMasksShort4096[x][y];
 			short l1Value = l1HeightMasksShort4096[x][y];
 			short bedrockValue = bedrockHeightMasksShort4096[x][y];
-
-			if (needMaskPositive)
-			{
-				
-			}
-			//short value = std::max(meshValue, pcValue);
-			//short value = FindMaxIn3(meshValue, mesh2Value, pcValue);
+			
 			short value = 0;
 
 			value = FindMaxIn4(meshValue, pcValue, l1Value, bedrockValue);
@@ -763,66 +757,88 @@ bool CPlantsSimulation::LoadInputHeightMap()
 			short smoothValue = UNAVAILBLE_NEG_HEIGHT;
 			short baseMeshValue = UNAVAILBLE_NEG_HEIGHT;
 
-			if (hasSmoothValue)
-			{
-				if (hasPcValue && hasl1Value && hasBedRockValue)
-				{
-					if (bedrockValue > pcValue)
-					{
+			/*if (hasSmoothValue) {
+				if (hasPcValue && hasl1Value && hasBedRockValue) {
+					if (bedrockValue > pcValue){
 						smoothValue = l1Value;
 					}
-					else
-					{
+					else {
 						smoothValue = pcValue;
 					}
 				}
-				else
-				{
-					if (hasPcValue && hasl1Value)
-					{
+				else {
+					if (hasPcValue && hasl1Value) {
 						smoothValue = pcValue;
 					}
-					else if (hasPcValue && bedrockValue)
-					{
+					else if (hasPcValue && bedrockValue) {
 						smoothValue = pcValue;
 					}
-					else if (hasBedRockValue && hasl1Value)
-					{
+					else if (hasBedRockValue && hasl1Value) {
 						smoothValue = l1Value;
 					}
-					else
-					{
-						if (hasPcValue)
-						{
+					else {
+						if (hasPcValue) {
 							smoothValue = pcValue;
 						}
-						else if (hasl1Value)
-						{
+						else if (hasl1Value) {
 							smoothValue = l1Value;
 						}
-						else if (hasBedRockValue)
-						{
+						else if (hasBedRockValue) {
 							smoothValue = bedrockValue;
 						}
 					}
 				}
 			}
 
-			if (hasBaseMeshValue)
-			{
+			if (hasBaseMeshValue) {
 				baseMeshValue = meshValue;
 			}
 			
-			if (hasBaseMeshValue && hasSmoothValue)
-			{
+			if (hasBaseMeshValue && hasSmoothValue) {
 				value = std::max(baseMeshValue, smoothValue);
 			}
-			else if (hasBaseMeshValue)
-			{
+			else if (hasBaseMeshValue) {
 				value = baseMeshValue;
 			}
-			else if (hasSmoothValue)
-			{
+			else if (hasSmoothValue) {
+				value = smoothValue;
+			}*/
+
+			if (hasSmoothValue) {
+				if (hasPcValue && hasl1Value && hasBedRockValue) {
+					smoothValue = (bedrockValue > pcValue) ? l1Value : pcValue;
+				}
+				else if (hasPcValue && hasl1Value) {
+					smoothValue = pcValue;
+				}
+				else if (hasPcValue && hasBedRockValue) {
+					smoothValue = pcValue;
+				}
+				else if (hasBedRockValue && hasl1Value) {
+					smoothValue = l1Value;
+				}
+				else if (hasPcValue) {
+					smoothValue = pcValue;
+				}
+				else if (hasl1Value) {
+					smoothValue = l1Value;
+				}
+				else if (hasBedRockValue) {
+					smoothValue = bedrockValue;
+				}
+			}
+
+			if (hasBaseMeshValue) {
+				baseMeshValue = meshValue;
+			}
+
+			if (hasBaseMeshValue && hasSmoothValue) {
+				value = std::max(baseMeshValue, smoothValue);
+			}
+			else if (hasBaseMeshValue) {
+				value = baseMeshValue;
+			}
+			else if (hasSmoothValue) {
 				value = smoothValue;
 			}
 
