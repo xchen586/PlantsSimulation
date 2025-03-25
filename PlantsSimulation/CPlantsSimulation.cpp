@@ -819,14 +819,22 @@ bool CPlantsSimulation::LoadInputHeightMap()
 				}
 				else if (hasBedRockValue && hasl1Value) {
 					smoothValue = l1Value;
+					if (m_isLevel1Instances) {
+						short difference = std::abs(bedrockValue - l1Value);
+						if (difference < 50) //also let's not plant any trees if the height gap between level1 ground and bedrock is smaller than 50m
+						{
+							smoothValue = UNAVAILBLE_NEG_HEIGHT;
+							hasSmoothValue = false;
+						}
+					}
+					
 				}
 				else if (hasPcValue) {
 					smoothValue = pcValue;
 				}
 				else if (hasl1Value) {
 					smoothValue = l1Value;
-					if (m_isLevel1Instances)
-					{
+					if (m_isLevel1Instances) {
 						//According to Miguel's saying, the trees shuld not appear where level1 is exposed to the sky, they should be only where bedrock is higher than level1.
 						smoothValue = UNAVAILBLE_NEG_HEIGHT;
 						hasSmoothValue = false;
