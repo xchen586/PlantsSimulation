@@ -820,9 +820,15 @@ bool CPlantsSimulation::LoadInputHeightMap()
 				else if (hasBedRockValue && hasl1Value) {
 					smoothValue = l1Value;
 					if (m_isLevel1Instances) {
-						short difference = std::abs(bedrockValue - l1Value);
-						if (difference < 50) //also let's not plant any trees if the height gap between level1 ground and bedrock is smaller than 50m
-						{
+						bool level1Validate = false;
+						if ((bedrockValue > l1Value)
+							&& ((bedrockValue - l1Value) > 50)) { //also let's not plant any trees if the height gap between level1 ground and bedrock is smaller than 50m
+							level1Validate = true;
+						}
+						if (level1Validate) {
+							smoothValue = l1Value;
+						}
+						else {
 							smoothValue = UNAVAILBLE_NEG_HEIGHT;
 							hasSmoothValue = false;
 						}
