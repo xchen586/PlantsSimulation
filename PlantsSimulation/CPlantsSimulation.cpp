@@ -751,6 +751,11 @@ bool CPlantsSimulation::LoadInputHeightMap()
 			bool hasValue = heightMasksShort4096[x][y] ? true : false;
 
 			bool hasSmoothValue = (hasPcValue || hasl1Value || hasBedRockValue);
+			if (m_isLevel1Instances)
+			{
+				hasPcValue = false;
+				hasSmoothValue = hasl1Value && hasBedRockValue;
+			}
 			bool hasBaseMeshValue = hasMeshValue;
 
 			short value = UNAVAILBLE_NEG_HEIGHT;
@@ -803,10 +808,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 			else if (hasSmoothValue) {
 				value = smoothValue;
 			}*/
-			if (m_isLevel1Instances)
-			{
-				hasPcValue = false;
-			}
+			
 			if (hasSmoothValue) {
 				if (hasPcValue && hasl1Value && hasBedRockValue) {
 					smoothValue = (bedrockValue > pcValue) ? l1Value : pcValue;
@@ -840,11 +842,6 @@ bool CPlantsSimulation::LoadInputHeightMap()
 				}
 				else if (hasl1Value) {
 					smoothValue = l1Value;
-					if (m_isLevel1Instances) {
-						//According to Miguel's saying, the trees shuld not appear where level1 is exposed to the sky, they should be only where bedrock is higher than level1.
-						smoothValue = UNAVAILBLE_NEG_HEIGHT;
-						hasSmoothValue = false;
-					}
 				}
 				else if (hasBedRockValue) {
 					smoothValue = bedrockValue;
