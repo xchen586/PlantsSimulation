@@ -41,6 +41,21 @@ class DualOutput:
 def exit_code(code):
     exit(code)
     
+def is_valid_float_string(s):
+    try:
+        float(s)
+        return True
+    except ValueError:
+        return False
+    
+def RemoveBaseMeshesdata(level_index_db_file_path, level_data_db_file_path):
+    if os.path.exists(level_index_db_file_path):
+        os.remove(level_index_db_file_path)  # Remove the file
+        print(f"File '{level_index_db_file_path}' has been removed.")
+    if os.path.exists(level_data_db_file_path):
+        os.remove(level_data_db_file_path)  # Remove the file
+        print(f"File '{level_data_db_file_path}' has been removed.")
+        
 def xc_run_tool(tool_path, progress_start, progress_end):    
     
     print(f'run tree tool_path:\n{tool_path}')
@@ -112,9 +127,20 @@ basemeshes_cache_base_folder = os.path.join(basemeshes_assets_folder, f'cache')
 basemeshes_heightmap_folder = os.path.join(basemeshes_assets_folder, f'heightmap') 
 basemeshes_debug_level = 0
 
-basemeshvoxelizer_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_debug_level} {basemeshes_heightmap_folder}'
+level_db_output_folder = os.path.join(basemeshes_db_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}_{basemeshes_level}')
+index_db_file_name = f'index.vf'
+data_db_file_name = f'data.vf'
+level_index_db_file_path = os.path.join(level_db_output_folder, index_db_file_name)
+level_data_db_file_path = os.path.join(level_db_output_folder, data_db_file_name)
+print(f'level_index_db_file_path: {level_index_db_file_path}')
+print(f'level_data_db_file_path: {level_data_db_file_path}')
 
+print(f'start to remove basemeshes db files: {level_index_db_file_path} and {level_data_db_file_path}')
+RemoveBaseMeshesdata(level_index_db_file_path, level_data_db_file_path)
+    
+basemeshvoxelizer_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_debug_level} {basemeshes_heightmap_folder}'
 print(f'step for to run_make_basemeshes : {basemeshvoxelizer_command}')
+
 return_code_basemash = xc_run_tool(basemeshvoxelizer_command, 0, 100)
 if return_code_basemash == 0:
     print(f'Process ({basemeshvoxelizer_command}) executed successfully.')
