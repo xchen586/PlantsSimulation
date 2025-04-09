@@ -788,7 +788,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 			short l1SmoothValue = l1SmoothHeightMapShort4096[x][y];
 			short bedrockValue = bedrockHeightMapShort4096[x][y];
 
-			short coverValue = std::max(mesh0Value, pcValue);
+			short toplayerValue = std::max(mesh0Value, pcValue);
 			short level1Value = std::max(mesh1Value, l1SmoothValue);
 
 			bool hasMesh0Value = mesh0HeightMapShort4096[x][y] ? true : false;
@@ -802,10 +802,16 @@ bool CPlantsSimulation::LoadInputHeightMap()
 			bool hasLakes1Value = lakes1HeightMasksShort4096[x][y] ? true : false;
 			bool hasLakesValue = lakesHeightMasksShort4096[x][y] ? true : false;
 
-			bool hasCoverValue = hasMesh0Value || hasPcValue;
 			bool hasLevel1Value = hasMesh1Value || hasl1SmoothValue;
+			bool hasToplayerValue = hasMeshValue || hasPcValue;
 
 			bool hasOnlyLevel1Instances = (hasLevel1Value && hasBedRockValue) && (bedrockValue > level1Value);
+			bool hasCoverValue = false;
+			if (hasToplayerValue && hasLevel1Value) {
+				if (toplayerValue > level1Value) {
+					hasCoverValue = true;
+				}
+			}
 
 			bool hasSmoothValue = (hasPcValue || hasl1SmoothValue || hasBedRockValue);
 			bool hasBaseMeshValue = hasMeshValue;
@@ -823,7 +829,8 @@ bool CPlantsSimulation::LoadInputHeightMap()
 				bool level1Validate = false;
 				if (!hasLakesValue &&
 					hasCoverValue && 
-					hasOnlyLevel1Instances) {
+					hasOnlyLevel1Instances
+					) {
 					
 					if ((bedrockValue - level1Value) > 50) { //also let's not plant any trees if the height gap between level1 ground and bedrock is smaller than 50m
 						level1Validate = true;
@@ -837,7 +844,8 @@ bool CPlantsSimulation::LoadInputHeightMap()
 			}
 			else {
 				if (!hasLakesValue
-					&& !hasOnlyLevel1Instances) {
+					//&& !hasOnlyLevel1Instances
+					) {
 
 					if (hasPcValue && hasl1SmoothValue && hasBedRockValue) {
 						smoothValue = (bedrockValue > pcValue) ? l1SmoothValue : pcValue;
@@ -1058,7 +1066,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 				short hasHeightValue = heightMasksShort4096[i][j];
 				if (m_isLevel1Instances)
 				{
-					hasHeightValue = (lakesHeightMasksShort4096[i][j] > 0) ? 0 : heightMasksShort4096[i][j];
+					//hasHeightValue = (lakesHeightMasksShort4096[i][j] > 0) ? 0 : heightMasksShort4096[i][j];
 				}
 				cell->SetHasHeightValue(hasHeightValue);
 			}
