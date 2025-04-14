@@ -11,6 +11,7 @@ road_input_height = 300
 tile_size = 25
 tile_x = 8
 tile_y = 5
+tile_scale = 1
 level = 6
 tree_lod =  8
 forest_age = 15000
@@ -100,6 +101,7 @@ def common_generation_on_receive_data(
             'tile_size': tile_size,
             'tile_x': tile_x,
             'tile_y': tile_y,
+            'tile_scale': tile_scale,
             'level' : level,
             'tree_lod': tree_lod,
             'forest_age': forest_age,

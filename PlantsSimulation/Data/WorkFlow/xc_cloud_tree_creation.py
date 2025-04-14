@@ -1377,6 +1377,7 @@ def tree_instances_generation(config_path):
     tiles_count = read_ini_value(config_path, section_tiles, 'tiles_count', value_type=int)
     tiles_x = read_ini_value(config_path, section_tiles, 'tiles_x', value_type=int)
     tiles_y = read_ini_value(config_path, section_tiles, 'tiles_y', value_type=int)
+    tiles_scale = read_ini_value(config_path, section_tiles, 'tiles_scale', value_type=int)
 
     road_input_folder = read_ini_value(config_path, section_input, 'road_input_folder')
     road_exe_path = read_ini_value(config_path, section_input, 'road_exe_path')
@@ -2025,6 +2026,7 @@ def tree_config_creation(ini_path):
     create_or_update_ini_file(ini_path, section_tiles, 'tiles_count', Tiles_size)
     create_or_update_ini_file(ini_path, section_tiles, 'tiles_x', Tiles_x)
     create_or_update_ini_file(ini_path, section_tiles, 'tiles_y', Tiles_y)
+    create_or_update_ini_file(ini_path, section_tiles, 'tiles_scale', Tiles_scale)
 
     create_or_update_ini_file(ini_path, section_input, 'road_input_folder', road_input_folder)
     create_or_update_ini_file(ini_path, section_input, 'road_exe_path', road_exe_path)
@@ -2106,6 +2108,8 @@ tile_x = lambda_host.input_string('tile_x', 'Tile X', '')
 lambda_host.log(f'tile_x: {tile_x}')
 tile_y = lambda_host.input_string('tile_y', 'Tile Y', '')
 lambda_host.log(f'tile_y: {tile_y}')
+tile_scale = lambda_host.input_string('tile_scale', 'Tile Scale', '')
+lambda_host.log(f'tile_scale: : {tile_scale}')
 level = lambda_host.input_string('level', 'Level', '')
 lambda_host.log(f'level: {level}')
 entity_folder = lambda_host.get_entity_folder()
@@ -2237,10 +2241,11 @@ if os.path.exists(Tile_Info_ini_path):
     tile_size = read_ini_value(Tile_Info_ini_path, section_tiles, 'Tiles_Count', value_type=int)
     tile_x = read_ini_value(Tile_Info_ini_path, section_tiles, 'Tiles_X_Index', value_type=int)
     tile_y = read_ini_value(Tile_Info_ini_path, section_tiles, 'Tiles_Y_Index', value_type=int)
+    tile_scale = read_ini_value(Tile_Info_ini_path, section_tiles, 'Tiles_Scale', value_type=int)
     lambda_host.log(f'Tiles_Count of {Tile_Info_ini_path} is {tile_size}')
     lambda_host.log(f'Tiles_X_Index of {Tile_Info_ini_path} is {tile_x}')
     lambda_host.log(f'Tiles_Y_Index of {Tile_Info_ini_path} is {tile_y}')
-    
+    lambda_host.log(f'Tiles_Scale of {Tile_Info_ini_path} is {tile_scale}')    
 #lambda_host.progress(15, 'Start to download tools files')
 #lambda_host.log(f'start to copy from {tools_data_path} to {Tools_folder}')
 #copy_files_in_folder(tools_data_path, Tools_folder)
@@ -2258,10 +2263,12 @@ lambda_host.log(f'Workflow_Output_Result_Folder_id: {Workflow_Output_Result_Fold
 Tiles_size = tile_size if tile_size else 10
 Tiles_x = tile_x if tile_x else 8
 Tiles_y = tile_y if tile_y else 5
+Tiles_scale = tile_scale if tile_scale else 1
 
 lambda_host.log(f'Tiles_size: {Tiles_size}')
 lambda_host.log(f'Tiles_x: {Tiles_x}')
 lambda_host.log(f'Tiles_y: {Tiles_y}')
+lambda_host.log(f'Tiles_scale: {Tiles_scale}')
 Basemeshes_debug_level = level if level else 6
 lambda_host.log(f'Basemeshes_debug_level: {Basemeshes_debug_level}')
 configfile_path = f'{Data_folder}\\TreeInstancesCreationConfig.ini'
