@@ -2019,6 +2019,7 @@ def tree_config_creation(ini_path):
     create_or_update_ini_file(ini_path, section_tiles, 'tiles_count', Tiles_size)
     create_or_update_ini_file(ini_path, section_tiles, 'tiles_x', Tiles_x)
     create_or_update_ini_file(ini_path, section_tiles, 'tiles_y', Tiles_y)
+    create_or_update_ini_file(ini_path, section_tiles, 'tiles_scale', Tiles_scale)
 
     create_or_update_ini_file(ini_path, section_input, 'road_input_folder', road_input_folder)
     create_or_update_ini_file(ini_path, section_input, 'road_exe_path', road_exe_path)
@@ -2183,7 +2184,7 @@ only_upload_tree_generation = False
 caves_voxelization_generation = False
 caves_upload_generation = False
 
-smooth_layer_generation_without_road = True
+only_upload_smooth_layer_generation = True
 
 only_run_level_0_instances = False
 only_run_level_1_instances = False
@@ -2529,9 +2530,11 @@ if os.path.exists(Tile_Info_ini_path):
     tile_size = read_ini_value(Tile_Info_ini_path, section_tiles, 'Tiles_Count', value_type=int)
     tile_x = read_ini_value(Tile_Info_ini_path, section_tiles, 'Tiles_X_Index', value_type=int)
     tile_y = read_ini_value(Tile_Info_ini_path, section_tiles, 'Tiles_Y_Index', value_type=int)
+    tile_scale = read_ini_value(Tile_Info_ini_path, section_tiles, 'Tiles_Scale', value_type=float)
     print(f'Tiles_Count of {Tile_Info_ini_path} is {tile_size}')
     print(f'Tiles_X_Index of {Tile_Info_ini_path} is {tile_x}')
     print(f'Tiles_Y_Index of {Tile_Info_ini_path} is {tile_y}')
+    print(f'Tiles_Scale of {Tile_Info_ini_path} is {tile_scale}')
 
 print('Start to get input parameters')
 Cloud_url = 'https://demo.voxelfarm.com/'
@@ -2544,9 +2547,11 @@ print(f'Workflow_Output_Result_Folder_id: {Workflow_Output_Result_Folder_id}')
 Tiles_size = tile_size if tile_size else 10
 Tiles_x = tile_x if tile_x else 8
 Tiles_y = tile_y if tile_y else 5
+Tiles_scale = tile_scale if tile_scale else 1
 print(f'Tiles_size: {Tiles_size}')
 print(f'Tiles_x: {Tiles_x}')
 print(f'Tiles_y: {Tiles_y}')
+print(f'Tiles_scale: {Tiles_scale}')
 Basemeshes_debug_level = level if level else 6
 print(f'Basemeshes_debug_level: {Basemeshes_debug_level}')
 configfile_path = f'{Data_folder}\\TreeInstancesCreationConfig.ini'
