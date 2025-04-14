@@ -317,9 +317,9 @@ cloud_url = 'https://demo.voxelfarm.com/'
 project_id = workflow_project_id
 api = voxelfarmclient.rest(cloud_url)
 
-tiles = 25
-x = 8
-y = 5
+tiles = 12
+x = 4
+y = 2
 l = 0
 
 project_entity = api.get_entity(project_id)
