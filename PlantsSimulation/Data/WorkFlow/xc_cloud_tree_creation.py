@@ -1752,6 +1752,10 @@ def tree_instances_generation(config_path):
         create_or_update_ini_file(tree_ini_path, section_tiles, 'Tiles_Count', tiles_count)
         create_or_update_ini_file(tree_ini_path, section_tiles, 'Tiles_X_Index', tiles_x)
         create_or_update_ini_file(tree_ini_path, section_tiles, 'Tiles_Y_Index', tiles_y)
+        create_or_update_ini_file(tree_ini_path, section_tiles, 'Tiles_Scale', tiles_scale)
+
+        create_or_update_ini_file(tree_ini_path, section_input, 'Road_Heightmap_Scale_Width', road_heightmap_scale_width)
+        create_or_update_ini_file(tree_ini_path, section_input, 'Road_Heightmap_Scale_Height', road_heightmap_scale_height)
         create_or_update_ini_file(tree_ini_path, section_input, 'Toplayer_Image', toplayer_image_path)
         create_or_update_ini_file(tree_ini_path, section_input, 'Toplayer_Image_Meta', toplayer_image_meta_path)
         create_or_update_ini_file(tree_ini_path, section_input, 'BaseMeshes_Level_0_HeightMap', basemeshes_0_heightmap_path)
