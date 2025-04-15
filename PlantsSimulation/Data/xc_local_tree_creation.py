@@ -1375,6 +1375,7 @@ def tree_instances_generation(config_path):
     tiles_count = read_ini_value(config_path, section_tiles, 'tiles_count', value_type=int)
     tiles_x = read_ini_value(config_path, section_tiles, 'tiles_x', value_type=int)
     tiles_y = read_ini_value(config_path, section_tiles, 'tiles_y', value_type=int)
+    tiles_scale = read_ini_value(config_path, section_tiles, 'tiles_scale', value_type=int)
 
     road_input_folder = read_ini_value(config_path, section_input, 'road_input_folder')
     road_exe_path = read_ini_value(config_path, section_input, 'road_exe_path')
@@ -1410,8 +1411,8 @@ def tree_instances_generation(config_path):
     run_create_geochem_entity = read_ini_value(config_path, section_run, 'run_create_geochem_entity', value_type=bool)
     run_generate_road_input = read_ini_value(config_path, section_run, 'run_generate_road_input', value_type=bool)
 
-    road_Heightmap_width = read_ini_value(config_path, section_road, 'road_Heightmap_width', value_type=int)
-    road_heightmap_height = read_ini_value(config_path, section_road, 'road_heightmap_height', value_type=int)
+    road_heightmap_scale_width = read_ini_value(config_path, section_road, 'road_heightmap_scale_width', value_type=int)
+    road_heightmap_scale_height = read_ini_value(config_path, section_road, 'road_heightmap_scale_height', value_type=int)
 
     basemeshes_debug_level = read_ini_value(config_path, section_others, 'basemeshes_debug_level', value_type=int)
     tree_lod = read_ini_value(config_path, section_others, 'tree_lod', value_type=int)
@@ -1427,8 +1428,8 @@ def tree_instances_generation(config_path):
     basemeshes_level1 = 1
     version = 80
         
-    road_heightmap_file_name = f'{tiles_count}_{tiles_x}_{tiles_y}_{road_Heightmap_width}_{road_heightmap_height}_ushort_height_map_raw.raw'
-    road_humidity_file_name = f'{tiles_count}_{tiles_x}_{tiles_y}_{road_Heightmap_width}_{road_heightmap_height}_byte_humidity_map_raw.raw'
+    road_heightmap_file_name = f'{tiles_count}_{tiles_x}_{tiles_y}_{tiles_scale}_{road_heightmap_scale_width}_{road_heightmap_scale_height}_ushort_height_map_raw.raw'
+    road_humidity_file_name = f'{tiles_count}_{tiles_x}_{tiles_y}_{tiles_scale}_{road_heightmap_scale_width}_{road_heightmap_scale_height}_byte_humidity_map_raw.raw'
     road_regions_name_file_name = f'{tiles_count}_{tiles_x}_{tiles_y}_regions_name.csv'
     road_regions_namelist_file_name = f'{tiles_count}_{tiles_x}_{tiles_y}_regions_namelist.csv'
     
@@ -1529,7 +1530,7 @@ def tree_instances_generation(config_path):
     api.update_entity(project=project_id, id=project_id, fields={'version': project_output_version})
     
     dont_run_road_game = 1
-    road_exe_command = f'{road_exe_path} {tiles_count} {tiles_x} {tiles_y} {road_Heightmap_width} {road_heightmap_height} {road_input_folder} {road_output_folder} {dont_run_road_game}'
+    road_exe_command = f'{road_exe_path} {tiles_count} {tiles_x} {tiles_y} {tiles_scale} {road_heightmap_scale_width} {road_heightmap_scale_height} {road_input_folder} {road_output_folder} {dont_run_road_game}'
     worldgen_level = 5
     worldgen_command =  f'{worldgen_exe_path} {tiles_count} {tiles_x} {tiles_y} {worldgen_level} {qtree_assets_folder} {smoothlayer_output_base_folder} {road_output_folder}'
     if run_generate_road_input:
@@ -2051,8 +2052,8 @@ def tree_config_creation(ini_path):
     create_or_update_ini_file(ini_path, section_run, 'run_create_geochem_entity', is_run_create_geochem_entity)
     create_or_update_ini_file(ini_path, section_run, 'run_generate_road_input', is_run_generate_road_input)
 
-    create_or_update_ini_file(ini_path, section_road, 'road_Heightmap_width', Road_Input_Width)
-    create_or_update_ini_file(ini_path, section_road, 'road_heightmap_height', Road_Input_Height)
+    create_or_update_ini_file(ini_path, section_road, 'road_heightmap_scale_width', Road_Input_Scale_Width)
+    create_or_update_ini_file(ini_path, section_road, 'road_heightmap_scale_height', Road_Input_Scale_Height)
 
     create_or_update_ini_file(ini_path, section_others, 'basemeshes_debug_level', Basemeshes_debug_level)
     create_or_update_ini_file(ini_path, section_others, 'tree_lod', Tree_load)
@@ -2124,10 +2125,10 @@ print(f'foreForest_agest_age: {Forest_age}')
 Tree_iteration = 300
 print(f'Tree_iteration: {Tree_iteration}')
 
-Road_Input_Width = 300
-print(f'Road_Input_Width: {Road_Input_Width}')
-Road_Input_Height = 300
-print(f'Road_Input_Height: {Road_Input_Height}')
+Road_Input_Scale_Width = 300
+print(f'Road_Input_Scale_Width: {Road_Input_Scale_Width}')
+Road_Input_Scale_Height = 300
+print(f'Road_Input_Scale_Height: {Road_Input_Scale_Height}')
 
 pythoncode_active_version_property = f'D:\\Downloads\\XCTreeWorkFlow\\PythonCode' 
 treelist_active_version_property = f'D:\\Downloads\\XCTreeWorkFlow\\TreeList'
@@ -2530,7 +2531,7 @@ if os.path.exists(Tile_Info_ini_path):
     tile_size = read_ini_value(Tile_Info_ini_path, section_tiles, 'Tiles_Count', value_type=int)
     tile_x = read_ini_value(Tile_Info_ini_path, section_tiles, 'Tiles_X_Index', value_type=int)
     tile_y = read_ini_value(Tile_Info_ini_path, section_tiles, 'Tiles_Y_Index', value_type=int)
-    tile_scale = read_ini_value(Tile_Info_ini_path, section_tiles, 'Tiles_Scale', value_type=float)
+    tile_scale = read_ini_value(Tile_Info_ini_path, section_tiles, 'Tiles_Scale', value_type=int)
     print(f'Tiles_Count of {Tile_Info_ini_path} is {tile_size}')
     print(f'Tiles_X_Index of {Tile_Info_ini_path} is {tile_x}')
     print(f'Tiles_Y_Index of {Tile_Info_ini_path} is {tile_y}')
@@ -2548,6 +2549,7 @@ Tiles_size = tile_size if tile_size else 10
 Tiles_x = tile_x if tile_x else 8
 Tiles_y = tile_y if tile_y else 5
 Tiles_scale = tile_scale if tile_scale else 1
+
 print(f'Tiles_size: {Tiles_size}')
 print(f'Tiles_x: {Tiles_x}')
 print(f'Tiles_y: {Tiles_y}')

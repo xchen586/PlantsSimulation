@@ -6,8 +6,8 @@ import configparser
 
 g_trigger_others = False
 
-road_input_width = 300
-road_input_height = 300
+road_input_scale_width = 300
+road_input_scale_height = 300
 tile_size = 25
 tile_x = 8
 tile_y = 5
@@ -96,8 +96,8 @@ def common_generation_on_receive_data(
             'run_upload_tree_instances': run_upload_tree_instances,
             'run_create_geochem_entity': run_create_geochem_entity,
             'run_generate_road_input': run_generate_road_input,
-            'road_input_width': road_input_width,
-            'road_input_height': road_input_height,
+            'road_input_scale_width': road_input_scale_width,
+            'road_input_scale_height': road_input_scale_height,
             'tile_size': tile_size,
             'tile_x': tile_x,
             'tile_y': tile_y,

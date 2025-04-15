@@ -1413,8 +1413,8 @@ def tree_instances_generation(config_path):
     run_create_geochem_entity = read_ini_value(config_path, section_run, 'run_create_geochem_entity', value_type=bool)
     run_generate_road_input = read_ini_value(config_path, section_run, 'run_generate_road_input', value_type=bool)
 
-    road_Heightmap_width = read_ini_value(config_path, section_road, 'road_Heightmap_width', value_type=int)
-    road_heightmap_height = read_ini_value(config_path, section_road, 'road_heightmap_height', value_type=int)
+    road_heightmap_scale_width = read_ini_value(config_path, section_road, 'road_heightmap_scale_width', value_type=int)
+    road_heightmap_scale_height = read_ini_value(config_path, section_road, 'road_heightmap_scale_height', value_type=int)
 
     basemeshes_debug_level = read_ini_value(config_path, section_others, 'basemeshes_debug_level', value_type=int)
     tree_lod = read_ini_value(config_path, section_others, 'tree_lod', value_type=int)
@@ -1430,8 +1430,8 @@ def tree_instances_generation(config_path):
     basemeshes_level1 = 1
     version = 80
 
-    road_heightmap_file_name = f'{tiles_count}_{tiles_x}_{tiles_y}_{road_Heightmap_width}_{road_heightmap_height}_ushort_height_map_raw.raw'
-    road_humidity_file_name = f'{tiles_count}_{tiles_x}_{tiles_y}_{road_Heightmap_width}_{road_heightmap_height}_byte_humidity_map_raw.raw'
+    road_heightmap_file_name = f'{tiles_count}_{tiles_x}_{tiles_y}_{tiles_scale}_{road_heightmap_scale_width}_{road_heightmap_scale_height}_ushort_height_map_raw.raw'
+    road_humidity_file_name = f'{tiles_count}_{tiles_x}_{tiles_y}_{tiles_scale}_{road_heightmap_scale_width}_{road_heightmap_scale_height}_byte_humidity_map_raw.raw'
     road_regions_name_file_name = f'{tiles_count}_{tiles_x}_{tiles_y}_regions_name.csv'
     road_regions_namelist_file_name = f'{tiles_count}_{tiles_x}_{tiles_y}_regions_namelist.csv'
     
@@ -1532,7 +1532,7 @@ def tree_instances_generation(config_path):
     api.update_entity(project=project_id, id=project_id, fields={'version': project_output_version})
     
     dont_run_road_game = 1
-    road_exe_command = f'{road_exe_path} {tiles_count} {tiles_x} {tiles_y} {road_Heightmap_width} {road_heightmap_height} {road_input_folder} {road_output_folder} {dont_run_road_game}'
+    road_exe_command = f'{road_exe_path} {tiles_count} {tiles_x} {tiles_y} {tiles_scale} {road_heightmap_scale_width} {road_heightmap_scale_height} {road_input_folder} {road_output_folder} {dont_run_road_game}'
     worldgen_level = 5
     worldgen_command =  f'{worldgen_exe_path} {tiles_count} {tiles_x} {tiles_y} {worldgen_level} {qtree_assets_folder} {smoothlayer_output_base_folder} {road_output_folder}'
     if run_generate_road_input:
@@ -2058,8 +2058,8 @@ def tree_config_creation(ini_path):
     create_or_update_ini_file(ini_path, section_run, 'run_create_geochem_entity', is_run_create_geochem_entity)
     create_or_update_ini_file(ini_path, section_run, 'run_generate_road_input', is_run_generate_road_input)
 
-    create_or_update_ini_file(ini_path, section_road, 'road_Heightmap_width', Road_Input_Width)
-    create_or_update_ini_file(ini_path, section_road, 'road_heightmap_height', Road_Input_Height)
+    create_or_update_ini_file(ini_path, section_road, 'road_heightmap_scale_width', Road_Input_Scale_Width)
+    create_or_update_ini_file(ini_path, section_road, 'road_heightmap_scale_height', Road_Input_Scale_Height)
 
     create_or_update_ini_file(ini_path, section_others, 'basemeshes_debug_level', Basemeshes_debug_level)
     create_or_update_ini_file(ini_path, section_others, 'tree_lod', Tree_load)
@@ -2122,10 +2122,10 @@ lambda_host.log(f'foreForest_agest_age: {Forest_age}')
 Tree_iteration = lambda_host.input_string('tree_iteration', 'tree_iteration', '')
 lambda_host.log(f'Tree_iteration: {Tree_iteration}')
 
-Road_Input_Width = lambda_host.input_string('road_input_width', 'road_input_width', '')
-lambda_host.log(f'Road_Input_Width: {Road_Input_Width}')
-Road_Input_Height = lambda_host.input_string('road_input_height', 'road_input_height', '')
-lambda_host.log(f'Road_Input_Height: {Road_Input_Height}')
+Road_Input_Scale_Width = lambda_host.input_string('road_input_scale_width', 'road_input_scale_width', '')
+lambda_host.log(f'Road_Input_Scale_Width: {Road_Input_Scale_Width}')
+Road_Input_Scale_Height = lambda_host.input_string('road_input_scale_height', 'road_input_scale_height', '')
+lambda_host.log(f'Road_Input_Scale_Height: {Road_Input_Scale_Height}')
 
 pythoncode_active_version_property = lambda_host.input_string('pythoncode_active_version_property', 'pythoncode_active_version_property', '') 
 treelist_active_version_property = lambda_host.input_string('treelist_active_version_property', 'treelist_active_version_property', '') 
