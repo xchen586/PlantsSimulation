@@ -181,22 +181,23 @@ bool CPlantsSimulation::LoadInputImage()
 
 	const int MAX_PATH = 250;
 
-	int exportXLow = 300;
-	int exportYLow = 300;
+	int exportXLow = m_roadInputHeightMapWidth * m_tileScale;
+	int exportYLow = m_roadInputHeightMapHeight * m_tileScale;
 	//std::vector<std::vector<byte>> humidityExportLow = ScaleArray(humidity4K, exportXLow, exportYLow);
 	std::vector<std::vector<unsigned char>> humidityExportLowInvert = resample2DUCharWithAverage(humidity4K, exportXLow, exportYLow);
 	std::vector<std::vector<unsigned char>> humidityExportLow = invert2DArray(humidityExportLowInvert);
 	char byte_humidity_map_low_raw[MAX_PATH];
 	memset(byte_humidity_map_low_raw, 0, sizeof(char) * MAX_PATH);
 #if __APPLE__
-	snprintf(byte_humidity_map_low_raw, MAX_PATH, "%s/%d_%d_%d_%d_%d_byte_humidity_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, exportXLow, exportYLow);
+	snprintf(byte_humidity_map_low_raw, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_byte_humidity_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, exportXLow, exportYLow);
 #else
-	sprintf_s(byte_humidity_map_low_raw, MAX_PATH, "%s\\%d_%d_%d_%d_%d_byte_humidity_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, exportXLow, exportYLow);
+	sprintf_s(byte_humidity_map_low_raw, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_byte_humidity_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, exportXLow, exportYLow);
 #endif
 	bool outputHumidityMapLow = Output2DVectorToRawFile(humidityExportLow, byte_humidity_map_low_raw);
 
-	int exportXHigh = 600;
-	int exportYHigh = 600;
+#if USE_OUTPUT_HIGH_ROAD_DATA
+	int exportXHigh = exportXLow * 2;
+	int exportYHigh = exportYLow * 2;
 	//std::vector<std::vector<byte>> humidityExportHigh = ScaleArray(humidity4K, exportXHigh, exportYHigh);
 	std::vector<std::vector<unsigned char>> humidityExportHighInvert = resample2DUCharWithAverage(humidity4K, exportXHigh, exportYHigh);
 	std::vector<std::vector<unsigned char>> humidityExportHigh = invert2DArray(humidityExportHighInvert);
@@ -204,11 +205,13 @@ bool CPlantsSimulation::LoadInputImage()
 	char byte_humidity_map_high_raw[MAX_PATH];
 	memset(byte_humidity_map_high_raw, 0, sizeof(char) * MAX_PATH);
 #if __APPLE__
-	snprintf(byte_humidity_map_high_raw, MAX_PATH, "%s/%d_%d_%d_%d_%d_byte_humidity_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, exportXHigh, exportYHigh);
+	snprintf(byte_humidity_map_high_raw, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_byte_humidity_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, exportXHigh, exportYHigh);
 #else
-	sprintf_s(byte_humidity_map_high_raw, MAX_PATH, "%s\\%d_%d_%d_%d_%d_byte_humidity_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, exportXHigh, exportYHigh);
+	sprintf_s(byte_humidity_map_high_raw, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_byte_humidity_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, exportXHigh, exportYHigh);
 #endif
 	bool outputHumidityMapHigh = Output2DVectorToRawFile(humidityExportHigh, byte_humidity_map_high_raw);
+#endif
+
 	return true;
 }
 
@@ -264,11 +267,11 @@ bool CPlantsSimulation::LoadImageMetaFile()
 bool CPlantsSimulation::LoadRegionsTest()
 {
 	bool ret = true;
-	const int regionsWidth = 300;
-	const int regionsHeight = 300;
+	const int regionsWidth = m_roadInputHeightMapWidth * m_tileScale;
+	const int regionsHeight = m_roadInputHeightMapHeight * m_tileScale;
 
-	const int worldTileWidth = 30000;
-	const int worldTileHeight = 30000;
+	const int worldTileWidth = m_tilePixelMeterWidth * m_tileScale;
+	const int worldTileHeight = m_tilePixelMeterHeight * m_tileScale;
 
 	int region_lod = 10;
 	const double cellScale = (1 << region_lod) * VoxelFarm::CELL_SIZE;
@@ -282,7 +285,7 @@ bool CPlantsSimulation::LoadRegionsTest()
 	std::cout << "current region lod is : " << region_lod << std::endl;
 	std::cout << "current region cellScale is : " << cellScale << std::endl;
 
-	std::vector<std::vector<int>> regionsShort300 = Read2DIntArray(m_regionsRawFile, regionsWidth, regionsHeight);
+	std::vector<std::vector<int>> regionsInput = Read2DIntArray(m_regionsRawFile, regionsWidth, regionsHeight);
 	m_regionsVector.clear();
 	m_regionMap.clear();
 
@@ -304,9 +307,9 @@ bool CPlantsSimulation::LoadRegionsTest()
 	{
 		for (int col = 0; col < regionsHeight; col++)
 		{
-			if (regionsShort300[row][col] != 0)
+			if (regionsInput[row][col] != 0)
 			{
-				int regionId = regionsShort300[row][col];
+				int regionId = regionsInput[row][col];
 				std::shared_ptr<RegionStruct> reg = std::make_shared<RegionStruct>(regionId, row, col);
 
 				bool hasHeight = true;
@@ -409,10 +412,10 @@ bool CPlantsSimulation::LoadAndOutputRegions()
 	}
 
 	bool ret = true;
-	const int regionsWidth = 300;
-	const int regionsHeight = 300;
-	const int worldTileWidth = 30000;
-	const int worldTileHeight = 30000;
+	const int regionsWidth = m_roadInputHeightMapWidth * m_tileScale;
+	const int regionsHeight = m_roadInputHeightMapWidth * m_tileScale;
+	const int worldTileWidth = m_tilePixelMeterWidth * m_tileScale;
+	const int worldTileHeight = m_tilePixelMeterHeight * m_tileScale;
 
 	const int MAX_PATH = 250;
 	char subRegionOutput_Dir[MAX_PATH];
@@ -432,9 +435,7 @@ bool CPlantsSimulation::LoadAndOutputRegions()
 	}
 	RemoveAllFilesInFolder(subRegionOutput_Dir);
 	
-	std::vector<std::vector<int>> regionsInt300 = Read2DIntArray(m_regionsRawFile, regionsWidth, regionsHeight);
-	//std::vector<std::vector<int>> regionsInt300_Raw = Read2DIntArray(m_regionsRawFile, regionsWidth, regionsHeight);
-	//std::vector<std::vector<int>> regionsInt300 = invert2DArray(regionsInt300_Raw);
+	std::vector<std::vector<int>> regionsIntInput = Read2DIntArray(m_regionsRawFile, regionsWidth, regionsHeight);
 	bool loadAllRegionInfo = LoadRegionInfoFromCSV(m_regionsInfoFile, m_regionInfoMap);
 	
 	std::cout << "Total region info count is " << m_regionInfoMap.size() << std::endl;
@@ -445,7 +446,7 @@ bool CPlantsSimulation::LoadAndOutputRegions()
 	{
 		for (int y = 0; y < regionsHeight; y++)
 		{
-			int regionValue = regionsInt300[x][y];
+			int regionValue = regionsIntInput[x][y];
 			if ( regionValue > 0)
 			{
 				regionPlaceCount++;
@@ -568,7 +569,7 @@ bool CPlantsSimulation::LoadAndOutputRegions()
 					int iIndexX = tilePosX / regionWidthScale;
 					int iIndexY = tilePosY / regionHeightScale;
 
-					int regionValue = regionsInt300[iIndexX][iIndexY];
+					int regionValue = regionsIntInput[iIndexX][iIndexY];
 					scaledArray[x][y] = regionValue;
 					if (regionValue != 0)
 					{
@@ -1026,16 +1027,16 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	std::vector<std::vector<short>> heightMapShort1000 = ScaleArray(heightMapShort4096, 1000, 1000);
 	std::vector<std::vector<unsigned short>> heightMapUShort1000 = ConvertShortMatrixToUShort(heightMapShort1000);
 
-	int exportHeightMapLowRawX = 300;
-	int exportHeightMapLowRawY = 300;
+	int exportHeightMapLowRawX = m_roadInputHeightMapWidth * m_tileScale;
+	int exportHeightMapLowRawY = m_roadInputHeightMapHeight * m_tileScale;
 	//std::vector<std::vector<short>> heightMapExportLowRawShort = ScaleArray(heightMapAdjust3Short4096, exportHeightMapLowRawX, exportHeightMapLowRawY);
 	//std::vector<std::vector<short>> heightMapExportLowRawShort = resample2DArrayByFunc(heightMapRoadDataShort4096, exportHeightMapLowRawX, exportHeightMapLowRawY, findAverageInBlock<short>);
 	std::vector<std::vector<short>> heightMapExportLowRawShort = resample2DShortWithAverage(heightMapRoadDataShort4096, exportHeightMapLowRawX, exportHeightMapLowRawY);
 	std::vector<std::vector<unsigned short>> heightMapExportLowRawUShortInvert = ConvertShortMatrixToUShort(heightMapExportLowRawShort);
 	std::vector<std::vector<unsigned short>> heightMapExportLowRawUShort = invert2DArray(heightMapExportLowRawUShortInvert);
 
-	int exportHeightMapHighRawX = 600;
-	int exportHeightMapHighRawY = 600;
+	int exportHeightMapHighRawX = exportHeightMapLowRawX * 2;
+	int exportHeightMapHighRawY = exportHeightMapLowRawY * 2;
 	//std::vector<std::vector<short>> heightMapExportHighRawShort = ScaleArray(heightMapAdjust3Short4096, exportHeightMapHighRawX, exportHeightMapHighRawY);
 	//std::vector<std::vector<short>> heightMapExportHighRawShort = resample2DArrayByFunc(heightMapRoadDataShort4096, exportHeightMapHighRawX, exportHeightMapHighRawY, findAverageInBlock<short>);
 	std::vector<std::vector<short>> heightMapExportHighRawShort = resample2DShortWithAverage(heightMapRoadDataShort4096, exportHeightMapHighRawX, exportHeightMapHighRawY);
@@ -1141,11 +1142,15 @@ bool CPlantsSimulation::LoadInputHeightMap()
 #endif
 
 #if __APPLE__
-	snprintf(ushort_height_map_low_raw, MAX_PATH, "%s/%d_%d_%d_%d_%d_ushort_height_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, exportHeightMapLowRawX, exportHeightMapLowRawY);
-	snprintf(ushort_height_map_high_raw, MAX_PATH, "%s/%d_%d_%d_%d_%d_ushort_height_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, exportHeightMapHighRawX, exportHeightMapHighRawY);
+	snprintf(ushort_height_map_low_raw, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_ushort_height_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, exportHeightMapLowRawX, exportHeightMapLowRawY);
+#if USE_OUTPUT_HIGH_ROAD_DATA
+	snprintf(ushort_height_map_high_raw, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_ushort_height_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, exportHeightMapHighRawX, exportHeightMapHighRawY);
+#endif
 #else
-	sprintf_s(ushort_height_map_low_raw, MAX_PATH, "%s\\%d_%d_%d_%d_%d_ushort_height_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, exportHeightMapLowRawX, exportHeightMapLowRawY);
-	sprintf_s(ushort_height_map_high_raw, MAX_PATH, "%s\\%d_%d_%d_%d_%d_ushort_height_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, exportHeightMapHighRawX, exportHeightMapHighRawY);
+	sprintf_s(ushort_height_map_low_raw, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_ushort_height_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, exportHeightMapLowRawX, exportHeightMapLowRawY);
+#if USE_OUTPUT_HIGH_ROAD_DATA
+	sprintf_s(ushort_height_map_high_raw, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_ushort_height_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, exportHeightMapHighRawX, exportHeightMapHighRawY);
+#endif
 #endif
 
 #if USE_EXPORT_HEIGHT_MAP

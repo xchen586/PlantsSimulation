@@ -20,7 +20,7 @@ class CPlantsSimulation
 public:
 	CPlantsSimulation(const string& outputDir, const string& inputTreeList, const string& inputLevel1TreeList, const string& inputImageFile, const string& inputImageMataFile, const string& mesh_HeightMapFile, const string& mesh2_HeightMapFile, const string& pc_HeightMapFile, const string& l1_HeightMapFile, const string& bedrock_HeightMapFile,
 		const string& mesh_HeightMasksFile, const string& mesh2_HeightMasksFile, const string& pc_HeightMasksFile, const string& l1_HeightMasksFile, const string& bedrock_HeightMaskFile, const string& lakes_HeightMasksFile, const string& level1Lakes_HeightMasksFile, const string& mostTravelledPointFile, const string& mostDistantPointFile, const string& centroidPointFile, const string& cavesPointCloudLevel0File, const string& cavesPointCloudLevel1File,
-		const string& regionsRawFile, const string& regionsInfoFile, const string& outputFile_level0, const string& fullOutputFile_level0, const string& pcFullOutputFile_level0, const string& outputFile_level1, const string& fullOutputFile_level1, const string& pcFullOutputFile_level1, int32_t lod, float forestAge, int iteration, int tiles, int tileX, int tileY)
+		const string& regionsRawFile, const string& regionsInfoFile, const string& outputFile_level0, const string& fullOutputFile_level0, const string& pcFullOutputFile_level0, const string& outputFile_level1, const string& fullOutputFile_level1, const string& pcFullOutputFile_level1, int32_t lod, float forestAge, int iteration, int tiles, int tileX, int tileY, int tileScale, int roadHeightMapScaleWidth, int roadHeightMapScaleHeight)
 		: m_outputDir(outputDir)
 		, m_inputTreeListCsv(inputTreeList)
 		, m_inputLevel1TreeListCsv(inputLevel1TreeList)
@@ -61,6 +61,9 @@ public:
 		, m_tiles(tiles)
 		, m_tileX(tileX)
 		, m_tileY(tileY)
+		, m_tileScale(tileScale)
+		, m_roadInputHeightMapWidth(roadHeightMapScaleWidth)
+		, m_roadInputHeightMapHeight(roadHeightMapScaleHeight)
 		, m_maxHeight(10000)
 		, m_p2dCaveLevel0Nodes(nullptr)
 		, m_p2dCaveLevel1Nodes(nullptr)
@@ -105,6 +108,13 @@ private:
 	int m_tiles;
 	int m_tileX;
 	int m_tileY;
+
+	int m_tileScale;
+	int m_roadInputHeightMapWidth;
+	int m_roadInputHeightMapHeight;
+
+	const int m_tilePixelMeterWidth = 30000;
+	const int m_tilePixelMeterHeight = 30000;
 
 	float m_forestAge = 300;
 	int m_iteration = 100;

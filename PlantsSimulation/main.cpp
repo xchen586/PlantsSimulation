@@ -37,6 +37,11 @@ int iniAbsolutePathMain(int argc, const char* argv[])
     const char* t_str = GetIniValue(iniParser, Title_Section, "Tiles_Count");
     const char* x_str = GetIniValue(iniParser, Title_Section, "Tiles_X_Index");
     const char* y_str = GetIniValue(iniParser, Title_Section, "Tiles_Y_Index");
+    
+    const char* scale_str = GetIniValue(iniParser, Title_Section, "Tiles_Scale");
+    const char* scale_width_str = GetIniValue(iniParser, Input_Section, "Road_Heightmap_Scale_Width");
+    const char* scale_height_str = GetIniValue(iniParser, Input_Section, "Road_Heightmap_Scale_Height");
+
     //const char* assets_path = GetIniValue(iniParser, Input_Section, "Asset_Dir");
     const char* output_path = GetIniValue(iniParser, Output_Section, "Output_Dir");
     const char* input_image_name = GetIniValue(iniParser, Input_Section, "Toplayer_Image");
@@ -74,6 +79,12 @@ int iniAbsolutePathMain(int argc, const char* argv[])
     const int t = atoi(t_str);
     const int x = atoi(x_str);
     const int y = atoi(y_str);
+    int scaleTest = atoi(scale_str);
+    int scaleWidthTest = atoi(scale_width_str);
+    int scaleHeightTest = atoi(scale_height_str);
+	const int scale = scaleTest ? scaleTest : 1;
+	const int scaleWidth = scaleWidthTest ? scaleWidthTest : 300;
+	const int scaleHeight = scaleHeightTest ? scaleHeightTest : 300;
     const int lod = atoi(lod_str);
     const float forestAge = (float)atof(forest_age_str);
     const int iteration = atoi(tree_iteration_str);
@@ -118,6 +129,9 @@ int iniAbsolutePathMain(int argc, const char* argv[])
     std::cout << "Tiles count is : " << (t_str ? t_str : "") << std::endl;
     std::cout << "Tiles x index is : " << (x_str ? x_str : "") << std::endl;
     std::cout << "Tiles y index is : " << (y_str ? y_str : "") << std::endl;
+    std::cout << "Tiles scale is : " << (scale_str ? scale_str : "") << std::endl;
+	std::cout << "Road Heightmap scale width is : " << (scale_width_str ? scale_width_str : "") << std::endl;
+	std::cout << "Road Heightmap scale height is : " << (scale_height_str ? scale_height_str : "") << std::endl;
     //std::cout << "Assert path is : " << assets_path << std::endl;
     std::cout << "Output path is : " << (output_path ? output_path : "") << std::endl;
     std::cout << "Input image name is : " << (input_image_name ? input_image_name : "") << std::endl;
@@ -155,7 +169,9 @@ int iniAbsolutePathMain(int argc, const char* argv[])
     int tiles = t;
     int tileX = x;
     int tileY = y;
-
+	int tileScale = scale;
+	int roadHeightMapScaleWidth = scaleWidth;
+	int roadHeightMapScaleHeight = scaleHeight;
     const int MAX_PATH = 250;
 
     char output_final_path[MAX_PATH];
@@ -209,7 +225,7 @@ int iniAbsolutePathMain(int argc, const char* argv[])
 		, mesh_heightmap_masks_name, mesh2_heightmap_masks_name, pc_heightmap_masks_name, l1_heightmap_masks_name, bedrock_heightmap_masks_name, lakes_heightmap_masks_name, level1_lakes_heightmap_masks_name
         , point_most_travelled_name, point_most_distant_name, point_centroid_name, caves_point_cloud_level_0_name, caves_point_cloud_level_1_name, regions_raw_name, regions_info_name
         , output_file_level0, fullOutput_file_level0, pcFullOutput_file_level0, output_file_level1, fullOutput_file_level1, pcFullOutput_file_level1
-        , lod, forestAge, iteration, tiles, tileX, tileY);
+        , lod, forestAge, iteration, tiles, tileX, tileY, tileScale, roadHeightMapScaleWidth, roadHeightMapScaleHeight);
 
     
     
@@ -239,6 +255,10 @@ mainEnd:
     if (t_str) delete t_str;
     if (x_str) delete x_str;
     if (y_str) delete y_str;
+
+	if (scale_str) delete scale_str;
+	if (scale_width_str) delete scale_width_str;    
+	if (scale_height_str) delete scale_height_str;
     //if (assets_path) delete assets_path;
     if (output_path) delete output_path;
     if (input_image_name) delete input_image_name;

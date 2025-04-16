@@ -46,6 +46,10 @@
 #define USE_OUTPUT_INSTANCE_IDSTRING 0
 #endif
 
+#ifndef USE_OUTPUT_HIGH_ROAD_DATA
+#define USE_OUTPUT_HIGH_ROAD_DATA 0
+#endif
+
 #ifndef PI
 #define PI       3.14159265358979323846   // pi
 #endif // !PI
