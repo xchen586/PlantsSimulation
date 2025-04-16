@@ -1534,9 +1534,9 @@ def tree_instances_generation(config_path):
     dont_run_road_game = 1
     road_exe_command = f'{road_exe_path} {tiles_count} {tiles_x} {tiles_y} {tiles_scale} {road_heightmap_scale_width} {road_heightmap_scale_height} {road_input_folder} {road_output_folder} {dont_run_road_game}'
     worldgen_level = 5
-    worldgen_command =  f'{worldgen_exe_path} {tiles_count} {tiles_x} {tiles_y} {worldgen_level} {qtree_assets_folder} {smoothlayer_output_base_folder} {road_output_folder}'
+    worldgen_command =  f'{worldgen_exe_path} {tiles_count} {tiles_x} {tiles_y} {worldgen_level} {tiles_scale} {road_heightmap_scale_width} {road_heightmap_scale_height} {qtree_assets_folder} {smoothlayer_output_base_folder} {road_output_folder}'
     if run_generate_road_input:
-        worldgen_command =  f'{worldgen_exe_path} {tiles_count} {tiles_x} {tiles_y} {worldgen_level} {qtree_assets_folder} {smoothlayer_output_base_folder}'
+        worldgen_command =  f'{worldgen_exe_path} {tiles_count} {tiles_x} {tiles_y} {worldgen_level} {tiles_scale} {road_heightmap_scale_width} {road_heightmap_scale_height} {qtree_assets_folder} {smoothlayer_output_base_folder}'
     
     basemeshvoxelizer_ini_command = f'{basemeshes_exe_path} {basemeshes_ini_path}'
     tree_exe_command = f'{tree_exe_path} {tree_ini_path}'
