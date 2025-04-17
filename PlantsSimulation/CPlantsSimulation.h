@@ -67,6 +67,7 @@ public:
 		, m_maxHeight(10000)
 		, m_p2dCaveLevel0Nodes(nullptr)
 		, m_p2dCaveLevel1Nodes(nullptr)
+		, m_pInstanceExporter(nullptr)
 	{
 		
 	}

@@ -189,15 +189,16 @@ bool CPlantsSimulation::LoadInputImage()
 	char byte_humidity_map_low_raw[MAX_PATH];
 	memset(byte_humidity_map_low_raw, 0, sizeof(char) * MAX_PATH);
 #if __APPLE__
-	snprintf(byte_humidity_map_low_raw, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_byte_humidity_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, exportXLow, exportYLow);
+	snprintf(byte_humidity_map_low_raw, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_byte_humidity_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
 #else
-	sprintf_s(byte_humidity_map_low_raw, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_byte_humidity_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, exportXLow, exportYLow);
+	sprintf_s(byte_humidity_map_low_raw, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_byte_humidity_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
 #endif
 	bool outputHumidityMapLow = Output2DVectorToRawFile(humidityExportLow, byte_humidity_map_low_raw);
 
 #if USE_OUTPUT_HIGH_ROAD_DATA
-	int exportXHigh = exportXLow * 2;
-	int exportYHigh = exportYLow * 2;
+	int exportHighRatio = 2;
+	int exportXHigh = exportXLow * exportHighRatio;
+	int exportYHigh = exportYLow * exportHighRatio;
 	//std::vector<std::vector<byte>> humidityExportHigh = ScaleArray(humidity4K, exportXHigh, exportYHigh);
 	std::vector<std::vector<unsigned char>> humidityExportHighInvert = resample2DUCharWithAverage(humidity4K, exportXHigh, exportYHigh);
 	std::vector<std::vector<unsigned char>> humidityExportHigh = invert2DArray(humidityExportHighInvert);
@@ -205,9 +206,9 @@ bool CPlantsSimulation::LoadInputImage()
 	char byte_humidity_map_high_raw[MAX_PATH];
 	memset(byte_humidity_map_high_raw, 0, sizeof(char) * MAX_PATH);
 #if __APPLE__
-	snprintf(byte_humidity_map_high_raw, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_byte_humidity_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, exportXHigh, exportYHigh);
+	snprintf(byte_humidity_map_high_raw, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_byte_humidity_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth * exportHighRatio, m_roadInputHeightMapHeight * exportHighRatio);
 #else
-	sprintf_s(byte_humidity_map_high_raw, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_byte_humidity_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, exportXHigh, exportYHigh);
+	sprintf_s(byte_humidity_map_high_raw, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_byte_humidity_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth * exportHighRatio, m_roadInputHeightMapHeight * exportHighRatio);
 #endif
 	bool outputHumidityMapHigh = Output2DVectorToRawFile(humidityExportHigh, byte_humidity_map_high_raw);
 #endif
@@ -1035,8 +1036,9 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	std::vector<std::vector<unsigned short>> heightMapExportLowRawUShortInvert = ConvertShortMatrixToUShort(heightMapExportLowRawShort);
 	std::vector<std::vector<unsigned short>> heightMapExportLowRawUShort = invert2DArray(heightMapExportLowRawUShortInvert);
 
-	int exportHeightMapHighRawX = exportHeightMapLowRawX * 2;
-	int exportHeightMapHighRawY = exportHeightMapLowRawY * 2;
+	int exportHeightMapHighRatio = 2;
+	int exportHeightMapHighRawX = exportHeightMapLowRawX * exportHeightMapHighRatio;
+	int exportHeightMapHighRawY = exportHeightMapLowRawY * exportHeightMapHighRatio;
 	//std::vector<std::vector<short>> heightMapExportHighRawShort = ScaleArray(heightMapAdjust3Short4096, exportHeightMapHighRawX, exportHeightMapHighRawY);
 	//std::vector<std::vector<short>> heightMapExportHighRawShort = resample2DArrayByFunc(heightMapRoadDataShort4096, exportHeightMapHighRawX, exportHeightMapHighRawY, findAverageInBlock<short>);
 	std::vector<std::vector<short>> heightMapExportHighRawShort = resample2DShortWithAverage(heightMapRoadDataShort4096, exportHeightMapHighRawX, exportHeightMapHighRawY);
@@ -1142,14 +1144,14 @@ bool CPlantsSimulation::LoadInputHeightMap()
 #endif
 
 #if __APPLE__
-	snprintf(ushort_height_map_low_raw, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_ushort_height_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, exportHeightMapLowRawX, exportHeightMapLowRawY);
+	snprintf(ushort_height_map_low_raw, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_ushort_height_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
 #if USE_OUTPUT_HIGH_ROAD_DATA
-	snprintf(ushort_height_map_high_raw, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_ushort_height_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, exportHeightMapHighRawX, exportHeightMapHighRawY);
+	snprintf(ushort_height_map_high_raw, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_ushort_height_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth * exportHeightMapHighRatio, m_roadInputHeightMapHeight * exportHeightMapHighRatio);
 #endif
 #else
-	sprintf_s(ushort_height_map_low_raw, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_ushort_height_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, exportHeightMapLowRawX, exportHeightMapLowRawY);
+	sprintf_s(ushort_height_map_low_raw, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_ushort_height_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
 #if USE_OUTPUT_HIGH_ROAD_DATA
-	sprintf_s(ushort_height_map_high_raw, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_ushort_height_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, exportHeightMapHighRawX, exportHeightMapHighRawY);
+	sprintf_s(ushort_height_map_high_raw, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_ushort_height_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth * exportHeightMapHighRatio, m_roadInputHeightMapHeight * exportHeightMapHighRatio);
 #endif
 #endif
 
@@ -1176,7 +1178,10 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	ExportAngleSlopeMap(slopeDouble4096, angle_slope_map_exportout, 0x00FF0000, false);
 #endif
 	bool outputHeightMapLow = Output2DVectorToRawFile(heightMapExportLowRawUShort, ushort_height_map_low_raw);
+
+#if USE_OUTPUT_HIGH_ROAD_DATA
 	bool outputHeightMapHigh = Output2DVectorToRawFile(heightMapExportHighRawUShort, ushort_height_map_high_raw);
+#endif
 	return true;
 }
 
