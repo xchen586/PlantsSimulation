@@ -2189,11 +2189,28 @@ test_only_upload_tree_generation = False
 only_upload_tree_generation = False
 caves_voxelization_generation = False
 caves_upload_generation = False
+only_road_generation = False
 
-road_input_generation = True
+test_tree_generation = True
 
 only_run_level_0_instances = False
 only_run_level_1_instances = False
+
+if only_road_generation:
+    print("Choose only_road_generation to Run")
+    Game_Tree_Entity_id = "BE04D7A0D18142AE9D024C1A3FD50BED"  #game entity 
+    Workflow_Output_Result_Folder_id = 'B24E708E13C5473FA3BFDBCBA0E68B42'  #Pangea Next > Workflow Output > Workflow Smooth layer Output
+    is_run_road_exe = True
+    is_run_worldgen_road = False
+    is_run_upload_smooth_layer = False
+    is_run_make_basemeshes = False
+    is_run_upload_basemeshes = False
+    is_run_make_caves = False
+    is_run_upload_caves = False
+    is_run_make_tree_instances = False
+    is_run_upload_tree_instances = False
+    is_run_create_geochem_entity = False
+    is_run_generate_road_input = False
 
 if tree_generation:
     print("Choose tree_generation to Run")
