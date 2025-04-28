@@ -14,6 +14,7 @@ enum struct Region_Info_CSV_Columns {
 	RI_COL_Name,
 	RI_COL_CentroidX,
 	RI_COL_CentroidY,
+	RI_COL_RegionLevel,
 	RI_Col_EId,
 };
 
@@ -32,6 +33,7 @@ struct RegionInfo
 	unsigned int centroidX;
 	unsigned int centroidY;
 	unsigned short eId;
+	unsigned short regionLevel;
 	CellCoordStruct centroidCoord;
 	RegionInfo()
 		: regionId(0)
@@ -45,6 +47,7 @@ struct RegionInfo
 		, type1("")
 		, name("")
 		, eId(0)
+		, regionLevel(1)
 	{
 		
 	}

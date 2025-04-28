@@ -48,6 +48,8 @@ bool LoadRegionInfoFromCSV(const string& filePath, RegionInfoMap& regionInfoMap)
 		std::cerr << "Failed to open the csv file :" << filePath << std::endl;
 		return false;
 	}
+	char delimiter = ',';
+	int columnCount = countColumnsInCSV(filePath, delimiter);
 	regionInfoMap.clear();
 
 	std::string header;
@@ -84,6 +86,11 @@ bool LoadRegionInfoFromCSV(const string& filePath, RegionInfoMap& regionInfoMap)
 		string nameString = row[static_cast<size_t>(Region_Info_CSV_Columns::RI_COL_Name)];
 		string centroidXString = row[static_cast<size_t>(Region_Info_CSV_Columns::RI_COL_CentroidX)];
 		string centroidYString = row[static_cast<size_t>(Region_Info_CSV_Columns::RI_COL_CentroidY)];
+		string regionLevelString = "1";
+		if (columnCount > 11)
+		{
+			regionLevelString = row[static_cast<size_t>(Region_Info_CSV_Columns::RI_COL_RegionLevel)];
+		}
 
 		info->regionId = static_cast<unsigned int>(std::stoul(regionIdString));
 		info->area = static_cast<unsigned int>(std::stoul(areaString));
@@ -98,6 +105,7 @@ bool LoadRegionInfoFromCSV(const string& filePath, RegionInfoMap& regionInfoMap)
 		info->centroidX = static_cast<unsigned int>(std::stoul(centroidXString));
 		info->centroidY = static_cast<unsigned int>(std::stoul(centroidYString));
 		info->eId = info->regionId;
+		info->regionLevel = static_cast<unsigned short>(std::stoul(regionLevelString));
 
 		pair<unsigned int, shared_ptr<RegionInfo>> pair(info->regionId, info);
 		regionInfoMap.insert(pair);
@@ -155,7 +163,8 @@ bool SaveSubRegionInfoToCSVFile(const string& filePath, RegionInfoMap& regionInf
 				<< info->centroidCoord.yOffsetW << ","
 				<< info->eId << ","
 				<< info->centroidCoord.posX << ","
-				<< info->centroidCoord.posY << std::endl;
+				<< info->centroidCoord.posY << ","
+				<< info->regionLevel << std::endl;
 		}
 	}
 
