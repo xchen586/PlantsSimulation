@@ -2197,7 +2197,7 @@ caves_voxelization_generation = False
 caves_upload_generation = False
 only_road_generation = False
 
-test_tree_generation = True
+test_only_tree_generation = True
 
 only_run_level_0_instances = False
 only_run_level_1_instances = False
