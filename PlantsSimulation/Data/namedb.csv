@@ -1,0 +1,1050 @@
+Name,Type
+Sunfire,Desert
+Silver Basin,Dry
+Frostmere,Frozen
+Greenwood,Humid
+Azure Depths,Ocean
+Highgarden,Temperate
+Icebound,Tundra
+Redridge,Dry
+Whisperwind,Humid
+Stormtide,Ocean
+Dustreach,Desert
+Crystal Hollow,Frozen
+Springvale,Temperate
+Coldspire,Tundra
+Sunset Dunes,Desert
+Stonewatch,Dry
+Mistwood,Humid
+Deepwell,Ocean
+Snowfield,Frozen
+Emberfall,Temperate
+Whitehold,Tundra
+Sandstone,Desert
+Ironfield,Dry
+Verdant,Humid
+Wavecrest,Ocean
+Icewrack,Frozen
+Summergrove,Temperate
+Northwind,Tundra
+Goldshore,Desert
+Cinder Flats,Dry
+Marshsong,Humid
+Stormpeak,Frozen
+Greendale,Temperate
+Frostgate,Tundra
+Aridwind,Desert
+Burning Plains,Dry
+Rainvale,Humid
+Icefall,Frozen
+Bluewater,Ocean
+Meadowbrook,Temperate
+Snowdrift,Tundra
+Sunspire,Desert
+Ashland,Dry
+River's Edge,Humid
+Glacierwood,Frozen
+Coral Bay,Ocean
+Eastmere,Temperate
+Coldwind,Tundra
+Sandscar,Desert
+Dustfall,Dry
+Willowshade,Humid
+Seastone,Ocean
+Winter's Breath,Frozen
+Rosewood,Temperate
+Frostfield,Tundra
+Brightsand,Desert
+Saltflat,Dry
+Moonfen,Humid
+Iceglade,Frozen
+Suncrest Bay,Ocean
+Pinehaven,Temperate
+Snowguard,Tundra
+Flamecrest,Desert
+Redstone,Dry
+Mistglen,Humid
+Frostwhisper,Frozen
+Tidecall,Ocean
+Everdale,Temperate
+Frostpine,Tundra
+Sunshadow,Desert
+Dry Gulch,Dry
+Shadevale,Humid
+Winterhaven,Frozen
+Saltwind,Ocean
+Greenfield,Temperate
+Icewatch,Tundra
+Dunelight,Desert
+Ironrock,Dry
+Dewspring,Humid
+Coldfang,Frozen
+Pearlshall,Ocean
+Oakheart,Temperate
+Snowpeak,Tundra
+Emberdune,Desert
+Red Mesa,Dry
+Marshlight,Humid
+Winterfell,Frozen
+Wavebreak,Ocean
+Hillcrest,Temperate
+Frostbite,Tundra
+Suncross,Desert
+Bonefield,Dry
+Rainshade,Humid
+Icewater,Frozen
+Blue Reach,Ocean
+Grassmere,Temperate
+Snowhollow,Tundra
+Goldrift,Desert
+Sandharbor,Dry
+Shadowfen,Humid
+Glacierfall,Frozen
+Deep Tide,Ocean
+Brightvale,Temperate
+Frostmoon,Tundra
+Heatwave,Desert
+Ashridge,Dry
+Fern Hollow,Humid
+Whitewater,Frozen
+Drift Bay,Ocean
+Sunwood,Temperate
+Iceshard,Tundra
+Duneveil,Desert
+Stoneforge,Dry
+Waterleaf,Humid
+Frosthelm,Frozen
+Coralsea,Ocean
+Mistyvale,Temperate
+Snowcliff,Tundra
+Firelight,Desert
+Dustbowl,Dry
+Gloomfen,Humid
+Icebreaker,Frozen
+Oceanreach,Ocean
+Willowmere,Temperate
+Frosthill,Tundra
+Scorchtide,Desert
+Ironbark,Dry
+Moonglade,Humid
+Snowfall,Frozen
+Saltspire,Ocean
+Rosevale,Temperate
+Coldstone,Tundra
+Sunrock,Desert
+Windscar,Dry
+Lakeside,Humid
+Winterwatch,Frozen
+Brightshore,Ocean
+Summerfield,Temperate
+Icereach,Tundra
+Sunstrike,Desert
+Dustvale,Dry
+Fenwatch,Humid
+Frozenmere,Frozen
+Bluehaven,Ocean
+Greenshadow,Temperate
+Snowridge,Tundra
+Sandfire,Desert
+Deadwood,Dry
+Marshshade,Humid
+Icecrown,Frozen
+Coral Reach,Ocean
+Elmwood,Temperate
+Froststorm,Tundra
+Sandspike,Desert
+Burntvale,Dry
+Riverglade,Humid
+Icereef,Frozen
+Wavehaven,Ocean
+Springfield,Temperate
+Winterfall,Tundra
+Sunrift,Desert
+Stoneplain,Dry
+Mistfall,Humid
+Icewind,Frozen
+Bayfall,Ocean
+Woodvale,Temperate
+Frostlake,Tundra
+Sunscar,Desert
+Drywind,Dry
+Swampwatch,Humid
+Glaciershore,Frozen
+Seafoam,Ocean
+Cedarvale,Temperate
+Snowmoor,Tundra
+Ashcrest,Desert
+Ironflat,Dry
+Mistrun,Humid
+Coldwater,Frozen
+Oceanstone,Ocean
+Leafshade,Temperate
+Icetide,Tundra
+Dunecrest,Desert
+Sunshard,Dry
+Rainfall,Humid
+Whiteridge,Frozen
+Shellbay,Ocean
+Greenridge,Temperate
+Snowhaven,Tundra
+Emberhill,Desert
+Dustwatch,Dry
+Marshwood,Humid
+Frostwood,Frozen
+Tidemoor,Ocean
+Maplebrook,Temperate
+Icevale,Tundra
+Sandcliff,Desert
+Burning Sands,Dry
+Shadebrook,Humid
+Snowmist,Frozen
+Wavecrest Bay,Ocean
+Summerglade,Temperate
+Froststone,Tundra
+Sunblade,Desert
+Rockdust,Dry
+Fenwater,Humid
+Wintervale,Frozen
+Saltreach,Ocean
+Greenhaven,Temperate
+Icescar,Tundra
+Sunvale,Desert
+Dryridge,Dry
+Waterbrook,Humid
+Iceglen,Frozen
+Blue Shoals,Ocean
+Brightwood,Temperate
+Frosthold,Tundra
+Sandstorm,Desert
+Deadstone,Dry
+Swampfen,Humid
+Snowbank,Frozen
+Pearlcoast,Ocean
+Greencrest,Temperate
+Iceflow,Tundra
+Sunforge,Desert
+Dustbrook,Dry
+Mistfield,Humid
+Wintermere,Frozen
+Baystone,Ocean
+Oakshade,Temperate
+Snowcross,Tundra
+Flamestone,Desert
+Redrock,Dry
+Fernshade,Humid
+Coldwave,Frozen
+Seawatch,Ocean
+Pinebrook,Temperate
+Frostreach,Tundra
+Sunbreaker,Desert
+Sandplain,Dry
+Marshvale,Humid
+Icetrail,Frozen
+Bluewave,Ocean
+Elmvale,Temperate
+Winterpass,Tundra
+Firecrest,Desert
+Dry Hollow,Dry
+Shadeglade,Humid
+Snowmere,Frozen
+Saltcove,Ocean
+Ashmere,Temperate
+Frostedge,Tundra
+Sandwatch,Desert
+Dustplain,Dry
+Waterfen,Humid
+Whitewind,Frozen
+Oceanfall,Ocean
+Summerdale,Temperate
+Icethorn,Tundra
+Sunhold,Desert
+Redvale,Dry
+Fenmoor,Humid
+Winterbourne,Frozen
+Wavefall,Ocean
+Springbrook,Temperate
+Snowstorm,Tundra
+Sunsand,Desert
+Stonewind,Dry
+Marshrun,Humid
+Coldcrest,Frozen
+Blue Reef,Ocean
+Greenglen,Temperate
+Frostmire,Tundra
+Flameshore,Desert
+Dry Mesa,Dry
+Mistvale,Humid
+Icehollow,Frozen
+Seabreeze,Ocean
+Cedarbrook,Temperate
+Snowpine,Tundra
+Ashwind,Desert
+Dustfield,Dry
+Shadefield,Humid
+Winterglen,Frozen
+Tidewater,Ocean
+Leafbrook,Temperate
+Frosthollow,Tundra
+Dunewind,Desert
+Redrift,Dry
+Rainmere,Humid
+Snowfen,Frozen
+Pearlshore,Ocean
+Oakglen,Temperate
+Winterwood,Tundra
+Sunscarred,Desert
+Stonevale,Dry
+Fenbrook,Humid
+Icebourne,Frozen
+Saltmarsh,Ocean
+Springglen,Temperate
+Frosthaven,Tundra
+Firewatch,Desert
+Drylake,Dry
+Waterfield,Humid
+Whitemoor,Frozen
+Wavecall,Ocean
+Woodshade,Temperate
+Icemoor,Tundra
+Sandmere,Desert
+Dustfall Flats,Dry
+Riverfen,Humid
+Coldglade,Frozen
+Shellstrand,Ocean
+Pinevale,Temperate
+Snowtrack,Tundra
+Emberreach,Desert
+Dryrock,Dry
+Mistsong,Humid
+Snowglade,Frozen
+Oceanview,Ocean
+Greenhill,Temperate
+Froststrand,Tundra
+Sunpeak,Desert
+Ashfield,Dry
+Fernfen,Humid
+Icestream,Frozen
+Tidecrest,Ocean
+Willowfield,Temperate
+Snowwatch,Tundra
+Goldenreach,Desert
+Drygrove,Dry
+Fogmire,Humid
+Glacialstrand,Frozen
+Deepcove,Ocean
+Honeybrook,Temperate
+Wintercrag,Tundra
+Emberplain,Desert
+Ironmesa,Dry
+Lakebreeze,Humid
+Frostscar,Frozen
+Bluebay,Ocean
+Mapleglade,Temperate
+Snowplain,Tundra
+Ashflats,Desert
+Redcanyon,Dry
+Raincrest,Humid
+Frozenreach,Frozen
+Saltwater,Ocean
+Elmshade,Temperate
+Icebarrow,Tundra
+Suncradle,Desert
+Stonehollow,Dry
+Dewshade,Humid
+Wintercape,Frozen
+Baymoor,Ocean
+Greenshire,Temperate
+Icestone,Tundra
+Sandveil,Desert
+Drywater,Dry
+Miststone,Humid
+Frostdrift,Frozen
+Tideshore,Ocean
+Applewood,Temperate
+Snowbound,Tundra
+Dustcradle,Desert
+Sunbleached,Dry
+Fenmarsh,Humid
+Coldstrand,Frozen
+Pearlwater,Ocean
+Evergreen,Temperate
+Winterthorn,Tundra
+Firetrail,Desert
+Rockspire,Dry
+Riverlight,Humid
+Icecradle,Frozen
+Oceanmist,Ocean
+Leafrun,Temperate
+Frostclaw,Tundra
+Sandrift,Desert
+Ashenreach,Dry
+Shadepool,Humid
+Snowblind,Frozen
+Seaspire,Ocean
+Summerhollow,Temperate
+Coldfront,Tundra
+Dunepeak,Desert
+Dustspire,Dry
+Rainshadow,Humid
+Frostbluff,Frozen
+Bluecove,Ocean
+Woodspire,Temperate
+Winterridge,Tundra
+Sunbleak,Desert
+Ironplain,Dry
+Marshcreek,Humid
+Frozenmoor,Frozen
+Wavepoint,Ocean
+Grassfall,Temperate
+Icecap,Tundra
+Flamemesa,Desert
+Sandtrail,Dry
+Mistpond,Humid
+Snowfrost,Frozen
+Coralreef,Ocean
+Greenmeadow,Temperate
+Frostmoor,Tundra
+Sunreach,Desert
+Drygulley,Dry
+Watershade,Humid
+Glacierwatch,Frozen
+Baycrest,Ocean
+Everfield,Temperate
+Snowtide,Tundra
+Ashflat,Desert
+Dustgulch,Dry
+Fogfield,Humid
+Icehaven,Frozen
+Seawind,Ocean
+Leafdale,Temperate
+Frostcrest,Tundra
+Sandhollow,Desert
+Burnplain,Dry
+Fenleaf,Humid
+Snowdrift,Frozen
+Shellhaven,Ocean
+Elmcrest,Temperate
+Icetrack,Tundra
+Sunblaze,Desert
+Stonecrag,Dry
+Riverfell,Humid
+Winterstone,Frozen
+Bluepoint,Ocean
+Woodland,Temperate
+Snowbreak,Tundra
+Dustrock,Desert
+Dryhill,Dry
+Shadefen,Humid
+Coldcrag,Frozen
+Wavehill,Ocean
+Summerleaf,Temperate
+Icemeadow,Tundra
+Sandcrest,Desert
+Ashwaste,Dry
+Rainhollow,Humid
+Glaciercrag,Frozen
+Saltshoal,Ocean
+Greenmarsh,Temperate
+Winter's Edge,Tundra
+Sunfang,Desert
+Ironvein,Dry
+Fogbank,Humid
+Icefall Ridge,Frozen
+Oceancrest,Ocean
+Mapleshore,Temperate
+Frostspine,Tundra
+Dryvein,Desert
+Rockwaste,Dry
+Riverbend,Humid
+Winterclaw,Frozen
+Seastorm,Ocean
+Greendale,Temperate
+Iceslope,Tundra
+Dustvein,Desert
+Burnscar,Dry
+Misttide,Humid
+Coldharbor,Frozen
+Wavecrest Cove,Ocean
+Grasswood,Temperate
+Snowstrand,Tundra
+Sunfury,Desert
+Sandscarred,Dry
+Shadeleaf,Humid
+Icebound Bay,Frozen
+Coralstrand,Ocean
+Greenfen,Temperate
+Winter's Rest,Tundra
+Flamespire,Desert
+Drycreek,Dry
+Marshrun,Humid
+Snowcape,Frozen
+Pearlstrand,Ocean
+Leafhaven,Temperate
+Frostveil,Tundra
+Dunescale,Desert
+Dustwave,Dry
+Riverrest,Humid
+Wintershroud,Frozen
+Baystorm,Ocean
+Summerrest,Temperate
+Icefjord,Tundra
+Sandwrath,Desert
+Ashspire,Dry
+Mistwood Vale,Humid
+Snowcrag,Frozen
+Bluefall,Ocean
+Greenrun,Temperate
+Winterfrost,Tundra
+Sunharbor,Desert
+Stonebreak,Dry
+Rainmeadow,Humid
+Coldshore,Frozen
+Shellpoint,Ocean
+Elmshadow,Temperate
+Frostglen,Tundra
+Drylands,Desert
+Rockfall,Dry
+Waterwhisper,Humid
+Winterstrand,Frozen
+Seacoast,Ocean
+Woodglen,Temperate
+Icemeer,Tundra
+Sandthorn,Desert
+Dustcove,Dry
+Fogwater,Humid
+Snowshore,Frozen
+Oceancliff,Ocean
+Springcrest,Temperate
+Winterspine,Tundra
+Firelands,Desert
+Dryrock Ridge,Dry
+Shadecreek,Humid
+Coldbay,Frozen
+Wavehaven Isle,Ocean
+Leafcove,Temperate
+Snowmarsh,Tundra
+Ashvein,Desert
+Ironrift,Dry
+Mistbloom,Humid
+Winterveil,Frozen
+Saltstrand,Ocean
+Greenleaf,Temperate
+Icebound Isle,Tundra
+Sundrift,Desert
+Stonewaste,Dry
+Rivermeadow,Humid
+Frostmeadow,Frozen
+Seafrost,Ocean
+Summerfen,Temperate
+Wintercradle,Tundra
+Sandwatcher,Desert
+Dustswept,Dry
+Rainfen,Humid
+Coldfield,Frozen
+Coralpoint,Ocean
+Everhollow,Temperate
+Icetrail Ridge,Tundra
+Brightdune,Desert
+Ashfallow,Dry
+Marshwinds,Humid
+Glaciershard,Frozen
+Saltseas,Ocean
+Pinecrest,Temperate
+Coldsnap,Tundra
+Sandhaven,Desert
+Rockrift,Dry
+Mistlight,Humid
+Snowsteppe,Frozen
+Ocean's Breath,Ocean
+Hawktree,Temperate
+Iceridge,Tundra
+Sunscorch,Desert
+Dustshadow,Dry
+Rainmarsh,Humid
+Frozenstone,Frozen
+Seabright,Ocean
+Springridge,Temperate
+Winterfang,Tundra
+Goldenplains,Desert
+Ironwinds,Dry
+Riverfog,Humid
+Icewhisper,Frozen
+Wavecliff,Ocean
+Elmfield,Temperate
+Snowspire,Tundra
+Heatbloom,Desert
+Dryhaven,Dry
+Shadowpool,Humid
+Coldwatch,Frozen
+Coralwave,Ocean
+Grasspoint,Temperate
+Wintercall,Tundra
+Flamewind,Desert
+Sandgulch,Dry
+Watermist,Humid
+Snowvale,Frozen
+Blue Lagoon,Ocean
+Evervale,Temperate
+Frostwharf,Tundra
+Sunburst,Desert
+Dustwinds,Dry
+Mistfen,Humid
+Icesea,Frozen
+Bayrock,Ocean
+Greenstream,Temperate
+Snowfields,Tundra
+Ashwind Reach,Desert
+Boneplain,Dry
+Fenlight,Humid
+Wintergate,Frozen
+Saltbay,Ocean
+Willowfen,Temperate
+Icestone Pass,Tundra
+Sunwrath,Desert
+Redscar,Dry
+Marshdell,Humid
+Frostrise,Frozen
+Oceanrest,Ocean
+Havenwood,Temperate
+Frostwatcher,Tundra
+Sandgate,Desert
+Drycliff,Dry
+Fogshade,Humid
+Snowbound Ridge,Frozen
+Tidevale,Ocean
+Leafcrest,Temperate
+Icefall Pass,Tundra
+Sunbound,Desert
+Ironshade,Dry
+Riverwind,Humid
+Coldcliff,Frozen
+Coralhaven,Ocean
+Woodrun,Temperate
+Wintercliff,Tundra
+Fireveil,Desert
+Sandplain Ridge,Dry
+Mistbreath,Humid
+Snowhaven Ridge,Frozen
+Waveflow,Ocean
+Summerrest,Temperate
+Icestream Vale,Tundra
+Sunsweep,Desert
+Stonevein,Dry
+Shadefen Grove,Humid
+Frostlake Ridge,Frozen
+Blue Coral,Ocean
+Evermeadow,Temperate
+Wintercrest,Tundra
+Ashpeak,Desert
+Drymeadow,Dry
+Marshmist,Humid
+Glacierpass,Frozen
+Seabreak,Ocean
+Greenvale,Temperate
+Iceshard Crag,Tundra
+Sandstone Reach,Desert
+Rockhaven,Dry
+Rainwatch,Humid
+Snowrift Vale,Frozen
+Baymist,Ocean
+Hawkglen,Temperate
+Snowcrest Pass,Tundra
+Dustmoor,Desert
+Drywatch,Dry
+Waterglen,Humid
+Winterwave,Frozen
+Pearlcove,Ocean
+Elmrun,Temperate
+Icestone Peak,Tundra
+Sunhollow,Desert
+Ironpeak,Dry
+Fogfen,Humid
+Icebound Peak,Frozen
+Oceanclaw,Ocean
+Springvale Reach,Temperate
+Frostpeak Ridge,Tundra
+Burningsands,Desert
+Sandfield,Dry
+Shadebloom,Humid
+Snowmoor Ridge,Frozen
+Coralreef Bay,Ocean
+Greenshadow Vale,Temperate
+Frostwatch Peak,Tundra
+Sunsear,Desert
+Stonehill,Dry
+Riverfen Vale,Humid
+Icebreach,Frozen
+Wavecall Bay,Ocean
+Evergreen Reach,Temperate
+Icethorn Ridge,Tundra
+Ashbrook,Desert
+Dusty Hollow,Dry
+Mistglen Vale,Humid
+Coldrock,Frozen
+Seawhisper,Ocean
+Leafmeadow,Temperate
+Snowvale Peak,Tundra
+Sandburn,Desert
+Drycreek Flats,Dry
+Fencrest Vale,Humid
+Snowmist Peak,Frozen
+Bluewave Cove,Ocean
+Woodland Rise,Temperate
+Icecap Ridge,Tundra
+Sunveil,Desert
+Redmesa,Dry
+Rainshade Grove,Humid
+Frosthollow Ridge,Frozen
+Oceanward,Ocean
+Greenridge Vale,Temperate
+Winterpine,Tundra
+Dustlight,Desert
+Rockspire Flats,Dry
+Marshveil,Humid
+Iceshadow Peak,Frozen
+Tidepool Cove,Ocean
+Summerglen,Temperate
+Snowflake Ridge,Tundra
+Heatdust,Desert
+Dryridge Flats,Dry
+Shadowbrook,Humid
+Coldharbor Peak,Frozen
+Coralcrest Bay,Ocean
+Elmshade Grove,Temperate
+Winterrun,Tundra
+Ashplain,Desert
+Sandhill,Dry
+Waterglade,Humid
+Icepeak Vale,Frozen
+Seacrest Isle,Ocean
+Mapledale,Temperate
+Icestream Ridge,Tundra
+Sunstrike Ridge,Desert
+Duststorm,Dry
+Fogwood,Humid
+Snowtop Peak,Frozen
+Wavewatch Cove,Ocean
+Everbright,Temperate
+Icefield Ridge,Tundra
+Drywood,Desert
+Ironvale Flats,Dry
+Mistward Vale,Humid
+Frozenfen,Frozen
+Shellridge Bay,Ocean
+Leafvale Grove,Temperate
+Winterhold Ridge,Tundra
+Sunburnt,Desert
+Stonebrook,Dry
+Fenwatch Vale,Humid
+Icecliff Peak,Frozen
+Oceanmist Isle,Ocean
+Springglen Vale,Temperate
+Snowfrost Peak,Tundra
+Emberfield,Desert
+Dustplain Flats,Dry
+Shadegrove,Humid
+Glacierscar,Frozen
+Saltwind Bay,Ocean
+Greenlight Grove,Temperate
+Winterwater Ridge,Tundra
+Sandshear,Desert
+Dryreach,Dry
+Riverbend Vale,Humid
+Coldfell Peak,Frozen
+Pearlhaven Bay,Ocean
+Elmcrest Vale,Temperate
+Icemist Ridge,Tundra
+Sunseeker,Desert
+Rockridge,Dry
+Waterfen Vale,Humid
+Winterstorm Peak,Frozen
+Baywind Isle,Ocean
+Everleaf Grove,Temperate
+Frostblade Ridge,Tundra
+Drystone Flats,Desert
+Redcliff,Dry
+Fogvale Grove,Humid
+Snowcrystal Peak,Frozen
+Oceanridge Bay,Ocean
+Summerstream Vale,Temperate
+Icevale Ridge,Tundra
+Sunscar Ridge,Desert
+Sandmesa,Dry
+Mistvale Grove,Humid
+Frosthollow Peak,Frozen
+Coralbay Isle,Ocean
+Woodvale Reach,Temperate
+Winterlight Ridge,Tundra
+Dustbright,Desert
+Drywater Flats,Dry
+Marshpool,Humid
+Snowpeak Vale,Frozen
+Wavepoint Isle,Ocean
+Greenfield Vale,Temperate
+Icebloom Ridge,Tundra
+Sunfield,Desert
+Ironridge Flats,Dry
+Shadepool Grove,Humid
+Coldscar Peak,Frozen
+Seawatch Cove,Ocean
+Leafgrove Vale,Temperate
+Wintershade Ridge,Tundra
+Sanddust,Desert
+Drycrag,Dry
+Rainpool Vale,Humid
+Frozencrest,Frozen
+Bluecrest Bay,Ocean
+Everwood Grove,Temperate
+Icethorn Peak,Tundra
+Flamewaste,Desert
+Stoneflat,Dry
+Mistcreek Vale,Humid
+Snowcrest Peak,Frozen
+Shellreef Isle,Ocean
+Grasshollow,Temperate
+Winterfang Ridge,Tundra
+Sunstone Ridge,Desert
+Rockwater,Dry
+Fenvale Grove,Humid
+Icewatch Peak,Frozen
+Oceanstone Bay,Ocean
+Springfield Vale,Temperate
+Snowshadow Ridge,Tundra
+Burntriver,Desert
+Sandglow,Dry
+Mistwillow,Humid
+Coldfrost,Frozen
+Oceanbluff,Ocean
+Pineglade,Temperate
+Snowgrove,Tundra
+Dunesea,Desert
+Rockshade,Dry
+Rainwillow,Humid
+Winterpeak,Frozen
+Tideflow,Ocean
+Greendale,Temperate
+Icemarsh,Tundra
+Sunwatch,Desert
+Dustvale Ridge,Dry
+Fernwater,Humid
+Glaciermoor,Frozen
+Bayglow,Ocean
+Willowbend,Temperate
+Coldspring,Tundra
+Sandbluff,Desert
+Dryfield,Dry
+Mistriver,Humid
+Snowcairn,Frozen
+Shellwater,Ocean
+Maplemoor,Temperate
+Iceglen Ridge,Tundra
+Firewhisper,Desert
+Stonebluff,Dry
+Fogvale,Humid
+Frozentide,Frozen
+Bluegrove,Ocean
+Everbrook,Temperate
+Winterwatch,Tundra
+Sandspire,Desert
+Dryscar,Dry
+Marshbloom,Humid
+Snowreach,Frozen
+Coralwave Isle,Ocean
+Leafshade Grove,Temperate
+Frostpine Peak,Tundra
+Sunwhisper,Desert
+Redbluff,Dry
+Waterrush,Humid
+Icebreeze,Frozen
+Seafire,Ocean
+Springmoor,Temperate
+Icethorn Vale,Tundra
+Emberpeak,Desert
+Dryfen,Dry
+Shadecreek Vale,Humid
+Winterglade,Frozen
+Wavecrash,Ocean
+Grasswind,Temperate
+Snowfire Ridge,Tundra
+Sandstorm Ridge,Desert
+Rockscar,Dry
+Riverleaf,Humid
+Snowmeadow,Frozen
+Saltcreek Bay,Ocean
+Elmmoor,Temperate
+Coldsnap Ridge,Tundra
+Sunmesa,Desert
+Drywinds,Dry
+Mistglow Vale,Humid
+Icewharf,Frozen
+Ocean's End,Ocean
+Woodshade Vale,Temperate
+Wintergale,Tundra
+Dusthaven,Desert
+Ironcrag,Dry
+Fenbrook Vale,Humid
+Snowflow Ridge,Frozen
+Pearlmire,Ocean
+Greenlight Vale,Temperate
+Icebrook Ridge,Tundra
+Heatscar,Desert
+Dryfall,Dry
+Fogbound,Humid
+Coldhaven,Frozen
+Baycliff,Ocean
+Evermire,Temperate
+Snowrun,Tundra
+Sunflame,Desert
+Sanddell,Dry
+Shadefall,Humid
+Snowwave,Frozen
+Seamist Isle,Ocean
+Leafstone Vale,Temperate
+Winterbright,Tundra
+Ashcrown,Desert
+Rockhollow,Dry
+Mistvale Reach,Humid
+Icecrest Vale,Frozen
+Oceanrise,Ocean
+Summerbrook,Temperate
+Icemark,Tundra
+Sunstone Vale,Desert
+Drymire,Dry
+Rainpeak Vale,Humid
+Snowveil Ridge,Frozen
+Shellspire,Ocean
+Elmfen,Temperate
+Winterlight Vale,Tundra
+Sandedge,Desert
+Redfall,Dry
+Marshflow,Humid
+Glacierflow,Frozen
+Waveglow,Ocean
+Pinefen,Temperate
+Icebound Pass,Tundra
+Flamewatch,Desert
+Stoneflow,Dry
+Watershroud,Humid
+Frostmead,Frozen
+Coralwater Isle,Ocean
+Greenbrook,Temperate
+Winterforge,Tundra
+Dustwatcher,Desert
+Drypine,Dry
+Mistmoor Vale,Humid
+Snowrift Pass,Frozen
+Bluewhisper,Ocean
+Everflow,Temperate
+Icescar Ridge,Tundra
+Sunrift Vale,Desert
+Sandpointe,Dry
+Fogmoor Vale,Humid
+Snowshore Ridge,Frozen
+Baywhisper,Ocean
+Leafbreeze,Temperate
+Winterfury,Tundra
+Ashvale,Desert
+Dryrun,Dry
+Riverpine,Humid
+Coldflow,Frozen
+Oceanstrand Isle,Ocean
+Springfen Vale,Temperate
+Icetail Ridge,Tundra
+Suntrail,Desert
+Rocklight,Dry
+Fenlight Vale,Humid
+Frostreaver,Frozen
+Saltflow,Ocean
+Greensprings,Temperate
+Winterbloom Ridge,Tundra
+Dustdrift,Desert
+Dryrock Vale,Dry
+Rainflow Vale,Humid
+Snowmarsh Ridge,Frozen
+Waveglade,Ocean
+Summerstone,Temperate
+Icefall Ridge,Tundra
+Sandwaste,Desert
+Irontrail,Dry
+Fogreach,Humid
+Snowdrift Pass,Frozen
+Seawatch Isle,Ocean
+Elmfall,Temperate
+Winterguard,Tundra
+Sunshroud,Desert
+Drygulch Ridge,Dry
+Mistguard Vale,Humid
+Iceplain,Frozen
+Oceanfrost,Ocean
+Woodmeadow,Temperate
+Icestone Ridge,Tundra
+Heatcrest,Desert
+Sandbreach,Dry
+Shadewood Vale,Humid
+Snowguard Ridge,Frozen
+Coralwatch,Ocean
+Leafwater Vale,Temperate
+Coldspear,Tundra
+Sunmire,Desert
+Stoneguard,Dry
+Marshspirit,Humid
+Glacierguard,Frozen
+Bayflow Isle,Ocean
+Everfield Vale,Temperate
+Frostshadow Ridge,Tundra
+Dustglow,Desert
+Dryshard,Dry
+Rainwatch Vale,Humid
+Snowcloak Ridge,Frozen
+Shellgrove,Ocean
+Greenwatch Vale,Temperate
+Winterdeep,Tundra
+Sandbright,Desert
+Dryglen,Dry
+Riverwood,Humid
+Icecove,Frozen
+Wavepoint Cove,Ocean
+Summerflow,Temperate
+Iceflame Ridge,Tundra
+Sunhaze,Desert
+Redplain,Dry
+Foglight Vale,Humid
+Snowspire Ridge,Frozen
+Oceancrest Isle,Ocean
+Elmriver,Temperate
+Winterpass Ridge,Tundra
+Ashrift,Desert
+Rockburn,Dry
+Mistblossom,Humid
+Coldfall,Frozen
+Seahollow,Ocean
+Leafwatch,Temperate
+Snowreaver,Tundra
+Sunscar Vale,Desert
+Drylight,Dry
+Fenmist Vale,Humid
+Snowcrest Isle,Frozen
+Saltwave,Ocean
+Greenglade,Temperate
+Winterpeak Ridge,Tundra
+Dustfall Flats,Desert
+Dryforest,Dry
+Shadefen Vale,Humid
+Icegale,Frozen
+Bluewatch,Ocean
+Everglade Vale,Temperate
+Icestorm Ridge,Tundra
+Sunspire Vale,Desert
+Sandwave,Dry
+Watermist Vale,Humid
+Snowlight,Frozen
+Pearlmire Isle,Ocean
+Grassmoor,Temperate
+Wintertide,Tundra
+Sandseeker,Desert
+Drymeadows,Dry
+Rivercairn,Humid
+Frostblossom,Frozen
+Coralwatch Bay,Ocean
+Woodvale Grove,Temperate
+Winterfall Ridge,Tundra
