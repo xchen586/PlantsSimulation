@@ -140,7 +140,8 @@ bool SaveSubRegionInfoToCSVFile(const string& filePath, RegionInfoMap& regionInf
 		<< "CentroidY" << ","
 		<< "ExtrId" << ","
 		<< "WorldCentroidX" << ","
-		<< "WorldCentroidY" << std::endl;
+		<< "WorldCentroidY" << ","
+		<< "RegionLevel" << std::endl;
 
 	for (unsigned int rid : subSet)
 	{
