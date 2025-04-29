@@ -437,7 +437,7 @@ bool CPlantsSimulation::LoadAndOutputRegions()
 	RemoveAllFilesInFolder(subRegionOutput_Dir);
 	
 	std::vector<std::vector<int>> regionsIntInput = Read2DIntArray(m_regionsRawFile, regionsWidth, regionsHeight);
-	bool loadAllRegionInfo = LoadRegionInfoFromCSV(m_regionsInfoFile, m_regionInfoMap);
+	bool loadAllRegionInfo = LoadRegionInfoFromCSV(m_regionsInfoFile, m_regionInfoMap, m_pCellTable, m_topLayerMeta);
 	
 	std::cout << "Total region info count is " << m_regionInfoMap.size() << std::endl;
 	
@@ -479,7 +479,7 @@ bool CPlantsSimulation::LoadAndOutputRegions()
 		shared_ptr<RegionInfo> reg = pair.second;
 		double posX = batch_min_x + x0 + reg->centroidX;
 		double posY = batch_min_y + y0 + reg->centroidY;
-		double posZ = 0;
+		double posZ = reg->centroidZ;
 		reg->centroidCoord.SetupCellCoordinate(posX, posY, posZ, transform, region_lod);
 	}
 
@@ -1565,17 +1565,17 @@ bool CPlantsSimulation::MakeInstance(bool islevel1Instances)
 		DeInitialize();
 		return false;
 	}
-	bool isLoadRegions = LoadAndOutputRegions();
-	if (!isLoadRegions)
-	{
-		std::cout << "Failed to load and output regions for instance level " << (m_isLevel1Instances ? 1 : 0) << std::endl;
-		DeInitialize();
-		return false;
-	}
 	bool isLoad = LoadInputData();
 	if (!isLoad)
 	{
 		std::cout << "Failed to load input data for instance level " << (m_isLevel1Instances ? 1 : 0) << std::endl;
+		DeInitialize();
+		return false;
+	}
+	bool isLoadRegions = LoadAndOutputRegions();
+	if (!isLoadRegions)
+	{
+		std::cout << "Failed to load and output regions for instance level " << (m_isLevel1Instances ? 1 : 0) << std::endl;
 		DeInitialize();
 		return false;
 	}

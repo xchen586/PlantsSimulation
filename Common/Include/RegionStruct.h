@@ -32,6 +32,8 @@ struct RegionInfo
 	string name;
 	unsigned int centroidX;
 	unsigned int centroidY;
+	int centroidZ;
+	bool hasZPos;
 	unsigned short eId;
 	unsigned short regionLevel;
 	CellCoordStruct centroidCoord;
@@ -48,6 +50,10 @@ struct RegionInfo
 		, name("")
 		, eId(0)
 		, regionLevel(1)
+		, centroidX(0)
+		, centroidY(0)
+		, centroidZ(0)
+		, hasZPos(false)
 	{
 		
 	}

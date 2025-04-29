@@ -40,8 +40,13 @@ std::string GetSubRegionInfoOutputCSVFilePathForRegion(const string& outputDir, 
 	return ret;
 }
 
-bool LoadRegionInfoFromCSV(const string& filePath, RegionInfoMap& regionInfoMap)
+bool LoadRegionInfoFromCSV(const string& filePath, RegionInfoMap& regionInfoMap, std::vector<std::vector<CCellInfo*>>* pCellTable, InputImageMetaInfo* pMetaInfo)
 {
+	if (pCellTable == nullptr || pMetaInfo == nullptr) {
+		std::cerr << "Error: pCellTable or pMetaInfo is null! " << std::endl;
+		std::cerr << "Failed to LoadRegionInfoFromCSV due to data is not ready!!!!!!" << std::endl;
+		return false;
+	}
 	std::cout << "Start to LoadRegionInfoFromCSV from : " << filePath << std::endl;
 	std::ifstream file(filePath);
 	if (!file.is_open()) {
@@ -107,6 +112,17 @@ bool LoadRegionInfoFromCSV(const string& filePath, RegionInfoMap& regionInfoMap)
 		info->eId = info->regionId;
 		info->regionLevel = static_cast<unsigned short>(std::stoul(regionLevelString));
 
+		double zPos = GetHeightFor2DPointFromCellTable(info->centroidX, info->centroidY, pCellTable, pMetaInfo);
+		info->hasZPos = (static_cast<int>(zPos) != UNAVAILBLE_NEG_HEIGHT);
+		if (!info->hasZPos)
+		{
+			std::cout << "Error: Region : " << info->regionId << " does not get the height !!!" << std::endl;
+		}
+		else
+		{
+			info->centroidZ = static_cast<int>(zPos);
+		}
+
 		pair<unsigned int, shared_ptr<RegionInfo>> pair(info->regionId, info);
 		regionInfoMap.insert(pair);
 	}
@@ -141,6 +157,7 @@ bool SaveSubRegionInfoToCSVFile(const string& filePath, RegionInfoMap& regionInf
 		<< "ExtrId" << ","
 		<< "WorldCentroidX" << ","
 		<< "WorldCentroidY" << ","
+		<< "WorldCentroidZ" << ","
 		<< "RegionLevel" << std::endl;
 
 	for (unsigned int rid : subSet)
@@ -165,6 +182,7 @@ bool SaveSubRegionInfoToCSVFile(const string& filePath, RegionInfoMap& regionInf
 				<< info->eId << ","
 				<< info->centroidCoord.posX << ","
 				<< info->centroidCoord.posY << ","
+				<< info->centroidCoord.posZ << ","
 				<< info->regionLevel << std::endl;
 		}
 	}
@@ -175,6 +193,35 @@ bool SaveSubRegionInfoToCSVFile(const string& filePath, RegionInfoMap& regionInf
 	return true;
 }
 
+double GetHeightFor2DPointFromCellTable(double xPos, double yPos, std::vector<std::vector<CCellInfo*>>* pCellTable, InputImageMetaInfo* pMetaInfo)
+{
+	double ret = UNAVAILBLE_NEG_HEIGHT;
+	if (!pCellTable || !pMetaInfo)
+	{
+		return ret;
+	}
+
+	double xRatio = pMetaInfo->xRatio;
+	double yRatio = pMetaInfo->yRatio;
+
+	int tableRowsCount = (*pCellTable).size();
+	int tableColsCount = (*pCellTable)[0].size();
+
+	int rowIdx = static_cast<int>(xPos / xRatio);
+	int colIdx = static_cast<int>(yPos / yRatio);
+
+	CCellInfo* pCell = nullptr;
+	if (((rowIdx >= 0) && (rowIdx < tableRowsCount))
+		&& ((colIdx >= 0) && (colIdx < tableColsCount))) {
+		pCell = (*pCellTable)[rowIdx][colIdx];
+	}
+	if ((pCell != nullptr) && (pCell->GetHasHeight()))
+	{
+		ret = pCell->GetHeight();
+	}
+
+	return ret;
+}
 
 bool OutputArrayFileForSubRegionsTest(const string& filePath, const CAffineTransform& transform, VoxelFarm::CellId cellId, std::shared_ptr<RegionSubOutputVector> subVector)
 {
