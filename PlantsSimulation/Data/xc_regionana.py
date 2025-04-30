@@ -1,8 +1,11 @@
 import pandas as pd
+import shutil
 #import matplotlib.pyplot as plt
 
 source_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_regions_info_before.csv'
 destination_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_regions_info_new_test.csv'
+namedb_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\namedb.csv'
+copy_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_regions_info_new_test_copy.csv'
 # open csv file
 def open_csv(file_path):
     """
@@ -15,7 +18,7 @@ def open_csv(file_path):
         print(f"Error opening file: {e}")
         return None
 
-def post_process_regions_info_csv(file_path, dest_path):
+def post_process_regions_info_csv(file_path, dest_path, namedb_path, copy_path):
     """
     Post-process the DataFrame.
     """
@@ -78,8 +81,9 @@ def post_process_regions_info_csv(file_path, dest_path):
     # count how many regions have "Unknown" name
     unknown_count = df[df['Name'] == 'Unknown'].count()
 
-    # load name dataframe from "namedb.csv"
-    namedb = pd.read_csv('namedb.csv', delimiter=',')
+    # load name dataframe from "namedb_path"
+    print(f"Loading namedb from {namedb_path}")
+    namedb = pd.read_csv(namedb_path, delimiter=',')
     print(namedb.describe())
 
     # drop duplicated names
@@ -137,5 +141,8 @@ def post_process_regions_info_csv(file_path, dest_path):
     
     # save the dataframe to a csv file
     df.to_csv(dest_path, index=False)
-
-post_process_regions_info_csv(source_path, destination_path)
+    if copy_path:
+        # copy the file to the destination path
+        shutil.copy2(dest_path, copy_path)
+        print(f"File copied to {copy_path}")
+post_process_regions_info_csv(source_path, destination_path, namedb_path, copy_path)
