@@ -20,6 +20,7 @@ from io import StringIO
 from zipfile import ZipFile
 
 import pandas as pd
+#import matplotlib.pyplot as plt
 
 from voxelfarm import voxelfarmclient
 from voxelfarm import workflow_lambda
@@ -258,6 +259,141 @@ def clear_all_sections(file_path):
     # Write the changes back to the INI file
     with open(file_path, 'w') as configfile:
         config.write(configfile)
+        
+def open_csv(file_path):
+    """
+    Open a CSV file and return a DataFrame.
+    """
+    try:
+        df = pd.read_csv(file_path)
+        return df
+    except Exception as e:
+        print(f"Error opening file: {e}")
+        return None
+
+def post_process_regions_info_csv(file_path, dest_path, namedb_path):
+    """
+    Post-process the DataFrame.
+    """
+    # describe the dataframe
+    # open the file
+    df = open_csv(file_path)
+    
+    oldColumnsCount = len(df.columns)
+    print(f"Old Columns Count: {oldColumnsCount}")
+    if (oldColumnsCount > 12):
+        print("Old Columns Count > 12, we don't need to post process this region info csv file : {region_info_csv_path}")
+        return
+    # set all "type 1 " to "Unknown"
+    df['type 1'] = 'Unknown'
+
+    df.loc[(df['MinHeight'] > 0) & (df['AvgHumidity'] >= 15), 'type 1'] = 'Temperate'
+    df.loc[(df['MinHeight'] > 0) & (df['AvgHumidity'] > 40), 'type 1'] = 'Humid'
+    df.loc[(df['MinHeight'] > 0) & (df['AvgHumidity'] < 15), 'type 1'] = 'Dry'
+    df.loc[(df['MinHeight'] > 0) & (df['AvgHumidity'] < 5), 'type 1'] = 'Desert'
+    df.loc[(df['MinHeight'] > 2500) & (df['AvgHumidity'] > 40), 'type 1'] = 'Tundra'
+    df.loc[df['MinHeight'] > 4000, 'type 1'] = 'Frozen'
+    df.loc[(df['MinHeight'] < 20) & (df['NearSea'] == 1.0), 'type 1'] = 'Ocean'
+    # set all "type 1 " to "Unknown"
+    df['type 1'] = 'Unknown'
+
+    df.loc[(df['MinHeight'] > 0) & (df['AvgHumidity'] >= 15), 'type 1'] = 'Temperate'
+    df.loc[(df['MinHeight'] > 0) & (df['AvgHumidity'] > 40), 'type 1'] = 'Humid'
+    df.loc[(df['MinHeight'] > 0) & (df['AvgHumidity'] < 15), 'type 1'] = 'Dry'
+    df.loc[(df['MinHeight'] > 0) & (df['AvgHumidity'] < 5), 'type 1'] = 'Desert'
+    df.loc[(df['MinHeight'] > 2500) & (df['AvgHumidity'] > 40), 'type 1'] = 'Tundra'
+    df.loc[df['MinHeight'] > 4000, 'type 1'] = 'Frozen'
+    df.loc[(df['MinHeight'] < 20) & (df['NearSea'] == 1.0), 'type 1'] = 'Ocean'
+
+    print(df.groupby('type 1').count())
+
+    print(df[df['type 1'] == 'Unknown'].describe())
+
+    df['level'] = 0
+
+    df['level'] = (df['RegionId'] % 5 + 1)
+    df.loc[df['type 1'] == 'Ocean', 'level'] = 1
+    df.loc[(df['level'] == 1) & (df['type 1'] == 'Ocean') & (df['RegionId'] % 3 == 0), 'level'] = 2
+
+    # show histogram for level
+    #plt.hist(df['level'], bins=5)
+    #plt.title('Level Distribution')
+    #plt.xlabel('Level')
+    #plt.ylabel('Count')
+    #plt.xticks([0, 1, 2, 3, 4], ['1', '2', '3', '4', '5'])
+    #plt.show()
+
+    # group by name, count
+    grouped = df.groupby('Name').count()
+
+    # replaced duplicate "Name" values by "Unknown"
+    df.loc[df['Name'].duplicated(), 'Name'] = 'Unknown'
+    # group by name, count
+    grouped = df.groupby('Name').count()
+
+    # count how many regions have "Unknown" name
+    unknown_count = df[df['Name'] == 'Unknown'].count()
+
+    # load name dataframe from "namedb_path"
+    print(f"Loading namedb from {namedb_path}")
+    namedb = pd.read_csv(namedb_path, delimiter=',')
+    print(namedb.describe())
+
+    # drop duplicated names
+    namedb = namedb.drop_duplicates(subset=['Name'])
+    print(namedb.describe())
+
+    # rename type 1 column as "Type"
+    df.rename(columns={'type 1': 'Type'}, inplace=True)
+
+    # show piechart for type 1
+
+    # count the number of each type
+    counts = df['Type'].value_counts()
+
+    # create a pie chart
+    #plt.pie(counts, labels=counts.index, autopct='%1.1f%%')
+    #plt.title('Type 1 Distribution')
+    #splt.show()
+
+    df_regions = df
+    df_names_shuffled = namedb
+
+    df_regions['TypeCount'] = df_regions.groupby('Type').cumcount()
+    df_names_shuffled['TypeCount'] = df_names_shuffled.groupby('Type').cumcount()
+
+    # Merge DataFrames on Type and the incremental count
+    df_result = pd.merge(df_regions.drop('Name', axis=1),
+                        df_names_shuffled,
+                        on=['Type', 'TypeCount'],
+                        how='left')
+
+    # Drop the temporary count column
+    df_result = df_result.drop('TypeCount', axis=1)
+
+    df = df_result
+
+    # group by name, count
+    grouped = df.groupby('Name').count()
+
+    # replaced duplicate "Name" values by "Unknown"
+    df.loc[df['Name'].duplicated(), 'Name'] = 'Unknown'
+    # group by name, count
+    grouped = df.groupby('Name').count()
+
+    # count how many regions have "Unknown" name
+    unknown_count = df[df['Name'] == 'Unknown'].count()
+    print(f"Number of regions with unknown name: {unknown_count['RegionId']}")
+
+    # move the "Name" column to be after the "Type" column
+    # get the columns of the dataframe
+    columns = df.columns.tolist()
+    col_to_move = columns.pop(columns.index('Name'))  # remove 'Name' from the list
+    columns.insert(columns.index('Type') + 1, col_to_move)  # insert 'Name' after 'Type'
+    df = df[columns]  # reorder the DataFrame
+    
+    # save the dataframe to a csv file
+    df.to_csv(dest_path, index=False)
 
 def update_attach_file_for_entity(api : voxelfarmclient.rest, project_id, entity_id, file_path):
 
@@ -1446,11 +1582,13 @@ def tree_instances_generation(config_path):
     road_humidity_file_name = f'{tiles_count}_{tiles_x}_{tiles_y}_{tiles_scale}_{road_heightmap_scale_width}_{road_heightmap_scale_height}_byte_humidity_map_raw.raw'
     road_regions_name_file_name = f'{tiles_count}_{tiles_x}_{tiles_y}_regions_name.csv'
     road_regions_namelist_file_name = f'{tiles_count}_{tiles_x}_{tiles_y}_regions_namelist.csv'
+    road_regions_namedb_file_name = f'{tiles_count}_{tiles_x}_{tiles_y}_regions_namedb.csv'
     
     original_road_heightmap_file_path = os.path.join(road_input_folder, road_heightmap_file_name)
     original_road_humidity_file_path = os.path.join(road_input_folder, road_humidity_file_name)
     road_regions_name_file_path = os.path.join(road_input_folder, road_regions_name_file_name)
     road_regions_namelist_file_path = os.path.join(road_input_folder, road_regions_namelist_file_name)
+    road_regions_namedb_file_path = os.path.join(road_input_folder, road_regions_namedb_file_name)
 
     most_travelled_points_path = os.path.join(road_output_folder, f'{tiles_count}_{tiles_x}_{tiles_y}_Most_Travelled_Points.csv') 
     most_distant_points_path = os.path.join(road_output_folder, f'{tiles_count}_{tiles_x}_{tiles_y}_Most_Distant_Points.csv') 
@@ -1649,6 +1787,9 @@ def tree_instances_generation(config_path):
         return_code_road = xc_run_tool(road_exe_command, 21, 40)
         if return_code_road == 0:
             print(f'Process ({road_exe_command}) executed successfully.')
+            print(f'Start to post process region info csv file : {regions_info_path}')
+            post_process_regions_info_csv(regions_info_path, regions_info_path, road_regions_namedb_file_path)
+            print(f'End to post process region info csv file : {regions_info_path}')
         else:
             print(f'Error: The process ({road_exe_command}) returned a non-zero exit code ({run_road_exe}).')
             return -1
