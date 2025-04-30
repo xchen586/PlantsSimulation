@@ -91,8 +91,16 @@ bool LoadRegionInfoFromCSV(const string& filePath, RegionInfoMap& regionInfoMap,
 		string nameString = row[static_cast<size_t>(Region_Info_CSV_Columns::RI_COL_Name)];
 		string centroidXString = row[static_cast<size_t>(Region_Info_CSV_Columns::RI_COL_CentroidX)];
 		string centroidYString = row[static_cast<size_t>(Region_Info_CSV_Columns::RI_COL_CentroidY)];
-		string regionLevelString = "1";
+		
+		string centroidZString = "0";
 		if (columnCount > 11)
+		{
+			centroidZString = row[static_cast<size_t>(Region_Info_CSV_Columns::RI_COL_CentroidZ)];
+			info->hasZPos = true;
+		}
+		
+		string regionLevelString = "1";
+		if (columnCount > 12)
 		{
 			regionLevelString = row[static_cast<size_t>(Region_Info_CSV_Columns::RI_COL_RegionLevel)];
 		}
@@ -109,10 +117,11 @@ bool LoadRegionInfoFromCSV(const string& filePath, RegionInfoMap& regionInfoMap,
 		info->name = nameString;
 		info->centroidX = static_cast<unsigned int>(std::stoul(centroidXString));
 		info->centroidY = static_cast<unsigned int>(std::stoul(centroidYString));
-		info->eId = info->regionId;
+		info->centroidZ = static_cast<int>(std::stoul(centroidZString));
 		info->regionLevel = static_cast<unsigned short>(std::stoul(regionLevelString));
-
-		double zPos = GetHeightFor2DPointFromCellTable(info->centroidX, info->centroidY, pCellTable, pMetaInfo);
+		info->eId = info->regionId;
+		
+		/*double zPos = GetHeightFor2DPointFromCellTable(info->centroidX, info->centroidY, pCellTable, pMetaInfo);
 		info->hasZPos = (static_cast<int>(zPos) != UNAVAILBLE_NEG_HEIGHT);
 		if (!info->hasZPos)
 		{
@@ -121,7 +130,7 @@ bool LoadRegionInfoFromCSV(const string& filePath, RegionInfoMap& regionInfoMap,
 		else
 		{
 			info->centroidZ = static_cast<int>(zPos);
-		}
+		}*/
 
 		pair<unsigned int, shared_ptr<RegionInfo>> pair(info->regionId, info);
 		regionInfoMap.insert(pair);

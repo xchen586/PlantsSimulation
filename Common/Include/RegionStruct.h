@@ -14,6 +14,7 @@ enum struct Region_Info_CSV_Columns {
 	RI_COL_Name,
 	RI_COL_CentroidX,
 	RI_COL_CentroidY,
+	RI_COL_CentroidZ,
 	RI_COL_RegionLevel,
 	RI_Col_EId,
 };
