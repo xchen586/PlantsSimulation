@@ -4,10 +4,24 @@ import os
 
 import subprocess
 
+def update_attach_file_for_entity(api : voxelfarmclient.rest, project_id, entity_id, file_path):
+
+    if not os.path.exists(file_path):
+        print(f'Attach File {file_path} does not exist')
+        return
+    
+    file_paths = [file_path]    
+    print(f'{file_paths}')
+
+    print(f'Attaching file {file_paths} to entity {entity_id}')
+    for file_path in file_paths:
+        with open(file_path, "rb") as file:
+            api.attach_files(project=project_id, id=entity_id, files={'file': file})
+            
 def update_attach_files_for_entity(api : voxelfarmclient.rest, project_id, entity_id, folder_path):
 
     if not os.path.exists(folder_path):
-        print(f'File {folder_path} does not exist')
+        print(f'Attach folder of File {folder_path} does not exist')
         return
     
     # Use the os.listdir() function to get a list of filenames in the folder
@@ -74,5 +88,5 @@ if isTestResult:
    game_tree_entity_id_property = 'DB5EFD08F7AF4725BABBFDC74E2C5ED8' # xc test "12_4_2_Pangea_Next_Test_Instances_Entity_573"
 entity_id = game_tree_entity_id_property
 
-update_attach_files_for_entity(api, project_id, entity_id, f'D:\\Downloads\\XCTreeBackup\\Output\\Tree_output\\20250428QTree16GeoVer576_12_4_2_OnlyToplayer\\{tiles}_{x}_{y}\\regionoutput')
-update_attach_files_for_entity(api, project_id, entity_id, f'D:\\Downloads\\XCTreeBackup\\Output\\Tree_output\\20250428QTree16GeoVer576_12_4_2_OnlyToplayer\\{tiles}_{x}_{y}\\instanceoutput')
+update_attach_files_for_entity(api, project_id, entity_id, f'D:\\Downloads\\XCTreeBackup\\Output\\Tree_output\\20250429QTree16GeoVer578_12_4_2_CentroidZ\\{tiles}_{x}_{y}\\regionoutput')
+update_attach_files_for_entity(api, project_id, entity_id, f'D:\\Downloads\\XCTreeBackup\\Output\\Tree_output\\20250429QTree16GeoVer578_12_4_2_CentroidZ\\{tiles}_{x}_{y}\\instanceoutput')
