@@ -4,6 +4,20 @@ import os
 
 import subprocess
 
+def update_attach_file_for_entity(api : voxelfarmclient.rest, project_id, entity_id, file_path):
+
+    if not os.path.exists(file_path):
+        print(f'Attach File {file_path} does not exist')
+        return
+    
+    file_paths = [file_path]    
+    print(f'{file_paths}')
+
+    print(f'Attaching file {file_paths} to entity {entity_id}')
+    for file_path in file_paths:
+        with open(file_path, "rb") as file:
+            api.attach_files(project=project_id, id=entity_id, files={'file': file})
+            
 def update_attach_files_for_entity(api : voxelfarmclient.rest, project_id, entity_id, folder_path):
 
     if not os.path.exists(folder_path):
