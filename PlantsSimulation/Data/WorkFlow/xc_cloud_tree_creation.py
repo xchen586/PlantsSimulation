@@ -245,6 +245,20 @@ def clear_all_sections(file_path):
     with open(file_path, 'w') as configfile:
         config.write(configfile)
 
+def update_attach_file_for_entity(api : voxelfarmclient.rest, project_id, entity_id, file_path):
+
+    if not os.path.exists(file_path):
+        print(f'Attach File {file_path} does not exist')
+        return
+    
+    file_paths = [file_path]    
+    print(f'{file_paths}')
+
+    print(f'Attaching file {file_paths} to entity {entity_id}')
+    for file_path in file_paths:
+        with open(file_path, "rb") as file:
+            api.attach_files(project=project_id, id=entity_id, files={'file': file})
+            
 def update_attach_files_for_entity(api : voxelfarmclient.rest, project_id, entity_id, folder_path):
 
     if not os.path.exists(folder_path):
@@ -1444,7 +1458,8 @@ def tree_instances_generation(config_path):
     most_distant_points_path = os.path.join(road_output_folder, f'{tiles_count}_{tiles_x}_{tiles_y}_Most_Distant_Points.csv') 
     region_centroid_points_path = os.path.join(road_output_folder, f'{tiles_count}_{tiles_x}_{tiles_y}_Region_Centroid_Points.csv')
     regions_raw_path = os.path.join(road_output_folder, f'{tiles_count}_{tiles_x}_{tiles_y}_regions.raw') 
-    regions_info_path = os.path.join(road_output_folder, f'{tiles_count}_{tiles_x}_{tiles_y}_regions_info.csv') 
+    regions_info_name = f'regions_info.csv'
+    regions_info_path = os.path.join(road_output_folder, f'{tiles_count}_{tiles_x}_{tiles_y}_{regions_info_name}') 
     
     tree_ini_folder = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}') 
     tree_ini_name = 'TreesInstancesAbsolutePathWin.ini'
@@ -1848,6 +1863,7 @@ def tree_instances_generation(config_path):
     tree_instance_output_folder_path = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', tree_instance_output_folder_name)
     tree_instance_level0_output_folder_path = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', tree_instance_level0_output_folder_name)
     tree_instance_level1_output_folder_path = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', tree_instance_level1_output_folder_name)
+    regions_info_upload_path = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', regions_info_name)
     regions_output_folder_path = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', regions_output_folder_name)
     geo_chemical_folder_path = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', geo_chemical_folder_name)
     tree_height_file_path = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', tree_height_file_name)
@@ -1878,6 +1894,10 @@ def tree_instances_generation(config_path):
         lambda_host.log(f'update_attach_files_for_entity tree instances from {tree_instance_output_folder_path} for {tree_entity_id}')
         
         ##### Update the tree region files of tree entity. 
+        shutil.copy2(regions_info_path, regions_info_upload_path)
+        lambda_host.log(f'copy {regions_info_path} to {regions_info_upload_path}')
+        update_attach_file_for_entity(api, project_id, tree_entity_id, regions_info_upload_path)
+        lambda_host.log(f'update_attach_file_for_entity regions info csv from {regions_info_upload_path} for {tree_entity_id}')
         update_attach_files_for_entity(api, project_id, tree_entity_id, regions_output_folder_path)
         lambda_host.log(f'update_attach_files_for_entity cell regions from {regions_output_folder_path} for {tree_entity_id}')
 
