@@ -1,8 +1,8 @@
 import pandas as pd
 #import matplotlib.pyplot as plt
 
-source_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_regions_info_test.csv'
-destination_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_regions_info_test.csv'
+source_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_regions_info_before.csv'
+destination_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_regions_info_new_test.csv'
 # open csv file
 def open_csv(file_path):
     """
@@ -22,6 +22,12 @@ def post_process_regions_info_csv(file_path, dest_path):
     # describe the dataframe
     # open the file
     df = open_csv(file_path)
+    
+    oldColumnsCount = len(df.columns)
+    print(f"Old Columns Count: {oldColumnsCount}")
+    if (oldColumnsCount > 12):
+        print("Old Columns Count > 12, we don't need to post process this file")
+        return
     # set all "type 1 " to "Unknown"
     df['type 1'] = 'Unknown'
 
