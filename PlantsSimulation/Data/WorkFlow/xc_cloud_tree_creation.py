@@ -502,12 +502,12 @@ def create_geochem_tree_entity(api, project_id, folder_id, geo_chemical_folder, 
     geo_meta_name = 'process.meta'
     geo_meta_path = os.path.join(geo_chemical_folder, geo_meta_name)
 
-    lambda_host.log('Start to Add Id field to  the csv file {merged_csv_path}')
+    lambda_host.log(f'Start to Add Id field to  the csv file {merged_csv_path}')
     add_extra_column_to_csv(merged_csv_path, merged_csv_path, extra_column_name)
-    lambda_host.log('End with raw data file {merged_csv_path}')
+    lambda_host.log(f'End with raw data file {merged_csv_path}')
 
 
-    lambda_host.log('Start with geochem meta file {geo_meta_path}')
+    lambda_host.log(f'Start with geochem meta file {geo_meta_path}')
 
     create_or_overwrite_empty_file(geo_meta_path)
     create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile', merged_csv_name)
@@ -538,14 +538,14 @@ def create_geochem_tree_entity(api, project_id, folder_id, geo_chemical_folder, 
     lambda_host.log(f'-----------------Successful to create geochem folder {geochems_folder_id} for version!-----------------')
     '''
 
-    lambda_host.log('Start with create geo chem entity')
+    lambda_host.log(f'Start with create geo chem entity')
 
     geochem_entity_name = f'{entity_basename}-{version}'
     result = xc_process_files_entity(api, geochems_project_id, geochems_folder_id, api.entity_type.RawGeoChem, api.entity_type.GeoChem, geo_chemical_folder, geochem_entity_name, color=True)
     if not result.success:
         lambda_host.log(f'Failed to create geochem entity {geochem_entity_name} with {api} basemeshes_result_project_id: {geochems_project_id} geo_chemical_folder: {geo_chemical_folder} raw: api.entity_type.RawGeoChem index: api.entity_type.GeoChem version: {version} !')
         exit(4)
-    lambda_host.log('End with create geo chem entity')
+    lambda_host.log(f'End with create geo chem entity')
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------
 def merge_instances_csv_files(folder_a, folder_b, destination_folder):
     # Ensure destination folder exists and clear it

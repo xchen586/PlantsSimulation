@@ -516,11 +516,11 @@ def create_geochem_tree_entity(api, project_id, folder_id, geo_chemical_folder, 
     geo_meta_name = 'process.meta'
     geo_meta_path = os.path.join(geo_chemical_folder, geo_meta_name)
 
-    print('Start to Add Id field to  the csv file {merged_csv_path}')
+    print(f'Start to Add Id field to  the csv file {merged_csv_path}')
     add_extra_column_to_csv(merged_csv_path, merged_csv_path, extra_column_name)
-    print('End with raw data file {merged_csv_path}')
+    print(f'End with raw data file {merged_csv_path}')
 
-    print('Start with geochem meta file {geo_meta_path}')
+    print(f'Start with geochem meta file {geo_meta_path}')
 
     create_or_overwrite_empty_file(geo_meta_path)
     create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile', merged_csv_name)
@@ -552,14 +552,14 @@ def create_geochem_tree_entity(api, project_id, folder_id, geo_chemical_folder, 
     print(f'-----------------Successful to create geochem folder {geochems_folder_id} for version!-----------------')
     '''
 
-    print('Start with create geo chem entity')
+    print(f'Start with create geo chem entity')
 
     geochem_entity_name = f'{entity_basename}-{version}'
     result = xc_process_files_entity(api, geochems_project_id, geochems_folder_id, api.entity_type.RawGeoChem, api.entity_type.GeoChem, geo_chemical_folder, geochem_entity_name, color=True)
     if not result.success:
         print(f'Failed to create geochem entity {geochem_entity_name} with {api} basemeshes_result_project_id: {geochems_project_id} geo_chemical_folder: {geo_chemical_folder} raw: api.entity_type.RawGeoChem index: api.entity_type.GeoChem version: {version} !')
         exit(4)
-    print('End with create geo chem entity')
+    print(f'End with create geo chem entity')
 
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------
 def merge_instances_csv_files(folder_a, folder_b, destination_folder):
@@ -2199,7 +2199,7 @@ only_road_generation = False
 
 test_only_tree_generation = True
 
-only_run_level_0_instances = False
+only_run_level_0_instances = True
 only_run_level_1_instances = False
 
 if only_road_generation:
