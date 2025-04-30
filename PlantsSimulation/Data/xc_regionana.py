@@ -1,8 +1,8 @@
 import pandas as pd
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
-source_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_regions_info.csv'
-destination_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_regions_info_new_test.csv'
+source_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_regions_info_test.csv'
+destination_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_regions_info_test.csv'
 # open csv file
 def open_csv(file_path):
     """
@@ -47,7 +47,6 @@ def post_process_regions_info_csv(file_path, dest_path):
 
     print(df[df['type 1'] == 'Unknown'].describe())
 
-
     df['level'] = 0
 
     df['level'] = (df['RegionId'] % 5 + 1)
@@ -61,7 +60,6 @@ def post_process_regions_info_csv(file_path, dest_path):
     #plt.ylabel('Count')
     #plt.xticks([0, 1, 2, 3, 4], ['1', '2', '3', '4', '5'])
     #plt.show()
-
 
     # group by name, count
     grouped = df.groupby('Name').count()
@@ -91,9 +89,9 @@ def post_process_regions_info_csv(file_path, dest_path):
     counts = df['Type'].value_counts()
 
     # create a pie chart
-    plt.pie(counts, labels=counts.index, autopct='%1.1f%%')
-    plt.title('Type 1 Distribution')
-    plt.show()
+    #plt.pie(counts, labels=counts.index, autopct='%1.1f%%')
+    #plt.title('Type 1 Distribution')
+    #splt.show()
 
     df_regions = df
     df_names_shuffled = namedb
@@ -124,7 +122,13 @@ def post_process_regions_info_csv(file_path, dest_path):
     unknown_count = df[df['Name'] == 'Unknown'].count()
     print(f"Number of regions with unknown name: {unknown_count['RegionId']}")
 
-
+    # move the "Name" column to be after the "Type" column
+    # get the columns of the dataframe
+    columns = df.columns.tolist()
+    col_to_move = columns.pop(columns.index('Name'))  # remove 'Name' from the list
+    columns.insert(columns.index('Type') + 1, col_to_move)  # insert 'Name' after 'Type'
+    df = df[columns]  # reorder the DataFrame
+    
     # save the dataframe to a csv file
     df.to_csv(dest_path, index=False)
 
