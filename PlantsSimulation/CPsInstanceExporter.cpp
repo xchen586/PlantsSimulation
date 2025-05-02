@@ -68,7 +68,7 @@ bool CPsInstanceExporter::OutputAllInstanceGeoChem(string outputFilePath, const 
 	return true;
 }
 
-bool CPsInstanceExporter::loadPointInstanceFromCSV(const string& filePath, const string& outputSubDir, InstanceSubOutputMap& outputMap, CAffineTransform transform, double cellSize, int32_t lod, InstanceType instanceType)
+bool CPsInstanceExporter::loadPointInstanceFromCSV(const string& filePath, const string& outputSubDir, InstanceSubOutputMap& outputMap, CAffineTransform transform, double cellSize, int32_t lod, InstanceType instanceType, bool canRemovedFromCave = true)
 {
 	char delimiter = ',';
 	int columnCount = countColumnsInCSV(filePath, delimiter);
@@ -175,7 +175,7 @@ bool CPsInstanceExporter::loadPointInstanceFromCSV(const string& filePath, const
 		//double posZ = zPos ? zPos : 0;
 
 		bool beRemovedFromCave = false;
-		if (m_p2dCaveLevel0Nodes)
+		if (m_p2dCaveLevel0Nodes && canRemovedFromCave)
 		{
 			Point p(xPos, yPos);
 			double distance = GetDistanceToCaveNodes(p, m_p2dCaveLevel0Nodes, CAVE_DISTANCE_LIMIT_POI);
@@ -287,7 +287,7 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 		bool getMostTravelledPoint = loadPointInstanceFromCSV(m_mostTravelledPointFilePath, outputSubsDir, m_outputMap, transform, cellSize, m_lod, InstanceType::InstanceType_NPC);
 		//unsigned int mostDistantVariant = static_cast<unsigned int>(PointType::Point_MostDistant);
 		bool getMostDistantPoint = loadPointInstanceFromCSV(m_mostDistantPointFilePath, outputSubsDir, m_outputMap, transform, cellSize, m_lod, InstanceType::InstanceType_Resource);
-		bool getCentroidPoint = loadPointInstanceFromCSV(m_centroidPointFilePath, outputSubsDir, m_outputMap, transform, cellSize, m_lod, InstanceType::InstanceType_spawn_Point);
+		bool getCentroidPoint = loadPointInstanceFromCSV(m_centroidPointFilePath, outputSubsDir, m_outputMap, transform, cellSize, m_lod, InstanceType::InstanceType_spawn_Point, false);
 	}
 	
 	std::filesystem::path outputSubsDirPath = outputSubsDir;

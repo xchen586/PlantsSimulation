@@ -77,7 +77,7 @@ public:
 		m_isLevel1Instances = isLevel1Instances;
 		std::cout << "Set CPsInstanceExporter isLevel1Instances to " << m_isLevel1Instances << std::endl;
 	}
-	bool loadPointInstanceFromCSV(const string& filePath, const string& outputSubDir, InstanceSubOutputMap& outputMap, CAffineTransform transform, double voxelSize, int32_t lod, InstanceType instanceType);
+	bool loadPointInstanceFromCSV(const string& filePath, const string& outputSubDir, InstanceSubOutputMap& outputMap, CAffineTransform transform, double voxelSize, int32_t lod, InstanceType instanceType, bool canRemovedFromCave/* = true*/);
 	bool outputSubfiles(const std::string& outputSubsDir);
 	bool OutputAllInstanceGeoChem(string outputFilePath, const InstanceSubOutputMap& allInstances);
 	
