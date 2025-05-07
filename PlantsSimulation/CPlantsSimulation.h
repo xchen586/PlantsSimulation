@@ -165,7 +165,8 @@ private:
 	std::vector<std::pair<std::vector<Point>, int>>* LoadCaveNodesFromPointCloud(const std::string& filePath);
 	bool loadPoisLocationsFromCSV(const string& filePath, std::vector<Point>& poisLocations);
 	bool loadAllPoisLocationsFromCSV();
-	bool SaveCavesRoadMap(std::vector<std::pair<std::vector<Point>, int>>* p2dCaveLevel0Nodes, bool invert/* = false*/);
+	bool SaveCavesAsRoadMap(std::vector<std::pair<std::vector<Point>, int>>* p2dCaveLevel0Nodes, bool invert/* = false*/);
+	bool SaveCavesAsObj(std::vector<std::pair<std::vector<Point>, int>>* p2dCaveLevel0Nodes);
 	
 public:
 	void setIsLevel1Instances(bool isLevel1Instances) 

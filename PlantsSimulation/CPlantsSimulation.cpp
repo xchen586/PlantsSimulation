@@ -1706,12 +1706,13 @@ std::vector<std::pair<std::vector<Point>, int>>* CPlantsSimulation::LoadCaveNode
 	if (pRet)
 	{
 		std::cout << "Cave nodes lines number is " << pRet->size() << std::endl;
-		SaveCavesRoadMap(pRet, false);
+		SaveCavesAsRoadMap(pRet, false);
+		SaveCavesAsObj(pRet);
 	}
 	return pRet;
 }
 
-bool CPlantsSimulation::SaveCavesRoadMap(std::vector<std::pair<std::vector<Point>, int>>* p2dCaveLevel0Nodes, bool invert = false)
+bool CPlantsSimulation::SaveCavesAsObj(std::vector<std::pair<std::vector<Point>, int>>* p2dCaveLevel0Nodes)
 {
 	if (!p2dCaveLevel0Nodes)
 	{
@@ -1720,10 +1721,69 @@ bool CPlantsSimulation::SaveCavesRoadMap(std::vector<std::pair<std::vector<Point
 	}
 	const int MAX_PATH = 250;
 
-	const double batch_min_x = m_topLayerMeta->batch_min_x;
-	const double batch_min_y = m_topLayerMeta->batch_min_y;
-	const double x0 = m_topLayerMeta->x0;
-	const double y0 = m_topLayerMeta->y0;
+	char cave_obj_path[MAX_PATH];
+	memset(cave_obj_path, 0, sizeof(char) * MAX_PATH);
+#if __APPLE__
+	snprintf(cave_obj_path, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_cave_obj.obj", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
+#else
+	sprintf_s(cave_obj_path, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_cave_obj.obj", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
+#endif
+	std::cout << "Cave obj file is " << cave_obj_path << std::endl;
+
+	std::ofstream outFile(cave_obj_path);
+	if (!outFile.is_open()) {
+		std::cerr << "SaveCavesAsObj Error: Unable to open the file " << cave_obj_path << std::endl;
+		return false;
+	}
+
+	// Counter for global vertex index (OBJ indices start at 1)
+	int vertexIndex = 1;
+
+	// Map to store the starting index of each line
+	std::vector<int> lineStartIndices;
+
+	// Write vertices
+	for (const auto& line : *p2dCaveLevel0Nodes) {
+		// Store the starting index for this line
+		lineStartIndices.push_back(vertexIndex);
+
+		// Write all vertices for this line
+		for (const auto& point : line.first) {
+			double relativeX = point.x;
+			double relativeY = point.y;
+			outFile << "v " << relativeX << " " << relativeY << " 0.0" << "\n";
+			vertexIndex++;
+		}
+	}
+
+	int currentLineIndex = 0;
+	for (const auto& line : *p2dCaveLevel0Nodes) {
+		outFile << "l";
+		int startIndex = lineStartIndices[currentLineIndex];
+		int pointCount = line.first.size();
+
+		// Add all vertex indices for this line
+		for (int i = 0; i < pointCount; i++) {
+			outFile << " " << (startIndex + i);
+		}
+		outFile << "\n";
+
+		currentLineIndex++;
+	}
+
+	outFile.close();
+	std::cout << "Successfully exported lines to " << cave_obj_path << std::endl;
+	return true;
+}
+
+bool CPlantsSimulation::SaveCavesAsRoadMap(std::vector<std::pair<std::vector<Point>, int>>* p2dCaveLevel0Nodes, bool invert = false)
+{
+	if (!p2dCaveLevel0Nodes)
+	{
+		std::cout << "Cave nodes lines number is not loaded!" << std::endl;
+		return false;
+	}
+	const int MAX_PATH = 250;
 
 	const int exportCols = m_roadInputHeightMapWidth * m_tileScale;
 	const int exportRows = m_roadInputHeightMapHeight * m_tileScale;
@@ -1733,23 +1793,29 @@ bool CPlantsSimulation::SaveCavesRoadMap(std::vector<std::pair<std::vector<Point
 	for (auto& row : caveRoadMapArrayInvert) {
 		std::fill(row.begin(), row.end(), 0);
 	}
+	int outofBoundsCount = 0;
 	const double ratioCols = static_cast<double>(m_tilePixelMeterWidth / m_roadInputHeightMapWidth);
 	const double ratioRows = static_cast<double>(m_tilePixelMeterHeight / m_roadInputHeightMapHeight);
 	for (const auto& [points, generation] : *p2dCaveLevel0Nodes)
 	{
 		for (const auto& point : points)
 		{
-			double relativeX = point.x - batch_min_x - x0;
-			double relativeY = point.y - batch_min_y - y0;
+			double relativeX = point.x;
+			double relativeY = point.y;
 			int x = static_cast<int>(relativeX / ratioCols);
 			int y = static_cast<int>(relativeY / ratioRows);
 			if (x >= 0 && x < exportCols && y >= 0 && y < exportRows)
 			{
 				caveRoadMapArrayInvert[y][x]++;
 			}
+			else
+			{
+				//std::cout << "Cave point out of bounds: (" << relativeX << ", " << relativeY << ") -> (" << x << ", " << y << ")" << std::endl;
+				outofBoundsCount++;
+			}
 		}
 	}
-
+	std::cout << "Cave point out of bounds count: " << outofBoundsCount << std::endl;
 	std::vector<std::vector<unsigned short>> caveRoadMapArray = invert2DArray(caveRoadMapArrayInvert);
 	char ushort_cave_roadmap_raw[MAX_PATH];
 	memset(ushort_cave_roadmap_raw, 0, sizeof(char) * MAX_PATH);
