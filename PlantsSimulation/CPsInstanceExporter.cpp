@@ -85,15 +85,15 @@ bool CPsInstanceExporter::loadPointInstanceFromCSV(const string& filePath, const
 
 	std::string line;
 
-	double xRatio = m_pMetaInfo->xRatio;
-	double yRatio = m_pMetaInfo->yRatio;
-	double batch_min_x = m_pMetaInfo->batch_min_x;
-	double batch_min_y = m_pMetaInfo->batch_min_y;
-	double x0 = m_pMetaInfo->x0;
-	double y0 = m_pMetaInfo->y0;
+	const double xRatio = m_pMetaInfo->xRatio;
+	const double yRatio = m_pMetaInfo->yRatio;
+	const double batch_min_x = m_pMetaInfo->batch_min_x;
+	const double batch_min_y = m_pMetaInfo->batch_min_y;
+	const double x0 = m_pMetaInfo->x0;
+	const double y0 = m_pMetaInfo->y0;
 
-	int tableRowsCount = (*m_pCellTable).size();
-	int tableColsCount = (*m_pCellTable)[0].size();
+	const int tableRowsCount = (*m_pCellTable).size();
+	const int tableColsCount = (*m_pCellTable)[0].size();
 
 	int negativeHeightCount = 0;
 	int index = 0;

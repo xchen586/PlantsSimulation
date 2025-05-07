@@ -1547,6 +1547,8 @@ bool CPlantsSimulation::MakeRoadData()
 		return ret;
 	}
 
+	m_p2dCaveLevel0Nodes = LoadCaveNodesFromPointCloud(m_cavesPointCloudLevel0File);
+
 	ret = LoadInputHeightMap();
 	if (!ret) {
 		DeInitialize();
@@ -1666,7 +1668,7 @@ std::vector<std::pair<std::vector<Point>, int>>* CPlantsSimulation::LoadCaveNode
 	double x0 = m_topLayerMeta->x0;
 	double y0 = m_topLayerMeta->y0;
 
-	std::vector<CavesPointInfo> cavePointInfoList;
+	m_cavePointInfoList.clear();
 	while (std::getline(file, line)) {
 		std::stringstream lineStream(line);
 		std::string field;
@@ -1697,15 +1699,68 @@ std::vector<std::pair<std::vector<Point>, int>>* CPlantsSimulation::LoadCaveNode
 		if (std::getline(lineStream, field, ',')) {
 			cavePointInfo.order = std::stoi(field);
 		}
-		cavePointInfoList.push_back(cavePointInfo);
+		m_cavePointInfoList.push_back(cavePointInfo);
 	}
-	std::cout << "CavePointInfoList has " << cavePointInfoList.size() << " cave points!" << std::endl;
-	std::vector<std::pair<std::vector<Point>, int>>* pRet = ConvertCaveInfoToCaveNodes(cavePointInfoList);
+	std::cout << "CavePointInfoList has " << m_cavePointInfoList.size() << " cave points!" << std::endl;
+	std::vector<std::pair<std::vector<Point>, int>>* pRet = ConvertCaveInfoToCaveNodes(m_cavePointInfoList);
 	if (pRet)
 	{
 		std::cout << "Cave nodes lines number is " << pRet->size() << std::endl;
+		SaveCavesRoadMap(pRet, false);
 	}
 	return pRet;
+}
+
+bool CPlantsSimulation::SaveCavesRoadMap(std::vector<std::pair<std::vector<Point>, int>>* p2dCaveLevel0Nodes, bool invert = false)
+{
+	if (!p2dCaveLevel0Nodes)
+	{
+		std::cout << "Cave nodes lines number is not loaded!" << std::endl;
+		return false;
+	}
+	const int MAX_PATH = 250;
+
+	const double batch_min_x = m_topLayerMeta->batch_min_x;
+	const double batch_min_y = m_topLayerMeta->batch_min_y;
+	const double x0 = m_topLayerMeta->x0;
+	const double y0 = m_topLayerMeta->y0;
+
+	const int exportCols = m_roadInputHeightMapWidth * m_tileScale;
+	const int exportRows = m_roadInputHeightMapHeight * m_tileScale;
+	
+	std::vector<std::vector<unsigned short>> caveRoadMapArrayInvert(exportRows, std::vector<unsigned short>(exportCols));
+	// Reset to 0
+	for (auto& row : caveRoadMapArrayInvert) {
+		std::fill(row.begin(), row.end(), 0);
+	}
+	const double ratioCols = static_cast<double>(m_tilePixelMeterWidth / m_roadInputHeightMapWidth);
+	const double ratioRows = static_cast<double>(m_tilePixelMeterHeight / m_roadInputHeightMapHeight);
+	for (const auto& [points, generation] : *p2dCaveLevel0Nodes)
+	{
+		for (const auto& point : points)
+		{
+			double relativeX = point.x - batch_min_x - x0;
+			double relativeY = point.y - batch_min_y - y0;
+			int x = static_cast<int>(relativeX / ratioCols);
+			int y = static_cast<int>(relativeY / ratioRows);
+			if (x >= 0 && x < exportCols && y >= 0 && y < exportRows)
+			{
+				caveRoadMapArrayInvert[y][x]++;
+			}
+		}
+	}
+
+	std::vector<std::vector<unsigned short>> caveRoadMapArray = invert2DArray(caveRoadMapArrayInvert);
+	char ushort_cave_roadmap_raw[MAX_PATH];
+	memset(ushort_cave_roadmap_raw, 0, sizeof(char) * MAX_PATH);
+#if __APPLE__
+	snprintf(ushort_cave_roadmap_raw, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_ushort_cave_roadmap_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
+#else
+	sprintf_s(ushort_cave_roadmap_raw, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_ushort_cave_roadmap_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
+#endif
+	std::cout << "Cave Road Map file is " << ushort_cave_roadmap_raw << std::endl;
+	bool outputHumidityMapLow = Output2DVectorToRawFile(caveRoadMapArray, ushort_cave_roadmap_raw);
+	return outputHumidityMapLow;
 }
 
 bool CPlantsSimulation::loadAllPoisLocationsFromCSV()

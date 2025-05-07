@@ -133,6 +133,7 @@ private:
 	CForest* m_pForest;
 	CPsInstanceExporter* m_pInstanceExporter;
 
+	std::vector<CavesPointInfo> m_cavePointInfoList;
 	std::vector<std::pair<std::vector<Point>, int>>* m_p2dCaveLevel0Nodes;
 	std::vector<std::pair<std::vector<Point>, int>>* m_p2dCaveLevel1Nodes;
 	std::vector<Point> m_PoisLocations;
@@ -164,6 +165,7 @@ private:
 	std::vector<std::pair<std::vector<Point>, int>>* LoadCaveNodesFromPointCloud(const std::string& filePath);
 	bool loadPoisLocationsFromCSV(const string& filePath, std::vector<Point>& poisLocations);
 	bool loadAllPoisLocationsFromCSV();
+	bool SaveCavesRoadMap(std::vector<std::pair<std::vector<Point>, int>>* p2dCaveLevel0Nodes, bool invert/* = false*/);
 	
 public:
 	void setIsLevel1Instances(bool isLevel1Instances) 
