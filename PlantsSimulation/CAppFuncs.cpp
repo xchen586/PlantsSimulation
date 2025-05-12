@@ -21,6 +21,25 @@ std::string Get2DArrayFilePathForRegion(const string& outputDir, int lod, int in
 	return ret;
 }
 
+std::string Get2DArrayRawCsvFilePathForRegion(const string& outputDir, int lod, int intXIdx, int intYIdx, int intZIdx)
+{
+	const int MAX_PATH = 250;
+	char subFileName[MAX_PATH];
+	char subFilePath[MAX_PATH];
+	memset(subFileName, 0, sizeof(char) * MAX_PATH);
+	memset(subFilePath, 0, sizeof(char) * MAX_PATH);
+#if __APPLE__
+	snprintf(subFileName, MAX_PATH, "regions_%d_%d_raw.csv", intXIdx, intZIdx);
+	snprintf(subFilePath, MAX_PATH, "%s/%s", outputDir.c_str(), subFileName);
+#else
+	sprintf_s(subFileName, MAX_PATH, "regions_%d_%d_raw.csv", intXIdx, intZIdx);
+	sprintf_s(subFilePath, MAX_PATH, "%s\\%s", outputDir.c_str(), subFileName);
+#endif
+
+	string ret = subFilePath;
+	return ret;
+}
+
 std::string GetSubRegionInfoOutputCSVFilePathForRegion(const string& outputDir, int lod, int intXIdx, int intYIdx, int intZIdx)
 {
 	const int MAX_PATH = 250;

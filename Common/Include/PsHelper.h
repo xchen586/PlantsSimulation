@@ -500,5 +500,45 @@ bool Write2DArrayAsRaw(const std::string& filePath, const std::vector<std::vecto
 	return ret;
 }
 
+template <typename T>
+bool Write2DArrayAsCSV(const std::string& filePath, const std::vector<std::vector<T>>& array) {
+	bool ret = false;
+
+	std::cout << "Start to exported 2D arrary to CSV file " << filePath << std::endl;
+
+	std::ofstream outputCSVFile(filePath, std::ios::trunc);
+
+	if (outputCSVFile.is_open()) {
+		// Write header
+		outputCSVFile << "X,Y,Value\n";
+
+		// Write data rows (skipping zeros)
+		for (size_t x = 0; x < array.size(); ++x) {
+			const auto& row = array[x];
+			for (size_t y = 0; y < row.size(); ++y) {
+				const T& value = row[y];
+
+				// Skip if value is zero
+				if (value == static_cast<T>(0)) {
+					continue;
+				}
+
+				// Write non-zero entries as X,Y,Value
+				outputCSVFile << x << "," << y << "," << value << "\n";
+			}
+		}
+
+		outputCSVFile.close();
+		std::cout << "Start to exported 2D arrary to  CSV file " << filePath << " successfully." << std::endl;
+		ret = true;
+	}
+	else {
+		std::cerr << "Unable to open CSV file "<< filePath <<" for writing." << std::endl;
+		ret = false;
+	}
+
+	return ret;
+}
+
 std::string trim(const std::string& str);
 int countColumnsInCSV(const std::string& filePath, char delimiter/* = ','*/);

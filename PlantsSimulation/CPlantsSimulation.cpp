@@ -594,6 +594,9 @@ bool CPlantsSimulation::LoadAndOutputRegions()
 		std::cout << "Cell_" << lod << "_" << cellX << "_" << cellY << "_" << cellZ << " has regions count : " << subRegionsCount << std::endl;
 		string arrayFilePath = Get2DArrayFilePathForRegion(subRegionOutput_Dir, lod, cellX, cellY, cellZ);
 		bool saveSubRaw = Write2DArrayAsRaw(arrayFilePath, scaledArray);
+		
+		string arrayCSVFilePath = Get2DArrayRawCsvFilePathForRegion(subRegionOutput_Dir, lod, cellX, cellY, cellZ);
+		bool saveSubRawCSV = Write2DArrayAsCSV(arrayCSVFilePath, scaledArray);
 
 		string subRegionInfoPath = GetSubRegionInfoOutputCSVFilePathForRegion(subRegionOutput_Dir, lod, cellX, cellY, cellZ);
 		bool saveSubInfo = SaveSubRegionInfoToCSVFile(subRegionInfoPath, m_regionInfoMap, subRegionSet);

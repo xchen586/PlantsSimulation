@@ -18,6 +18,7 @@
 #endif
 
 std::string Get2DArrayFilePathForRegion(const string& outputDir, int lod, int intXIdx, int intYIdx, int intZIdx);
+std::string Get2DArrayRawCsvFilePathForRegion(const string& outputDir, int lod, int intXIdx, int intYIdx, int intZIdx);
 std::string GetSubRegionInfoOutputCSVFilePathForRegion(const string& outputDir, int lod, int intXIdx, int intYIdx, int intZIdx);
 bool LoadRegionInfoFromCSV(const string& filePath, RegionInfoMap& regionInfoMap, std::vector<std::vector<CCellInfo*>>* pCellTable, InputImageMetaInfo* pMetaInfo);
 bool SaveSubRegionInfoToCSVFile(const string& filePath, RegionInfoMap& regionInfoMap, std::set<unsigned int> subSet);
