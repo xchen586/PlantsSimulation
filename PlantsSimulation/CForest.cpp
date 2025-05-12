@@ -371,6 +371,7 @@ void CForest::generate(float forestAge, int iterations)
 	// allocate grid
 	//int gridDelta = 8;
 	int gridDelta = 30;
+	//int gridDelta = 18;
 	int gridXSize = xSize/gridDelta;
 	int gridZSize = zSize/gridDelta;
 	int gridSize = (gridXSize + 1)*(gridZSize + 1)*sizeof(int);
@@ -466,7 +467,10 @@ void CForest::generate(float forestAge, int iterations)
 			for (int z = zo; z < zo + zSize; z += gridDelta)
 			{
 				if (rand() > RAND_MAX / 10)
+				//if (rand() > RAND_MAX / 4)
+				{
 					continue;
+				}
 				
 				int gridX = (x - xo) / gridDelta;
 				int gridZ = (z - zo) / gridDelta;
@@ -663,7 +667,10 @@ void CForest::generate(float forestAge, int iterations)
 							continue;
 #if USE_RANDOM_SEED
 						if (rand() > RAND_MAX / 1000)
+						//if (rand() > RAND_MAX / 100)
+						{
 							continue;
+						}
 #endif
 						int xi = (int)x;
 						int zi = (int)z;
