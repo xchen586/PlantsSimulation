@@ -1592,7 +1592,7 @@ bool CPlantsSimulation::OutputLakeRawData()
 	snprintf(level1_lake_map_raw_path, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_byte_level1_lake_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
 #else
 	sprintf_s(lake_map_raw_path, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_byte_lake_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
-	sprintf_s(top_lake_map_raw_path, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_top_byte_lake_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
+	sprintf_s(top_lake_map_raw_path, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_byte_top_lake_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
 	sprintf_s(level1_lake_map_raw_path, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_byte_level1_lake_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
 #endif
 	std::cout << "lake map raw file is " << lake_map_raw_path << std::endl;
