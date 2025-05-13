@@ -180,6 +180,8 @@ public:
 	bool MakeRoadData();
 	bool MakeInstance(bool isLevel1Instance);
 
+	bool OutputLakeRawData();
+
 	bool LoadPreImage();
 	bool LoadAndOutputRegions();
 

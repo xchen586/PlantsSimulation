@@ -173,6 +173,9 @@ double GenerateRandomDouble(double min, double max);
 
 bool stringToBool(const std::string& str);
 
+std::vector<std::vector<short>> resampl2DShortMask(const std::vector<std::vector<short>>& originalMask, int newWidth, int newHeight);
+std::vector<std::vector<unsigned char>> resample2DShortMaskToByte(const std::vector<std::vector<short>>& originalMask, int newWidth, int newHeight);
+
 std::vector<std::vector<short>> resample2DShortWithAverage(const std::vector<std::vector<short>>& original, int new_rows, int new_cols);
 std::vector<std::vector<unsigned char>> resample2DUCharWithAverage(const std::vector<std::vector<unsigned char>>& original, int new_rows, int new_cols);
 

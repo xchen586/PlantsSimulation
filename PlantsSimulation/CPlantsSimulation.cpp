@@ -1552,11 +1552,70 @@ bool CPlantsSimulation::MakeRoadData()
 
 	m_p2dCaveLevel0Nodes = LoadCaveNodesFromPointCloud(m_cavesPointCloudLevel0File);
 
+	bool outputLake = OutputLakeRawData();
+
 	ret = LoadInputHeightMap();
 	if (!ret) {
 		DeInitialize();
 		return ret;
 	}
+}
+
+bool CPlantsSimulation::OutputLakeRawData()
+{
+	if (!m_topLayerImage)
+	{
+		return false;
+	}
+	const int width = m_topLayerImage->input_image_width;
+	const int height = m_topLayerImage->input_image_height;
+
+	const int MAX_PATH = 250;
+	char lake_map_raw_path[MAX_PATH];
+	memset(lake_map_raw_path, 0, sizeof(char) * MAX_PATH);
+	char top_lake_map_raw_path[MAX_PATH];
+	memset(top_lake_map_raw_path, 0, sizeof(char) * MAX_PATH);
+	char level1_lake_map_raw_path[MAX_PATH];
+	memset(level1_lake_map_raw_path, 0, sizeof(char) * MAX_PATH);
+#if __APPLE__
+	snprintf(lake_map_raw_path, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_lake_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
+	snprintf(top_lake_map_raw_path, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_top_lake_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
+	snprintf(level1_lake_map_raw_path, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_level1_lake_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
+#else
+	sprintf_s(lake_map_raw_path, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_lake_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
+	sprintf_s(top_lake_map_raw_path, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_top_lake_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
+	sprintf_s(level1_lake_map_raw_path, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_level1_lake_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
+#endif
+	std::cout << "lake map raw file is " << lake_map_raw_path << std::endl;
+	std::cout << "top lake map raw file is " << top_lake_map_raw_path << std::endl;
+	std::cout << "level1 lake map raw file is " << level1_lake_map_raw_path << std::endl;
+
+	std::vector<std::vector<short>> lakes0HeightMasksShort4096 = Read2DShortArray(m_lakesHeightMasksFile, width, height);
+	std::vector<std::vector<short>> lakes1HeightMasksShort4096 = Read2DShortArray(m_level1LakesHeightMasksFile, width, height);
+	
+	const int outputWidth = m_roadInputHeightMapWidth * m_tileScale;
+	const int outputHeight = m_roadInputHeightMapHeight * m_tileScale;
+	std::vector<std::vector<unsigned char>> lakes0HeightMapByteInvert = resample2DShortMaskToByte(lakes0HeightMasksShort4096, outputWidth, outputHeight);
+	std::vector<std::vector<unsigned char>> lakes1HeightMapByteInvert = resample2DShortMaskToByte(lakes1HeightMasksShort4096, outputWidth, outputHeight);
+	std::vector<std::vector<unsigned char>> lakesHeightMapByteInvert(outputWidth, std::vector<unsigned char>(outputHeight, 0));
+
+	for (int i = 0; i < outputHeight; i++)
+	{
+		for (int j = 0; j < outputWidth; j++)
+		{
+			lakesHeightMapByteInvert[i][j] = (lakes0HeightMapByteInvert[i][j] != 0) || (lakes1HeightMapByteInvert[i][j] != 0) ? 1 : 0;
+		}
+	}
+
+	std::vector<std::vector<unsigned char>> lakes0HeightMapByte = invert2DArray(lakes0HeightMapByteInvert);
+	std::vector<std::vector<unsigned char>> lakes1HeightMapByte = invert2DArray(lakes1HeightMapByteInvert);
+	std::vector<std::vector<unsigned char>> lakesHeightMapByte = invert2DArray(lakesHeightMapByteInvert);
+
+	bool outputLakes = Output2DVectorToRawFile(lakesHeightMapByte, lake_map_raw_path);
+	bool outputTopLakes = Output2DVectorToRawFile(lakes0HeightMapByte, top_lake_map_raw_path);
+	bool outputLevel1Lakes = Output2DVectorToRawFile(lakes1HeightMapByte, level1_lake_map_raw_path);
+
+	return  outputLakes && outputTopLakes && outputLevel1Lakes;
 }
 
 bool CPlantsSimulation::MakeInstance(bool islevel1Instances)
@@ -1634,6 +1693,8 @@ bool CPlantsSimulation::LoadInputData()
 	bool ret = false;
 
 	m_p2dCaveLevel0Nodes = LoadCaveNodesFromPointCloud(m_cavesPointCloudLevel0File);
+
+	bool outputLake = OutputLakeRawData();
 
 	bool loadAllPois = loadAllPoisLocationsFromCSV();
 	if (!loadAllPois)
@@ -1828,8 +1889,8 @@ bool CPlantsSimulation::SaveCavesAsRoadMap(std::vector<std::pair<std::vector<Poi
 	sprintf_s(ushort_cave_roadmap_raw, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_ushort_cave_roadmap_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
 #endif
 	std::cout << "Cave Road Map file is " << ushort_cave_roadmap_raw << std::endl;
-	bool outputHumidityMapLow = Output2DVectorToRawFile(caveRoadMapArray, ushort_cave_roadmap_raw);
-	return outputHumidityMapLow;
+	bool outputCaveRoadMap = Output2DVectorToRawFile(caveRoadMapArray, ushort_cave_roadmap_raw);
+	return outputCaveRoadMap;
 }
 
 bool CPlantsSimulation::loadAllPoisLocationsFromCSV()

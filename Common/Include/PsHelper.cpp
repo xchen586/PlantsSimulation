@@ -883,6 +883,107 @@ bool CheckExistFolderAndRemoveSubFiles(const std::string& outputSubsDir)
     bool removeFiles = RemoveAllFilesInFolder(outputSubsDir);
 }
 
+std::vector<std::vector<short>> resampl2DShortMask(const std::vector<std::vector<short>>& originalMask,
+    int newWidth, int newHeight) {
+    int originalWidth = originalMask.size();
+    int originalHeight = originalMask[0].size();
+
+    // Create the new resized mask
+    std::vector<std::vector<short>> resizedMask(newWidth, std::vector<short>(newHeight, 0));
+
+    // Calculate scaling factors
+    double scaleX = static_cast<double>(originalWidth) / newWidth;
+    double scaleY = static_cast<double>(originalHeight) / newHeight;
+
+    // For each cell in the new mask
+    for (int newX = 0; newX < newWidth; ++newX) {
+        for (int newY = 0; newY < newHeight; ++newY) {
+            // Calculate the corresponding region in the original mask
+            int startX = static_cast<int>(newX * scaleX);
+            int startY = static_cast<int>(newY * scaleY);
+            int endX = static_cast<int>((newX + 1) * scaleX);
+            int endY = static_cast<int>((newY + 1) * scaleY);
+
+            // Make sure we don't exceed boundaries
+            endX = std::min(endX, originalWidth);
+            endY = std::min(endY, originalHeight);
+
+            // Count how many lake cells we have in this region
+            int lakeCount = 0;
+            int totalCells = 0;
+
+            for (int x = startX; x < endX; ++x) {
+                for (int y = startY; y < endY; ++y) {
+                    if (originalMask[x][y] != 0) {
+                        lakeCount++;
+                    }
+                    totalCells++;
+                }
+            }
+
+            // If more than half of the cells in the region are lakes,
+            // mark this cell as a lake in the resized mask
+            if (totalCells > 0 && lakeCount > 0) {
+                // Use the most common non-zero value, or simply 1 if we just want to preserve binary nature
+                // Here, we're using the average value of the non-zero cells
+                resizedMask[newX][newY] = static_cast<short>(lakeCount > 0 ?
+                    (totalCells > 0 ? 1 : 0) : 0);
+            }
+        }
+    }
+
+    return resizedMask;
+}
+
+std::vector<std::vector<unsigned char>> resample2DShortMaskToByte(const std::vector<std::vector<short>>& originalMask,
+    int newWidth, int newHeight) {
+    int originalWidth = originalMask.size();
+    int originalHeight = originalMask[0].size();
+
+    // Create the new resized mask using bytes (uint8_t)
+    std::vector<std::vector<unsigned char>> resizedMask(newWidth, std::vector<unsigned char>(newHeight, 0));
+
+    // Calculate scaling factors
+    double scaleX = static_cast<double>(originalWidth) / newWidth;
+    double scaleY = static_cast<double>(originalHeight) / newHeight;
+
+    // For each cell in the new mask
+    for (int newX = 0; newX < newWidth; ++newX) {
+        for (int newY = 0; newY < newHeight; ++newY) {
+            // Calculate the corresponding region in the original mask
+            int startX = static_cast<int>(newX * scaleX);
+            int startY = static_cast<int>(newY * scaleY);
+            int endX = static_cast<int>((newX + 1) * scaleX);
+            int endY = static_cast<int>((newY + 1) * scaleY);
+
+            // Make sure we don't exceed boundaries
+            endX = std::min(endX, originalWidth);
+            endY = std::min(endY, originalHeight);
+
+            // Count how many lake cells we have in this region
+            int lakeCount = 0;
+            int totalCells = 0;
+
+            for (int x = startX; x < endX; ++x) {
+                for (int y = startY; y < endY; ++y) {
+                    if (originalMask[x][y] != 0) {
+                        lakeCount++;
+                    }
+                    totalCells++;
+                }
+            }
+
+            // If there are lake cells in the region, mark this cell in the resized mask
+            if (totalCells > 0 && lakeCount > 0) {
+                // Convert to byte, ensuring we don't exceed byte range (0-255)
+                resizedMask[newX][newY] = static_cast<uint8_t>(lakeCount > 0 ? 1 : 0);
+            }
+        }
+    }
+
+    return resizedMask;
+}
+
 std::vector<std::vector<short>> resample2DShortWithAverage(const std::vector<std::vector<short>>& original,
     int new_rows, int new_cols) {
 
