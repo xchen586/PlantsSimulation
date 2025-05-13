@@ -438,6 +438,15 @@ bool CPlantsSimulation::LoadAndOutputRegions()
 	
 	std::vector<std::vector<int>> regionsIntInput = Read2DIntArray(m_regionsRawFile, regionsWidth, regionsHeight);
 	bool loadAllRegionInfo = LoadRegionInfoFromCSV(m_regionsInfoFile, m_regionInfoMap, m_pCellTable, m_topLayerMeta);
+
+	char inputRegionRawCSV[MAX_PATH];
+	memset(inputRegionRawCSV, 0, sizeof(char) * MAX_PATH);
+#if __APPLE__ 
+	snprintf(inputRegionRawCSV, MAX_PATH, "%s/region_raw.csv", m_outputDir.c_str());
+#else
+	sprintf_s(inputRegionRawCSV, MAX_PATH, "%s\\region_raw.csv", m_outputDir.c_str());
+#endif
+	bool saveRegionRawCSV = Write2DArrayAsCSV(inputRegionRawCSV, regionsIntInput);
 	
 	std::cout << "Total region info count is " << m_regionInfoMap.size() << std::endl;
 	
