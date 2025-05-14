@@ -31,16 +31,7 @@ def post_process_regions_info_csv(file_path, dest_path, namedb_path, copy_path):
     if (oldColumnsCount > 12):
         print("Old Columns Count > 12, we don't need to post process this file")
         return
-    # set all "type 1 " to "Unknown"
-    df['type 1'] = 'Unknown'
 
-    df.loc[(df['MinHeight'] > 0) & (df['AvgHumidity'] >= 15), 'type 1'] = 'Temperate'
-    df.loc[(df['MinHeight'] > 0) & (df['AvgHumidity'] > 40), 'type 1'] = 'Humid'
-    df.loc[(df['MinHeight'] > 0) & (df['AvgHumidity'] < 15), 'type 1'] = 'Dry'
-    df.loc[(df['MinHeight'] > 0) & (df['AvgHumidity'] < 5), 'type 1'] = 'Desert'
-    df.loc[(df['MinHeight'] > 2500) & (df['AvgHumidity'] > 40), 'type 1'] = 'Tundra'
-    df.loc[df['MinHeight'] > 4000, 'type 1'] = 'Frozen'
-    df.loc[(df['MinHeight'] < 20) & (df['NearSea'] == 1.0), 'type 1'] = 'Ocean'
     # set all "type 1 " to "Unknown"
     df['type 1'] = 'Unknown'
 
