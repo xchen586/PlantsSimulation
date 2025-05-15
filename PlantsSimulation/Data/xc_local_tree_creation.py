@@ -1581,6 +1581,9 @@ def tree_instances_generation(config_path):
     road_heightmap_file_name = f'{tiles_count}_{tiles_x}_{tiles_y}_{tiles_scale}_{road_heightmap_scale_width}_{road_heightmap_scale_height}_ushort_height_map_raw.raw'
     road_humidity_file_name = f'{tiles_count}_{tiles_x}_{tiles_y}_{tiles_scale}_{road_heightmap_scale_width}_{road_heightmap_scale_height}_byte_humidity_map_raw.raw'
     road_cave_file_name = f'{tiles_count}_{tiles_x}_{tiles_y}_{tiles_scale}_{road_heightmap_scale_width}_{road_heightmap_scale_height}_ushort_cave_roadmap_raw.raw'
+    road_lake_file_name = f'{tiles_count}_{tiles_x}_{tiles_y}_{tiles_scale}_{road_heightmap_scale_width}_{road_heightmap_scale_height}_byte_lake_map.raw'
+    road_top_lake_file_name = f'{tiles_count}_{tiles_x}_{tiles_y}_{tiles_scale}_{road_heightmap_scale_width}_{road_heightmap_scale_height}_byte_top_lake_map.raw'
+    road_level1_lake_file_name = f'{tiles_count}_{tiles_x}_{tiles_y}_{tiles_scale}_{road_heightmap_scale_width}_{road_heightmap_scale_height}_byte_level1_lake_map.raw'
     road_regions_name_file_name = f'{tiles_count}_{tiles_x}_{tiles_y}_regions_name.csv'
     road_regions_namelist_file_name = f'{tiles_count}_{tiles_x}_{tiles_y}_regions_namelist.csv'
     road_regions_namedb_file_name = f'{tiles_count}_{tiles_x}_{tiles_y}_regions_namedb.csv'
@@ -1588,6 +1591,9 @@ def tree_instances_generation(config_path):
     original_road_heightmap_file_path = os.path.join(road_input_folder, road_heightmap_file_name)
     original_road_humidity_file_path = os.path.join(road_input_folder, road_humidity_file_name)
     original_road_cave_file_path = os.path.join(road_input_folder, road_cave_file_name)
+    original_road_lake_file_path = os.path.join(road_input_folder, road_lake_file_name)
+    original_road_top_lake_file_path = os.path.join(road_input_folder, road_top_lake_file_name)
+    original_road_level1_lake_file_path = os.path.join(road_input_folder, road_level1_lake_file_name)
     road_regions_name_file_path = os.path.join(road_input_folder, road_regions_name_file_name)
     road_regions_namelist_file_path = os.path.join(road_input_folder, road_regions_namelist_file_name)
     road_regions_namedb_file_path = os.path.join(road_input_folder, road_regions_namedb_file_name)
@@ -1965,12 +1971,19 @@ def tree_instances_generation(config_path):
         new_road_heightmap_file_path = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', road_heightmap_file_name)
         new_road_humidity_file_path = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', road_humidity_file_name)
         new_road_cave_file_path = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', road_cave_file_name)
+        new_road_lake_file_path = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', road_lake_file_name)
+        new_road_top_lake_file_path = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', road_top_lake_file_name)
+        new_road_level1_lake_file_path = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', road_level1_lake_file_name)
+        
         print(f'new_road_heightmap_file_path is : {new_road_heightmap_file_path}')
         print(f'new_road_humidity_file_path is : {new_road_humidity_file_path}')
         print(f'new_road_cave_file_path is : {new_road_cave_file_path}')
         print(f'original_road_heightmap_file_path is : {original_road_heightmap_file_path}')
         print(f'original_road_humidity_file_path is : {original_road_humidity_file_path}')
         print(f'original_road_cave_file_path is : {original_road_cave_file_path}')
+        print(f'original_road_lake_file_path is : {original_road_lake_file_path}')
+        print(f'original_road_top_lake_file_path is : {original_road_top_lake_file_path}')
+        print(f'original_road_level1_lake_file_path is : {original_road_level1_lake_file_path}')
         print(f'road_regions_name_file_path is : {road_regions_name_file_path}')
         print(f'road_regions_namelist_file_path is : {road_regions_namelist_file_path}')
     
@@ -1981,6 +1994,10 @@ def tree_instances_generation(config_path):
         shutil.copy2(new_road_humidity_file_path, roaddata_active_version_property)
         
         shutil.copy2(new_road_cave_file_path, roaddata_active_version_property)
+        
+        shutil.copy2(new_road_lake_file_path, roaddata_active_version_property)
+        shutil.copy2(new_road_top_lake_file_path, roaddata_active_version_property)
+        shutil.copy2(new_road_level1_lake_file_path, roaddata_active_version_property)
             
         print(f'End to run_generate_road_input')
 
