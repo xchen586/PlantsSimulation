@@ -3,9 +3,10 @@ import shutil
 #import matplotlib.pyplot as plt
 
 source_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_regions_info.csv'
+copy_before = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_regions_info_copy_before.csv'
 destination_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_regions_info.csv'
 namedb_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\namedb.csv'
-copy_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_regions_info_copy.csv'
+copy_result= f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_regions_info_copy_result.csv'
 # open csv file
 def open_csv(file_path):
     """
@@ -18,10 +19,16 @@ def open_csv(file_path):
         print(f"Error opening file: {e}")
         return None
 
-def post_process_regions_info_csv(file_path, dest_path, namedb_path, copy_path):
+def post_process_regions_info_csv(file_path, dest_path, namedb_path, copy_result_path=None, copy_before_path=None):
     """
     Post-process the DataFrame.
     """
+
+    if copy_before_path:
+        # copy the file to the destination path
+        shutil.copy2(dest_path, copy_before_path)
+        print(f"Before File copied to {copy_before_path}")
+        
     # describe the dataframe
     # open the file
     df = open_csv(file_path)
@@ -132,8 +139,8 @@ def post_process_regions_info_csv(file_path, dest_path, namedb_path, copy_path):
     
     # save the dataframe to a csv file
     df.to_csv(dest_path, index=False)
-    if copy_path:
+    if copy_result_path:
         # copy the file to the destination path
-        shutil.copy2(dest_path, copy_path)
-        print(f"File copied to {copy_path}")
-post_process_regions_info_csv(source_path, destination_path, namedb_path, copy_path)
+        shutil.copy2(dest_path, copy_result_path)
+        print(f"Result File copied to {copy_result_path}")
+post_process_regions_info_csv(source_path, destination_path, namedb_path, copy_result, copy_before)
