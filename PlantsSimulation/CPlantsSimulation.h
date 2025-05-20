@@ -121,6 +121,7 @@ private:
 	int m_iteration = 100;
 
 	bool m_isLevel1Instances = false;
+	bool m_onlyPOIs = false;
 
 	InputImageDataInfo* m_topLayerImage;
 	InputImageMetaInfo* m_topLayerMeta;
@@ -174,6 +175,13 @@ public:
 		m_isLevel1Instances = isLevel1Instances; 
 		std::cout << "Set CPlantsSimulation isLevel1Instances to " << m_isLevel1Instances << std::endl;
 	}
+
+	void setOnlyPOIs(bool onlyPOIs)
+	{
+		m_onlyPOIs = onlyPOIs;
+		std::cout << "Set CPlantsSimulation isOnlyPOIs to " << m_onlyPOIs << std::endl;
+	}
+
 	void DeInitialize();
 	void DeInitializeForMakeInstances();
 	

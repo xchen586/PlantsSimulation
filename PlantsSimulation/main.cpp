@@ -75,6 +75,7 @@ int iniAbsolutePathMain(int argc, const char* argv[])
     const char* use_with_basemeshes_level1_str = GetIniValue(iniParser, Options_Section, "Use_With_BaseMeshes_Level1");
     const char* level0_instances_str = GetIniValue(iniParser, Options_Section, "Level0_Instances");
     const char* level1_instances_str = GetIniValue(iniParser, Options_Section, "Level1_Instances");
+	const char* only_pois_str = GetIniValue(iniParser, Options_Section, "Only_POIs");
 
     const int t = atoi(t_str);
     const int x = atoi(x_str);
@@ -125,6 +126,16 @@ int iniAbsolutePathMain(int argc, const char* argv[])
         }
     }
 
+	bool isOnlyPOIs = false;    
+    if (only_pois_str)
+    {
+        bool isOnlyPOIsValue = stringToBool(only_pois_str);
+        if (isOnlyPOIsValue)
+        {
+            isOnlyPOIs = isOnlyPOIsValue;
+        }
+    }
+
     std::cout << "Command line is : " << std::endl;
     std::cout << "Tiles count is : " << (t_str ? t_str : "") << std::endl;
     std::cout << "Tiles x index is : " << (x_str ? x_str : "") << std::endl;
@@ -164,6 +175,7 @@ int iniAbsolutePathMain(int argc, const char* argv[])
     std::cout << "Use with base meshes level1  : " << (use_with_basemeshes_level1_str ? use_with_basemeshes_level1_str : "") << std::endl;
     std::cout << "Level 0 instances  : " << (level0_instances_str ? level0_instances_str : "") << std::endl;
     std::cout << "Level 1 instances  : " << (level1_instances_str ? level1_instances_str : "") << std::endl;
+	std::cout << "Only POIs  : " << (only_pois_str ? only_pois_str : "") << std::endl;
     std::cout << std::endl;
 
     int tiles = t;
@@ -227,7 +239,7 @@ int iniAbsolutePathMain(int argc, const char* argv[])
         , output_file_level0, fullOutput_file_level0, pcFullOutput_file_level0, output_file_level1, fullOutput_file_level1, pcFullOutput_file_level1
         , lod, forestAge, iteration, tiles, tileX, tileY, tileScale, roadHeightMapScaleWidth, roadHeightMapScaleHeight);
 
-    
+	ps.setOnlyPOIs(isOnlyPOIs);
     
     if (isOnlyRoadData)
     {

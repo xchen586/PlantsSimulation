@@ -2084,10 +2084,17 @@ bool CPlantsSimulation::BuildForest()
 	//float forestAge = 500;
 	//int iteration = 100;
 
-	std::cout << "Forest Age is : " << m_forestAge << std::endl;
-	std::cout << "Toatal iteration count is : " << m_iteration << std::endl;
-	m_pForest->generate(m_forestAge, m_iteration);
-
+	if (!m_onlyPOIs)
+	{
+		std::cout << "Forest Age is : " << m_forestAge << std::endl;
+		std::cout << "Toatal iteration count is : " << m_iteration << std::endl;
+		m_pForest->generate(m_forestAge, m_iteration);
+	}
+	else
+	{
+		std::cout << "Only Generate POIs" << std::endl;
+	}
+	
 	return true;
 }
 
