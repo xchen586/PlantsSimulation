@@ -1950,6 +1950,7 @@ def tree_instances_generation(config_path):
         create_or_update_ini_file(tree_ini_path, section_options,'Use_With_BaseMeshes_Level1', useWithBaseMeshesLevel1)
         create_or_update_ini_file(tree_ini_path, section_options,'Level0_Instances', run_level_0_instances)
         create_or_update_ini_file(tree_ini_path, section_options,'Level1_Instances', run_level_1_instances)
+        create_or_update_ini_file(tree_ini_path, section_options,'Only_POIs', only_run_POIs)
         
         print(f'End to write tree instance ini files : {tree_ini_path}')
         tree_ini_string = ini_file_to_string(tree_ini_path)
@@ -2386,6 +2387,7 @@ test_only_tree_generation = True
 
 only_run_level_0_instances = True
 only_run_level_1_instances = False
+only_run_POIs = False
 
 if only_road_generation:
     print("Choose only_road_generation to Run")
