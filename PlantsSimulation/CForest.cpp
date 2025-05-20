@@ -1034,7 +1034,7 @@ bool CForest::outputFullTreeInstanceResults(const std::string& fileName, bool ha
 {
 	if ((!m_pCellTable)
 		|| (!m_pMetaInfo)
-		|| (!treeoutputs.size())
+		//|| (!treeoutputs.size())
 		)
 	{
 		return false;
