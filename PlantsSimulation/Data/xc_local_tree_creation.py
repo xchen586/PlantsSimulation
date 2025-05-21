@@ -719,8 +719,27 @@ def merge_instances_csv_files(folder_a, folder_b, destination_folder):
         shutil.rmtree(destination_folder)
     os.makedirs(destination_folder, exist_ok=True)
     
-    files_a = set(os.listdir(folder_a))
-    files_b = set(os.listdir(folder_b))
+    files_a = set()
+    files_b = set()
+
+    if os.path.exists(folder_a):
+        try:
+            files_a = set(os.listdir(folder_a))
+        except OSError as e:
+            print(f"Error accessing folder_a ({folder_a}): {e}")
+            # Decide how to handle this:
+            # You might want to log it, or exit, or keep files_a as empty set
+            files_a = set() # Keep as empty set if error occurs
+        
+    # Check if folder_b exists before trying to list its contents
+    if os.path.exists(folder_b):
+        try:
+            files_b = set(os.listdir(folder_b))
+        except OSError as e:
+            print(f"Error accessing folder_b ({folder_b}): {e}")
+            # Decide how to handle this:
+            # You might want to log it, or exit, or keep files_b as empty set
+            files_b = set() # Keep as empty set if error occurs
     
     all_files = files_a | files_b
     
@@ -2560,7 +2579,7 @@ if test_only_pois_generation:
     print("Choose test_only_pois_generation to Run")
     Game_Tree_Entity_id = Instances_Test_Entity_id  #xuan chen 
     Workflow_Output_Result_Folder_id = '82EC2324CC584DCEB3FF3281676F42A4'  #Pangea Next > Workflow Output > Workflow Test Tree GeoChems Output
-    is_run_road_exe = True
+    is_run_road_exe = False
     is_run_worldgen_road = False
     is_run_upload_smooth_layer = False
     is_run_make_basemeshes = False
