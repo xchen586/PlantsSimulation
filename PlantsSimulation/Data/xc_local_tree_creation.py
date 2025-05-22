@@ -2579,7 +2579,7 @@ if test_only_pois_generation:
     print("Choose test_only_pois_generation to Run")
     Game_Tree_Entity_id = Instances_Test_Entity_id  #xuan chen 
     Workflow_Output_Result_Folder_id = '82EC2324CC584DCEB3FF3281676F42A4'  #Pangea Next > Workflow Output > Workflow Test Tree GeoChems Output
-    is_run_road_exe = False
+    is_run_road_exe = True
     is_run_worldgen_road = False
     is_run_upload_smooth_layer = False
     is_run_make_basemeshes = False
