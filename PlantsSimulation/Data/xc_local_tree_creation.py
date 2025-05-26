@@ -2396,6 +2396,7 @@ test_whole_result_generation = False
 basemeshes_upload_generation = False
 
 test_only_pois_generation = False
+road_only_pois_generation = False
 
 test_only_tree_generation = False
 only_tree_generation = False
@@ -2412,7 +2413,7 @@ only_run_level_1_instances = False
 only_run_POIs = False
 only_load_Road = False
 
-test_only_pois_generation = True
+road_only_pois_generation = True
 
 if only_road_generation:
     print("Choose only_road_generation to Run")
@@ -2589,6 +2590,24 @@ if test_only_pois_generation:
     is_run_make_tree_instances = True
     is_run_upload_tree_instances = True
     is_run_create_geochem_entity = True
+    is_run_generate_road_input = False
+    only_run_POIs = True
+    only_load_Road = True
+    
+if  road_only_pois_generation:
+    print("Choose road_only_pois_generation to Run")
+    Game_Tree_Entity_id = Instances_Test_Entity_id  #xuan chen 
+    Workflow_Output_Result_Folder_id = '82EC2324CC584DCEB3FF3281676F42A4'  #Pangea Next > Workflow Output > Workflow Test Tree GeoChems Output
+    is_run_road_exe = True
+    is_run_worldgen_road = False
+    is_run_upload_smooth_layer = False
+    is_run_make_basemeshes = False
+    is_run_upload_basemeshes = False
+    is_run_make_caves = False
+    is_run_upload_caves = False
+    is_run_make_tree_instances = False
+    is_run_upload_tree_instances = False
+    is_run_create_geochem_entity = False
     is_run_generate_road_input = False
     only_run_POIs = True
     only_load_Road = True
