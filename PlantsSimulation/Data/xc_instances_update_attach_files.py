@@ -87,7 +87,7 @@ game_tree_entity_id_property = '546217C1DE184353AFD6F14EFAED35C9'  #game entity 
 if isTestResult:
    game_tree_entity_id_property = 'DB5EFD08F7AF4725BABBFDC74E2C5ED8' # xc test "12_4_2_Pangea_Next_Test_Instances_Entity_573"
 entity_id = game_tree_entity_id_property
-backup_base_folder = f'D:\\Downloads\\XCTreeBackup\\Output\\Tree_output\\2025013QTree16GeoVer579_12_4_2__NewPOIs_OldRoadInputData'
+backup_base_folder = f'D:\\Downloads\\XCTreeBackup\\Output\\Tree_output\\20250529QTree16GeoVer680_12_4_2__NewPOIs_OldRoadInputData_Heuristic'
 backup_folder = os.path.join(backup_base_folder, f'{tiles}_{x}_{y}')
 regions_info_file = os.path.join(backup_folder, 'regions_info.csv')
 region_output_folder = os.path.join(backup_folder, 'regionoutput')
