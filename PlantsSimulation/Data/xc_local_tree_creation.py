@@ -2431,6 +2431,7 @@ road_only_pois_generation = False
 test_only_tree_generation = False
 only_tree_generation = False
 only_upload_smooth_layer_generation = False
+smooth_layer_generation_reload_road = False
 smooth_layer_generation_without_road = False
 test_only_upload_tree_generation = False
 only_upload_tree_generation = False
@@ -2443,7 +2444,7 @@ only_run_level_1_instances = False
 only_run_POIs = False
 only_load_Road = False
 
-road_only_pois_generation = True
+smooth_layer_generation_without_road = True
 
 if only_road_generation:
     print("Choose only_road_generation to Run")
@@ -2707,7 +2708,7 @@ if only_upload_smooth_layer_generation:
     is_run_generate_road_input = False
     
 if smooth_layer_generation_without_road:
-    print("Choose only_upload_smooth_layer_generation to Run")
+    print("Choose smooth_layer_generation_without_road to Run")
     Game_Tree_Entity_id = Instances_Game_Entity_id  #game entity 
     Workflow_Output_Result_Folder_id = 'B24E708E13C5473FA3BFDBCBA0E68B42'  #Pangea Next > Workflow Output > Workflow Smooth layer Output
     is_run_road_exe = False
@@ -2721,6 +2722,23 @@ if smooth_layer_generation_without_road:
     is_run_upload_tree_instances = False
     is_run_create_geochem_entity = False
     is_run_generate_road_input = False
+    
+if smooth_layer_generation_reload_road:
+    print("Choose smooth_layer_generation_reload_road to Run")
+    Game_Tree_Entity_id = Instances_Game_Entity_id  #game entity 
+    Workflow_Output_Result_Folder_id = 'B24E708E13C5473FA3BFDBCBA0E68B42'  #Pangea Next > Workflow Output > Workflow Smooth layer Output
+    is_run_road_exe = True
+    is_run_worldgen_road = True
+    is_run_upload_smooth_layer = True
+    is_run_make_basemeshes = False
+    is_run_upload_basemeshes = False
+    is_run_make_caves = False
+    is_run_upload_caves = False
+    is_run_make_tree_instances = False
+    is_run_upload_tree_instances = False
+    is_run_create_geochem_entity = False
+    is_run_generate_road_input = False
+    only_load_Road = True
     
 if caves_voxelization_generation:
     print("Choose only_upload_smooth_layer_generation to Run")
