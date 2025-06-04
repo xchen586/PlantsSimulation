@@ -1664,9 +1664,27 @@ def tree_instances_generation(config_path):
     lakes_heightmap_make_path = os.path.join(smoothlayer_output_folder, lakes_heightmap_make_name)
     level1_lakes_heightmap_make_path = os.path.join(smoothlayer_output_folder, level1_lakes_heightmap_make_name)        
     
-    toplayer_image_upload_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.jpg'
-    toplayer_image_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.png'
-    toplayer_image_meta_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.jgw'
+    toplayer_image_jpg_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.jpg'
+    toplayer_image_png_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.png'
+    toplayer_image_jpg_meta_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.jgw'
+    toplayer_image_png_meta_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.pgw'
+    
+    toplayer_region_image_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.region.png'
+    toplayer_region_image_path = os.path.join(smoothlayer_output_folder, toplayer_region_image_name)
+    toplayer_slope_image_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.slope.png'
+    toplayer_slope_image_path = os.path.join(smoothlayer_output_folder, toplayer_slope_image_name)
+    toplayer_slope_invert_image_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.slope.invert.png'
+    toplayer_slope_invert_image_path = os.path.join(smoothlayer_output_folder, toplayer_slope_invert_image_name)
+    toplayer_road_image_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.road.png'
+    toplayer_road_image_path = os.path.join(smoothlayer_output_folder, toplayer_road_image_name)
+    toplayer_region_image_meta_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.region.pgw'
+    toplayer_region_image_meta_path = os.path.join(smoothlayer_output_folder, toplayer_region_image_meta_name)
+    toplayer_slope_image_meta_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.slope.pgw'
+    toplayer_slope_image_meta_path = os.path.join(smoothlayer_output_folder, toplayer_slope_image_meta_name)
+    toplayer_slope_invert_image_meta_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.slope.invert.pgw'
+    toplayer_slope_invert_image_meta_path = os.path.join(smoothlayer_output_folder, toplayer_slope_invert_image_meta_name)
+    toplayer_road_image_meta_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.road.pgw'
+    toplayer_road_image_meta_path = os.path.join(smoothlayer_output_folder, toplayer_road_image_meta_name)    
     
     toplevel_file_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz'
     level1_file_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_level1.xyz'
@@ -1678,9 +1696,10 @@ def tree_instances_generation(config_path):
     ocean_top_file_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_ocean_top.xyz'
     ocean_bottom_file_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_ocean_bottom.xyz'
     
-    toplayer_image_upload_path = os.path.join(smoothlayer_output_folder, toplayer_image_upload_name)
-    toplayer_image_path = os.path.join(smoothlayer_output_folder, toplayer_image_name)
-    toplayer_image_meta_path = os.path.join(smoothlayer_output_folder, toplayer_image_meta_name)
+    toplayer_image_jpg_path = os.path.join(smoothlayer_output_folder, toplayer_image_jpg_name)
+    toplayer_image_png_path = os.path.join(smoothlayer_output_folder, toplayer_image_png_name)
+    toplayer_image_jpg_meta_path = os.path.join(smoothlayer_output_folder, toplayer_image_jpg_meta_name)
+    toplayer_image_png_meta_path = os.path.join(smoothlayer_output_folder, toplayer_image_png_meta_name)
     toplevel_file_path = os.path.join(smoothlayer_output_folder, toplevel_file_name)
     level1_file_path = os.path.join(smoothlayer_output_folder, level1_file_name)
     bedrock_file_path = os.path.join(smoothlayer_output_folder, bedrock_file_name)
@@ -1824,7 +1843,13 @@ def tree_instances_generation(config_path):
             print(f'Error: The process ({road_exe_command}) returned a non-zero exit code ({run_road_exe}).')
             return -1
     
-    toplevel_image_entity_base_name = f'RoadImage_{tiles_count}_{tile_x}_{tiles_y}'
+    toplevel_image_jpg_entity_base_name = f'TopLayer_Image_JPG_{tiles_count}_{tile_x}_{tiles_y}'
+    toplevel_image_png_entity_base_name = f'TopLayer_Image_PNG_{tiles_count}_{tile_x}_{tiles_y}'
+    toplevel_region_image_entity_base_name = f'TopLayer_Region_Image_{tiles_count}_{tile_x}_{tile_y}'
+    toplevel_slope_image_entity_base_name = f'TopLayer_Slope_Image_{tiles_count}_{tile_x}_{tile_y}'
+    toplevel_slope_invert_image_entity_base_name = f'TopLayer_Slope_Invert_Image_{tiles_count}_{tile_x}_{tile_y}'
+    toplevel_road_image_entity_base_name = f'TopLayer_RoadOnly_Image_{tiles_count}_{tile_x}_{tile_y}'
+    
     toplevel_layer_entity_base_name = f'TopLevel_{tiles_count}_{tile_x}_{tiles_y}'
     level1_layer_entity_base_name = f'Level1_{tiles_count}_{tile_x}_{tiles_y}'
     bedrock_layer_entity_base_name = f'BedRock_{tiles_count}_{tile_x}_{tiles_y}'
@@ -1939,8 +1964,8 @@ def tree_instances_generation(config_path):
 
         create_or_update_ini_file(tree_ini_path, section_input, 'Road_Heightmap_Scale_Width', road_heightmap_scale_width)
         create_or_update_ini_file(tree_ini_path, section_input, 'Road_Heightmap_Scale_Height', road_heightmap_scale_height)
-        create_or_update_ini_file(tree_ini_path, section_input, 'Toplayer_Image', toplayer_image_path)
-        create_or_update_ini_file(tree_ini_path, section_input, 'Toplayer_Image_Meta', toplayer_image_meta_path)
+        create_or_update_ini_file(tree_ini_path, section_input, 'Toplayer_Image', toplayer_image_png_path)
+        create_or_update_ini_file(tree_ini_path, section_input, 'Toplayer_Image_Meta', toplayer_image_jpg_meta_path)
         create_or_update_ini_file(tree_ini_path, section_input, 'BaseMeshes_Level_0_HeightMap', basemeshes_0_heightmap_path)
         create_or_update_ini_file(tree_ini_path, section_input, 'BaseMeshes_Level_1_HeightMap', basemeshes_1_heightmap_path)
         create_or_update_ini_file(tree_ini_path, section_input, 'TopLayer_HeightMap', toplayer_heightmap_path)
@@ -2026,7 +2051,12 @@ def tree_instances_generation(config_path):
 
     if run_upload_smooth_layer:
         print(f'step for to run_upload_smooth_layer : {worldgen_command}')
-        process_file_image(api, Project_id, Workflow_Output_Result_Folder_id, toplayer_image_upload_path, toplayer_image_meta_path, toplevel_image_entity_base_name, project_output_version)
+        process_file_image(api, Project_id, Workflow_Output_Result_Folder_id, toplayer_image_jpg_path, toplayer_image_jpg_meta_path, toplevel_image_jpg_entity_base_name, project_output_version)
+        process_file_image(api, Project_id, Workflow_Output_Result_Folder_id, toplayer_image_png_path, toplayer_image_png_meta_path, toplevel_image_png_entity_base_name, project_output_version)
+        process_file_image(api, Project_id, Workflow_Output_Result_Folder_id, toplayer_region_image_path, toplayer_region_image_meta_path, toplevel_region_image_entity_base_name, project_output_version)
+        process_file_image(api, Project_id, Workflow_Output_Result_Folder_id, toplayer_slope_image_path, toplayer_slope_image_meta_path, toplevel_slope_image_entity_base_name, project_output_version)
+        process_file_image(api, Project_id, Workflow_Output_Result_Folder_id, toplayer_slope_invert_image_path, toplayer_slope_invert_image_meta_path, toplevel_slope_invert_image_entity_base_name, project_output_version)
+        process_file_image(api, Project_id, Workflow_Output_Result_Folder_id, toplayer_road_image_path, toplayer_road_image_meta_path, toplevel_road_image_entity_base_name, project_output_version)
         
         process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, toplevel_file_path, api.entity_type.VoxelTerrain, toplevel_layer_entity_base_name, project_output_version, color=True)
         process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, level1_file_path, api.entity_type.VoxelTerrain, level1_layer_entity_base_name, project_output_version, color=True)
