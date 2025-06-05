@@ -2444,7 +2444,8 @@ only_run_level_1_instances = False
 only_run_POIs = False
 only_load_Road = False
 
-smooth_layer_generation_without_road = True
+#smooth_layer_generation_without_road = True
+road_only_pois_generation = True
 
 if only_road_generation:
     print("Choose only_road_generation to Run")
