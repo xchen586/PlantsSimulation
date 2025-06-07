@@ -100,6 +100,7 @@ bool CPsInstanceExporter::loadPointInstanceFromCSV(const string& filePath, const
 	int originalCount = 0;
 
 	unsigned int variant = 0;
+	unsigned int slopeValue = 0;
 
 	while (std::getline(file, line)) {
 		std::stringstream lineStream(line);
@@ -142,6 +143,12 @@ bool CPsInstanceExporter::loadPointInstanceFromCSV(const string& filePath, const
 		{
 			if (std::getline(lineStream, field, ',')) {
 				variant = std::stoi(field);
+			}
+		}
+		if (columnCount >= 9) //Has slope value column
+		{
+			if (std::getline(lineStream, field, ',')) {
+				slopeValue = std::stoi(field);
 			}
 		}
 #if USE_CELLINFO_HEIGHT_FOR_POINT_INSTANCE
@@ -195,6 +202,7 @@ bool CPsInstanceExporter::loadPointInstanceFromCSV(const string& filePath, const
 			index++;
 			sub->index = index;
 			sub->MakeIdString();
+			sub->slopeValue = slopeValue;
 
 			string keyString = GetKeyStringForInstance(outputSubDir, sub->cellXIdx, sub->cellZIdx);
 			InstanceSubOutputMap::iterator iter = outputMap.find(keyString);
