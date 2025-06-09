@@ -4,6 +4,7 @@
 
 enum class PointType {
 	Point_None,
+	Point_Centroid,
 	Point_MostTravelled,
 	Point_MostDistant,
 	Point_End

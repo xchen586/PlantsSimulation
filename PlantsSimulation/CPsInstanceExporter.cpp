@@ -101,6 +101,8 @@ bool CPsInstanceExporter::loadPointInstanceFromCSV(const string& filePath, const
 
 	unsigned int variant = 0;
 	unsigned int slopeValue = 0;
+	PointType pointType = PointType::Point_None; // 0 for most travelled, 1 for most distant, 2 for centroid
+	int nPointType = static_cast<int>(pointType);
 
 	while (std::getline(file, line)) {
 		std::stringstream lineStream(line);
@@ -149,6 +151,13 @@ bool CPsInstanceExporter::loadPointInstanceFromCSV(const string& filePath, const
 		{
 			if (std::getline(lineStream, field, ',')) {
 				slopeValue = std::stoi(field);
+			}
+		}
+		if (columnCount >= 10) //Has poi type column
+		{
+			if (std::getline(lineStream, field, ',')) {
+				nPointType = std::stoi(field);
+				pointType = static_cast<PointType>(nPointType);
 			}
 		}
 #if USE_CELLINFO_HEIGHT_FOR_POINT_INSTANCE
@@ -203,7 +212,10 @@ bool CPsInstanceExporter::loadPointInstanceFromCSV(const string& filePath, const
 			sub->index = index;
 			sub->MakeIdString();
 			sub->slopeValue = slopeValue;
-
+			if ((pointType != PointType::Point_None) && (static_cast<unsigned int>(instanceType) != static_cast<unsigned int>(pointType)))
+			{
+				std::cout << "The instanceType is not equal to pointType for POI at index : " << index << "  instanceType : " << static_cast<unsigned int>(instanceType) << "  pointType : " << static_cast<unsigned int>(pointType) << std::endl;
+			}
 			string keyString = GetKeyStringForInstance(outputSubDir, sub->cellXIdx, sub->cellZIdx);
 			InstanceSubOutputMap::iterator iter = outputMap.find(keyString);
 			if (outputMap.end() == iter)
