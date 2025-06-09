@@ -26,6 +26,21 @@ from voxelfarm import voxelfarmclient
 from voxelfarm import workflow_lambda
 from voxelfarm import process_lambda
 
+def timestamp_to_string(timestamp):
+    """Convert Unix timestamp to readable date string with timezone"""
+    dt = datetime.fromtimestamp(timestamp).astimezone()
+    return dt.strftime('%Y-%m-%d %H:%M:%S %Z')
+
+def timestamp_to_detailed_string(timestamp):
+    """Convert Unix timestamp to detailed date string"""
+    dt = datetime.fromtimestamp(timestamp).astimezone()
+    return dt.strftime('%A, %B %d, %Y at %I:%M:%S %p %Z')
+
+def timestamp_to_components(timestamp):
+    """Convert Unix timestamp to individual components as string"""
+    dt = datetime.fromtimestamp(timestamp).astimezone()
+    return f"Year: {dt.year}, Month: {dt.month}, Day: {dt.day}, Hours: {dt.hour}, Minutes: {dt.minute}, Seconds: {dt.second}, Timezone: {dt.tzname()}"
+
 def find_files_of_type_in_folder(folder_path, file_extension):
     files = []
     # Recursively traverse through all subdirectories
@@ -2328,6 +2343,8 @@ use_basemesh_ini = False
 
 lambda_host = process_lambda.process_lambda_host()
 
+lambda_host.log(f'Start time: {timestamp_to_components(start_time)}')
+
 lambda_host.progress(0, 'Starting Lambda...')
 scrap_folder= lambda_host.get_scrap_folder()
 lambda_host.log(f'scrap_folder: {scrap_folder}')
@@ -2525,6 +2542,7 @@ run_result = tree_instances_generation(configfile_path)
 lambda_host.log(f'end tree_instances_generation: {configfile_path}')
 
 end_time = time.time()
+lambda_host.log(f'End time: {timestamp_to_components(end_time)}')
 execution_time_seconds = end_time - start_time
 # Convert seconds to days, hours, minutes, seconds, and milliseconds
 milliseconds = int(execution_time_seconds * 1000)

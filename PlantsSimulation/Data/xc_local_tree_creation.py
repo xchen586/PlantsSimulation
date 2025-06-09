@@ -26,6 +26,22 @@ from voxelfarm import voxelfarmclient
 from voxelfarm import workflow_lambda
 from voxelfarm import process_lambda
 
+def timestamp_to_string(timestamp):
+    """Convert Unix timestamp to readable date string with timezone"""
+    dt = datetime.datetime.fromtimestamp(timestamp).astimezone()
+    return dt.strftime('%Y-%m-%d %H:%M:%S %Z')
+
+def timestamp_to_detailed_string(timestamp):
+    """Convert Unix timestamp to detailed date string"""
+    dt = datetime.datetime.fromtimestamp(timestamp).astimezone()
+    return dt.strftime('%A, %B %d, %Y at %I:%M:%S %p %Z')
+
+def timestamp_to_components(timestamp):
+    """Convert Unix timestamp to individual components as string"""
+    dt = datetime.datetime.fromtimestamp(timestamp).astimezone()
+    timezone_name = dt.tzname() if dt.tzname() else "Local"
+    return f"Year: {dt.year}, Month: {dt.month}, Day: {dt.day}, Hours: {dt.hour}, Minutes: {dt.minute}, Seconds: {dt.second}, Timezone: {timezone_name}"
+
 class DualOutput:
     def __init__(self, file_path):
         self.console = sys.stdout  # Save the current console output stream
@@ -2314,6 +2330,7 @@ def tree_config_creation(ini_path):
 scrap_folder= f'D:\\Downloads\\XCTreeCreation'
 
 start_time = time.time()
+print(f'Start time: {timestamp_to_components(start_time)}')
 
 now = datetime.datetime.now()
 
@@ -2900,6 +2917,8 @@ print(f'end tree_instances_generation: {configfile_path}')
 
 
 end_time = time.time()
+print(f'End time: {timestamp_to_components(end_time)}')
+
 execution_time_seconds = end_time - start_time
 # Convert seconds to days, hours, minutes, seconds, and milliseconds
 milliseconds = int(execution_time_seconds * 1000)
