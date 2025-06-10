@@ -28,18 +28,19 @@ from voxelfarm import process_lambda
 
 def timestamp_to_string(timestamp):
     """Convert Unix timestamp to readable date string with timezone"""
-    dt = datetime.fromtimestamp(timestamp).astimezone()
+    dt = datetime.datetime.fromtimestamp(timestamp).astimezone()
     return dt.strftime('%Y-%m-%d %H:%M:%S %Z')
 
 def timestamp_to_detailed_string(timestamp):
     """Convert Unix timestamp to detailed date string"""
-    dt = datetime.fromtimestamp(timestamp).astimezone()
+    dt = datetime.datetime.fromtimestamp(timestamp).astimezone()
     return dt.strftime('%A, %B %d, %Y at %I:%M:%S %p %Z')
 
 def timestamp_to_components(timestamp):
     """Convert Unix timestamp to individual components as string"""
-    dt = datetime.fromtimestamp(timestamp).astimezone()
-    return f"Year: {dt.year}, Month: {dt.month}, Day: {dt.day}, Hours: {dt.hour}, Minutes: {dt.minute}, Seconds: {dt.second}, Timezone: {dt.tzname()}"
+    dt = datetime.datetime.fromtimestamp(timestamp).astimezone()
+    timezone_name = dt.tzname() if dt.tzname() else "Local"
+    return f"Year: {dt.year}, Month: {dt.month}, Day: {dt.day}, Hours: {dt.hour}, Minutes: {dt.minute}, Seconds: {dt.second}, Timezone: {timezone_name}"
 
 def find_files_of_type_in_folder(folder_path, file_extension):
     files = []
@@ -486,6 +487,7 @@ RESOURCE_INSTANCE = 3
 TREE_LEVEL1_INSTANCE = 4
 InstanceType_Attribute = 'InstanceType'
 Variant_Attribute = 'Variant'
+Slope_Attribute = 'Slope'
 Index_Attribute = 'Index'
 
 def calculate_id_for_instance(instance_type, tree_index, spawn_index, npc_index, resource_index, tree_level1_index):
@@ -676,17 +678,22 @@ def create_geochem_tree_entity(api, project_id, folder_id, geo_chemical_folder, 
 
     create_or_overwrite_empty_file(geo_meta_path)
     create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile', merged_csv_name)
-    create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_ID', 5)
+    #create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_ID', 5)
+    create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_ID', 7)
     create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_X', 0)
     create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Y', 1)
     create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Z', 2)
     create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Attribute_Columns', 2)
+    create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Attribute_Columns', 3)
     create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Attribute_Column0_Index', 3)
     create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Attribute_Column0_Name', InstanceType_Attribute)
     create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Attribute_Column0_Type', 0)
     create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Attribute_Column1_Index', 4)
     create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Attribute_Column1_Name', Variant_Attribute)
     create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Attribute_Column1_Type', 0)
+    create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Attribute_Column2_Index', 5)
+    create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Attribute_Column2_Name', Slope_Attribute)
+    create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Attribute_Column2_Type', 0)
     geo_meta_string = ini_file_to_string(geo_meta_path)
     lambda_host.log(f'Geo meta file content is :')
     lambda_host.log(f'{geo_meta_string}')

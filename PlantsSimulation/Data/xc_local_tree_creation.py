@@ -501,6 +501,7 @@ RESOURCE_INSTANCE = 3
 TREE_LEVEL1_INSTANCE = 4
 InstanceType_Attribute = 'InstanceType'
 Variant_Attribute = 'Variant'
+Slope_Attribute = 'Slope'
 Index_Attribute = 'Index'
 
 def calculate_id_for_instance(instance_type, tree_index, spawn_index, npc_index, resource_index, tree_level1_index):
@@ -690,18 +691,22 @@ def create_geochem_tree_entity(api, project_id, folder_id, geo_chemical_folder, 
 
     create_or_overwrite_empty_file(geo_meta_path)
     create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile', merged_csv_name)
-   #create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_ID', 5)
-    create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_ID', 6)
+    #create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_ID', 5)
+    create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_ID', 7)
     create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_X', 0)
     create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Y', 1)
     create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Z', 2)
     create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Attribute_Columns', 2)
+    create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Attribute_Columns', 3)
     create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Attribute_Column0_Index', 3)
     create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Attribute_Column0_Name', InstanceType_Attribute)
     create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Attribute_Column0_Type', 0)
     create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Attribute_Column1_Index', 4)
     create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Attribute_Column1_Name', Variant_Attribute)
     create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Attribute_Column1_Type', 0)
+    create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Attribute_Column2_Index', 5)
+    create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Attribute_Column2_Name', Slope_Attribute)
+    create_or_update_ini_file(geo_meta_path, section_config, 'SampleFile_Attribute_Column2_Type', 0)
     geo_meta_string = ini_file_to_string(geo_meta_path)
     print(f'Geo meta file content is :')
     print(f'{geo_meta_string}')
@@ -2462,7 +2467,8 @@ only_run_POIs = False
 only_load_Road = False
 
 #smooth_layer_generation_without_road = True
-road_only_pois_generation = True
+#test_only_pois_generation = True
+test_only_tree_generation = True
 
 if only_road_generation:
     print("Choose only_road_generation to Run")
