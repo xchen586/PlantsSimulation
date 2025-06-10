@@ -15,6 +15,6 @@ struct PointInstanceSubOutput : public InstanceSubOutput
 	PointInstanceSubOutput() : InstanceSubOutput()
 	{
 	}
-	unsigned int slopeValue = 0; // Resource type or variant
+	//unsigned int slopeValue = 0; // Resource type or variant
 };
 

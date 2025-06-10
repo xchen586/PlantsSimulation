@@ -34,6 +34,7 @@ struct InstanceSubOutput
 	double rotationZ;
 	unsigned int instanceType;
 	unsigned int variant;
+	double slopeValue;
 	double age;
 	int outputItemCount;
 	
@@ -63,6 +64,7 @@ struct InstanceSubOutput
 		, rotationZ(0.0)
 		, instanceType(0)
 		, variant(0)
+		, slopeValue(0.0)
 		, age(0)
 		, cellId(0)
 		, index(0)
