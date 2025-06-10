@@ -69,7 +69,7 @@ bool CPsInstanceExporter::OutputAllInstanceGeoChem(string outputFilePath, const 
 	return true;
 }
 
-bool CPsInstanceExporter::loadPointInstanceFromCSV(const string& filePath, const string& outputSubDir, InstanceSubOutputMap& outputMap, CAffineTransform transform, double cellSize, int32_t lod, InstanceType instanceType, bool canRemovedFromCave = true)
+bool CPsInstanceExporter::loadPointInstanceFromCSV(const string& filePath, const string& outputSubDir, InstanceSubOutputMap& outputMap, CAffineTransform transform, double cellSize, int32_t lod, InstanceType instanceType, bool canRemovedFromCave = false)
 {
 	char delimiter = ',';
 	int columnCount = countColumnsInCSV(filePath, delimiter);
