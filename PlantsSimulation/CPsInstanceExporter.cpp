@@ -32,7 +32,7 @@ void CPsInstanceExporter::DeInitialize()
 	}
 	m_outputPoiMap.clear(); // Now the map itself is empty	
 }
-bool CPsInstanceExporter::OutputAllInstanceGeoChem(string outputFilePath, const InstanceSubOutputMap& treeInstances, const InstanceSubOutputMap& poiInstances)
+bool CPsInstanceExporter::OutputAllInstanceGeoChem(string outputFilePath, const InstanceSubOutputMap* pTreeInstances, const InstanceSubOutputMap* pPoiInstances)
 {
 	std::cout << "Start to OutputAllInstanceGeoChem to : " << outputFilePath << std::endl;
 
@@ -44,55 +44,62 @@ bool CPsInstanceExporter::OutputAllInstanceGeoChem(string outputFilePath, const 
 
 	outputFile << "VX,VY,VZ,InstanceType,Variant,Slope,Index" << std::endl;
 
-	for (auto pair : treeInstances)
+	if (pTreeInstances)
 	{
-		std::shared_ptr<InstanceSubOutputVector> subVector = pair.second;
-		for (const std::shared_ptr<InstanceSubOutput>& sub : *subVector)
+		for (auto pair : *pTreeInstances)
 		{
-			//if (sub->posZ > 0)
+			std::shared_ptr<InstanceSubOutputVector> subVector = pair.second;
+			for (const std::shared_ptr<InstanceSubOutput>& sub : *subVector)
 			{
-				int outputItemCount = sub->outputItemCount;
-				outputFile
+				//if (sub->posZ > 0)
+				{
+					int outputItemCount = sub->outputItemCount;
+					outputFile
 #if 0
-					<< sub->vX << ","
-					<< sub->vY << ","
-					<< sub->vZ << ","
+						<< sub->vX << ","
+						<< sub->vY << ","
+						<< sub->vZ << ","
 #endif
-					<< sub->posX << ","
-					<< sub->posY << ","
-					<< sub->posZ << ","
-					<< sub->instanceType << ","
-					<< sub->variant << ","
-					<< sub->slopeValue << ","
-					<< sub->index << std::endl;
+						<< sub->posX << ","
+						<< sub->posY << ","
+						<< sub->posZ << ","
+						<< sub->instanceType << ","
+						<< sub->variant << ","
+						<< sub->slopeValue << ","
+						<< sub->index << std::endl;
+				}
 			}
 		}
 	}
-
-	for (auto pair : poiInstances)
+	
+	if (pPoiInstances)
 	{
-		std::shared_ptr<InstanceSubOutputVector> subVector = pair.second;
-		for (const std::shared_ptr<InstanceSubOutput>& sub : *subVector)
+		for (auto pair : *pPoiInstances)
 		{
-			//if (sub->posZ > 0)
+			std::shared_ptr<InstanceSubOutputVector> subVector = pair.second;
+			for (const std::shared_ptr<InstanceSubOutput>& sub : *subVector)
 			{
-				int outputItemCount = sub->outputItemCount;
-				outputFile
+				//if (sub->posZ > 0)
+				{
+					int outputItemCount = sub->outputItemCount;
+					outputFile
 #if 0
-					<< sub->vX << ","
-					<< sub->vY << ","
-					<< sub->vZ << ","
+						<< sub->vX << ","
+						<< sub->vY << ","
+						<< sub->vZ << ","
 #endif
-					<< sub->posX << ","
-					<< sub->posY << ","
-					<< sub->posZ << ","
-					<< sub->instanceType << ","
-					<< sub->variant << ","
-					<< sub->slopeValue << ","
-					<< sub->index << std::endl;
+						<< sub->posX << ","
+						<< sub->posY << ","
+						<< sub->posZ << ","
+						<< sub->instanceType << ","
+						<< sub->variant << ","
+						<< sub->slopeValue << ","
+						<< sub->index << std::endl;
+				}
 			}
 		}
 	}
+	
 	outputFile.close();
 	std::cout << "End to OutputAllInstanceGeoChem to : " << outputFilePath << std::endl;
 
@@ -304,14 +311,14 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 	sprintf_s(subFullOutput_Dir_Poi, MAX_PATH, "%s/POIs", outputSubsDir.c_str());
 #endif
 
+	if (!std::filesystem::exists(subFullOutput_Dir_Tree)) {
+		if (!std::filesystem::create_directory(subFullOutput_Dir_Tree)) {
+			std::cerr << "Failed to create the subFullOutput_Dir_Tree directory of " << subFullOutput_Dir_Tree << std::endl;
+			return false;
+		}
+	}
 	if (!(m_isOnlyPoIs && m_isKeepOldTreeFiles))
 	{
-		if (!std::filesystem::exists(subFullOutput_Dir_Tree)) {
-			if (!std::filesystem::create_directory(subFullOutput_Dir_Tree)) {
-				std::cerr << "Failed to create the subFullOutput_Dir_Tree directory of " << subFullOutput_Dir_Tree << std::endl;
-				return false;
-			}
-		}
 		bool removeTreeFiles = RemoveAllFilesInFolder(subFullOutput_Dir_Tree);
 	}
 	
@@ -384,12 +391,47 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 	std::filesystem::path outputSubsDirPath = outputSubsDir;
 	std::filesystem::path outputDirPath = outputSubsDirPath.parent_path();
 
-	string geofolder = "GeoChemical";
 	int level = m_isLevel1Instances ? 1 : 0;
+	std::string geofolder = std::format("GeoChemical_Level_{}", level);
+	string geofolderTree = std::format("GeoChemical_Level_{}_Tree", level);
+	string geofolderPoi = std::format("GeoChemical_Level_{}_POIs", level);
+	
+#if __APPLE__
+	std::string allinstances_csv_file = std::format("{}//{}_{}_{}_allinstances_level{}.csv", outputDirPath.string(), m_tiles, m_tileIndexX, m_tileIndexY, level);
+	std::string allinstancesGeo_folder = std::format("{}//{}", outputDirPath.string(), geofolder);
+	std::string allinstancesGeo_Csv = std::format("{}//{}//{}_{}_{}_{}_geo_merged.csv", outputDirPath.string(), geofolder, m_tiles, m_tileIndexX, m_tileIndexY, level);
+	std::string allinstancesGeo_Tree_folder = std::format("{}//{}", outputDirPath.string(), geofolderTree);
+	std::string allinstancesGeo_Tree_Csv = std::format("{}//{}//{}_{}_{}_{}_geo_merged.csv", outputDirPath.string(), geofolder, geofolderTree, m_tiles, m_tileIndexX, m_tileIndexY, level);
+	std::string allinstancesGeo_Poi_folder = std::format("{}//{}", outputDirPath.string(), geofolderPoi);
+	std::string allinstancesGeo_Poi_Csv = std::format("{}//{}//{}_{}_{}_{}_geo_merged.csv", outputDirPath.string(), geofolder, geofolderPoi, m_tiles, m_tileIndexX, m_tileIndexY, level);
+#else
 	std::string allinstances_csv_file = std::format("{}\\{}_{}_{}_allinstances_level{}.csv", outputDirPath.string(), m_tiles, m_tileIndexX, m_tileIndexY, level);
 	std::string allinstancesGeo_folder = std::format("{}\\{}", outputDirPath.string(), geofolder);
 	std::string allinstancesGeo_Csv = std::format("{}\\{}\\{}_{}_{}_{}_geo_merged.csv", outputDirPath.string(), geofolder, m_tiles, m_tileIndexX, m_tileIndexY, level);
-	bool outputAll = OutputAllInstance(allinstances_csv_file, m_outputTreeMap, m_outputPoiMap);
+	std::string allinstancesGeo_Tree_folder = std::format("{}\\{}", outputDirPath.string(), geofolderTree);
+	std::string allinstancesGeo_Tree_Csv = std::format("{}\\{}\\{}_{}_{}_{}_geo_merged.csv", outputDirPath.string(), geofolder, geofolderTree, m_tiles, m_tileIndexX, m_tileIndexY, level);
+	std::string allinstancesGeo_Poi_folder = std::format("{}\\{}", outputDirPath.string(), geofolderPoi);
+	std::string allinstancesGeo_Poi_Csv = std::format("{}\\{}\\{}_{}_{}_{}_geo_merged.csv", outputDirPath.string(), geofolder, geofolderPoi, m_tiles, m_tileIndexX, m_tileIndexY, level);
+#endif
+
+	if (!std::filesystem::exists(allinstancesGeo_Tree_folder)) {
+		if (!std::filesystem::create_directory(allinstancesGeo_Tree_folder)) {
+			std::cerr << "Failed to create the directory of allinstancesGeo_Tree_folder: " << allinstancesGeo_Tree_folder << std::endl;
+			return false;
+		}
+	}
+	if (!(m_isOnlyPoIs && m_isKeepOldTreeFiles))
+	{
+		bool removeTreeChemicalFiles = RemoveAllFilesInFolder(allinstancesGeo_Tree_folder);
+	}
+	if (!std::filesystem::exists(allinstancesGeo_Poi_folder)) {
+		if (!std::filesystem::create_directory(allinstancesGeo_Poi_folder)) {
+			std::cerr << "Failed to create the directory of allinstancesGeo_Poi_folder: " << allinstancesGeo_Poi_folder << std::endl;
+			return false;
+		}
+	}
+
+	bool outputAll = OutputAllInstance(allinstances_csv_file, &m_outputTreeMap, &m_outputPoiMap);
 
 	/*std::vector<std::thread> workers;
 	for (const auto& pair : m_outputMap)
@@ -451,10 +493,23 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 			return false;
 		}
 	}
-	std::cout << "Start OutputAllInstanceGeoChem : " << allinstancesGeo_Csv << std::endl;
-	bool outputGeo = true;
-	outputGeo = OutputAllInstanceGeoChem(allinstancesGeo_Csv, m_outputTreeMap, m_outputPoiMap);
-	std::cout << "End OutputAllInstanceGeoChem : " << allinstancesGeo_Csv << std::endl;
+
+	bool outputGeoTree = true;
+	if (!m_isOnlyPoIs)
+	{
+		std::cout << "Start OutputAllInstanceGeoChem For Tree : " << allinstancesGeo_Tree_Csv << std::endl;
+		outputGeoTree = OutputAllInstanceGeoChem(allinstancesGeo_Tree_Csv, &m_outputTreeMap, nullptr);
+		std::cout << "End OutputAllInstanceGeoChem For Tree : " << allinstancesGeo_Tree_Csv << std::endl;
+	}
+
+	std::cout << "Start OutputAllInstanceGeoChem For POIs : " << allinstancesGeo_Poi_Csv << std::endl;
+	bool outputGeoPoi = OutputAllInstanceGeoChem(allinstancesGeo_Tree_Csv, nullptr, &m_outputPoiMap);
+	std::cout << "End OutputAllInstanceGeoChem For POIs : " << allinstancesGeo_Poi_Csv << std::endl;
+
+	bool outputGeo = outputGeoTree && outputGeoPoi;
+	/*std::cout << "Start OutputAllInstanceGeoChem : " << allinstancesGeo_Csv << std::endl;
+	outputGeo = OutputAllInstanceGeoChem(allinstancesGeo_Csv, &m_outputTreeMap, &m_outputPoiMap);
+	std::cout << "End OutputAllInstanceGeoChem : " << allinstancesGeo_Csv << std::endl;*/
 
 	std::cout << "End to CPsInstanceExporter::outputSubfiles to : " << outputSubsDir << std::endl;
 
