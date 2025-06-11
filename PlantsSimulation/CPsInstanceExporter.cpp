@@ -392,26 +392,26 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 	std::filesystem::path outputDirPath = outputSubsDirPath.parent_path();
 
 	int level = m_isLevel1Instances ? 1 : 0;
-	std::string geofolder = std::format("GeoChemical_Level_{}", level);
-	string geofolderTree = std::format("GeoChemical_Level_{}_Tree", level);
-	string geofolderPoi = std::format("GeoChemical_Level_{}_POIs", level);
+	std::string geoLevelFolder = std::format("GeoChemical_Level_{}", level);
+	string geoLevelFolderTree = std::format("GeoChemical_Level_{}_Trees", level);
+	string geoLevelFolderPoi = std::format("GeoChemical_Level_{}_POIs", level);
 	
 #if __APPLE__
 	std::string allinstances_csv_file = std::format("{}//{}_{}_{}_allinstances_level{}.csv", outputDirPath.string(), m_tiles, m_tileIndexX, m_tileIndexY, level);
 	std::string allinstancesGeo_folder = std::format("{}//{}", outputDirPath.string(), geofolder);
-	std::string allinstancesGeo_Csv = std::format("{}//{}//{}_{}_{}_{}_geo_merged.csv", outputDirPath.string(), geofolder, m_tiles, m_tileIndexX, m_tileIndexY, level);
+	std::string allinstancesGeo_Csv = std::format("{}//{}//{}_{}_{}_geo_merged.csv", outputDirPath.string(), geofolder, m_tiles, m_tileIndexX, m_tileIndexY);
 	std::string allinstancesGeo_Tree_folder = std::format("{}//{}", outputDirPath.string(), geofolderTree);
-	std::string allinstancesGeo_Tree_Csv = std::format("{}//{}//{}_{}_{}_{}_geo_merged.csv", outputDirPath.string(), geofolder, geofolderTree, m_tiles, m_tileIndexX, m_tileIndexY, level);
+	std::string allinstancesGeo_Tree_Csv = std::format("{}//{}//{}_{}_{}_geo_merged.csv", outputDirPath.string(), geofolder, geofolderTree, m_tiles, m_tileIndexX, m_tileIndexY);
 	std::string allinstancesGeo_Poi_folder = std::format("{}//{}", outputDirPath.string(), geofolderPoi);
-	std::string allinstancesGeo_Poi_Csv = std::format("{}//{}//{}_{}_{}_{}_geo_merged.csv", outputDirPath.string(), geofolder, geofolderPoi, m_tiles, m_tileIndexX, m_tileIndexY, level);
+	std::string allinstancesGeo_Poi_Csv = std::format("{}//{}//{}_{}_{}_geo_merged.csv", outputDirPath.string(), geofolder, geofolderPoi, m_tiles, m_tileIndexX, m_tileIndexY);
 #else
 	std::string allinstances_csv_file = std::format("{}\\{}_{}_{}_allinstances_level{}.csv", outputDirPath.string(), m_tiles, m_tileIndexX, m_tileIndexY, level);
-	std::string allinstancesGeo_folder = std::format("{}\\{}", outputDirPath.string(), geofolder);
-	std::string allinstancesGeo_Csv = std::format("{}\\{}\\{}_{}_{}_{}_geo_merged.csv", outputDirPath.string(), geofolder, m_tiles, m_tileIndexX, m_tileIndexY, level);
-	std::string allinstancesGeo_Tree_folder = std::format("{}\\{}", outputDirPath.string(), geofolderTree);
-	std::string allinstancesGeo_Tree_Csv = std::format("{}\\{}\\{}_{}_{}_{}_geo_merged.csv", outputDirPath.string(), geofolder, geofolderTree, m_tiles, m_tileIndexX, m_tileIndexY, level);
-	std::string allinstancesGeo_Poi_folder = std::format("{}\\{}", outputDirPath.string(), geofolderPoi);
-	std::string allinstancesGeo_Poi_Csv = std::format("{}\\{}\\{}_{}_{}_{}_geo_merged.csv", outputDirPath.string(), geofolder, geofolderPoi, m_tiles, m_tileIndexX, m_tileIndexY, level);
+	std::string allinstancesGeo_folder = std::format("{}\\{}", outputDirPath.string(), geoLevelFolder);
+	std::string allinstancesGeo_Csv = std::format("{}\\{}\\{}_{}_{}_geo_merged.csv", outputDirPath.string(), geoLevelFolder, m_tiles, m_tileIndexX, m_tileIndexY);
+	std::string allinstancesGeo_Tree_folder = std::format("{}\\{}", outputDirPath.string(), geoLevelFolderTree);
+	std::string allinstancesGeo_Tree_Csv = std::format("{}\\{}\\{}_{}_{}_geo_merged.csv", outputDirPath.string(), geoLevelFolder, geoLevelFolderTree, m_tiles, m_tileIndexX, m_tileIndexY);
+	std::string allinstancesGeo_Poi_folder = std::format("{}\\{}", outputDirPath.string(), geoLevelFolderPoi);
+	std::string allinstancesGeo_Poi_Csv = std::format("{}\\{}\\{}_{}_{}_geo_merged.csv", outputDirPath.string(), geoLevelFolder, geoLevelFolderPoi, m_tiles, m_tileIndexX, m_tileIndexY);
 #endif
 
 	if (!std::filesystem::exists(allinstancesGeo_Tree_folder)) {
