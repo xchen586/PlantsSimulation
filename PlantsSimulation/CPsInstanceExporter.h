@@ -77,9 +77,19 @@ public:
 		m_isLevel1Instances = isLevel1Instances;
 		std::cout << "Set CPsInstanceExporter isLevel1Instances to " << m_isLevel1Instances << std::endl;
 	}
+	void setIsOnlyPoIs(bool isOnlyPoIs)
+	{
+		m_isOnlyPoIs = isOnlyPoIs;
+		std::cout << "Set CPsInstanceExporter isOnlyPoIs to " << m_isOnlyPoIs << std::endl;
+	}
+	void setKeepOldTreeFiles(bool isKeepOldTreeFiles)
+	{
+		m_isKeepOldTreeFiles = isKeepOldTreeFiles;
+		std::cout << "Set CPsInstanceExporter isKeepOldTreeFiles to " << m_isKeepOldTreeFiles << std::endl;
+	}
 	bool loadPointInstanceFromCSV(const string& filePath, const string& outputSubDir, InstanceSubOutputMap& outputMap, CAffineTransform transform, double voxelSize, int32_t lod, InstanceType instanceType, bool canRemovedFromCave/* = true*/);
 	bool outputSubfiles(const std::string& outputSubsDir);
-	bool OutputAllInstanceGeoChem(string outputFilePath, const InstanceSubOutputMap& allInstances);
+	bool OutputAllInstanceGeoChem(string outputFilePath, const InstanceSubOutputMap& treeInstances, const InstanceSubOutputMap& poiInstances);
 	
 protected:
 	std::vector<std::vector<CCellInfo*>>* m_pCellTable;
@@ -88,7 +98,8 @@ protected:
 	string m_mostDistantPointFilePath;
 	string m_centroidPointFilePath;
 	vector<TreeInstanceFullOutput> * m_pFullTreeOutputs;
-	InstanceSubOutputMap m_outputMap;
+	InstanceSubOutputMap m_outputTreeMap;
+	InstanceSubOutputMap m_outputPoiMap;
 	int32_t m_lod; 
 	std::vector<std::pair<std::vector<Point>, int>>* m_p2dCaveLevel0Nodes;
 	std::vector<std::pair<std::vector<Point>, int>>* m_p2dCaveLevel1Nodes;
@@ -96,6 +107,8 @@ protected:
 	int m_tileIndexX;
 	int m_tileIndexY;
 	bool m_isLevel1Instances;
+	bool m_isOnlyPoIs{ false };
+	bool m_isKeepOldTreeFiles{ false }; // If true, keep old tree files, otherwise remove them
 	void DeInitialize();
 };
 

@@ -555,7 +555,7 @@ bool OutputCSVFileForSubInstances(const string& filePath, std::shared_ptr<Instan
 	return true;
 }
 
-bool OutputAllInstance(string outputFilePath, const InstanceSubOutputMap& allInstances)
+bool OutputAllInstance(string outputFilePath, const InstanceSubOutputMap& treeInstances, const InstanceSubOutputMap& poiInstances)
 {
 	std::ofstream outputFile(outputFilePath);
 	/*if (!outputFile.is_open()) {
@@ -566,7 +566,31 @@ bool OutputAllInstance(string outputFilePath, const InstanceSubOutputMap& allIns
 
 	outputFile << "XWorld,YWorld,ZWorld,ScaleX,ScaleY,ScaleZ,RotationX,RotationY,RotaionZ,InstanceType,Variant,Age,idString" << std::endl;
 
-	for (auto pair : allInstances)
+	for (auto pair : treeInstances)
+	{
+		std::shared_ptr<InstanceSubOutputVector> subVector = pair.second;
+		for (const std::shared_ptr<InstanceSubOutput>& sub : *subVector)
+		{
+			int outputItemCount = sub->outputItemCount;
+
+			outputFile
+				<< sub->posX << ","
+				<< sub->posY << ","
+				<< sub->posZ << ","
+				<< sub->scaleX << ","
+				<< sub->scaleY << ","
+				<< sub->scaleZ << ","
+				<< sub->rotationX << ","
+				<< sub->rotationY << ","
+				<< sub->rotationZ << ","
+				<< sub->instanceType << ","
+				<< sub->variant << ","
+				<< sub->age << ","
+				<< sub->idString << std::endl;
+		}
+	}
+
+	for (auto pair : poiInstances)
 	{
 		std::shared_ptr<InstanceSubOutputVector> subVector = pair.second;
 		for (const std::shared_ptr<InstanceSubOutput>& sub : *subVector)

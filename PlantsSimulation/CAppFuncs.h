@@ -27,6 +27,6 @@ bool OutputArrayFileForSubRegionsTest(const string& filePath, const CAffineTrans
 std::string GetKeyStringForInstance(const string& outputDir, int intXIdx, int intZIdx);
 void SetupInstanceSubOutput(double posX, double posY, double posZ, const CAffineTransform& transform, double cellScale, int32_t lod, std::shared_ptr<InstanceSubOutput> sub);
 bool OutputCSVFileForSubInstances(const string& filePath, std::shared_ptr<InstanceSubOutputVector> subVector);
-bool OutputAllInstance(string outputFilePath, const InstanceSubOutputMap& allInstances);
+bool OutputAllInstance(string outputFilePath, const InstanceSubOutputMap& treeInstances, const InstanceSubOutputMap& poiInstances);
 
 double GetHeightFor2DPointFromCellTable(double xPos, double yPos, std::vector<std::vector<CCellInfo*>>* pCellTable, InputImageMetaInfo* pMetaInfo);

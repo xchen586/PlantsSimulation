@@ -21,13 +21,18 @@
 
 void CPsInstanceExporter::DeInitialize()
 {
-	for (auto& pair : m_outputMap)
+	for (auto& pair : m_outputTreeMap)
 	{
 		pair.second.reset(); // Release the shared_ptr to InstanceSubOutputVector
 	}
-	m_outputMap.clear(); // Now the map itself is empty	
+	m_outputTreeMap.clear(); // Now the map itself is empty	
+	for (auto& pair : m_outputPoiMap)
+	{
+		pair.second.reset(); // Release the shared_ptr to InstanceSubOutputVector
+	}
+	m_outputPoiMap.clear(); // Now the map itself is empty	
 }
-bool CPsInstanceExporter::OutputAllInstanceGeoChem(string outputFilePath, const InstanceSubOutputMap& allInstances)
+bool CPsInstanceExporter::OutputAllInstanceGeoChem(string outputFilePath, const InstanceSubOutputMap& treeInstances, const InstanceSubOutputMap& poiInstances)
 {
 	std::cout << "Start to OutputAllInstanceGeoChem to : " << outputFilePath << std::endl;
 
@@ -39,7 +44,32 @@ bool CPsInstanceExporter::OutputAllInstanceGeoChem(string outputFilePath, const 
 
 	outputFile << "VX,VY,VZ,InstanceType,Variant,Slope,Index" << std::endl;
 
-	for (auto pair : allInstances)
+	for (auto pair : treeInstances)
+	{
+		std::shared_ptr<InstanceSubOutputVector> subVector = pair.second;
+		for (const std::shared_ptr<InstanceSubOutput>& sub : *subVector)
+		{
+			//if (sub->posZ > 0)
+			{
+				int outputItemCount = sub->outputItemCount;
+				outputFile
+#if 0
+					<< sub->vX << ","
+					<< sub->vY << ","
+					<< sub->vZ << ","
+#endif
+					<< sub->posX << ","
+					<< sub->posY << ","
+					<< sub->posZ << ","
+					<< sub->instanceType << ","
+					<< sub->variant << ","
+					<< sub->slopeValue << ","
+					<< sub->index << std::endl;
+			}
+		}
+	}
+
+	for (auto pair : poiInstances)
 	{
 		std::shared_ptr<InstanceSubOutputVector> subVector = pair.second;
 		for (const std::shared_ptr<InstanceSubOutput>& sub : *subVector)
@@ -252,11 +282,46 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 
 	if (!std::filesystem::exists(outputSubsDir)) {
 		if (!std::filesystem::create_directory(outputSubsDir)) {
-			std::cerr << "Failed to create the directory of outputSubsDir!" << std::endl;
+			std::cerr << "Failed to create the outputSubsDir directory of " << outputSubsDir << std::endl;
 			return false;
 		}
 	}
-	bool removeFiles = RemoveAllFilesInFolder(outputSubsDir);
+	if (!(m_isOnlyPoIs && m_isKeepOldTreeFiles))
+	{
+		bool removeFiles = RemoveAllFilesInFolder(outputSubsDir);
+	}
+
+	const int MAX_PATH = 250;
+	char subFullOutput_Dir_Tree[MAX_PATH];
+	memset(subFullOutput_Dir_Tree, 0, sizeof(char) * MAX_PATH);
+	char subFullOutput_Dir_Poi[MAX_PATH];
+	memset(subFullOutput_Dir_Poi, 0, sizeof(char) * MAX_PATH);
+#if __APPLE__ 
+	snprintf(subFullOutput_Dir_Tree, MAX_PATH, "%s/Trees", outputSubsDir.c_str());
+	snprintf(subFullOutput_Dir_Poi, MAX_PATH, "%s/POIs", outputSubsDir.c_str());
+#else
+	sprintf_s(subFullOutput_Dir_Tree, MAX_PATH, "%s/Trees", outputSubsDir.c_str());
+	sprintf_s(subFullOutput_Dir_Poi, MAX_PATH, "%s/POIs", outputSubsDir.c_str());
+#endif
+
+	if (!(m_isOnlyPoIs && m_isKeepOldTreeFiles))
+	{
+		if (!std::filesystem::exists(subFullOutput_Dir_Tree)) {
+			if (!std::filesystem::create_directory(subFullOutput_Dir_Tree)) {
+				std::cerr << "Failed to create the subFullOutput_Dir_Tree directory of " << subFullOutput_Dir_Tree << std::endl;
+				return false;
+			}
+		}
+		bool removeTreeFiles = RemoveAllFilesInFolder(subFullOutput_Dir_Tree);
+	}
+	
+	if (!std::filesystem::exists(subFullOutput_Dir_Poi)) {
+		if (!std::filesystem::create_directory(subFullOutput_Dir_Poi)) {
+			std::cerr << "Failed to create the subFullOutput_Dir_Poi directory of " << subFullOutput_Dir_Poi << std::endl;
+			return false;
+		}
+	}
+	bool removePoiFiles = RemoveAllFilesInFolder(subFullOutput_Dir_Poi);
 
 	//int lod = 5;
 	//auto lod = VoxelFarm::LOD_0 + 3;
@@ -272,44 +337,48 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 		}, voxelSize, CAffineTransform::eTransformMode::TM_YZ_ROTATE);
 	auto worldOriginVF = transform.WC_TO_VF(CAffineTransform::sAffineVector{ 0.0, 0.0, 0.0 });
 
-	int negativeHeightCount = 0;
-	for (const TreeInstanceFullOutput& instance : (*m_pFullTreeOutputs))
+	if (!m_isOnlyPoIs)
 	{
-		bool negativeHeight = false;
-		if (instance.posZ < 0)
+		int negativeHeightCount = 0;
+		for (const TreeInstanceFullOutput& instance : (*m_pFullTreeOutputs))
 		{
-			negativeHeight = true;
-			negativeHeightCount++;
+			bool negativeHeight = false;
+			if (instance.posZ < 0)
+			{
+				negativeHeight = true;
+				negativeHeightCount++;
+			}
+			std::shared_ptr<TreeInstanceSubOutput> sub = std::make_shared<TreeInstanceSubOutput>();
+			SetupInstanceSubOutput(instance.posX, instance.posY, instance.posZ, transform, cellSize, m_lod, sub);
+
+			sub->index = instance.index;
+			InstanceType instanceType = m_isLevel1Instances ? InstanceType::IntanceType_Tree_level1 : InstanceType::InstanceType_Tree;
+			sub->instanceType = static_cast<unsigned int>(instanceType);
+			sub->variant = instance.m_instance.treeType;
+			sub->age = static_cast<double>(instance.m_instance.age / instance.m_instance.maxAge);
+			sub->slopeValue = instance.slopeValue;
+			sub->MakeIdString();
+
+			string keyString = GetKeyStringForInstance(subFullOutput_Dir_Tree, sub->cellXIdx, sub->cellZIdx);
+			InstanceSubOutputMap::iterator iter = m_outputTreeMap.find(keyString);
+			if (m_outputTreeMap.end() == iter)
+			{
+				m_outputTreeMap[keyString] = std::make_shared<InstanceSubOutputVector>();
+			}
+
+			std::shared_ptr<InstanceSubOutputVector> subVector = m_outputTreeMap[keyString];
+			subVector->push_back(sub);
 		}
-		std::shared_ptr<TreeInstanceSubOutput> sub = std::make_shared<TreeInstanceSubOutput>();
-		SetupInstanceSubOutput(instance.posX, instance.posY, instance.posZ, transform, cellSize, m_lod, sub);
-
-		sub->index = instance.index;
-		InstanceType instanceType = m_isLevel1Instances ? InstanceType::IntanceType_Tree_level1 : InstanceType::InstanceType_Tree;
-		sub->instanceType = static_cast<unsigned int>(instanceType);
-		sub->variant = instance.m_instance.treeType;
-		sub->age = static_cast<double>(instance.m_instance.age / instance.m_instance.maxAge);
-		sub->slopeValue = instance.slopeValue;
-		sub->MakeIdString();
-
-		string keyString = GetKeyStringForInstance(outputSubsDir, sub->cellXIdx, sub->cellZIdx);
-		InstanceSubOutputMap::iterator iter = m_outputMap.find(keyString);
-		if (m_outputMap.end() == iter)
-		{
-			m_outputMap[keyString] = std::make_shared<InstanceSubOutputVector>();
-		}
-
-		std::shared_ptr<InstanceSubOutputVector> subVector = m_outputMap[keyString];
-		subVector->push_back(sub);
+		std::cout << "The trees of negative height count is : " << negativeHeightCount << std::endl;
 	}
-	std::cout << "The trees of negative height count is : " << negativeHeightCount << std::endl;
+	
 	if (!m_isLevel1Instances)
 	{
 		//unsigned int mostTravelledVariant = static_cast<unsigned int>(PointType::Point_MostTravelled);
-		bool getMostTravelledPoint = loadPointInstanceFromCSV(m_mostTravelledPointFilePath, outputSubsDir, m_outputMap, transform, cellSize, m_lod, InstanceType::InstanceType_NPC);
+		bool getMostTravelledPoint = loadPointInstanceFromCSV(m_mostTravelledPointFilePath, subFullOutput_Dir_Poi, m_outputPoiMap, transform, cellSize, m_lod, InstanceType::InstanceType_NPC);
 		//unsigned int mostDistantVariant = static_cast<unsigned int>(PointType::Point_MostDistant);
-		bool getMostDistantPoint = loadPointInstanceFromCSV(m_mostDistantPointFilePath, outputSubsDir, m_outputMap, transform, cellSize, m_lod, InstanceType::InstanceType_Resource);
-		bool getCentroidPoint = loadPointInstanceFromCSV(m_centroidPointFilePath, outputSubsDir, m_outputMap, transform, cellSize, m_lod, InstanceType::InstanceType_spawn_Point, false);
+		bool getMostDistantPoint = loadPointInstanceFromCSV(m_mostDistantPointFilePath, subFullOutput_Dir_Poi, m_outputPoiMap, transform, cellSize, m_lod, InstanceType::InstanceType_Resource);
+		bool getCentroidPoint = loadPointInstanceFromCSV(m_centroidPointFilePath, subFullOutput_Dir_Poi, m_outputPoiMap, transform, cellSize, m_lod, InstanceType::InstanceType_spawn_Point, false);
 	}
 	
 	std::filesystem::path outputSubsDirPath = outputSubsDir;
@@ -317,10 +386,10 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 
 	string geofolder = "GeoChemical";
 	int level = m_isLevel1Instances ? 1 : 0;
-	std::string allinstances_file = std::format("{}\\{}_{}_{}_allinstances_level{}.csv", outputDirPath.string(), m_tiles, m_tileIndexX, m_tileIndexY, level);
+	std::string allinstances_csv_file = std::format("{}\\{}_{}_{}_allinstances_level{}.csv", outputDirPath.string(), m_tiles, m_tileIndexX, m_tileIndexY, level);
 	std::string allinstancesGeo_folder = std::format("{}\\{}", outputDirPath.string(), geofolder);
 	std::string allinstancesGeo_Csv = std::format("{}\\{}\\{}_{}_{}_{}_geo_merged.csv", outputDirPath.string(), geofolder, m_tiles, m_tileIndexX, m_tileIndexY, level);
-	bool outputAll = OutputAllInstance(allinstances_file, m_outputMap);
+	bool outputAll = OutputAllInstance(allinstances_csv_file, m_outputTreeMap, m_outputPoiMap);
 
 	/*std::vector<std::thread> workers;
 	for (const auto& pair : m_outputMap)
@@ -346,19 +415,33 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 		}
 	}*/
 
-	std::vector<std::future<bool>> results;
-
-	// Launch threads using std::async
-	for (const auto& pair : m_outputMap) {
-		results.emplace_back(std::async(std::launch::async, OutputCSVFileForSubInstances, pair.first, pair.second));
+	bool allTreeOk = true;
+	if (!m_isOnlyPoIs) {
+		std::vector<std::future<bool>> treeResults;
+		// Launch threads using std::async for trees
+		for (const auto& pair : m_outputTreeMap) {
+			treeResults.emplace_back(std::async(std::launch::async, OutputCSVFileForSubInstances, pair.first, pair.second));
+		}
+		// Check results
+		for (auto& future : treeResults) {
+			if (!future.get()) {  // .get() waits for the result and retrieves it
+				std::cout << "OutputCSVFileForSubInstances Tree Processing failed!" << std::endl;
+				allTreeOk = false;
+			}
+		}
 	}
-
+	
+	std::vector<std::future<bool>> poiResults;
+	// Launch threads for POIs
+	for (const auto& pair : m_outputPoiMap) {
+		poiResults.emplace_back(std::async(std::launch::async, OutputCSVFileForSubInstances, pair.first, pair.second));
+	}
 	// Check results
-	bool allOk = true;
-	for (auto& future : results) {
+	bool allPoiOk = true;
+	for (auto& future : poiResults) {
 		if (!future.get()) {  // .get() waits for the result and retrieves it
-			std::cout << "OutputCSVFileForSubInstances Processing failed!" << std::endl;
-			allOk = false;
+			std::cout << "OutputCSVFileForSubInstances POI Processing failed!" << std::endl;
+			allPoiOk = false;
 		}
 	}
 
@@ -370,12 +453,12 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 	}
 	std::cout << "Start OutputAllInstanceGeoChem : " << allinstancesGeo_Csv << std::endl;
 	bool outputGeo = true;
-	outputGeo = OutputAllInstanceGeoChem(allinstancesGeo_Csv, m_outputMap);
+	outputGeo = OutputAllInstanceGeoChem(allinstancesGeo_Csv, m_outputTreeMap, m_outputPoiMap);
 	std::cout << "End OutputAllInstanceGeoChem : " << allinstancesGeo_Csv << std::endl;
 
 	std::cout << "End to CPsInstanceExporter::outputSubfiles to : " << outputSubsDir << std::endl;
 
-	return allOk && outputGeo; 
+	return allTreeOk && allPoiOk && outputGeo; 
 	/*std::ofstream outputFile(subFilePath);
 	if (!outputFile.is_open()) {
 		std::cerr << "Error: Unable to open the subFilePath file " << subFilePath << std::endl;

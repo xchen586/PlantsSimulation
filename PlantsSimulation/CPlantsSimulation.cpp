@@ -2056,6 +2056,8 @@ bool CPlantsSimulation::LoadInstanceExporter()
 	}
 
 	m_pInstanceExporter->setIsLevel1Instances(m_isLevel1Instances);
+	m_pInstanceExporter->setIsOnlyPoIs(m_onlyPOIs);
+	m_pInstanceExporter->setKeepOldTreeFiles(m_keepOldTreeFiles);	
 	m_pInstanceExporter->setCellTable(m_pCellTable);
 	m_pInstanceExporter->setMetaInfo(m_topLayerMeta);
 	m_pInstanceExporter->setMostTravelledPointFilePath(m_mostTravelledPointFile);

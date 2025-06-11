@@ -122,6 +122,7 @@ private:
 
 	bool m_isLevel1Instances = false;
 	bool m_onlyPOIs = false;
+	bool m_keepOldTreeFiles = false;
 
 	InputImageDataInfo* m_topLayerImage;
 	InputImageMetaInfo* m_topLayerMeta;
@@ -180,6 +181,12 @@ public:
 	{
 		m_onlyPOIs = onlyPOIs;
 		std::cout << "Set CPlantsSimulation isOnlyPOIs to " << m_onlyPOIs << std::endl;
+	}
+
+	void setKeepOldTreeFiles(bool keepOldTreeFiles)
+	{
+		m_keepOldTreeFiles = keepOldTreeFiles;
+		std::cout << "Set CPlantsSimulation keepOldTreeFiles to " << m_keepOldTreeFiles << std::endl;
 	}
 
 	void DeInitialize();
