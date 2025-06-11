@@ -89,7 +89,7 @@ public:
 	}
 	bool loadPointInstanceFromCSV(const string& filePath, const string& outputSubDir, InstanceSubOutputMap& outputMap, CAffineTransform transform, double voxelSize, int32_t lod, InstanceType instanceType, bool canRemovedFromCave/* = true*/);
 	bool outputSubfiles(const std::string& outputSubsDir);
-	bool OutputAllInstanceGeoChem(string outputFilePath, const InstanceSubOutputMap& treeInstances, const InstanceSubOutputMap& poiInstances);
+	bool OutputAllInstanceGeoChem(string outputFilePath, const InstanceSubOutputMap* treeInstances, const InstanceSubOutputMap* poiInstances);
 	
 protected:
 	std::vector<std::vector<CCellInfo*>>* m_pCellTable;

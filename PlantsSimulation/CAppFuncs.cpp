@@ -555,7 +555,7 @@ bool OutputCSVFileForSubInstances(const string& filePath, std::shared_ptr<Instan
 	return true;
 }
 
-bool OutputAllInstance(string outputFilePath, const InstanceSubOutputMap& treeInstances, const InstanceSubOutputMap& poiInstances)
+bool OutputAllInstance(string outputFilePath, const InstanceSubOutputMap* pTreeInstances, const InstanceSubOutputMap* pPoiInstances)
 {
 	std::ofstream outputFile(outputFilePath);
 	/*if (!outputFile.is_open()) {
@@ -566,53 +566,60 @@ bool OutputAllInstance(string outputFilePath, const InstanceSubOutputMap& treeIn
 
 	outputFile << "XWorld,YWorld,ZWorld,ScaleX,ScaleY,ScaleZ,RotationX,RotationY,RotaionZ,InstanceType,Variant,Age,idString" << std::endl;
 
-	for (auto pair : treeInstances)
+	if (pTreeInstances)
 	{
-		std::shared_ptr<InstanceSubOutputVector> subVector = pair.second;
-		for (const std::shared_ptr<InstanceSubOutput>& sub : *subVector)
+		for (auto pair : *pTreeInstances)
 		{
-			int outputItemCount = sub->outputItemCount;
+			std::shared_ptr<InstanceSubOutputVector> subVector = pair.second;
+			for (const std::shared_ptr<InstanceSubOutput>& sub : *subVector)
+			{
+				int outputItemCount = sub->outputItemCount;
 
-			outputFile
-				<< sub->posX << ","
-				<< sub->posY << ","
-				<< sub->posZ << ","
-				<< sub->scaleX << ","
-				<< sub->scaleY << ","
-				<< sub->scaleZ << ","
-				<< sub->rotationX << ","
-				<< sub->rotationY << ","
-				<< sub->rotationZ << ","
-				<< sub->instanceType << ","
-				<< sub->variant << ","
-				<< sub->age << ","
-				<< sub->idString << std::endl;
+				outputFile
+					<< sub->posX << ","
+					<< sub->posY << ","
+					<< sub->posZ << ","
+					<< sub->scaleX << ","
+					<< sub->scaleY << ","
+					<< sub->scaleZ << ","
+					<< sub->rotationX << ","
+					<< sub->rotationY << ","
+					<< sub->rotationZ << ","
+					<< sub->instanceType << ","
+					<< sub->variant << ","
+					<< sub->age << ","
+					<< sub->idString << std::endl;
+			}
 		}
 	}
-
-	for (auto pair : poiInstances)
+	
+	if (pPoiInstances)
 	{
-		std::shared_ptr<InstanceSubOutputVector> subVector = pair.second;
-		for (const std::shared_ptr<InstanceSubOutput>& sub : *subVector)
+		for (auto pair : *pPoiInstances)
 		{
-			int outputItemCount = sub->outputItemCount;
+			std::shared_ptr<InstanceSubOutputVector> subVector = pair.second;
+			for (const std::shared_ptr<InstanceSubOutput>& sub : *subVector)
+			{
+				int outputItemCount = sub->outputItemCount;
 
-			outputFile
-				<< sub->posX << ","
-				<< sub->posY << ","
-				<< sub->posZ << ","
-				<< sub->scaleX << ","
-				<< sub->scaleY << ","
-				<< sub->scaleZ << ","
-				<< sub->rotationX << ","
-				<< sub->rotationY << ","
-				<< sub->rotationZ << ","
-				<< sub->instanceType << ","
-				<< sub->variant << ","
-				<< sub->age << ","
-				<< sub->idString << std::endl;
+				outputFile
+					<< sub->posX << ","
+					<< sub->posY << ","
+					<< sub->posZ << ","
+					<< sub->scaleX << ","
+					<< sub->scaleY << ","
+					<< sub->scaleZ << ","
+					<< sub->rotationX << ","
+					<< sub->rotationY << ","
+					<< sub->rotationZ << ","
+					<< sub->instanceType << ","
+					<< sub->variant << ","
+					<< sub->age << ","
+					<< sub->idString << std::endl;
+			}
 		}
 	}
+	
 	outputFile.close();
 	std::cout << "End to OutputAllInstance to : " << outputFilePath << std::endl;
 
