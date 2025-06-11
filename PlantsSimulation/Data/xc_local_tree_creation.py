@@ -681,9 +681,9 @@ def create_geochem_tree_entity(api, project_id, folder_id, geo_chemical_folder, 
     
     entity_basename = f'GeoChemical_instances_{tiles_size}_{tiles_x}_{tiles_y}_{level}'
 
-    merged_csv_name = f'{tiles_size}_{tiles_x}_{tiles_y}_{level}_geo_merged.csv'
+    merged_csv_name = f'{tiles_size}_{tiles_x}_{tiles_y}_geo_merged.csv'
     merged_csv_path = os.path.join(geo_chemical_folder, merged_csv_name)
-    geo_meta_name = 'process.meta'
+    geo_meta_name = '{tiles_size}_{tiles_x}_{tiles_y}_geo_merged.process.meta'
     geo_meta_path = os.path.join(geo_chemical_folder, geo_meta_name)
 
     print(f'Start to Add Id field to  the csv file {merged_csv_path}')
@@ -2300,6 +2300,7 @@ def tree_instances_generation(config_path):
         create_or_update_ini_file(tree_ini_path, section_options,'Level0_Instances', run_level_0_instances)
         create_or_update_ini_file(tree_ini_path, section_options,'Level1_Instances', run_level_1_instances)
         create_or_update_ini_file(tree_ini_path, section_options,'Only_POIs', only_run_POIs)
+        create_or_update_ini_file(tree_ini_path, section_options,'Keep_Old_Tree_Files', keep_old_tree_files)
         
         print(f'End to write tree instance ini files : {tree_ini_path}')
         tree_ini_string = ini_file_to_string(tree_ini_path)
@@ -2374,16 +2375,42 @@ def tree_instances_generation(config_path):
     tree_instance_output_folder_name = 'instanceoutput'
     tree_instance_level0_output_folder_name = 'instanceoutput_level0'
     tree_instance_level1_output_folder_name = 'instanceoutput_level1'
+    tree_instance_level0_merge_output_folder_name = 'instanceoutput_level0_merged'
+    tree_instance_level1_merge_output_folder_name = 'instanceoutput_level1_merged'
+    instance_trees_output_folder_name = 'Trees'
+    instance_pois_output_folder_name = 'POIs'
     regions_output_folder_name = 'regionoutput'
+    
     geo_chemical_folder_name = 'GeoChemical'
+    geo_chemical_level0_folder_name = 'GeoChemical_Level_0'
+    geo_chemical_level1_folder_name = 'GeoChemical_Level_1'
+    geo_chemical_level0_trees_folder_name = 'GeoChemical_Level_0_Trees'
+    geo_chemical_level1_trees_folder_name = 'GeoChemical_Level_1_Trees'
+    geo_chemical_level0_pois_folder_name = 'GeoChemical_Level_0_POIs'
+    geo_chemical_level1_pois_folder_name = 'GeoChemical_Level_1_POIs'
+    
     tree_height_file_name = f'{tiles_count}_{tiles_x}_{tiles_y}_short_height_map_export.xyz'
     
     tree_instance_output_folder_path = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', tree_instance_output_folder_name)
     tree_instance_level0_output_folder_path = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', tree_instance_level0_output_folder_name)
     tree_instance_level1_output_folder_path = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', tree_instance_level1_output_folder_name)
+    tree_instance_level0_trees_output_folder_path = os.path.join(tree_instance_level0_output_folder_path, instance_trees_output_folder_name)
+    tree_instance_level0_pois_output_folder_path = os.path.join(tree_instance_level0_output_folder_path, instance_pois_output_folder_name)
+    tree_instance_level1_trees_output_folder_path = os.path.join(tree_instance_level1_output_folder_path, instance_trees_output_folder_name)
+    tree_instance_level1_pois_output_folder_path = os.path.join(tree_instance_level1_output_folder_path, instance_pois_output_folder_name)
+    tree_instance_level0_merge_output_foler_path = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', tree_instance_level0_merge_output_folder_name)
+    tree_instance_level1_merge_output_foler_path = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', tree_instance_level1_merge_output_folder_name)
     regions_info_upload_path = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', regions_info_name)
     regions_output_folder_path = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', regions_output_folder_name)
+    
     geo_chemical_folder_path = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', geo_chemical_folder_name)
+    geo_chemical_level0_folder_path = os.path.join(geo_chemical_folder_path, geo_chemical_level0_folder_name)
+    geo_chemical_level1_folder_path = os.path.join(geo_chemical_folder_path, geo_chemical_level1_folder_name)
+    geo_chemical_level0_trees_folder_path = os.path.join(geo_chemical_level0_folder_path, geo_chemical_level0_trees_folder_name)
+    geo_chemical_level1_trees_folder_path = os.path.join(geo_chemical_level1_folder_path, geo_chemical_level1_trees_folder_name)
+    geo_chemical_level0_pois_folder_path = os.path.join(geo_chemical_level0_folder_path, geo_chemical_level0_pois_folder_name)
+    geo_chemical_level1_pois_folder_path = os.path.join(geo_chemical_level1_folder_path, geo_chemical_level1_pois_folder_name)
+    
     tree_height_file_path = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', tree_height_file_name)
     final_height_layer_entity_base_name = f'final_height_{tiles_count}_{tile_x}_{tiles_y}'
     
@@ -2393,12 +2420,14 @@ def tree_instances_generation(config_path):
         geochem_result_folder_id = Workflow_Output_Result_Folder_id
     
         if run_level_0_instances:
-            create_geochem_tree_entity(api, Project_id, geochem_result_folder_id, geo_chemical_folder_path, Tiles_size, Tiles_x, Tiles_y, 0, project_output_version)
-            print(f'create_geochem_tree_entity level 0 from {geo_chemical_folder_path}')
+            merge_instances_csv_files_multiple(geo_chemical_level0_trees_folder_path, geo_chemical_level0_pois_folder_path, destination_folder=geo_chemical_level0_folder_path)
+            create_geochem_tree_entity(api, Project_id, geochem_result_folder_id, geo_chemical_level0_folder_path, Tiles_size, Tiles_x, Tiles_y, 0, project_output_version)
+            print(f'create_geochem_tree_entity level 0 from {geo_chemical_level0_folder_path}')
         
         if run_level_1_instances:
-            create_geochem_tree_entity(api, Project_id, geochem_result_folder_id, geo_chemical_folder_path, Tiles_size, Tiles_x, Tiles_y, 1, project_output_version)
-            print(f'create_geochem_tree_entity level 1 from {geo_chemical_folder_path}')
+            merge_instances_csv_files_multiple(geo_chemical_level1_trees_folder_path, geo_chemical_level1_pois_folder_path, destination_folder=geo_chemical_level1_folder_path)
+            create_geochem_tree_entity(api, Project_id, geochem_result_folder_id, geo_chemical_level1_folder_path, Tiles_size, Tiles_x, Tiles_y, 1, project_output_version)
+            print(f'create_geochem_tree_entity level 1 from {geo_chemical_level1_folder_path}')
         
         if os.path.exists(tree_height_file_path):
             process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, tree_height_file_path, api.entity_type.VoxelTerrain, final_height_layer_entity_base_name, project_output_version, color=True)
@@ -2407,7 +2436,9 @@ def tree_instances_generation(config_path):
         print(f'step for to run_upload_tree_instances')
         ##### Update the tree instance files of tree entity. 
         #update_attach_files_for_entity(api, project_id, tree_entity_id, tree_instance_output_folder, f'instances_lod8_{tiles_count}_{tiles_x}_{tiles_y}-{version}', version=version, color=True)
-        merge_instances_csv_files(tree_instance_level0_output_folder_path, tree_instance_level1_output_folder_path, tree_instance_output_folder_path)
+        merge_instances_csv_files(tree_instance_level0_trees_output_folder_path, tree_instance_level0_pois_output_folder_path, tree_instance_level0_merge_output_foler_path)
+        merge_instances_csv_files(tree_instance_level1_trees_output_folder_path, tree_instance_level1_pois_output_folder_path, tree_instance_level1_merge_output_foler_path)
+        merge_instances_csv_files(tree_instance_level0_merge_output_foler_path, tree_instance_level1_merge_output_foler_path, tree_instance_output_folder_path)
         update_attach_files_for_entity(api, project_id, tree_entity_id, tree_instance_output_folder_path)
         print(f'update_attach_files_for_entity tree instances from {tree_instance_output_folder_path} for {tree_entity_id}')
         
@@ -2746,6 +2777,8 @@ only_run_level_0_instances = True
 only_run_level_1_instances = False
 only_run_POIs = False
 only_load_Road = False
+
+keep_old_tree_files = False
 
 #smooth_layer_generation_without_road = True
 #test_only_pois_generation = True
