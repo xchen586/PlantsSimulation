@@ -115,6 +115,7 @@ struct TreeInstanceFullOutput
 	double posX;
 	double posY;
 	double posZ;
+	double slopeValue;
 	TreeInstanceOutput m_instance;
 	CCellInfo* m_pCellData;
 	InputImageMetaInfo* m_pMetaInfo;

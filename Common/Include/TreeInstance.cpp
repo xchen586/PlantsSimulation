@@ -31,6 +31,7 @@ void TreeInstanceFullOutput::GetPosFromInstanceOutput()
 		+ m_pMetaInfo->y0
 		+ localY;
 	posZ = m_pCellData->GetHeight();
+	slopeValue = m_pCellData->GetSlopeHeight();
 }
 
 void TreeInstanceFullOutput::GetPosFromInstanceOutputEx()
@@ -49,4 +50,5 @@ void TreeInstanceFullOutput::GetPosFromInstanceOutputEx()
 		+ localY;
 #endif
 	posZ = m_pCellData->GetHeight();
+	slopeValue = m_pCellData->GetSlopeHeight();
 }

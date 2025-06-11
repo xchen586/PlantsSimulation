@@ -289,6 +289,7 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 		sub->instanceType = static_cast<unsigned int>(instanceType);
 		sub->variant = instance.m_instance.treeType;
 		sub->age = static_cast<double>(instance.m_instance.age / instance.m_instance.maxAge);
+		sub->slopeValue = instance.slopeValue;
 		sub->MakeIdString();
 
 		string keyString = GetKeyStringForInstance(outputSubsDir, sub->cellXIdx, sub->cellZIdx);
