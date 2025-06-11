@@ -19,6 +19,9 @@ import configparser
 from io import StringIO
 from zipfile import ZipFile
 
+import csv
+from pathlib import Path
+
 import pandas as pd
 #import matplotlib.pyplot as plt
 
@@ -404,9 +407,9 @@ def update_attach_file_for_entity(api : voxelfarmclient.rest, project_id, entity
         return
     
     file_paths = [file_path]    
-    print(f'{file_paths}')
+    lambda_host.log(f'{file_paths}')
 
-    print(f'Attaching file {file_paths} to entity {entity_id}')
+    lambda_host.log(f'Attaching file {file_paths} to entity {entity_id}')
     for file_path in file_paths:
         with open(file_path, "rb") as file:
             api.attach_files(project=project_id, id=entity_id, files={'file': file})
@@ -422,9 +425,9 @@ def update_attach_files_for_entity(api : voxelfarmclient.rest, project_id, entit
 
     # Create a list of file paths by joining the folder path with each file name
     file_paths = [os.path.join(folder_path, file_name) for file_name in file_names]    
-    print(file_paths)
+    lambda_host.log(file_paths)
 
-    print(f'Attaching file {file_paths} to entity {entity_id}')
+    lambda_host.log(f'Attaching file {file_paths} to entity {entity_id}')
     for file_path in file_paths:
         with open(file_path, "rb") as file:
             api.attach_files(project=project_id, id=entity_id, files={'file': file})
@@ -733,7 +736,7 @@ def merge_instances_csv_files(folder_a, folder_b, destination_folder):
         try:
             files_a = set(os.listdir(folder_a))
         except OSError as e:
-            print(f"Error accessing folder_a ({folder_a}): {e}")
+            lambda_host.log(f"Error accessing folder_a ({folder_a}): {e}")
             # Decide how to handle this:
             # You might want to log it, or exit, or keep files_a as empty set
             files_a = set() # Keep as empty set if error occurs
@@ -743,7 +746,7 @@ def merge_instances_csv_files(folder_a, folder_b, destination_folder):
         try:
             files_b = set(os.listdir(folder_b))
         except OSError as e:
-            print(f"Error accessing folder_b ({folder_b}): {e}")
+            lambda_host.log(f"Error accessing folder_b ({folder_b}): {e}")
             # Decide how to handle this:
             # You might want to log it, or exit, or keep files_b as empty set
             files_b = set() # Keep as empty set if error occurs
@@ -776,6 +779,283 @@ def merge_instances_csv_files(folder_a, folder_b, destination_folder):
     
     lambda_host.log("merge_instances_csv_files completed successfully.")
 
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------
+def merge_instances_csv_files_ex(folder_a, folder_b, destination_folder):
+    """
+    Merge CSV files from two folders into a destination folder.
+    
+    Args:
+        folder_a (str): Path to first source folder
+        folder_b (str): Path to second source folder  
+        destination_folder (str): Path to destination folder
+    """
+    lambda_host.log(f'Starting to merge CSV files from folder_a: {folder_a} and folder_b: {folder_b} to destination_folder: {destination_folder}')
+    
+    # Ensure destination folder exists and clear it
+    if os.path.exists(destination_folder):
+        shutil.rmtree(destination_folder)
+    os.makedirs(destination_folder, exist_ok=True)
+    
+    # Get CSV files from both folders
+    files_a = set()
+    files_b = set()
+
+    if os.path.exists(folder_a):
+        try:
+            files_a = {f for f in os.listdir(folder_a) if f.lower().endswith('.csv')}
+        except OSError as e:
+            lambda_host.log(f"Error accessing folder_a ({folder_a}): {e}")
+            files_a = set()
+        
+    if os.path.exists(folder_b):
+        try:
+            files_b = {f for f in os.listdir(folder_b) if f.lower().endswith('.csv')}
+        except OSError as e:
+            lambda_host.log(f"Error accessing folder_b ({folder_b}): {e}")
+            files_b = set()
+    
+    all_files = files_a | files_b
+    
+    if not all_files:
+        lambda_host.log("No CSV files found in either folder.")
+        return
+    
+    for file_name in all_files:
+        path_a = os.path.join(folder_a, file_name)
+        path_b = os.path.join(folder_b, file_name)
+        dest_path = os.path.join(destination_folder, file_name)
+        
+        try:
+            if file_name in files_a and file_name in files_b:
+                # Merge files using proper CSV handling
+                merge_csv_files(path_a, path_b, dest_path)
+                lambda_host.log(f"Merged: {file_name}")
+            
+            elif file_name in files_a:
+                shutil.copy2(path_a, dest_path)  # copy2 preserves metadata
+                lambda_host.log(f"Copied from folder_a: {file_name}")
+            
+            elif file_name in files_b:
+                shutil.copy2(path_b, dest_path)
+                lambda_host.log(f"Copied from folder_b: {file_name}")
+                
+        except Exception as e:
+            lambda_host.log(f"Error processing {file_name}: {e}")
+            continue
+    
+    lambda_host.log("CSV merge operation completed.")
+
+def merge_csv_files(file_a_path, file_b_path, dest_path):
+    """
+    Merge two CSV files, keeping the header from the first file.
+    
+    Args:
+        file_a_path (str): Path to first CSV file
+        file_b_path (str): Path to second CSV file
+        dest_path (str): Path to destination CSV file
+    """
+    try:
+        with open(file_a_path, 'r', newline='', encoding='utf-8') as file_a, \
+             open(file_b_path, 'r', newline='', encoding='utf-8') as file_b, \
+             open(dest_path, 'w', newline='', encoding='utf-8') as dest_file:
+            
+            reader_a = csv.reader(file_a)
+            reader_b = csv.reader(file_b)
+            writer = csv.writer(dest_file)
+            
+            # Write header from file A
+            header_a = next(reader_a, None)
+            if header_a:
+                writer.writerow(header_a)
+            
+            # Write remaining rows from file A
+            for row in reader_a:
+                writer.writerow(row)
+            
+            # Skip header from file B and write its data rows
+            next(reader_b, None)  # Skip header
+            for row in reader_b:
+                writer.writerow(row)
+                
+    except Exception as e:
+        # If CSV parsing fails, fall back to line-by-line merge
+        lambda_host.log(f"CSV parsing failed for {file_a_path} or {file_b_path}, using line-by-line merge: {e}")
+        merge_files_line_by_line(file_a_path, file_b_path, dest_path)
+
+def merge_files_line_by_line(file_a_path, file_b_path, dest_path):
+    """
+    Fallback method: merge files line by line (original approach).
+    """
+    with open(file_a_path, 'r', newline='', encoding='utf-8') as file_a:
+        lines_a = file_a.readlines()
+    
+    with open(file_b_path, 'r', newline='', encoding='utf-8') as file_b:
+        lines_b = file_b.readlines()
+    
+    with open(dest_path, 'w', newline='', encoding='utf-8') as dest_file:
+        dest_file.writelines(lines_a)  # Write all of file A
+        if len(lines_b) > 1:  # Only append if file B has data beyond header
+            dest_file.writelines(lines_b[1:])  # Append file B (skip header)
+
+# Example usage:
+if __name__ == "__main__":
+    merge_instances_csv_files("folder_a", "folder_b", "merged_output")
+
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------
+def merge_instances_csv_files_multiple(*source_folders, destination_folder):
+    """
+    Merge CSV files from multiple folders into a destination folder.
+    
+    Args:
+        *source_folders: Variable number of source folder paths
+        destination_folder (str): Path to destination folder (keyword argument)
+    
+    Example usage:
+        merge_instances_csv_files("folder_a", "folder_b", "folder_c", destination_folder="merged_output")
+        merge_instances_csv_files("folder1", "folder2", "folder3", "folder4", destination_folder="result")
+    """
+    if not source_folders:
+        lambda_host.log("Error: No source folders provided.")
+        return
+    
+    lambda_host.log(f'Starting to merge CSV files from {len(source_folders)} folders: {list(source_folders)} to destination_folder: {destination_folder}')
+    
+    # Ensure destination folder exists and clear it
+    if os.path.exists(destination_folder):
+        shutil.rmtree(destination_folder)
+    os.makedirs(destination_folder, exist_ok=True)
+    
+    # Get CSV files from all folders
+    all_folder_files = {}
+    all_unique_files = set()
+    
+    for i, folder in enumerate(source_folders):
+        folder_files = set()
+        if os.path.exists(folder):
+            try:
+                folder_files = {f for f in os.listdir(folder) if f.lower().endswith('.csv')}
+                lambda_host.log(f"Found {len(folder_files)} CSV files in {folder}")
+            except OSError as e:
+                lambda_host.log(f"Error accessing folder {folder}: {e}")
+                folder_files = set()
+        else:
+            lambda_host.log(f"Warning: Folder {folder} does not exist, skipping.")
+        
+        all_folder_files[folder] = folder_files
+        all_unique_files.update(folder_files)
+    
+    if not all_unique_files:
+        lambda_host.log("No CSV files found in any folder.")
+        return
+    
+    lambda_host.log(f"Processing {len(all_unique_files)} unique CSV files...")
+    
+    for file_name in all_unique_files:
+        # Find which folders contain this file
+        folders_with_file = [folder for folder, files in all_folder_files.items() if file_name in files]
+        dest_path = os.path.join(destination_folder, file_name)
+        
+        try:
+            if len(folders_with_file) == 1:
+                # File exists in only one folder, just copy it
+                source_path = os.path.join(folders_with_file[0], file_name)
+                shutil.copy2(source_path, dest_path)
+                lambda_host.log(f"Copied from {folders_with_file[0]}: {file_name}")
+            
+            elif len(folders_with_file) > 1:
+                # File exists in multiple folders, merge them
+                source_paths = [os.path.join(folder, file_name) for folder in folders_with_file]
+                merge_multiple_csv_files(source_paths, dest_path)
+                lambda_host.log(f"Merged from {len(folders_with_file)} folders: {file_name}")
+                
+        except Exception as e:
+            lambda_host.log(f"Error processing {file_name}: {e}")
+            continue
+    
+    lambda_host.log("Multi-folder CSV merge operation completed.")
+
+def merge_multiple_csv_files(source_file_paths, dest_path):
+    """
+    Merge multiple CSV files, keeping the header from the first file.
+    
+    Args:
+        source_file_paths (list): List of source CSV file paths
+        dest_path (str): Path to destination CSV file
+    """
+    if not source_file_paths:
+        return
+    
+    try:
+        with open(dest_path, 'w', newline='', encoding='utf-8') as dest_file:
+            writer = csv.writer(dest_file)
+            header_written = False
+            
+            for i, file_path in enumerate(source_file_paths):
+                try:
+                    with open(file_path, 'r', newline='', encoding='utf-8') as source_file:
+                        reader = csv.reader(source_file)
+                        
+                        # Handle header
+                        header = next(reader, None)
+                        if header:
+                            if not header_written:
+                                writer.writerow(header)
+                                header_written = True
+                            # Skip header for subsequent files (assuming same structure)
+                        
+                        # Write data rows
+                        for row in reader:
+                            writer.writerow(row)
+                            
+                except Exception as e:
+                    lambda_host.log(f"Error reading file {file_path}: {e}")
+                    continue
+                    
+    except Exception as e:
+        # If CSV parsing fails, fall back to line-by-line merge
+        lambda_host.log(f"CSV parsing failed, using line-by-line merge: {e}")
+        merge_multiple_files_line_by_line(source_file_paths, dest_path)
+
+def merge_multiple_files_line_by_line(source_file_paths, dest_path):
+    """
+    Fallback method: merge multiple files line by line.
+    """
+    try:
+        with open(dest_path, 'w', newline='', encoding='utf-8') as dest_file:
+            for i, file_path in enumerate(source_file_paths):
+                try:
+                    with open(file_path, 'r', newline='', encoding='utf-8') as source_file:
+                        lines = source_file.readlines()
+                        
+                        if i == 0:
+                            # First file: write all lines
+                            dest_file.writelines(lines)
+                        else:
+                            # Subsequent files: skip header (first line) if it exists
+                            if len(lines) > 1:
+                                dest_file.writelines(lines[1:])
+                                
+                except Exception as e:
+                    lambda_host.log(f"Error reading file {file_path}: {e}")
+                    continue
+                    
+    except Exception as e:
+        lambda_host.log(f"Error writing merged file: {e}")
+
+# Alternative version with explicit folder list parameter
+def merge_csv_files_from_folder_list(source_folders, destination_folder):
+    """
+    Alternative version that takes a list of folders instead of variable arguments.
+    
+    Args:
+        source_folders (list): List of source folder paths
+        destination_folder (str): Path to destination folder
+    
+    Example usage:
+        folders = ["folder_a", "folder_b", "folder_c", "folder_d"]
+        merge_csv_files_from_folder_list(folders, "merged_output")
+    """
+    return merge_instances_csv_files_multiple(*source_folders, destination_folder=destination_folder)
 #---------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 def process_file_image(api : voxelfarmclient.rest, project_id, folder_id, file_path, jgw_path : str, name : str, version : int):
@@ -1426,13 +1706,13 @@ def xc_process_cave_meshes(api : voxelfarmclient.rest, cave_meshes_output_folder
     level0_entity_name = f'TopCaves_{tile_size}_{tile_x}_{tile_y}_0-ver-{cave_meshes_version}'
     level1_entity_name = f'TopCaves_{tile_size}_{tile_x}_{tile_y}_1-ver-{cave_meshes_version}'
 
-    print(f'cave_meshes_result_project_id :  {cave_meshes_result_project_id}')
-    print(f'cave_meshes_result_folder_id :  {cave_meshes_result_folder_id}')
-    print(f'level0_db_output_folder :  {level0_cave_output_folder}')
-    print(f'level1_db_output_folder :  {level1_cave_output_folder}')
-    print(f'version :  {cave_meshes_version}')
-    print(f'level0_entity_name :  {level0_entity_name}')
-    print(f'level1_entity_name :  {level1_entity_name}')
+    lambda_host.log(f'cave_meshes_result_project_id :  {cave_meshes_result_project_id}')
+    lambda_host.log(f'cave_meshes_result_folder_id :  {cave_meshes_result_folder_id}')
+    lambda_host.log(f'level0_db_output_folder :  {level0_cave_output_folder}')
+    lambda_host.log(f'level1_db_output_folder :  {level1_cave_output_folder}')
+    lambda_host.log(f'version :  {cave_meshes_version}')
+    lambda_host.log(f'level0_entity_name :  {level0_entity_name}')
+    lambda_host.log(f'level1_entity_name :  {level1_entity_name}')
     
     cave_meshes_db_folder_Id = cave_meshes_result_folder_id
     
@@ -2220,10 +2500,10 @@ def tree_instances_generation(config_path):
         '''
         
     if run_upload_caves:
-        print(f'step for to run_upload_caves')
+        lambda_host.log(f'step for to run_upload_caves')
         cave_meshes_result_folder_id = Workflow_Output_Result_Folder_id
         xc_process_cave_meshes(api, basemeshes_caves_db_base_folder, Project_id, cave_meshes_result_folder_id, project_output_version)
-        print(f'xc_process_cave_meshes for {basemeshes_caves_db_base_folder}')
+        lambda_host.log(f'xc_process_cave_meshes for {basemeshes_caves_db_base_folder}')
 
     lambda_host.log(f'end for step tree_instances_generation')
     return 0
