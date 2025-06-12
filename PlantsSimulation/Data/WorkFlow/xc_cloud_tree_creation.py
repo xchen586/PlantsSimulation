@@ -669,7 +669,7 @@ def create_geochem_tree_entity(api, project_id, folder_id, geo_chemical_folder, 
 
     merged_csv_name = f'{tiles_size}_{tiles_x}_{tiles_y}_geo_merged.csv'
     merged_csv_path = os.path.join(geo_chemical_folder, merged_csv_name)
-    geo_meta_name = '{tiles_size}_{tiles_x}_{tiles_y}_geo_merged.process.meta'
+    geo_meta_name = f'process.meta'
     geo_meta_path = os.path.join(geo_chemical_folder, geo_meta_name)
 
     lambda_host.log(f'Start to Add Id field to  the csv file {merged_csv_path}')
@@ -2401,12 +2401,12 @@ def tree_instances_generation(config_path):
     regions_output_folder_path = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', regions_output_folder_name)
     
     geo_chemical_folder_path = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', geo_chemical_folder_name)
-    geo_chemical_level0_folder_path = os.path.join(geo_chemical_folder_path, geo_chemical_level0_folder_name)
-    geo_chemical_level1_folder_path = os.path.join(geo_chemical_folder_path, geo_chemical_level1_folder_name)
-    geo_chemical_level0_trees_folder_path = os.path.join(geo_chemical_level0_folder_path, geo_chemical_level0_trees_folder_name)
-    geo_chemical_level1_trees_folder_path = os.path.join(geo_chemical_level1_folder_path, geo_chemical_level1_trees_folder_name)
-    geo_chemical_level0_pois_folder_path = os.path.join(geo_chemical_level0_folder_path, geo_chemical_level0_pois_folder_name)
-    geo_chemical_level1_pois_folder_path = os.path.join(geo_chemical_level1_folder_path, geo_chemical_level1_pois_folder_name)
+    geo_chemical_level0_folder_path = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', geo_chemical_level0_folder_name)
+    geo_chemical_level1_folder_path = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', geo_chemical_level1_folder_name)
+    geo_chemical_level0_trees_folder_path = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', geo_chemical_level0_trees_folder_name)
+    geo_chemical_level1_trees_folder_path = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', geo_chemical_level1_trees_folder_name)
+    geo_chemical_level0_pois_folder_path = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', geo_chemical_level0_pois_folder_name)
+    geo_chemical_level1_pois_folder_path = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', geo_chemical_level1_pois_folder_name)
     
     tree_height_file_path = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}', tree_height_file_name)
     final_height_layer_entity_base_name = f'final_height_{tiles_count}_{tile_x}_{tiles_y}'
