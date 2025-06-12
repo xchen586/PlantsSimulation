@@ -401,17 +401,17 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 	std::string allinstancesGeo_folder = std::format("{}//{}", outputDirPath.string(), geofolder);
 	std::string allinstancesGeo_Csv = std::format("{}//{}//{}_{}_{}_geo_merged.csv", outputDirPath.string(), geofolder, m_tiles, m_tileIndexX, m_tileIndexY);
 	std::string allinstancesGeo_Tree_folder = std::format("{}//{}", outputDirPath.string(), geofolderTree);
-	std::string allinstancesGeo_Tree_Csv = std::format("{}//{}//{}_{}_{}_geo_merged.csv", outputDirPath.string(), geofolder, geofolderTree, m_tiles, m_tileIndexX, m_tileIndexY);
+	std::string allinstancesGeo_Tree_Csv = std::format("{}//{}//{}_{}_{}_geo_merged.csv", outputDirPath.string(), geofolderTree, m_tiles, m_tileIndexX, m_tileIndexY);
 	std::string allinstancesGeo_Poi_folder = std::format("{}//{}", outputDirPath.string(), geofolderPoi);
-	std::string allinstancesGeo_Poi_Csv = std::format("{}//{}//{}_{}_{}_geo_merged.csv", outputDirPath.string(), geofolder, geofolderPoi, m_tiles, m_tileIndexX, m_tileIndexY);
+	std::string allinstancesGeo_Poi_Csv = std::format("{}//{}//{}_{}_{}_geo_merged.csv", outputDirPath.string(), geofolderPoi, m_tiles, m_tileIndexX, m_tileIndexY);
 #else
 	std::string allinstances_csv_file = std::format("{}\\{}_{}_{}_allinstances_level{}.csv", outputDirPath.string(), m_tiles, m_tileIndexX, m_tileIndexY, level);
 	std::string allinstancesGeo_folder = std::format("{}\\{}", outputDirPath.string(), geoLevelFolder);
 	std::string allinstancesGeo_Csv = std::format("{}\\{}\\{}_{}_{}_geo_merged.csv", outputDirPath.string(), geoLevelFolder, m_tiles, m_tileIndexX, m_tileIndexY);
 	std::string allinstancesGeo_Tree_folder = std::format("{}\\{}", outputDirPath.string(), geoLevelFolderTree);
-	std::string allinstancesGeo_Tree_Csv = std::format("{}\\{}\\{}_{}_{}_geo_merged.csv", outputDirPath.string(), geoLevelFolder, geoLevelFolderTree, m_tiles, m_tileIndexX, m_tileIndexY);
+	std::string allinstancesGeo_Tree_Csv = std::format("{}\\{}\\{}_{}_{}_geo_merged.csv", outputDirPath.string(), geoLevelFolderTree, m_tiles, m_tileIndexX, m_tileIndexY);
 	std::string allinstancesGeo_Poi_folder = std::format("{}\\{}", outputDirPath.string(), geoLevelFolderPoi);
-	std::string allinstancesGeo_Poi_Csv = std::format("{}\\{}\\{}_{}_{}_geo_merged.csv", outputDirPath.string(), geoLevelFolder, geoLevelFolderPoi, m_tiles, m_tileIndexX, m_tileIndexY);
+	std::string allinstancesGeo_Poi_Csv = std::format("{}\\{}\\{}_{}_{}_geo_merged.csv", outputDirPath.string(), geoLevelFolderPoi, m_tiles, m_tileIndexX, m_tileIndexY);
 #endif
 
 	if (!std::filesystem::exists(allinstancesGeo_Tree_folder)) {
@@ -503,7 +503,7 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 	}
 
 	std::cout << "Start OutputAllInstanceGeoChem For POIs : " << allinstancesGeo_Poi_Csv << std::endl;
-	bool outputGeoPoi = OutputAllInstanceGeoChem(allinstancesGeo_Tree_Csv, nullptr, &m_outputPoiMap);
+	bool outputGeoPoi = OutputAllInstanceGeoChem(allinstancesGeo_Poi_Csv, nullptr, &m_outputPoiMap);
 	std::cout << "End OutputAllInstanceGeoChem For POIs : " << allinstancesGeo_Poi_Csv << std::endl;
 
 	bool outputGeo = outputGeoTree && outputGeoPoi;
