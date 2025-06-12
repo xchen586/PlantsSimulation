@@ -161,14 +161,33 @@ def merge_csv_files_from_folder_list(source_folders, destination_folder):
 # Example usage:
 if __name__ == "__main__":
     # Method 1: Using variable arguments (recommended)
-    folder_0_tree = f"D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\12_4_2\\instanceoutput_level0\\Trees"
-    folder_0_pois = f"D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\12_4_2\\instanceoutput_level0\\POIs"
-    folder_1_tree = f"D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\12_4_2\\instanceoutput_level1\\Trees"
-    folder_1_pois = f"D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\12_4_2\\instanceoutput_level1\\POIs"
     
+    geo_chemical_level0_trees_folder_path = f"D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\12_4_2\\GeoChemical_Level_0_Trees"
+    geo_chemical_level0_pois_folder_path = f"D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\12_4_2\\GeoChemical_Level_0_POIs"
+    geo_chemical_level0_folder_path = f"D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\12_4_2\\GeoChemical_Level_0"
+    geo_chemical_level1_trees_folder_path = f"D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\12_4_2\\GeoChemical_Level_1_Trees"
+    geo_chemical_level1_pois_folder_path = f"D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\12_4_2\\GeoChemical_Level_1_POIs"   
+    geo_chemical_level1_folder_path = f"D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\12_4_2\\GeoChemical_Level_1"
+    geo_chemical_folder_path = f"D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\12_4_2\\GeoChemical"
+    
+    tree_instance_level0_trees_output_folder_path = f"D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\12_4_2\\instanceoutput_level0\\Trees"
+    tree_instance_level0_pois_output_folder_path = f"D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\12_4_2\\instanceoutput_level0\\POIs"
+    tree_instance_level1_trees_output_folder_path = f"D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\12_4_2\\instanceoutput_level1\\Trees"
+    tree_instance_level1_pois_output_folder_path = f"D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\12_4_2\\instanceoutput_level1\\POIs"
+    tree_instance_level0_merge_output_foler_path = f"D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\12_4_2\\instanceoutput_level0_Merged"
+    tree_instance_level1_merge_output_foler_path = f"D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\12_4_2\\instanceoutput_level1_Merged"
+    tree_instance_output_folder_path = f"D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\12_4_2\\instanceoutput"
+    
+    
+    merge_instances_csv_files_multiple(geo_chemical_level0_trees_folder_path, geo_chemical_level0_pois_folder_path, destination_folder=geo_chemical_level0_folder_path)
+    merge_instances_csv_files_multiple(geo_chemical_level1_trees_folder_path, geo_chemical_level1_pois_folder_path, destination_folder=geo_chemical_level1_folder_path)
+    
+    merge_instances_csv_files_multiple(tree_instance_level0_trees_output_folder_path, tree_instance_level0_pois_output_folder_path, tree_instance_level0_merge_output_foler_path)
+    merge_instances_csv_files_multiple(tree_instance_level1_trees_output_folder_path, tree_instance_level1_pois_output_folder_path, tree_instance_level1_merge_output_foler_path)
+    merge_instances_csv_files_multiple(tree_instance_level0_merge_output_foler_path, tree_instance_level1_merge_output_foler_path, tree_instance_output_folder_path)
     destination_path = f"D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\12_4_2\\instanceoutput"
     
-    merge_instances_csv_files_multiple(folder_0_tree, folder_0_pois, destination_folder=destination_path)
+    merge_instances_csv_files_multiple(tree_instance_level0_trees_output_folder_path, tree_instance_level0_pois_output_folder_path, destination_folder=destination_path)
     
     #merge_instances_csv_files_multiple(folder_0_tree, folder_0_pois, folder_1_tree, destination_folder=destination_path)
     
@@ -176,5 +195,5 @@ if __name__ == "__main__":
     #merge_instances_csv_files_multiple(folder_0_tree, folder_0_pois, folder_1_tree, folder_1_pois, destination_folder=destination_path)
     
     # Method 3: Using list (alternative)
-    folders = [folder_0_tree, folder_0_pois, folder_1_tree]
+    folders = [tree_instance_level0_trees_output_folder_path, tree_instance_level0_pois_output_folder_path]
     #merge_csv_files_from_folder_list(folders, destination_path)
