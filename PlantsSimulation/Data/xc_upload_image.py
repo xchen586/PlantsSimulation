@@ -62,21 +62,26 @@ def process_file_image(api : voxelfarmclient.rest, project_id, folder_id, file_p
 api = voxelfarmclient.rest('http://52.226.195.5/')
 workflow_api = workflow_lambda.workflow_lambda_host()
 
-tiles = 25
-x = 8
+tiles = 12
+x = 4
 #y = 5
-y = 6
+y = 2
 
 project_id = '1D4CBBD1D957477E8CC3FF376FB87470' #Pangea Next
 #folder_id = '90F6348AD5D94FCEA85C7C1CD081CE97' #Pangea Next > instances
 folder_id = '218233195003437A881AEFB3DAFE364A' #Pangea Next > Smooth
 #folder_id = '75FDBF01261147F3A50E4A6CFDE059D3' #Pangea Next > Workflow Output > Workflow Test Whole Result Output
 
-
+folder_id = 'B24E708E13C5473FA3BFDBCBA0E68B42' #Pangea Next > Workflow Output > Workflow Smooth Layer Output
 #image_file_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\sommothlayer_output\\25_8_5\\points_{tiles}_{x}_{y}_toplevel.xyz.jpg'
 #image_meta_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\sommothlayer_output\\25_8_5\\points_{tiles}_{x}_{y}_toplevel.xyz.jgw'
 
+min = 0
+max = 4000
 image_file_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\sommothlayer_output\\{tiles}_{x}_{y}\\points_{tiles}_{x}_{y}_toplevel.xyz.jpg'
 image_meta_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\sommothlayer_output\\{tiles}_{x}_{y}\\points_{tiles}_{x}_{y}_toplevel.xyz.jgw'
 
-process_file_image(api, project_id, folder_id, image_file_path, image_meta_path, f'RoadImage_{tiles}_{x}_{y}')
+image_file_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\sommothlayer_output\\{tiles}_{x}_{y}\\{tiles}_{x}_{y}_slopes_blur_{min}_{max}.png'
+image_meta_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\sommothlayer_output\\{tiles}_{x}_{y}\\{tiles}_{x}_{y}_slopes_blur_{min}_{max}.pgw'
+
+process_file_image(api, project_id, folder_id, image_file_path, image_meta_path, f'Slope_blur_600_600_{tiles}_{x}_{y}_vmin_{min}_vmax_{max}')
