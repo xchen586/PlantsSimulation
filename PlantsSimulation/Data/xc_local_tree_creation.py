@@ -2780,9 +2780,14 @@ only_load_Road = False
 
 keep_old_tree_files = False
 
+
 #smooth_layer_generation_without_road = True
-test_only_pois_generation = True
+road_only_pois_generation = True
 #test_only_tree_generation = True
+
+#test_only_pois_generation = True
+#keep_old_tree_files = True
+
 
 if only_road_generation:
     print("Choose only_road_generation to Run")
