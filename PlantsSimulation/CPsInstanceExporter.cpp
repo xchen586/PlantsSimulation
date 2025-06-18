@@ -152,6 +152,8 @@ bool CPsInstanceExporter::loadPointInstanceFromCSV(const string& filePath, const
 		double yPos = 0.0;
 		double zPos = 0.0;
 
+		double roadDistance = 0.0;
+
 		bool hasHeight = true;
 		if (std::getline(lineStream, field, ',')) {
 			//xPos = std::stod(field);
@@ -196,6 +198,12 @@ bool CPsInstanceExporter::loadPointInstanceFromCSV(const string& filePath, const
 			if (std::getline(lineStream, field, ',')) {
 				nPointType = std::stoi(field);
 				pointType = static_cast<PointType>(nPointType);
+			}
+		}
+		if (columnCount >= 11) //Has road instance column
+		{
+			if (std::getline(lineStream, field, ',')) {
+				roadDistance = std::stod(field);
 			}
 		}
 #if USE_CELLINFO_HEIGHT_FOR_POINT_INSTANCE

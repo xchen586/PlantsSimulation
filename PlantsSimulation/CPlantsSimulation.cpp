@@ -1824,7 +1824,8 @@ bool CPlantsSimulation::SaveCavesAsObj(std::vector<std::pair<std::vector<Point>,
 		for (const auto& point : line.first) {
 			double relativeX = point.x;
 			double relativeY = point.y;
-			outFile << "v " << relativeX << " " << relativeY << " 0.0" << "\n";
+			//outFile << "v " << relativeX << " " << relativeY << " 0.0" << "\n"; //For Tree program
+			outFile << "v " << relativeY << " " << relativeX << " 0.0" << "\n"; //For Road program should invert x and y.
 			vertexIndex++;
 		}
 	}
