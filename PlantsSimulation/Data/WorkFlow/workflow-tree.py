@@ -68,7 +68,11 @@ def common_generation_on_receive_data(
         
     game_tree_entity_id_property = '546217C1DE184353AFD6F14EFAED35C9'  #game entity 12_4_2_Pangea_Next_Game_Instances_Entity_573
     if test_tree_result:
-        game_tree_entity_id_property = "DB5EFD08F7AF4725BABBFDC74E2C5ED8" # xuan test 12_4_2_Pangea_Next_Test_Instances_Entity_573
+        game_tree_entity_id_property = "DB5EFD08F7AF4725BABBFDC74E2C5ED8" # xuan test 
+        
+    #game_tree_entity_id_property = 'C45A2A58F7CA4482939921388FAECD0C'  #game entity 12_4_2_Pangea_Next_Game_Instances_Entity_New_Regions
+    if test_tree_result:
+        game_tree_entity_id_property = "3D832611AA9A4BC69ABEB34039AAFED2" # xuan test 12_4_2_Pangea_Next_Test_Instances_Entity_New_Regions
 
     workflow_output_version_folder_id_property = '68396F90F7CE48B4BA1412EA020ED92A' #Pangea Next -> Workflow Output -> Workflow BaseMeshes Output
     if request.version_folder_id != None:

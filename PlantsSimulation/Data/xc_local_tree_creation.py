@@ -2744,7 +2744,10 @@ is_run_generate_road_input = False
 #Instances_Test_Entity_id = '6387B1C0BBC24AC3A7830F27807657A7' # xuan test for tile 25_8_5 "Pangea Next Test Instances Entity"
 
 Instances_Game_Entity_id = '546217C1DE184353AFD6F14EFAED35C9' # 12_4_2_Pangea_Next_Game_Instances_Entity_573
-Instances_Test_Entity_id = 'DB5EFD08F7AF4725BABBFDC74E2C5ED8' # 12_4_2_Pangea_Next_Test_Instances_Entity_573
+#Instances_Test_Entity_id = 'DB5EFD08F7AF4725BABBFDC74E2C5ED8' # 12_4_2_Pangea_Next_Test_Instances_Entity_573
+
+#Instances_Game_Entity_id = 'C45A2A58F7CA4482939921388FAECD0C' # 12_4_2_Pangea_Next_Game_Instances_Entity_New_Regions
+Instances_Test_Entity_id = '3D832611AA9A4BC69ABEB34039AAFED2' # 12_4_2_Pangea_Next_Test_Instances_Entity_New_Regions
 
 Game_Tree_Entity_id = Instances_Game_Entity_id # xuan test 
 
@@ -2782,8 +2785,8 @@ keep_old_tree_files = False
 
 
 #smooth_layer_generation_without_road = True
-road_only_pois_generation = True
-#test_only_tree_generation = True
+#road_only_pois_generation = True
+test_only_tree_generation = True
 
 #test_only_pois_generation = True
 #keep_old_tree_files = True
