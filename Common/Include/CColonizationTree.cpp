@@ -71,6 +71,8 @@ string DensityMapTypeToString(DensityMapType type)
         return "DensityMap_Roughness";
     case DensityMapType::DensityMap_RoadAttribute:
         return "DensityMap_RoadAttribute";
+	case DensityMapType::DensityMap_SunLightAffinity:
+		return "DensityMap_SunLightAffinity";
     case DensityMapType::DensityMap_End:
         return "DensityMap_End";
     default:

@@ -21,6 +21,140 @@ std::string Get2DArrayFilePathForRegion(const string& outputDir, int lod, int in
 	return ret;
 }
 
+std::vector<std::vector<double>> PropagateLightingMax(const std::vector<std::vector<double>>& exposure_init_map,
+	const std::vector<std::vector<bool>>& exposure_mask_map,
+	int max_iterations/* = 1000*/,
+	const double PROPAGATION_FACTOR/* = 0.5*/,
+	const double MIN_THRESHOLD/* = 0.001*/)
+{
+	int rows = exposure_init_map.size();
+	int columns = exposure_init_map[0].size();
+	std::vector<std::vector<double>> temp_map = exposure_init_map;
+	std::vector<std::vector<double>> exposure_map = exposure_init_map;
+
+	for (int iteration = 0; iteration < max_iterations; iteration++) {
+		bool has_significant_change = false;
+		double max_change = 0.0;  // Fixed: Use consistent double type
+
+		// Create temporary map for this iteration
+		for (int y = 0; y < rows; y++) {
+			for (int x = 0; x < columns; x++) {
+				temp_map[y][x] = exposure_map[y][x];
+			}
+		}
+
+		// Propagate from each cell to its neighbors
+		for (int y = 0; y < rows; y++) {
+			for (int x = 0; x < columns; x++) {
+				double current_value = exposure_map[y][x];  // Fixed: Use consistent double type
+
+				if (current_value > MIN_THRESHOLD) {
+					double propagation_amount = current_value * PROPAGATION_FACTOR;  // Fixed: Use consistent double type
+
+					// Define 8-directional neighbors (up, down, left, right, and diagonals)
+					int dx[] = { 0, 0, -1, 1, -1, -1, 1, 1 };
+					int dy[] = { -1, 1, 0, 0, -1, 1, -1, 1 };
+
+					for (int i = 0; i < 8; i++) {
+						int nx = x + dx[i];
+						int ny = y + dy[i];
+
+						// Check bounds
+						if (nx >= 0 && nx < columns && ny >= 0 && ny < rows) {
+							// Only propagate to areas that are also exposed (bedrock < level1)
+							if (exposure_mask_map[ny][nx]) {
+								double old_value = temp_map[ny][nx];  // Fixed: Use consistent double type
+								double new_value = std::max(old_value, propagation_amount);  // Fixed: Use consistent double type
+								temp_map[ny][nx] = new_value;
+
+								double change = std::abs(new_value - old_value);
+								max_change = std::max(max_change, change);
+
+								if (change > MIN_THRESHOLD) {
+									has_significant_change = true;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		// Update exposure map
+		exposure_map = temp_map;
+
+		// Check convergence
+		if (!has_significant_change || max_change < MIN_THRESHOLD) {
+			std::cout << "Converged after " << iteration + 1 << " iterations" << std::endl;
+			break;
+		}
+	}
+
+	return exposure_map;
+}
+
+std::vector<std::vector<double>> PropagateLightingAverage(const std::vector<std::vector<double>>& exposure_init_map,
+	const std::vector<std::vector<bool>>& exposure_mask_map,
+	int max_iterations/* = 1000*/,
+	const double PROPAGATION_FACTOR/* = 0.5 */ ,
+	const double MIN_THRESHOLD/* = 0.001*/)
+{
+	int rows = exposure_init_map.size();
+	int columns = exposure_init_map[0].size();
+	std::vector<std::vector<double>> temp_map = exposure_init_map;
+	std::vector<std::vector<double>> exposure_map = exposure_init_map;
+
+	for (int iteration = 0; iteration < max_iterations; iteration++) {
+		bool has_significant_change = false;
+
+		// Create temporary map for this iteration
+		temp_map = exposure_map;
+
+		// Average with neighbors
+		for (int y = 0; y < rows; y++) {
+			for (int x = 0; x < columns; x++) {
+				// Only process exposed areas
+				if (exposure_mask_map[y][x]) {
+					double sum = exposure_map[y][x];  // Fixed: Use consistent double type
+					int count = 1;
+
+					// Define 8-directional neighbors (up, down, left, right, and diagonals)
+					int dx[] = { 0, 0, -1, 1, -1, -1, 1, 1 };
+					int dy[] = { -1, 1, 0, 0, -1, 1, -1, 1 };
+
+					for (int i = 0; i < 8; i++) {
+						int nx = x + dx[i];
+						int ny = y + dy[i];
+
+						if (nx >= 0 && nx < columns && ny >= 0 && ny < rows) {
+							if (exposure_mask_map[ny][nx]) {
+								sum += exposure_map[ny][nx] * PROPAGATION_FACTOR;
+								count++;
+							}
+						}
+					}
+
+					double old_value = temp_map[y][x];  // Fixed: Use consistent double type
+					temp_map[y][x] = sum / count;
+
+					if (std::abs(temp_map[y][x] - old_value) > MIN_THRESHOLD) {
+						has_significant_change = true;
+					}
+				}
+			}
+		}
+
+		exposure_map = temp_map;
+
+		if (!has_significant_change) {
+			std::cout << "Converged after " << iteration + 1 << " iterations" << std::endl;
+			break;
+		}
+	}
+
+	return exposure_map;
+}
+
 std::string Get2DArrayRawCsvFilePathForRegion(const string& outputDir, int lod, int intXIdx, int intYIdx, int intZIdx)
 {
 	const int MAX_PATH = 250;

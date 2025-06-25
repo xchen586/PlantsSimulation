@@ -89,7 +89,7 @@ public:
 	bool outputPointsCloudFullTreeInstanceResults(const std::string& fileName);
 	bool outputPointsCloudFullTreeInstanceResultsWithRatio(const std::string& fileName);
 	bool parseTreeListCsv(const string& inputTreeListCsv);
-	TreeClass* getTreeClassFromStringVector(const std::vector<std::string>& row);
+	TreeClass* getTreeClassFromStringVector(const std::vector<std::string>& row, int columnCount);
 
 public:
 	vector<TreeClass*> classes;

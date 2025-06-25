@@ -147,3 +147,26 @@ public:
 		}
 	}
 };
+
+class CCellSunLightAffinityID2Mask : public CCellDataI2DMask
+{
+public:
+	CCellSunLightAffinityID2Mask(std::vector<std::vector<CCellInfo*>>* pCellTable, double xRatio, double yRatio)
+		: CCellDataI2DMask(pCellTable, xRatio, yRatio)
+	{
+	}
+	virtual double get2DMaskValue(double x, double z, int blur)
+	{
+		CCellInfo* pCellData = GetCellData(x, z);
+		if (pCellData) {
+			if (pCellData->GetHasSunlightAffinity())
+			{
+				return pCellData->GetSunlightAffinity();
+			}
+		}
+		else
+		{
+			return 0;
+		}
+	}
+};

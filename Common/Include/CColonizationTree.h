@@ -48,6 +48,7 @@ enum class DensityMapType
 	DensityMap_Moisture,
 	DensityMap_Roughness,
 	DensityMap_RoadAttribute,
+	DensityMap_SunLightAffinity,
 	DensityMap_End
 };
 
@@ -152,6 +153,8 @@ enum struct TreeList_CSV_Columns {
 	TL_RoadCloseMax,
 	TL_RoughnessMin,
 	TL_RoughnessMax,
+	TL_SunLightAffinityMin, //Sun light affinity min value
+	TL_SunLightAffinityMax, //Sun light affinity max value
 	TL_Enum_Count,
 };
 

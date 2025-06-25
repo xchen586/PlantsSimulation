@@ -177,6 +177,7 @@
     <ClInclude Include="CRoadAttributeDensityMap.h" />
     <ClInclude Include="CRoughnessDensityMap.h" />
     <ClInclude Include="CSlopeDensityMap.h" />
+    <ClInclude Include="CSunLightAffinityDensityMap.h" />
     <ClInclude Include="I2DMask.h" />
     <ClInclude Include="TreeClasses.h" />
   </ItemGroup>

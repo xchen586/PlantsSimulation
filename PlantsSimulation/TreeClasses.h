@@ -5,6 +5,7 @@
 #include "CRoughnessDensityMap.h"
 #include "CHeightDensity.h"
 #include "CSlopeDensityMap.h"
+#include "CSunLightAffinityDensityMap.h"
 
 class COakTreeClass : public TreeClass
 {

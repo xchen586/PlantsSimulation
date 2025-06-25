@@ -30,3 +30,6 @@ bool OutputCSVFileForSubInstances(const string& filePath, std::shared_ptr<Instan
 bool OutputAllInstance(string outputFilePath, const InstanceSubOutputMap* treeInstances, const InstanceSubOutputMap* poiInstances);
 
 double GetHeightFor2DPointFromCellTable(double xPos, double yPos, std::vector<std::vector<CCellInfo*>>* pCellTable, InputImageMetaInfo* pMetaInfo);
+
+std::vector<std::vector<double>> PropagateLightingMax(const std::vector<std::vector<double>>& exposure_init_map, const std::vector<std::vector<bool>>& exposure_mask_map, int max_iterations = 1000, const double PROPAGATION_FACTOR = 0.5, const double MIN_THRESHOLD = 0.001);
+std::vector<std::vector<double>> PropagateLightingAverage(const std::vector<std::vector<double>>& exposure_init_map, const std::vector<std::vector<bool>>& exposure_mask_map, int max_iterations = 1000, const double PROPAGATION_FACTOR = 0.5, const double MIN_THRESHOLD = 0.001);

@@ -15,6 +15,11 @@ public:
 	double GetSlopeAngle();
 	bool GetHasHeight();
 
+	bool GetHasSunlightAffinity() const;
+	void SetHasSunlightAffinity(bool hasSunlightAffinity);
+	double GetSunlightAffinity() const { return m_sunlightAffinity; }
+	void SetSunlightAffinity(double sunlightAffinity) { m_sunlightAffinity = sunlightAffinity; }
+
 	void SetHeightValue(short heightValue);
 	void SetSlopeHeightValue(short slopeValue);
 	
@@ -36,5 +41,8 @@ private:
 	double m_moisture;
 	double m_roughness;
 	bool m_hasHeight;
+
+	double m_sunlightAffinity;
+	bool m_hasSunlightAffinity;
 };
 

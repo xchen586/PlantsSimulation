@@ -131,5 +131,8 @@
     <ClInclude Include="..\Common\Include\CellCoordStruct.h">
       <Filter>Common</Filter>
     </ClInclude>
+    <ClInclude Include="CSunLightAffinityDensityMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

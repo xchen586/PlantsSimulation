@@ -784,6 +784,56 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	std::vector<std::vector<short>> l1SmoothHeightMapShort4096 = Read2DShortArray(m_l1HeightMapFile, width, height);
 	std::vector<std::vector<short>> bedrockHeightMapShort4096 = Read2DShortArray(m_bedrockHeightMapFile, width, height);
 
+	std::vector<std::vector<double>> exposure_init_map(width, std::vector<double>(height));
+	std::vector<std::vector<bool>> exposure_mask_map(width, std::vector<bool>(height));
+	const double PROPAGATION_FACTOR = 0.5; // This factor can be adjusted based on the desired propagation effect
+	const double MIN_THRESHOLD = 0.001; // Minimum value to continue propagation
+	int max_iterations = 1000; // Maximum iterations to prevent infinite loops
+	for (int x = 0; x < width; x++)
+	{
+		for (int y = 0; y < height; y++)
+		{
+			short mesh1Value = mesh1HeightMapShort4096[x][y];
+			short l1SmoothValue = l1SmoothHeightMapShort4096[x][y];
+			short bedrockValue = bedrockHeightMapShort4096[x][y];
+			short level1Value = std::max(mesh1Value, l1SmoothValue);
+
+			bool hasl1SmoothValue = l1SmoothHeightMasksShort4096[x][y] ? true : false;
+			bool hasBedRockValue = bedrockHeightMasksShort4096[x][y] ? true : false;
+			bool hasMesh1Value = mesh1HeightMapShort4096[x][y] ? true : false;
+			bool hasLevel1Value = hasMesh1Value || hasl1SmoothValue;
+
+			if (hasLevel1Value && hasBedRockValue) {
+				if (bedrockValue < level1Value){
+					exposure_init_map[x][y] = 1.0f; //expose to the sun
+				}
+				else {
+					exposure_init_map[x][y] = 0.0f; //not expose to the sun
+				}
+				exposure_mask_map[x][y] = true; //expose to the sun
+			}
+			else if (hasLevel1Value && !hasBedRockValue) {
+				// If there is no bedrock, we assume it is exposed to the sun
+				exposure_init_map[x][y] = 1.0f; //expose to the sun
+				exposure_mask_map[x][y] = true; //expose to the sun
+				std::cout << "-------- Warning: Level 1 value exists but no bedrock at cell (" << x << ", " << y << ") for exposure map. Assuming exposure to the sun." << std::endl;
+			}
+			else if (hasBedRockValue && !hasLevel1Value) {
+				// If there is bedrock but no level 1, we assume it is not exposed to the sun
+				exposure_init_map[x][y] = 0.0f; //not expose to the sun
+				exposure_mask_map[x][y] = false; //not expose to the sun
+				std::cout << "-------- Warning: Level 1 value exists but no level 1 at cell (" << x << ", " << y << ") for exposure map. Assuming exposure to the sun." << std::endl;
+			}
+			else {
+				exposure_init_map[x][y] = 0.0f;
+				exposure_mask_map[x][y] = false; //not expose to the sun
+			}
+		}
+	}
+
+	//std::vector<std::vector<double>> exposure_map = PropagateLightingMax(exposure_init_map, exposure_mask_map, max_iterations, PROPAGATION_FACTOR, MIN_THRESHOLD);
+	std::vector<std::vector<double>> exposure_map = PropagateLightingAverage(exposure_init_map, exposure_mask_map, max_iterations, PROPAGATION_FACTOR, MIN_THRESHOLD);
+
 	std::vector<std::vector<short>> heightMapShort4096(width, std::vector<short>(height));
 
 	std::vector<std::vector<short>> heightMapRoadDataShort4096(width, std::vector<short>(height)); 
@@ -1084,6 +1134,10 @@ bool CPlantsSimulation::LoadInputHeightMap()
 					//hasHeightValue = (lakesHeightMasksShort4096[i][j] > 0) ? 0 : heightMasksShort4096[i][j];
 				}
 				cell->SetHasHeightValue(hasHeightValue);
+
+				cell->SetSunlightAffinity(exposure_map[i][j]);
+				bool hasSunlightAffinity = exposure_mask_map[i][j];
+				cell->SetHasSunlightAffinity(hasSunlightAffinity);
 			}
 		}
 	}

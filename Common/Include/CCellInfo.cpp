@@ -14,6 +14,9 @@ CCellInfo::CCellInfo(const uint8_t& roadAttributeValue, const uint8_t& moistureV
 	, m_height(0)
 	, m_slopeHeight(0)
 	, m_hasHeight(false)
+	, m_slopeAngleValue(0)
+	, m_sunlightAffinity(0)
+	, m_hasSunlightAffinity(false)
 	
 {
 	m_roadAttribute = GetColorLinearNormallizedAttribute(m_roadAttributeValue);
@@ -81,4 +84,14 @@ double CCellInfo::GetSlopeAngle()
 bool CCellInfo::GetHasHeight()
 {
 	return m_hasHeight;
+}
+
+bool CCellInfo::GetHasSunlightAffinity() const
+{
+	return m_hasSunlightAffinity;
+}
+
+void CCellInfo::SetHasSunlightAffinity(bool hasSunlightAffinity)
+{
+	m_hasSunlightAffinity = hasSunlightAffinity;
 }
