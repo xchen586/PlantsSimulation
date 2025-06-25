@@ -110,5 +110,6 @@ protected:
 	bool m_isOnlyPoIs{ false };
 	bool m_isKeepOldTreeFiles{ false }; // If true, keep old tree files, otherwise remove them
 	void DeInitialize();
+	bool ShouldKeepOldTreeInstances();
 };
 

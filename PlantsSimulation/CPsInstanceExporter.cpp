@@ -19,6 +19,11 @@
 #include "..\Common\Include\PointInstance.h"
 #endif
 
+bool CPsInstanceExporter::ShouldKeepOldTreeInstances()
+{
+	return m_isOnlyPoIs && m_isKeepOldTreeFiles;
+}
+
 void CPsInstanceExporter::DeInitialize()
 {
 	for (auto& pair : m_outputTreeMap)
@@ -301,7 +306,7 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 			return false;
 		}
 	}
-	if (!(m_isOnlyPoIs && m_isKeepOldTreeFiles))
+	if (!ShouldKeepOldTreeInstances())
 	{
 		bool removeFiles = RemoveAllFilesInFolder(outputSubsDir);
 	}
@@ -325,7 +330,7 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 			return false;
 		}
 	}
-	if (!(m_isOnlyPoIs && m_isKeepOldTreeFiles))
+	if (!ShouldKeepOldTreeInstances())
 	{
 		bool removeTreeFiles = RemoveAllFilesInFolder(subFullOutput_Dir_Tree);
 	}
@@ -428,7 +433,7 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 			return false;
 		}
 	}
-	if (!(m_isOnlyPoIs && m_isKeepOldTreeFiles))
+	if (!ShouldKeepOldTreeInstances())
 	{
 		bool removeTreeChemicalFiles = RemoveAllFilesInFolder(allinstancesGeo_Tree_folder);
 	}
