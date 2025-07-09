@@ -788,7 +788,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	std::vector<std::vector<bool>> exposure_mask_map(width, std::vector<bool>(height));
 	const double PROPAGATION_FACTOR = 0.5; // This factor can be adjusted based on the desired propagation effect
 	const double MIN_THRESHOLD = 0.001; // Minimum value to continue propagation
-	int max_iterations = 1000; // Maximum iterations to prevent infinite loops
+	int max_iterations = 5000; // Maximum iterations to prevent infinite loops
 	for (int x = 0; x < width; x++)
 	{
 		for (int y = 0; y < height; y++)
@@ -832,6 +832,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	}
 
 	//std::vector<std::vector<double>> exposure_map = PropagateLightingMax(exposure_init_map, exposure_mask_map, max_iterations, PROPAGATION_FACTOR, MIN_THRESHOLD);
+	//std::vector<std::vector<double>> exposure_map = PropagateLightingMax4Dir(exposure_init_map, exposure_mask_map, max_iterations, PROPAGATION_FACTOR, MIN_THRESHOLD);
 	std::vector<std::vector<double>> exposure_map = PropagateLightingAverage(exposure_init_map, exposure_mask_map, max_iterations, PROPAGATION_FACTOR, MIN_THRESHOLD);
 	std::vector<std::vector<byte>> exposure_byte_map(width, std::vector<byte>(height));
 	for (int x = 0; x < width; x++)
@@ -1265,17 +1266,22 @@ bool CPlantsSimulation::LoadInputHeightMap()
 #endif
 
 #if USE_EXPORT_EXPOSURE_MAP
+	char exposure_init_map_raw_export[MAX_PATH];
+	memset(exposure_init_map_raw_export, 0, sizeof(char)* MAX_PATH);
 	char exposure_map_raw_export[MAX_PATH];
 	memset(exposure_map_raw_export, 0, sizeof(char)* MAX_PATH);
 	char exposure_byte_map_raw_export[MAX_PATH];
 	memset(exposure_byte_map_raw_export, 0, sizeof(char)* MAX_PATH);
 #if __APPLE__
+	snprintf(exposure_init_map_raw_export, MAX_PATH, "%s/%d_%d_%d_exposure_init_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 	snprintf(exposure_map_raw_export, MAX_PATH, "%s/%d_%d_%d_exposure_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 	snprintf(exposure_byte_map_raw_export, MAX_PATH, "%s/%d_%d_%d_exposure_byte_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 #else
+	sprintf_s(exposure_init_map_raw_export, MAX_PATH, "%s\\%d_%d_%d_exposure_init_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 	sprintf_s(exposure_map_raw_export, MAX_PATH, "%s\\%d_%d_%d_exposure_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 	sprintf_s(exposure_byte_map_raw_export, MAX_PATH, "%s\\%d_%d_%d_exposure_byte_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 #endif
+	bool outputExposureInitMap = Output2DVectorToRawFile(exposure_init_map, exposure_init_map_raw_export);
 	bool outputExposureMap = Output2DVectorToRawFile(exposure_map, exposure_map_raw_export);
 	bool outputExposureByteMap = Output2DVectorToRawFile(exposure_byte_map, exposure_byte_map_raw_export);
 #endif

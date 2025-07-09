@@ -21,56 +21,77 @@ std::string Get2DArrayFilePathForRegion(const string& outputDir, int lod, int in
 	return ret;
 }
 
-std::vector<std::vector<double>> PropagateLightingMax(const std::vector<std::vector<double>>& exposure_init_map,
+// Optimized maximum value propagation function
+std::vector<std::vector<double>> PropagateLightingMax(
+	const std::vector<std::vector<double>>& exposure_init_map,
 	const std::vector<std::vector<bool>>& exposure_mask_map,
 	int max_iterations/* = 1000*/,
-	const double PROPAGATION_FACTOR/* = 0.5*/,
-	const double MIN_THRESHOLD/* = 0.001*/)
+	double propagation_factor/* = 0.5*/,
+	double min_threshold/* = 0.001*/)
 {
-	int rows = exposure_init_map.size();
-	int columns = exposure_init_map[0].size();
-	std::vector<std::vector<double>> temp_map = exposure_init_map;
+	// Input validation
+	if (exposure_init_map.empty() || exposure_init_map[0].empty()) {
+		return exposure_init_map;
+	}
+
+	const int rows = static_cast<int>(exposure_init_map.size());
+	const int columns = static_cast<int>(exposure_init_map[0].size());
+
+	// Validate all rows have consistent length
+	for (const auto& row : exposure_init_map) {
+		if (static_cast<int>(row.size()) != columns) {
+			throw std::invalid_argument("All rows must have the same length");
+		}
+	}
+
+	// Validate mask dimensions match
+	if (exposure_mask_map.size() != rows || exposure_mask_map[0].size() != columns) {
+		throw std::invalid_argument("Mask dimensions must match exposure map dimensions");
+	}
+
 	std::vector<std::vector<double>> exposure_map = exposure_init_map;
+	std::vector<std::vector<double>> temp_map(rows, std::vector<double>(columns));
+
+	// Pre-defined 8-directional neighbor offsets (using array for better performance)
+	constexpr std::array<std::pair<int, int>, 8> directions = { {
+		{-1, -1}, {-1, 0}, {-1, 1},
+		{0, -1},           {0, 1},
+		{1, -1},  {1, 0},  {1, 1}
+	} };
 
 	for (int iteration = 0; iteration < max_iterations; iteration++) {
 		bool has_significant_change = false;
-		double max_change = 0.0;  // Fixed: Use consistent double type
+		double max_change = 0.0;
 
-		// Create temporary map for this iteration
+		// Copy current state to temporary map
+		temp_map = exposure_map;
+
+		// Iterate through each pixel for propagation
 		for (int y = 0; y < rows; y++) {
 			for (int x = 0; x < columns; x++) {
-				temp_map[y][x] = exposure_map[y][x];
-			}
-		}
+				const double current_value = exposure_map[y][x];
 
-		// Propagate from each cell to its neighbors
-		for (int y = 0; y < rows; y++) {
-			for (int x = 0; x < columns; x++) {
-				double current_value = exposure_map[y][x];  // Fixed: Use consistent double type
+				// Only propagate from pixels with sufficient values
+				if (current_value > min_threshold) {
+					const double propagation_amount = current_value * propagation_factor;
 
-				if (current_value > MIN_THRESHOLD) {
-					double propagation_amount = current_value * PROPAGATION_FACTOR;  // Fixed: Use consistent double type
+					// Propagate to 8 directions
+					for (const auto& [dx, dy] : directions) {
+						const int nx = x + dx;
+						const int ny = y + dy;
 
-					// Define 8-directional neighbors (up, down, left, right, and diagonals)
-					int dx[] = { 0, 0, -1, 1, -1, -1, 1, 1 };
-					int dy[] = { -1, 1, 0, 0, -1, 1, -1, 1 };
-
-					for (int i = 0; i < 8; i++) {
-						int nx = x + dx[i];
-						int ny = y + dy[i];
-
-						// Check bounds
+						// Boundary check
 						if (nx >= 0 && nx < columns && ny >= 0 && ny < rows) {
-							// Only propagate to areas that are also exposed (bedrock < level1)
+							// Only propagate to exposed areas
 							if (exposure_mask_map[ny][nx]) {
-								double old_value = temp_map[ny][nx];  // Fixed: Use consistent double type
-								double new_value = std::max(old_value, propagation_amount);  // Fixed: Use consistent double type
+								const double old_value = temp_map[ny][nx];
+								const double new_value = std::max(old_value, propagation_amount);
 								temp_map[ny][nx] = new_value;
 
-								double change = std::abs(new_value - old_value);
+								const double change = std::abs(new_value - old_value);
 								max_change = std::max(max_change, change);
 
-								if (change > MIN_THRESHOLD) {
+								if (change > min_threshold) {
 									has_significant_change = true;
 								}
 							}
@@ -80,12 +101,12 @@ std::vector<std::vector<double>> PropagateLightingMax(const std::vector<std::vec
 			}
 		}
 
-		// Update exposure map
-		exposure_map = temp_map;
+		// Update exposure_map
+		exposure_map = std::move(temp_map);
 
 		// Check convergence
-		if (!has_significant_change || max_change < MIN_THRESHOLD) {
-			std::cout << "Converged after " << iteration + 1 << " iterations" << std::endl;
+		if (!has_significant_change || max_change < min_threshold) {
+			std::cout << "Max propagation converged after " << iteration + 1 << " iterations" << std::endl;
 			break;
 		}
 	}
@@ -93,61 +114,161 @@ std::vector<std::vector<double>> PropagateLightingMax(const std::vector<std::vec
 	return exposure_map;
 }
 
-std::vector<std::vector<double>> PropagateLightingAverage(const std::vector<std::vector<double>>& exposure_init_map,
+// Optimized average value propagation function
+std::vector<std::vector<double>> PropagateLightingAverage(
+	const std::vector<std::vector<double>>& exposure_init_map,
 	const std::vector<std::vector<bool>>& exposure_mask_map,
 	int max_iterations/* = 1000*/,
-	const double PROPAGATION_FACTOR/* = 0.5 */ ,
-	const double MIN_THRESHOLD/* = 0.001*/)
+	double propagation_factor/* = 0.5*/,
+	double min_threshold/* = 0.001*/)
 {
-	int rows = exposure_init_map.size();
-	int columns = exposure_init_map[0].size();
-	std::vector<std::vector<double>> temp_map = exposure_init_map;
+	// Input validation
+	if (exposure_init_map.empty() || exposure_init_map[0].empty()) {
+		return exposure_init_map;
+	}
+
+	const int rows = static_cast<int>(exposure_init_map.size());
+	const int columns = static_cast<int>(exposure_init_map[0].size());
+
+	// Validate all rows have consistent length
+	for (const auto& row : exposure_init_map) {
+		if (static_cast<int>(row.size()) != columns) {
+			throw std::invalid_argument("All rows must have the same length");
+		}
+	}
+
+	// Validate mask dimensions match
+	if (exposure_mask_map.size() != rows || exposure_mask_map[0].size() != columns) {
+		throw std::invalid_argument("Mask dimensions must match exposure map dimensions");
+	}
+
 	std::vector<std::vector<double>> exposure_map = exposure_init_map;
+	std::vector<std::vector<double>> temp_map(rows, std::vector<double>(columns));
+
+	// Pre-defined 8-directional neighbor offsets
+	constexpr std::array<std::pair<int, int>, 8> directions = { {
+		{-1, -1}, {-1, 0}, {-1, 1},
+		{0, -1},           {0, 1},
+		{1, -1},  {1, 0},  {1, 1}
+	} };
 
 	for (int iteration = 0; iteration < max_iterations; iteration++) {
 		bool has_significant_change = false;
+		double max_change = 0.0;  // Add maximum change tracking
 
-		// Create temporary map for this iteration
+		// Copy current state
 		temp_map = exposure_map;
 
-		// Average with neighbors
+		// Perform averaging for each exposed area
 		for (int y = 0; y < rows; y++) {
 			for (int x = 0; x < columns; x++) {
 				// Only process exposed areas
 				if (exposure_mask_map[y][x]) {
-					double sum = exposure_map[y][x];  // Fixed: Use consistent double type
+					double sum = exposure_map[y][x];
 					int count = 1;
 
-					// Define 8-directional neighbors (up, down, left, right, and diagonals)
-					int dx[] = { 0, 0, -1, 1, -1, -1, 1, 1 };
-					int dy[] = { -1, 1, 0, 0, -1, 1, -1, 1 };
-
-					for (int i = 0; i < 8; i++) {
-						int nx = x + dx[i];
-						int ny = y + dy[i];
+					// Calculate weighted average with neighbors
+					for (const auto& [dx, dy] : directions) {
+						const int nx = x + dx;
+						const int ny = y + dy;
 
 						if (nx >= 0 && nx < columns && ny >= 0 && ny < rows) {
 							if (exposure_mask_map[ny][nx]) {
-								sum += exposure_map[ny][nx] * PROPAGATION_FACTOR;
+								sum += exposure_map[ny][nx] * propagation_factor;
 								count++;
 							}
 						}
 					}
 
-					double old_value = temp_map[y][x];  // Fixed: Use consistent double type
+					const double old_value = temp_map[y][x];
 					temp_map[y][x] = sum / count;
 
-					if (std::abs(temp_map[y][x] - old_value) > MIN_THRESHOLD) {
+					const double change = std::abs(temp_map[y][x] - old_value);
+					max_change = std::max(max_change, change);
+
+					if (change > min_threshold) {
 						has_significant_change = true;
 					}
 				}
 			}
 		}
 
-		exposure_map = temp_map;
+		exposure_map = std::move(temp_map);
 
-		if (!has_significant_change) {
-			std::cout << "Converged after " << iteration + 1 << " iterations" << std::endl;
+		// Improved convergence check
+		if (!has_significant_change || max_change < min_threshold) {
+			std::cout << "Average propagation converged after " << iteration + 1 << " iterations (max change: "
+				<< max_change << ")" << std::endl;
+			break;
+		}
+	}
+
+	return exposure_map;
+}
+
+// More efficient 4-directional propagation version (if diagonal propagation is not needed)
+std::vector<std::vector<double>> PropagateLightingMax4Dir(
+	const std::vector<std::vector<double>>& exposure_init_map,
+	const std::vector<std::vector<bool>>& exposure_mask_map,
+	int max_iterations/* = 1000*/,
+	double propagation_factor/* = 0.5*/,
+	double min_threshold/* = 0.001*/)
+{
+	if (exposure_init_map.empty() || exposure_init_map[0].empty()) {
+		return exposure_init_map;
+	}
+
+	const int rows = static_cast<int>(exposure_init_map.size());
+	const int columns = static_cast<int>(exposure_init_map[0].size());
+
+	std::vector<std::vector<double>> exposure_map = exposure_init_map;
+	std::vector<std::vector<double>> temp_map(rows, std::vector<double>(columns));
+
+	// Use only 4 directions (up, down, left, right)
+	constexpr std::array<std::pair<int, int>, 4> directions = { {
+		{-1, 0}, {1, 0}, {0, -1}, {0, 1}
+	} };
+
+	for (int iteration = 0; iteration < max_iterations; iteration++) {
+		bool has_significant_change = false;
+		double max_change = 0.0;
+
+		temp_map = exposure_map;
+
+		for (int y = 0; y < rows; y++) {
+			for (int x = 0; x < columns; x++) {
+				const double current_value = exposure_map[y][x];
+
+				if (current_value > min_threshold) {
+					const double propagation_amount = current_value * propagation_factor;
+
+					for (const auto& [dx, dy] : directions) {
+						const int nx = x + dx;
+						const int ny = y + dy;
+
+						if (nx >= 0 && nx < columns && ny >= 0 && ny < rows) {
+							if (exposure_mask_map[ny][nx]) {
+								const double old_value = temp_map[ny][nx];
+								const double new_value = std::max(old_value, propagation_amount);
+								temp_map[ny][nx] = new_value;
+
+								const double change = std::abs(new_value - old_value);
+								max_change = std::max(max_change, change);
+
+								if (change > min_threshold) {
+									has_significant_change = true;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		exposure_map = std::move(temp_map);
+
+		if (!has_significant_change || max_change < min_threshold) {
+			std::cout << "4-directional propagation converged after " << iteration + 1 << " iterations" << std::endl;
 			break;
 		}
 	}

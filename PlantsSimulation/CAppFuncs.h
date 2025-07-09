@@ -33,3 +33,9 @@ double GetHeightFor2DPointFromCellTable(double xPos, double yPos, std::vector<st
 
 std::vector<std::vector<double>> PropagateLightingMax(const std::vector<std::vector<double>>& exposure_init_map, const std::vector<std::vector<bool>>& exposure_mask_map, int max_iterations = 1000, const double PROPAGATION_FACTOR = 0.5, const double MIN_THRESHOLD = 0.001);
 std::vector<std::vector<double>> PropagateLightingAverage(const std::vector<std::vector<double>>& exposure_init_map, const std::vector<std::vector<bool>>& exposure_mask_map, int max_iterations = 1000, const double PROPAGATION_FACTOR = 0.5, const double MIN_THRESHOLD = 0.001);
+std::vector<std::vector<double>> PropagateLightingMax4Dir(
+	const std::vector<std::vector<double>>& exposure_init_map,
+	const std::vector<std::vector<bool>>& exposure_mask_map,
+	int max_iterations = 1000,
+	double propagation_factor = 0.5,
+	double min_threshold = 0.001);
