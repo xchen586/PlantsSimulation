@@ -4,7 +4,7 @@ import os
 
 import subprocess
 
-def process_file_image(api : voxelfarmclient.rest, project_id, folder_id, file_path, jgw_path : str, name : str):
+def process_file_image(api : voxelfarmclient.rest, project_id, folder_id, file_path, jgw_path : str, name : str, version):
 
     print(f'process_file_image project id = {project_id}')
     print(f'process_file_image parent folder id = {folder_id}')
@@ -21,17 +21,19 @@ def process_file_image(api : voxelfarmclient.rest, project_id, folder_id, file_p
     result = api.get_project_crs(project_id)
     crs = result.crs
     
+    '''
     project_entity = api.get_entity(project_id)
     version = int(project_entity['version']) + 1 if 'version' in project_entity else 1
     api.update_entity(project=project_id, id=project_id, fields={'version': version})
-
+    '''
     result = api.create_folder(project=project_id, name=f'Road Image Version {version}', folder=folder_id)
     if not result.success:
         print(f'Failed to create image file folder for version!')
         return 
-    entity_folder_id = result.id
-    print(f'Successful to create image file folder {entity_folder_id} for version!')
+    #entity_folder_id = result.id
+    #print(f'Successful to create image file folder {entity_folder_id} for version!')
 
+    entity_folder_id = folder_id
     result = api.create_entity_raw(project=project_id, 
             #type=api.entity_type.IndexedOrthoImagery, 
             type=api.entity_type.OrthoImagery, 
@@ -62,6 +64,8 @@ def process_file_image(api : voxelfarmclient.rest, project_id, folder_id, file_p
 api = voxelfarmclient.rest('http://52.226.195.5/')
 workflow_api = workflow_lambda.workflow_lambda_host()
 
+
+
 tiles = 12
 x = 4
 #y = 5
@@ -76,6 +80,10 @@ folder_id = 'B24E708E13C5473FA3BFDBCBA0E68B42' #Pangea Next > Workflow Output > 
 #image_file_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\sommothlayer_output\\25_8_5\\points_{tiles}_{x}_{y}_toplevel.xyz.jpg'
 #image_meta_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\sommothlayer_output\\25_8_5\\points_{tiles}_{x}_{y}_toplevel.xyz.jgw'
 
+project_entity = api.get_entity(project_id)
+version = int(project_entity['version']) + 1 if 'version' in project_entity else 1
+api.update_entity(project=project_id, id=project_id, fields={'version': version})
+    
 min = 0
 max = 4000
 image_file_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\sommothlayer_output\\{tiles}_{x}_{y}\\points_{tiles}_{x}_{y}_toplevel.xyz.jpg'
@@ -84,4 +92,28 @@ image_meta_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\sommothlay
 image_file_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\sommothlayer_output\\{tiles}_{x}_{y}\\{tiles}_{x}_{y}_slopes_blur_{min}_{max}.png'
 image_meta_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\sommothlayer_output\\{tiles}_{x}_{y}\\{tiles}_{x}_{y}_slopes_blur_{min}_{max}.pgw'
 
-process_file_image(api, project_id, folder_id, image_file_path, image_meta_path, f'Slope_blur_600_600_{tiles}_{x}_{y}_vmin_{min}_vmax_{max}')
+#process_file_image(api, project_id, folder_id, image_file_path, image_meta_path, f'Slope_blur_600_600_{tiles}_{x}_{y}_vmin_{min}_vmax_{max}')
+
+Exposure_map_red_image_file_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\{tiles}_{x}_{y}\\{tiles}_{x}_{y}_exposure_map_red.png'
+Exposure_map_red_image_meta_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\{tiles}_{x}_{y}\\{tiles}_{x}_{y}_exposure_map_red.pgw'
+process_file_image(api, project_id, folder_id, Exposure_map_red_image_file_path, Exposure_map_red_image_meta_path, f'{tiles}_{x}_{y}_exposure_map_red', version)
+
+Exposure_map_rgb_image_file_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\{tiles}_{x}_{y}\\{tiles}_{x}_{y}_exposure_map_rgb.png'
+Exposure_map_rgb_image_meta_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\{tiles}_{x}_{y}\\{tiles}_{x}_{y}_exposure_map_rgb.pgw'
+process_file_image(api, project_id, folder_id, Exposure_map_rgb_image_file_path, Exposure_map_rgb_image_meta_path, f'{tiles}_{x}_{y}_exposure_map_rgb', version)
+
+Exposure_map_grey_image_file_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\{tiles}_{x}_{y}\\{tiles}_{x}_{y}_exposure_map_grey.png'
+Exposure_map_grey_image_meta_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\{tiles}_{x}_{y}\\{tiles}_{x}_{y}_exposure_map_grey.pgw'
+process_file_image(api, project_id, folder_id, Exposure_map_grey_image_file_path, Exposure_map_grey_image_meta_path, f'{tiles}_{x}_{y}_exposure_map_grey', version)
+
+Exposure_init_map_red_image_file_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\{tiles}_{x}_{y}\\{tiles}_{x}_{y}_exposure_init_map_red.png'
+Exposure_init_map_red_image_meta_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\{tiles}_{x}_{y}\\{tiles}_{x}_{y}_exposure_init_map_red.pgw'
+process_file_image(api, project_id, folder_id, Exposure_init_map_red_image_file_path, Exposure_init_map_red_image_meta_path, f'{tiles}_{x}_{y}_exposure_init_map_red', version)
+
+Exposure_init_map_rgb_image_file_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\{tiles}_{x}_{y}\\{tiles}_{x}_{y}_exposure_init_map_rgb.png'
+Exposure_init_map_rgb_image_meta_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\{tiles}_{x}_{y}\\{tiles}_{x}_{y}_exposure_init_map_rgb.pgw'
+process_file_image(api, project_id, folder_id, Exposure_init_map_rgb_image_file_path, Exposure_init_map_rgb_image_meta_path, f'{tiles}_{x}_{y}_exposure_init_map_rgb', version)
+
+Exposure_init_map_grey_image_file_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\{tiles}_{x}_{y}\\{tiles}_{x}_{y}_exposure_init_map_grey.png'
+Exposure_init_map_grey_image_meta_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\{tiles}_{x}_{y}\\{tiles}_{x}_{y}_exposure_init_map_grey.pgw'
+process_file_image(api, project_id, folder_id, Exposure_init_map_grey_image_file_path, Exposure_init_map_grey_image_meta_path, f'{tiles}_{x}_{y}_exposure_initmap_grey', version)
