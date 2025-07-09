@@ -833,6 +833,21 @@ bool CPlantsSimulation::LoadInputHeightMap()
 
 	//std::vector<std::vector<double>> exposure_map = PropagateLightingMax(exposure_init_map, exposure_mask_map, max_iterations, PROPAGATION_FACTOR, MIN_THRESHOLD);
 	std::vector<std::vector<double>> exposure_map = PropagateLightingAverage(exposure_init_map, exposure_mask_map, max_iterations, PROPAGATION_FACTOR, MIN_THRESHOLD);
+	std::vector<std::vector<byte>> exposure_byte_map(width, std::vector<byte>(height));
+	for (int x = 0; x < width; x++)
+	{
+		for (int y = 0; y < height; y++)
+		{
+			double exposureValue = exposure_map[x][y];
+			if (exposureValue > 1.0) {
+				exposureValue = 1.0;
+			}
+			else if (exposureValue < 0.0) {
+				exposureValue = 0.0;
+			}
+			exposure_byte_map[x][y] = static_cast<byte>(exposureValue * 255);
+		}
+	}
 
 	std::vector<std::vector<short>> heightMapShort4096(width, std::vector<short>(height));
 
@@ -1247,6 +1262,22 @@ bool CPlantsSimulation::LoadInputHeightMap()
 
 #if USE_OUTPUT_HIGH_ROAD_DATA
 	bool outputHeightMapHigh = Output2DVectorToRawFile(heightMapExportHighRawUShort, ushort_height_map_high_raw);
+#endif
+
+#if USE_EXPORT_EXPOSURE_MAP
+	char exposure_map_raw_export[MAX_PATH];
+	memset(exposure_map_raw_export, 0, sizeof(char)* MAX_PATH);
+	char exposure_byte_map_raw_export[MAX_PATH];
+	memset(exposure_byte_map_raw_export, 0, sizeof(char)* MAX_PATH);
+#if __APPLE__
+	snprintf(exposure_map_raw_export, MAX_PATH, "%s/%d_%d_%d_exposure_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	snprintf(exposure_byte_map_raw_export, MAX_PATH, "%s/%d_%d_%d_exposure_byte_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+#else
+	sprintf_s(exposure_map_raw_export, MAX_PATH, "%s\\%d_%d_%d_exposure_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	sprintf_s(exposure_byte_map_raw_export, MAX_PATH, "%s\\%d_%d_%d_exposure_byte_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+#endif
+	bool outputExposureMap = Output2DVectorToRawFile(exposure_map, exposure_map_raw_export);
+	bool outputExposureByteMap = Output2DVectorToRawFile(exposure_byte_map, exposure_byte_map_raw_export);
 #endif
 	return true;
 }

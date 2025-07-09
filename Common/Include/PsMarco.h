@@ -8,6 +8,11 @@
 #define USE_RANDOM_SEED 1
 #endif 
 
+
+#ifndef USE_EXPORT_EXPOSURE_MAP
+#define USE_EXPORT_EXPOSURE_MAP 1
+#endif
+
 #ifndef USE_EXPORT_HEIGHT_MAP
 #define USE_EXPORT_HEIGHT_MAP 0
 #endif 
