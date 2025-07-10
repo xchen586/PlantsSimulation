@@ -784,11 +784,11 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	std::vector<std::vector<short>> l1SmoothHeightMapShort4096 = Read2DShortArray(m_l1HeightMapFile, width, height);
 	std::vector<std::vector<short>> bedrockHeightMapShort4096 = Read2DShortArray(m_bedrockHeightMapFile, width, height);
 
+	int countLevel1AndNoBedrock = 0;
+	int countBedrockAndNoLevel1 = 0;
+	int countNoLevel1AndNoBedrock = 0;
 	std::vector<std::vector<double>> exposure_init_map(width, std::vector<double>(height));
 	std::vector<std::vector<bool>> exposure_mask_map(width, std::vector<bool>(height));
-	const double PROPAGATION_FACTOR = 0.5; // This factor can be adjusted based on the desired propagation effect
-	const double MIN_THRESHOLD = 0.001; // Minimum value to continue propagation
-	int max_iterations = 5000; // Maximum iterations to prevent infinite loops
 	for (int x = 0; x < width; x++)
 	{
 		for (int y = 0; y < height; y++)
@@ -816,21 +816,30 @@ bool CPlantsSimulation::LoadInputHeightMap()
 				// If there is no bedrock, we assume it is exposed to the sun
 				exposure_init_map[x][y] = 1.0f; //expose to the sun
 				exposure_mask_map[x][y] = true; //expose to the sun
+				countLevel1AndNoBedrock++;
 				std::cout << "-------- Warning: Level 1 value exists but no bedrock at cell (" << x << ", " << y << ") for exposure map. Assuming exposure to the sun." << std::endl;
 			}
 			else if (hasBedRockValue && !hasLevel1Value) {
 				// If there is bedrock but no level 1, we assume it is not exposed to the sun
 				exposure_init_map[x][y] = 0.0f; //not expose to the sun
 				exposure_mask_map[x][y] = false; //not expose to the sun
+				countBedrockAndNoLevel1++;
 				std::cout << "-------- Warning: Level 1 value exists but no level 1 at cell (" << x << ", " << y << ") for exposure map. Assuming exposure to the sun." << std::endl;
 			}
 			else {
 				exposure_init_map[x][y] = 0.0f;
 				exposure_mask_map[x][y] = false; //not expose to the sun
+				countNoLevel1AndNoBedrock++;
 			}
 		}
 	}
+	std::cout << "Count of Level 1 and no bedrock: " << countLevel1AndNoBedrock << std::endl;
+	std::cout << "Count of Bedrock and no Level 1: " << countBedrockAndNoLevel1 << std::endl;
+	std::cout << "Count of No Level 1 and no bedrock: " << countNoLevel1AndNoBedrock << std::endl;
 
+	const double PROPAGATION_FACTOR = 0.5; // This factor can be adjusted based on the desired propagation effect
+	const double MIN_THRESHOLD = 0.001; // Minimum value to continue propagation
+	int max_iterations = 5000; // Maximum iterations to prevent infinite loops
 	//std::vector<std::vector<double>> exposure_map = PropagateLightingMax(exposure_init_map, exposure_mask_map, max_iterations, PROPAGATION_FACTOR, MIN_THRESHOLD);
 	//std::vector<std::vector<double>> exposure_map = PropagateLightingMax4Dir(exposure_init_map, exposure_mask_map, max_iterations, PROPAGATION_FACTOR, MIN_THRESHOLD);
 	std::vector<std::vector<double>> exposure_map = PropagateLightingAverage(exposure_init_map, exposure_mask_map, max_iterations, PROPAGATION_FACTOR, MIN_THRESHOLD);
