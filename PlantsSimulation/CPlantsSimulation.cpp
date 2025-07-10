@@ -787,9 +787,9 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	std::vector<std::vector<double>> exposure_init_map(width, std::vector<double>(height));
 	std::vector<std::vector<bool>> exposure_mask_map(width, std::vector<bool>(height));
 
-	int countPcNoBedrock = 0;
-	int countNoPcBedrock = 0;
-	int countNoPcNoBedrock = 0;
+	int countSmoothNoBedrock = 0;
+	int countNoSmoothBedrock = 0;
+	int countNoSmoothNoBedrock = 0;
 	for (int x = 0; x < width; x++)
 	{
 		for (int y = 0; y < height; y++)
@@ -805,9 +805,15 @@ bool CPlantsSimulation::LoadInputHeightMap()
 			bool hasBedRockValue = bedrockHeightMasksShort4096[x][y] ? true : false;
 			bool hasMesh1Value = mesh1HeightMapShort4096[x][y] ? true : false;
 			bool hasLevel1Value = hasMesh1Value || hasl1SmoothValue;
+			bool hasSmoothValue = hasPCValue || hasl1SmoothValue;
 
-			if (hasPCValue && hasBedRockValue) {
-				if (pcValue < bedrockValue) {
+			short smoothValue = pcValue;
+			if (hasSmoothValue && hasBedRockValue) {
+				smoothValue = (bedrockValue > pcValue) ? l1SmoothValue : pcValue;
+			}
+			
+			if (hasSmoothValue && hasBedRockValue) {
+				if (smoothValue < bedrockValue) {
 					exposure_init_map[x][y] = 1.0f; //expose to the sun
 				}
 				else {
@@ -815,30 +821,30 @@ bool CPlantsSimulation::LoadInputHeightMap()
 				}
 				exposure_mask_map[x][y] = true; //expose to the sun
 			}
-			else if (hasPCValue && !hasBedRockValue) {
+			else if (hasSmoothValue && !hasBedRockValue) {
 				// If there is no bedrock, we assume it is not exposed to the sun
 				exposure_init_map[x][y] = 0.0f; //expose to the sun
 				exposure_mask_map[x][y] = true; //expose to the sun
-				countPcNoBedrock++;
-				std::cout << "-------- Warning: Smooth top value exists but no bedrock value at cell (" << x << ", " << y << ") for exposure map. Assuming exposure to the sun." << std::endl;
+				countSmoothNoBedrock++;
+				std::cout << "-------- Warning: Smooth value exists but no bedrock value at cell (" << x << ", " << y << ") for exposure map. Assuming exposure to the sun." << std::endl;
 			}
-			else if (hasBedRockValue && !hasPCValue) {
+			else if (hasBedRockValue && !hasSmoothValue) {
 				// If there is bedrock but no level 1, we assume it is not exposed to the sun
 				exposure_init_map[x][y] = 1.0f; //not expose to the sun
 				exposure_mask_map[x][y] = false; //not expose to the sun
-				countNoPcBedrock++;
-				std::cout << "-------- Warning: Bed rock value exists but no smooth top value at cell (" << x << ", " << y << ") for exposure map. Assuming exposure to the sun." << std::endl;
+				countNoSmoothBedrock++;
+				std::cout << "-------- Warning: Bed rock value exists but no smooth value at cell (" << x << ", " << y << ") for exposure map. Assuming exposure to the sun." << std::endl;
 			}
 			else {
 				exposure_init_map[x][y] = 0.0f;
 				exposure_mask_map[x][y] = false; //not expose to the sun
-				countNoPcNoBedrock++;
+				countNoSmoothNoBedrock++;
 			}
 		}
 	}
-	std::cout << "Count of Smooth top and No bedrock value : " << countPcNoBedrock << std::endl;
-	std::cout << "Count of No Smooth top and bedrock value : " << countNoPcBedrock << std::endl;
-	std::cout << "Count of No Smooth top and No bedrock value : " << countNoPcNoBedrock << std::endl;
+	std::cout << "Count of Smooth and No bedrock value : " << countSmoothNoBedrock << std::endl;
+	std::cout << "Count of No Smooth and bedrock value : " << countNoSmoothBedrock << std::endl;
+	std::cout << "Count of No Smooth and No bedrock value : " << countNoSmoothNoBedrock << std::endl;
 
 #if 0 //First version of exposure map
 	int countLevel1AndNoBedrock = 0;
