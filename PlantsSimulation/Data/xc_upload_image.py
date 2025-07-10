@@ -25,11 +25,12 @@ def process_file_image(api : voxelfarmclient.rest, project_id, folder_id, file_p
     project_entity = api.get_entity(project_id)
     version = int(project_entity['version']) + 1 if 'version' in project_entity else 1
     api.update_entity(project=project_id, id=project_id, fields={'version': version})
-    '''
+    
     result = api.create_folder(project=project_id, name=f'Road Image Version {version}', folder=folder_id)
     if not result.success:
         print(f'Failed to create image file folder for version!')
         return 
+    '''
     #entity_folder_id = result.id
     #print(f'Successful to create image file folder {entity_folder_id} for version!')
 
