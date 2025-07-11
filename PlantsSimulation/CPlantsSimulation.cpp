@@ -1367,6 +1367,8 @@ bool CPlantsSimulation::LoadInputHeightMap()
 #endif
 
 #if USE_EXPORT_EXPOSURE_MAP
+	char exposure_mask_map_raw_export[MAX_PATH];
+	memset(exposure_mask_map_raw_export, 0, sizeof(char)* MAX_PATH);
 	char exposure_init_map_raw_export[MAX_PATH];
 	memset(exposure_init_map_raw_export, 0, sizeof(char)* MAX_PATH);
 	char exposure_map_raw_export[MAX_PATH];
@@ -1374,14 +1376,17 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	char exposure_byte_map_raw_export[MAX_PATH];
 	memset(exposure_byte_map_raw_export, 0, sizeof(char)* MAX_PATH);
 #if __APPLE__
+	snprintf(exposure_mask_map_raw_export, MAX_PATH, "%s/%d_%d_%d_exposure_mask_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 	snprintf(exposure_init_map_raw_export, MAX_PATH, "%s/%d_%d_%d_exposure_init_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 	snprintf(exposure_map_raw_export, MAX_PATH, "%s/%d_%d_%d_exposure_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 	snprintf(exposure_byte_map_raw_export, MAX_PATH, "%s/%d_%d_%d_exposure_byte_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 #else
+	sprintf_s(exposure_mask_map_raw_export, MAX_PATH, "%s\\%d_%d_%d_exposure_mask_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 	sprintf_s(exposure_init_map_raw_export, MAX_PATH, "%s\\%d_%d_%d_exposure_init_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 	sprintf_s(exposure_map_raw_export, MAX_PATH, "%s\\%d_%d_%d_exposure_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 	sprintf_s(exposure_byte_map_raw_export, MAX_PATH, "%s\\%d_%d_%d_exposure_byte_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 #endif
+	bool outputExposureMaskMap = Output2DVectorToRawFile(exposure_mask_map, exposure_mask_map_raw_export);
 	bool outputExposureInitMap = Output2DVectorToRawFile(exposure_init_map, exposure_init_map_raw_export);
 	bool outputExposureMap = Output2DVectorToRawFile(exposure_map, exposure_map_raw_export);
 	bool outputExposureByteMap = Output2DVectorToRawFile(exposure_byte_map, exposure_byte_map_raw_export);
