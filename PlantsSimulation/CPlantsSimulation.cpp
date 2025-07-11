@@ -949,7 +949,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 				exposureValue = 0.0;
 			}
 			exposure_byte_map[x][y] = static_cast<byte>(exposureValue * 255);
-			exposure_mask_byte_map[x][y] = static_cast<byte>((exposure_mask_map[x][y]) ? 255: 0); // Convert bool to byte
+			exposure_mask_byte_map[x][y] = static_cast<byte>(exposure_mask_map[x][y] ? 1 : 0); // Convert bool to byte  
 		}
 	}
 
