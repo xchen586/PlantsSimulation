@@ -936,6 +936,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	//std::vector<std::vector<double>> exposure_map = PropagateLightingMax4Dir(exposure_init_map, exposure_mask_map, max_iterations, PROPAGATION_FACTOR, MIN_THRESHOLD);
 	std::vector<std::vector<double>> exposure_map = PropagateLightingAverage(exposure_init_map, exposure_mask_map, max_iterations, PROPAGATION_FACTOR, MIN_THRESHOLD);
 	std::vector<std::vector<byte>> exposure_byte_map(width, std::vector<byte>(height));
+	std::vector<std::vector<byte>> exposure_mask_byte_map(width, std::vector<byte>(height));
 	for (int x = 0; x < width; x++)
 	{
 		for (int y = 0; y < height; y++)
@@ -948,6 +949,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 				exposureValue = 0.0;
 			}
 			exposure_byte_map[x][y] = static_cast<byte>(exposureValue * 255);
+			exposure_mask_byte_map[x][y] = static_cast<byte>((exposure_mask_map[x][y]) ? 255: 0); // Convert bool to byte
 		}
 	}
 
@@ -1386,7 +1388,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	sprintf_s(exposure_map_raw_export, MAX_PATH, "%s\\%d_%d_%d_exposure_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 	sprintf_s(exposure_byte_map_raw_export, MAX_PATH, "%s\\%d_%d_%d_exposure_byte_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 #endif
-	bool outputExposureMaskMap = Output2DVectorToRawFile(exposure_mask_map, exposure_mask_map_raw_export);
+	bool outputExposureMaskMap = Output2DVectorToRawFile(exposure_mask_byte_map, exposure_mask_map_raw_export);
 	bool outputExposureInitMap = Output2DVectorToRawFile(exposure_init_map, exposure_init_map_raw_export);
 	bool outputExposureMap = Output2DVectorToRawFile(exposure_map, exposure_map_raw_export);
 	bool outputExposureByteMap = Output2DVectorToRawFile(exposure_byte_map, exposure_byte_map_raw_export);
