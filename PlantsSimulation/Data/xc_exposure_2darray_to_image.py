@@ -245,7 +245,7 @@ if __name__ == "__main__":
     height = 4096
     dtype = 'float64'  # 对应你的 'double' 类型
     color_mode = 'grayscale'  # 或 'grayscale', 'rgb'
-    transpose = False  # 设置为 True 可以交换横纵坐标轴
+    transpose = True  # 设置为 True 可以交换横纵坐标轴
     
     try:
         converter.convert_to_png(
