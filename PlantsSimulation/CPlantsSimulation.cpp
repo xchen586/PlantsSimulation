@@ -927,12 +927,12 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	std::cout << "Count of No Level 1 and no bedrock: " << countNoLevel1AndNoBedrock << std::endl;
 #endif
 
-	const double PROPAGATION_FACTOR = 0.5; // This factor can be adjusted based on the desired propagation effect
+	const double PROPAGATION_FACTOR = 1.0; // This factor can be adjusted based on the desired propagation effect
 	const double MIN_THRESHOLD = 0.001; // Minimum value to continue propagation
-	int max_iterations = 100; // Maximum iterations to prevent infinite loops
+	int max_iterations = 5000; // Maximum iterations to prevent infinite loops
 	//std::vector<std::vector<double>> exposure_map = PropagateLightingMax(exposure_init_map, exposure_mask_map, max_iterations, PROPAGATION_FACTOR, MIN_THRESHOLD);
 	//std::vector<std::vector<double>> exposure_map = PropagateLightingMax4Dir(exposure_init_map, exposure_mask_map, max_iterations, PROPAGATION_FACTOR, MIN_THRESHOLD);
-	std::vector<std::vector<double>> exposure_map = PropagateLightingAverage(exposure_init_map, exposure_mask_map, max_iterations, PROPAGATION_FACTOR, MIN_THRESHOLD, true);
+	std::vector<std::vector<double>> exposure_map = PropagateLightingAverage(exposure_init_map, exposure_mask_map, max_iterations, PROPAGATION_FACTOR, MIN_THRESHOLD);
 	std::vector<std::vector<byte>> exposure_byte_map(width, std::vector<byte>(height));
 	std::vector<std::vector<byte>> exposure_mask_byte_map(width, std::vector<byte>(height));
 	for (int x = 0; x < width; x++)

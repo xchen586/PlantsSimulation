@@ -153,6 +153,8 @@ std::vector<std::vector<double>> PropagateLightingAverage(
 		{1, -1},  {1, 0},  {1, 1}
 	} };
 
+	bool useCompare = false; // Not Use compared propagation by default
+
 	for (int iteration = 0; iteration < max_iterations; iteration++) {
 		bool has_significant_change = false;
 		double max_change = 0.0;  // Add maximum change tracking
@@ -182,8 +184,22 @@ std::vector<std::vector<double>> PropagateLightingAverage(
 					}
 
 					const double old_value = temp_map[y][x];
-					temp_map[y][x] = max (sum / count,  old_value);
-					//temp_map[y][x] = sum / count;
+					const double average_value = sum / count;
+					if (useCompare) {
+						// Use maximum value propagation
+						if (average_value < old_value)
+						{
+							temp_map[y][x] = std::min(old_value, average_value);
+						}
+						else {
+							temp_map[y][x] = std::max(old_value, average_value);
+						}
+						
+					}
+					else {
+						// Use average value propagation
+						temp_map[y][x] = average_value;
+					}
 
 					const double change = std::abs(temp_map[y][x] - old_value);
 					max_change = std::max(max_change, change);
