@@ -239,12 +239,12 @@ if __name__ == "__main__":
     converter = RawToPNGConverter()
     
     # 你的具体参数
-    input_file = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\12_4_2\\12_4_2_exposure_init_map.raw'
-    output_file = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\12_4_2\\12_4_2_exposure_init_map_grey.png'
+    input_file = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\12_4_2\\12_4_2_exposure_map.raw'
+    output_file = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\12_4_2\\12_4_2_exposure_map_rgb.png'
     width = 4096
     height = 4096
     dtype = 'float64'  # 对应你的 'double' 类型
-    color_mode = 'grayscale'  # 或 'grayscale', 'rgb'
+    color_mode = 'rgb'  # 或 'grayscale', 'rgb'
     transpose = True  # 设置为 True 可以交换横纵坐标轴
     
     try:
