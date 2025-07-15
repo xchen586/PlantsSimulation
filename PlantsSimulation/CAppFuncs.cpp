@@ -120,7 +120,8 @@ std::vector<std::vector<double>> PropagateLightingAverage(
 	const std::vector<std::vector<bool>>& exposure_mask_map,
 	int max_iterations/* = 1000*/,
 	double propagation_factor/* = 0.5*/,
-	double min_threshold/* = 0.001*/)
+	double min_threshold/* = 0.001*/,
+	bool beSimple /* = false*/)
 {
 	// Input validation
 	if (exposure_init_map.empty() || exposure_init_map[0].empty()) {
@@ -181,7 +182,8 @@ std::vector<std::vector<double>> PropagateLightingAverage(
 					}
 
 					const double old_value = temp_map[y][x];
-					temp_map[y][x] = sum / count;
+					temp_map[y][x] = max (sum / count,  old_value);
+					//temp_map[y][x] = sum / count;
 
 					const double change = std::abs(temp_map[y][x] - old_value);
 					max_change = std::max(max_change, change);
@@ -196,7 +198,7 @@ std::vector<std::vector<double>> PropagateLightingAverage(
 		exposure_map = std::move(temp_map);
 
 		// Improved convergence check
-		if (!has_significant_change || max_change < min_threshold) {
+		if (!beSimple && (!has_significant_change || max_change < min_threshold)) {
 			std::cout << "Average propagation converged after " << iteration + 1 << " iterations (max change: "
 				<< max_change << ")" << std::endl;
 			break;
