@@ -319,5 +319,6 @@ mainEnd:
 }
 int main(int argc, const char* argv[])
 {
+    setupDualLogging(argv[0]);
     return iniAbsolutePathMain(argc, argv);
 }

@@ -134,5 +134,8 @@
     <ClInclude Include="CSunLightAffinityDensityMap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\Common\Include\XcDualLogging.h">
+      <Filter>Common</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

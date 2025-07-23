@@ -16,6 +16,7 @@
 #endif
 
 #include "Utils.h"
+#include "XcDualLogging.h"
 
 using namespace std;
 

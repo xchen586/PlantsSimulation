@@ -167,6 +167,7 @@
     <ClInclude Include="..\Common\Include\TreeInstance.h" />
     <ClInclude Include="..\Common\Include\Utils.h" />
     <ClInclude Include="..\Common\Include\VoxelFarmPlatform.h" />
+    <ClInclude Include="..\Common\Include\XcDualLogging.h" />
     <ClInclude Include="CAppFuncs.h" />
     <ClInclude Include="CCellI2DMask.h" />
     <ClInclude Include="CForest.h" />
