@@ -372,7 +372,7 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 			SetupInstanceSubOutput(instance.posX, instance.posY, instance.posZ, transform, cellSize, m_lod, sub);
 
 			sub->index = instance.index;
-			InstanceType instanceType = m_isLevel1Instances ? InstanceType::IntanceType_Tree_level1 : InstanceType::InstanceType_Tree;
+			InstanceType instanceType = m_isLevel1Instances ? InstanceType::InstanceType_Tree_level1 : InstanceType::InstanceType_Tree;
 			sub->instanceType = static_cast<unsigned int>(instanceType);
 			sub->variant = instance.m_instance.treeType;
 			sub->age = static_cast<double>(instance.m_instance.age / instance.m_instance.maxAge);

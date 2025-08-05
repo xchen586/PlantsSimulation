@@ -8,8 +8,11 @@ enum struct InstanceType
 	InstanceType_spawn_Point = 1,
 	InstanceType_NPC = 2,
 	InstanceType_Resource = 3,
-	IntanceType_Tree_level1 = 4,
-	InstanceType_Count = 5
+	InstanceType_Tree_level1 = 4,
+	InstanceType_Dungeon_Quest = 5,
+	InstanceType_Dungeon_Loot = 6,
+	InstanceType_Dungeon_Mob = 7,
+	InstanceType_Count = 8
 };
 
 struct InstanceSubOutput
