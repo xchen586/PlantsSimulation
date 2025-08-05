@@ -62,7 +62,12 @@ def process_file_image(api : voxelfarmclient.rest, project_id, folder_id, file_p
         }, crs = crs)
     print(f'Created entity {result.id} for {name}-{version}')
 
-api = voxelfarmclient.rest('http://52.226.195.5/')
+#api = voxelfarmclient.rest('http://52.226.195.5/')
+
+api = voxelfarmclient.rest('https://vf-api.voxelspace.com/')
+voxel_space_token = f'eyJhbGciOiJSUzI1NiIsImtpZCI6Ilg1ZVhrNHh5b2pORnVtMWtsMll0djhkbE5QNC1jNTdkTzZRR1RWQndhTmsiLCJ0eXAiOiJKV1QifQ.eyJleHAiOjE3NTM5ODcwNDgsIm5iZiI6MTc1Mzk4MzQ0OCwidmVyIjoiMS4wIiwiaXNzIjoiaHR0cHM6Ly92b3hlbHNwYWNldmlzaS5iMmNsb2dpbi5jb20vNDgyZjJhMjctNTIwMi00ODUwLWFjNWQtYmZiOGQwNmI2NGU1L3YyLjAvIiwic3ViIjoiMGNkNzFiYmQtN2RlNy00NWYxLThhNDctNWFmM2MyNTYxYzViIiwiYXVkIjoiOWQwNjA1NTYtY2ExMC00MjgwLWFiN2QtOGI3ZWYzMDk5YzliIiwibm9uY2UiOiIwMTk4NjE4OS02ZWRjLTdmMmQtOTI0Ny0yMDkyOTkyNDVjODciLCJpYXQiOjE3NTM5ODM0NDgsImF1dGhfdGltZSI6MTc1Mzk4MzA1MCwiaWRwX2FjY2Vzc190b2tlbiI6InlhMjkuYTBBUzNINk55VUF2cGNnMjdfQlY2RnJIN3ZhUjZrWjNvTU1BMTNNUlR6Y1pLbkhwQ0JUT3ItWmY3a2p2VG14bGg1LWZsUjJiZWh6ZkRNZlNEd3dPSE9aNDltamlBaFVBeHAxLU5ma3hreGhBTTcxTHB3Q2xxRlV3NHJOV3gtbjBlWmlpRjAyeGV6YmhaWVZRMUVZREttZDY0dFY3TlZBekszeEwwMUtHTU1wd2FDZ1lLQVk4U0FSY1NGUUhHWDJNaVRSck1KeGt2QThrb2JOTEhtSVN1SXcwMTc3IiwibmFtZSI6Im1hbGljayBuZG95ZSIsImlkcCI6Imdvb2dsZS5jb20iLCJlbWFpbHMiOlsiZWxuZG95ZUBnbWFpbC5jb20iXSwidGZwIjoiQjJDXzFfdm94ZWxzcGFjZSJ9.aBhoMqQhpiyL0Ty6wPMD3q0QKz1x7ElFy-UXTiEbBw1AzRHgI9RnS_3rum1osUtNrUwm_2GOXuVBx1ftH4MfJ_zv96DbBZkGkBYsB-6bOVEFMYH_rk5zCqxNuRa9_E4bhcPOVzZ9WIbbVD79ZXREgBRNlFRB5ukagOmcgzW02T4jwKnEIEhP84oVCrLD1jJVeiTaYFc_LeIT4sAk2clShZoAnhaO-InjJWg2TBWO8DiKq3sY1HVAowCGZrE94eowoWkRdQeSOqLuD6qcw_TOKCfqM34qUAjPEU2Ndfm7XkHNX2KjdIRNPxLPZHzXlE8ILTjbR8eqUOfWHsOzlQrFXw'
+api.token = voxel_space_token
+
 workflow_api = workflow_lambda.workflow_lambda_host()
 
 
@@ -81,9 +86,13 @@ folder_id = 'B24E708E13C5473FA3BFDBCBA0E68B42' #Pangea Next > Workflow Output > 
 #image_file_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\sommothlayer_output\\25_8_5\\points_{tiles}_{x}_{y}_toplevel.xyz.jpg'
 #image_meta_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\sommothlayer_output\\25_8_5\\points_{tiles}_{x}_{y}_toplevel.xyz.jgw'
 
-project_entity = api.get_entity(project_id)
-version = int(project_entity['version']) + 1 if 'version' in project_entity else 1
-api.update_entity(project=project_id, id=project_id, fields={'version': version})
+project_id = '01740E6E120C448792A158E8266D4D80' #Voxel Space Project
+folder_id = 'DE7CC87798494C888227B080ECBBC33C'
+
+#project_entity = api.get_entity(project_id)
+#version = int(project_entity['version']) + 1 if 'version' in project_entity else 1
+#api.update_entity(project=project_id, id=project_id, fields={'version': version})
+version = 3
     
 min = 0
 max = 4000
@@ -93,8 +102,12 @@ image_meta_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\sommothlay
 image_file_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\sommothlayer_output\\{tiles}_{x}_{y}\\{tiles}_{x}_{y}_slopes_blur_{min}_{max}.png'
 image_meta_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\sommothlayer_output\\{tiles}_{x}_{y}\\{tiles}_{x}_{y}_slopes_blur_{min}_{max}.pgw'
 
-#process_file_image(api, project_id, folder_id, image_file_path, image_meta_path, f'Slope_blur_600_600_{tiles}_{x}_{y}_vmin_{min}_vmax_{max}')
+image_file_path = f'D:\\Downloads\\raster\\mockraster.png'
+image_meta_path = f'D:\\Downloads\\raster\\mockraster.pgw'
+process_file_image(api, project_id, folder_id, image_file_path, image_meta_path, f'Voxel_Space_Mock_Raster_Image', version)
 
+#process_file_image(api, project_id, folder_id, image_file_path, image_meta_path, f'Slope_blur_600_600_{tiles}_{x}_{y}_vmin_{min}_vmax_{max}')
+'''
 Exposure_map_red_image_file_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\{tiles}_{x}_{y}\\{tiles}_{x}_{y}_exposure_map_red.png'
 Exposure_map_red_image_meta_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\{tiles}_{x}_{y}\\{tiles}_{x}_{y}_exposure_map_red.pgw'
 process_file_image(api, project_id, folder_id, Exposure_map_red_image_file_path, Exposure_map_red_image_meta_path, f'{tiles}_{x}_{y}_exposure_map_red', version)
@@ -118,3 +131,4 @@ process_file_image(api, project_id, folder_id, Exposure_init_map_rgb_image_file_
 Exposure_init_map_grey_image_file_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\{tiles}_{x}_{y}\\{tiles}_{x}_{y}_exposure_init_map_grey.png'
 Exposure_init_map_grey_image_meta_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\{tiles}_{x}_{y}\\{tiles}_{x}_{y}_exposure_init_map_grey.pgw'
 process_file_image(api, project_id, folder_id, Exposure_init_map_grey_image_file_path, Exposure_init_map_grey_image_meta_path, f'{tiles}_{x}_{y}_exposure_initmap_grey', version)
+'''
