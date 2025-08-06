@@ -488,12 +488,15 @@ SPAWN_INSTANCE = 1
 NPC_INSTANCE = 2
 RESOURCE_INSTANCE = 3
 TREE_LEVEL1_INSTANCE = 4
+DUNGEON_QUEST_INSTANCE = 5
+DUNGEON_LOOT_INSTANCE = 6
+DUNGEON_MOD_INSTANCE = 7
 InstanceType_Attribute = 'InstanceType'
 Variant_Attribute = 'Variant'
 Slope_Attribute = 'Slope'
 Index_Attribute = 'Index'
 
-def calculate_id_for_instance(instance_type, tree_index, spawn_index, npc_index, resource_index, tree_level1_index):
+def calculate_id_for_instance(instance_type, tree_index, spawn_index, npc_index, resource_index, tree_level1_index, dungeon_quest_index, dungeon_loot_index, dungeon_mod_index):
     # Calculate the extra column value based on the instance type and indices
     instance_string = 'Others'
     index = 0
@@ -512,7 +515,16 @@ def calculate_id_for_instance(instance_type, tree_index, spawn_index, npc_index,
         index = resource_index
     elif instance_type == TREE_LEVEL1_INSTANCE:
         instance_string = 'Tree_Level1'
-        index = tree_level1_index   
+        index = tree_level1_index
+    elif instance_type == DUNGEON_QUEST_INSTANCE:
+        instance_string = 'Dungeon_Quest'
+        index = dungeon_quest_index
+    elif instance_type == DUNGEON_LOOT_INSTANCE:
+        instance_string = 'Dungeon_Loot'
+        index = dungeon_loot_index
+    elif instance_type == DUNGEON_MOD_INSTANCE:
+        instance_string = 'Dungeon_Mod'
+        index = dungeon_mod_index   
     
     extra_value = f'{instance_string} {index}'
     return extra_value
@@ -2018,10 +2030,19 @@ def tree_instances_generation(config_path):
     
     basemeshes_caves_db_output_level0_folder = os.path.join(basemeshes_caves_db_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}_0')
     basemeshes_caves_db_output_level1_folder = os.path.join(basemeshes_caves_db_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}_1')
+    
+    basemeshes_dungeons_db_output_level0_folder = os.path.join(basemeshes_db_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}_0')
+    basemeshes_dungeons_db_output_level1_folder = os.path.join(basemeshes_db_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}_1')   
+    
     caves_point_cloud_level_0_file_name = f'{tiles_count}_{tiles_x}_{tiles_y}_0_caves.xyz'
     caves_point_cloud_level_1_file_name = f'{tiles_count}_{tiles_x}_{tiles_y}_1_caves.xyz'
     caves_point_cloud_level_0_file_path = os.path.join(basemeshes_caves_db_output_level0_folder, caves_point_cloud_level_0_file_name)
     caves_point_cloud_level_1_file_path = os.path.join(basemeshes_caves_db_output_level1_folder, caves_point_cloud_level_1_file_name)
+    
+    dungeons_poi_csv_level_0_file_name = f'{tiles_count}_{tiles_x}_{tiles_y}_0_dungeon_poi_instances.csv'
+    dungeons_poi_csv_level_1_file_name = f'{tiles_count}_{tiles_x}_{tiles_y}_1_dungeon_poi_instances.csv'
+    dungeons_poi_csv_level_0_file_path = os.path.join(basemeshes_dungeons_db_output_level0_folder, dungeons_poi_csv_level_0_file_name)
+    dungeons_poi_csv_level_1_file_path = os.path.join(basemeshes_dungeons_db_output_level1_folder, dungeons_poi_csv_level_1_file_name)
 
     lambda_host.log(f'End to to prepare input data parameter for TreesInstancesAbsolutePathWin.ini')
 
@@ -2284,6 +2305,10 @@ def tree_instances_generation(config_path):
         create_or_update_ini_file(tree_ini_path, section_input, 'Most_Travelled_Points', most_travelled_points_path)
         create_or_update_ini_file(tree_ini_path, section_input, 'Most_Distant_Points', most_distant_points_path)
         create_or_update_ini_file(tree_ini_path, section_input, 'Region_Centroid_Points', region_centroid_points_path)
+        create_or_update_ini_file(tree_ini_path, section_input, 'Caves_Point_Cloud_Level_0', caves_point_cloud_level_0_file_path)
+        create_or_update_ini_file(tree_ini_path, section_input, 'Caves_Point_Cloud_Level_1', caves_point_cloud_level_1_file_path)
+        create_or_update_ini_file(tree_ini_path, section_input, 'Dungeons_POI_CSV_Level_0', dungeons_poi_csv_level_0_file_path)
+        create_or_update_ini_file(tree_ini_path, section_input, 'Dungeons_POI_CSV_Level_1', dungeons_poi_csv_level_1_file_path)
         create_or_update_ini_file(tree_ini_path, section_input, 'Tree_List', tree_list)
         create_or_update_ini_file(tree_ini_path, section_input, 'Level1_Tree_List', level1_tree_list)
         create_or_update_ini_file(tree_ini_path, section_input, 'Regions_Raw', regions_raw_path)
