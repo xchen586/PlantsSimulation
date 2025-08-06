@@ -2261,6 +2261,8 @@ bool CPlantsSimulation::LoadInstanceExporter()
 	m_pInstanceExporter->setMostTravelledPointFilePath(m_mostTravelledPointFile);
 	m_pInstanceExporter->setMostDistantPointFilePath(m_mostDistantPointFile);
 	m_pInstanceExporter->setCentroidPointFilePath(m_centroidPointFile);
+	m_pInstanceExporter->setDungeonsPoiCsvLevel0Path(m_dungeonsPOILevel0File);
+	m_pInstanceExporter->setDungeonsPoiCsvLevel1Path(m_dungeonsPOILevel1File);
 
 	m_pInstanceExporter->set2dCaveLevel0Nodes(m_p2dCaveLevel0Nodes);
 	m_pInstanceExporter->set2dCaveLevel1Nodes(m_p2dCaveLevel1Nodes);

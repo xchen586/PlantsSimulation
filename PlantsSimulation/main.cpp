@@ -63,6 +63,8 @@ int iniAbsolutePathMain(int argc, const char* argv[])
 	const char* point_centroid_name = GetIniValue(iniParser, Input_Section, "Region_Centroid_Points");
     const char* caves_point_cloud_level_0_name = GetIniValue(iniParser, Input_Section, "Caves_Point_Cloud_Level_0");
     const char* caves_point_cloud_level_1_name = GetIniValue(iniParser, Input_Section, "Caves_Point_Cloud_Level_1");
+    const char* dungeons_poi_csv_level_0_name = GetIniValue(iniParser, Input_Section, "Dungeons_POI_CSV_Level_0");
+    const char* dungeons_poi_csv_level_1_name = GetIniValue(iniParser, Input_Section, "Dungeons_POI_CSV_Level_1");
     const char* regions_raw_name = GetIniValue(iniParser, Input_Section, "Regions_Raw");
     const char* regions_info_name = GetIniValue(iniParser, Input_Section, "Regions_Info");
     const char* tree_list_csv_name = GetIniValue(iniParser, Input_Section, "Tree_List");
@@ -175,6 +177,8 @@ int iniAbsolutePathMain(int argc, const char* argv[])
     std::cout << "Most distant point file name is : " << (point_most_distant_name ? point_most_distant_name : "") << std::endl;
     std::cout << "Cave point cloud level 0 file name is : " << (caves_point_cloud_level_0_name ? caves_point_cloud_level_0_name : "") << std::endl;
     std::cout << "Cave point cloud level 1 file name is : " << (caves_point_cloud_level_1_name ? caves_point_cloud_level_1_name : "") << std::endl;
+    std::cout << "Dungeons poi csv level 0 file name is : " << (dungeons_poi_csv_level_0_name ? dungeons_poi_csv_level_0_name : "") << std::endl;
+    std::cout << "Dungeons poi csv level 1 file name is : " << (dungeons_poi_csv_level_1_name ? dungeons_poi_csv_level_1_name : "") << std::endl;
     std::cout << "Regions Raw file name is : " << (regions_raw_name ? regions_raw_name : "") << std::endl;
     std::cout << "Regions Info file name is : " << (regions_info_name ? regions_info_name : "") << std::endl;
     std::cout << "Tree list csv file name is : " << (tree_list_csv_name ? tree_list_csv_name : "") << std::endl;
@@ -247,7 +251,7 @@ int iniAbsolutePathMain(int argc, const char* argv[])
 
     CPlantsSimulation ps(output_final_path, tree_list_csv_name, level1_tree_list_csv_name, input_image_name, input_meta_name, mesh_heightmap_raw_name, mesh2_heightmap_raw_name, pc_heightmap_raw_name, l1_heightmap_raw_name, bedrock_heightmap_raw_name
 		, mesh_heightmap_masks_name, mesh2_heightmap_masks_name, pc_heightmap_masks_name, l1_heightmap_masks_name, bedrock_heightmap_masks_name, lakes_heightmap_masks_name, level1_lakes_heightmap_masks_name
-        , point_most_travelled_name, point_most_distant_name, point_centroid_name, caves_point_cloud_level_0_name, caves_point_cloud_level_1_name, regions_raw_name, regions_info_name
+        , point_most_travelled_name, point_most_distant_name, point_centroid_name, caves_point_cloud_level_0_name, caves_point_cloud_level_1_name, dungeons_poi_csv_level_0_name, dungeons_poi_csv_level_1_name, regions_raw_name, regions_info_name
         , output_file_level0, fullOutput_file_level0, pcFullOutput_file_level0, output_file_level1, fullOutput_file_level1, pcFullOutput_file_level1
         , lod, forestAge, iteration, tiles, tileX, tileY, tileScale, roadHeightMapScaleWidth, roadHeightMapScaleHeight);
 
@@ -307,6 +311,8 @@ mainEnd:
 	if (point_centroid_name) delete point_centroid_name;    
     if (caves_point_cloud_level_0_name) delete caves_point_cloud_level_0_name;
     if (caves_point_cloud_level_1_name) delete caves_point_cloud_level_1_name;
+	if (dungeons_poi_csv_level_0_name) delete dungeons_poi_csv_level_0_name;
+	if (dungeons_poi_csv_level_1_name) delete dungeons_poi_csv_level_1_name;
     if (regions_raw_name) delete regions_raw_name;
     if (regions_info_name) delete regions_info_name;
     if (lod_str) delete lod_str;

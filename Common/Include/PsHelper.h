@@ -544,5 +544,62 @@ bool Write2DArrayAsCSV(const std::string& filePath, const std::vector<std::vecto
 	return ret;
 }
 
+template <typename SourceType, typename TargetType>
+std::vector<std::vector<TargetType>> Read2DArrayAsType(const std::string& filePath, int width, int height, bool transposed = true)
+{
+	static_assert(std::is_trivially_copyable<SourceType>::value, "SourceType must be trivially copyable");
+	static_assert(std::is_trivially_copyable<TargetType>::value, "TargetType must be trivially copyable");
+
+	std::ifstream fs(filePath, std::ios::binary);
+	if (!fs.is_open())
+	{
+		throw std::runtime_error("Failed to open file");
+	}
+
+	SourceType minVal = std::numeric_limits<SourceType>::max();
+	SourceType maxVal = std::numeric_limits<SourceType>::min();
+
+	// Check file size
+	fs.seekg(0, std::ios::end);
+	std::streampos fileSize = fs.tellg();
+	if (fileSize != static_cast<std::streampos>(width) * height * sizeof(SourceType))
+	{
+		throw std::runtime_error("File size doesn't match expected dimensions");
+	}
+	fs.seekg(0, std::ios::beg);
+
+	std::vector<std::vector<TargetType>> array(width, std::vector<TargetType>(height));
+
+	for (int x = 0; x < width; ++x)
+	{
+		for (int y = 0; y < height; ++y)
+		{
+			SourceType value;
+			fs.read(reinterpret_cast<char*>(&value), sizeof(SourceType));
+			if (!fs)
+			{
+				throw std::runtime_error("Failed to read data from file");
+			}
+
+			minVal = std::min(minVal, value);
+			maxVal = std::max(maxVal, value);
+
+			if (transposed)
+			{
+				array[y][x] = static_cast<TargetType>(value);  // Invert axis
+			}
+			else
+			{
+				array[x][y] = static_cast<TargetType>(value);
+			}
+		}
+	}
+
+	std::cout << "Height Map min = " << static_cast<TargetType>(minVal)
+		<< " , max = " << static_cast<TargetType>(maxVal) << std::endl;
+
+	return array;
+}
+
 std::string trim(const std::string& str);
 int countColumnsInCSV(const std::string& filePath, char delimiter/* = ','*/);

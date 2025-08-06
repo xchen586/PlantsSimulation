@@ -111,6 +111,164 @@ bool CPsInstanceExporter::OutputAllInstanceGeoChem(string outputFilePath, const 
 	return true;
 }
 
+bool CPsInstanceExporter::loadDungeonsPoiFromCSV(const string& filePath, const string& outputSubDir, InstanceSubOutputMap& outputMap, CAffineTransform transform, double cellSize, int32_t lod)
+{
+	char delimiter = ',';
+	int columnCount = countColumnsInCSV(filePath, delimiter);
+	std::cout << "The Dungeon Poi csv file " << filePath << " has " << columnCount << " columns" << std::endl;
+
+	std::ifstream file(filePath);
+	if (!file.is_open()) {
+		std::cerr << "Failed to open the dungeon csv file :" << filePath << std::endl;
+		return false;
+	}
+
+	std::string header;
+	std::getline(file, header);
+
+	std::string line;
+
+	int instanceValue = -1;
+	bool hasInstanceType = false;
+
+	const double xRatio = m_pMetaInfo->xRatio;
+	const double yRatio = m_pMetaInfo->yRatio;
+	const double batch_min_x = m_pMetaInfo->batch_min_x;
+	const double batch_min_y = m_pMetaInfo->batch_min_y;
+	const double x0 = m_pMetaInfo->x0;
+	const double y0 = m_pMetaInfo->y0;
+
+	const int tableRowsCount = (*m_pCellTable).size();
+	const int tableColsCount = (*m_pCellTable)[0].size();
+
+	int negativeHeightCount = 0;
+	int index = 0;
+	int originalCount = 0;
+
+	unsigned int variant = 0;
+	unsigned int slopeValue = 0;
+
+	bool useCellHeight = false;
+
+	while (std::getline(file, line)) {
+		std::stringstream lineStream(line);
+		std::string field;
+
+		originalCount++;
+
+		double xPos = 0.0;
+		double yPos = 0.0;
+		double zPos = 0.0;
+
+		if (std::getline(lineStream, field, ',')) {
+			//xPos = std::stod(field);
+			yPos = std::stod(field);
+		}
+		if (std::getline(lineStream, field, ',')) {
+			//yPos = std::stod(field);
+			xPos = std::stod(field);
+		}
+		if (std::getline(lineStream, field, ',')) {
+			zPos = std::stod(field);
+		}
+		if (std::getline(lineStream, field, ',')) {
+
+		}
+		if (std::getline(lineStream, field, ',')) {
+
+		}
+		if (std::getline(lineStream, field, ',')) {
+
+		}
+		if (columnCount >= 7) //Has dungeon poi type
+		{
+			if (std::getline(lineStream, field, ',')) {
+				instanceValue = std::stoi(field);
+				if (instanceValue > 0) {
+					hasInstanceType = true;
+				}
+				else {
+					hasInstanceType = false;
+					std::cout << "The dungeon poi instance type is not valid : " << instanceValue << std::endl;
+				}
+			}
+		}
+		if (columnCount >= 8) //dungeon poi level
+		{
+			if (std::getline(lineStream, field, ',')) {
+				variant = std::stoi(field);
+			}
+		}
+		if (columnCount >= 9) //Has dungeon instance type
+		{
+			if (std::getline(lineStream, field, ',')) {
+				
+			}
+		}
+		if (columnCount >= 10) //Has dungeon instance id
+		{
+			if (std::getline(lineStream, field, ',')) {
+				
+			}
+		}
+		
+#if USE_CELLINFO_HEIGHT_FOR_POINT_INSTANCE
+		int rowIdx = static_cast<int>(xPos / xRatio);
+		int colIdx = static_cast<int>(yPos / yRatio);
+
+		CCellInfo* pCell = nullptr;
+		if (((rowIdx >= 0) && (rowIdx < tableRowsCount))
+			&& ((colIdx >= 0) && (colIdx < tableColsCount))) {
+			pCell = (*m_pCellTable)[rowIdx][colIdx];
+		}
+		if ((pCell != nullptr) && (pCell->GetHasHeight()))
+		{
+			if (useCellHeight) {
+				zPos = pCell->GetHeight();
+			}
+			
+			slopeValue = pCell->GetSlopeHeight();
+		}
+
+		bool negativeZPos = false;
+		if ((zPos < 0))
+		{
+			negativeZPos = true;
+			negativeHeightCount++;
+		}
+#endif
+		double posX = xPos + batch_min_x + x0;
+		double posY = yPos + batch_min_y + y0;
+		double posZ = zPos;
+		
+		std::shared_ptr<PointInstanceSubOutput> sub = std::make_shared<PointInstanceSubOutput>();
+		SetupInstanceSubOutput(posX, posY, posZ, transform, cellSize, lod, sub);
+		sub->instanceType = static_cast<unsigned int>(instanceValue);
+		sub->variant = variant;
+		sub->age = 1.0;
+		index++;
+		sub->index = index;
+		sub->MakeIdString();
+		sub->slopeValue = slopeValue;
+		
+		string keyString = GetKeyStringForInstance(outputSubDir, sub->cellXIdx, sub->cellZIdx);
+		InstanceSubOutputMap::iterator iter = outputMap.find(keyString);
+		if (outputMap.end() == iter)
+		{
+			outputMap[keyString] = std::make_shared<InstanceSubOutputVector>();
+		}
+
+		std::shared_ptr<InstanceSubOutputVector> subVector = outputMap[keyString];
+		subVector->push_back(sub);
+		
+	}
+
+	std::cout << "The dungeons pois of negative height count is : " << negativeHeightCount << std::endl;
+
+	file.close();
+	return true;
+}
+
 bool CPsInstanceExporter::loadPointInstanceFromCSV(const string& filePath, const string& outputSubDir, InstanceSubOutputMap& outputMap, CAffineTransform transform, double cellSize, int32_t lod, InstanceType instanceType, bool canRemovedFromCave = false)
 {
 	char delimiter = ',';
@@ -399,6 +557,8 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 		//unsigned int mostDistantVariant = static_cast<unsigned int>(PointType::Point_MostDistant);
 		bool getMostDistantPoint = loadPointInstanceFromCSV(m_mostDistantPointFilePath, subFullOutput_Dir_Poi, m_outputPoiMap, transform, cellSize, m_lod, InstanceType::InstanceType_Resource);
 		bool getCentroidPoint = loadPointInstanceFromCSV(m_centroidPointFilePath, subFullOutput_Dir_Poi, m_outputPoiMap, transform, cellSize, m_lod, InstanceType::InstanceType_spawn_Point, false);
+
+		bool getDungeonPoi = loadDungeonsPoiFromCSV(m_dungeonsPoiCsvLevel0Path, subFullOutput_Dir_Poi, m_outputPoiMap, transform, cellSize, m_lod);
 	}
 	
 	std::filesystem::path outputSubsDirPath = outputSubsDir;

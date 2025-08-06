@@ -50,6 +50,14 @@ public:
 	{
 		m_centroidPointFilePath = filePath;
 	}
+	void setDungeonsPoiCsvLevel0Path(const string& filePath)
+	{
+		m_dungeonsPoiCsvLevel0Path = filePath;
+	}
+	void setDungeonsPoiCsvLevel1Path(const string& filePath)
+	{
+		m_dungeonsPoiCsvLevel1Path = filePath;
+	}
 	void setFullTreeOutputs(vector<TreeInstanceFullOutput>* pFullTreeOutputs)
 	{
 		m_pFullTreeOutputs = pFullTreeOutputs;
@@ -87,6 +95,7 @@ public:
 		m_isKeepOldTreeFiles = isKeepOldTreeFiles;
 		std::cout << "Set CPsInstanceExporter isKeepOldTreeFiles to " << m_isKeepOldTreeFiles << std::endl;
 	}
+	bool loadDungeonsPoiFromCSV(const string& filePath, const string& outputSubDir, InstanceSubOutputMap& outputMap, CAffineTransform transform, double voxelSize, int32_t lod);
 	bool loadPointInstanceFromCSV(const string& filePath, const string& outputSubDir, InstanceSubOutputMap& outputMap, CAffineTransform transform, double voxelSize, int32_t lod, InstanceType instanceType, bool canRemovedFromCave/* = true*/);
 	bool outputSubfiles(const std::string& outputSubsDir);
 	bool OutputAllInstanceGeoChem(string outputFilePath, const InstanceSubOutputMap* treeInstances, const InstanceSubOutputMap* poiInstances);
@@ -97,6 +106,8 @@ protected:
 	string m_mostTravelledPointFilePath;
 	string m_mostDistantPointFilePath;
 	string m_centroidPointFilePath;
+	string m_dungeonsPoiCsvLevel0Path;
+	string m_dungeonsPoiCsvLevel1Path;
 	vector<TreeInstanceFullOutput> * m_pFullTreeOutputs;
 	InstanceSubOutputMap m_outputTreeMap;
 	InstanceSubOutputMap m_outputPoiMap;
