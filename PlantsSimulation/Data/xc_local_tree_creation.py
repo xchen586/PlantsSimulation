@@ -1874,6 +1874,7 @@ def tree_instances_generation(config_path):
     smoothlayer_output_base_folder = read_ini_value(config_path, section_output, 'smoothlayer_output_base_folder')
     basemeshes_db_base_folder = read_ini_value(config_path, section_output, 'basemeshes_db_base_folder')
     basemeshes_caves_db_base_folder = read_ini_value(config_path, section_output, 'basemeshes_caves_db_base_folder')
+    basemeshes_dungeons_db_base_folder = read_ini_value(config_path, section_output, 'basemeshes_dungeons_db_base_folder')
     basemeshes_cache_base_folder = read_ini_value(config_path, section_output, 'basemeshes_cache_base_folder')
     basemeshes_heightmap_folder = read_ini_value(config_path, section_output, 'basemeshes_heightmap_folder')
     
@@ -2027,8 +2028,8 @@ def tree_instances_generation(config_path):
     basemeshes_caves_db_output_level0_folder = os.path.join(basemeshes_caves_db_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}_0')
     basemeshes_caves_db_output_level1_folder = os.path.join(basemeshes_caves_db_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}_1')
     
-    basemeshes_dungeons_db_output_level0_folder = os.path.join(basemeshes_db_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}_0')
-    basemeshes_dungeons_db_output_level1_folder = os.path.join(basemeshes_db_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}_1')    
+    basemeshes_dungeons_db_output_level0_folder = os.path.join(basemeshes_dungeons_db_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}_0')
+    basemeshes_dungeons_db_output_level1_folder = os.path.join(basemeshes_dungeons_db_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}_1')     
     
     caves_point_cloud_level_0_file_name = f'{tiles_count}_{tiles_x}_{tiles_y}_0_caves.xyz'
     caves_point_cloud_level_1_file_name = f'{tiles_count}_{tiles_x}_{tiles_y}_1_caves.xyz'
@@ -2605,6 +2606,7 @@ def tree_config_creation(ini_path):
     smoothlayer_output_base_folder = os.path.join(Data_folder, f'sommothlayer_output')
     basemeshes_db_base_folder = os.path.join(Data_folder, f'db')
     basemeshes_caves_db_base_folder = os.path.join(Data_folder, f'cavesdb')
+    basemeshes_dungeons_db_base_folder = os.path.join(Data_folder, f'dungeonsdb')
     basemeshes_cache_base_folder = os.path.join(Data_folder, f'cache')
     basemeshes_heightmap_folder = os.path.join(Data_folder, f'heightmap')
     tree_output_base_folder = os.path.join(Data_folder, f'tree_output')
@@ -2634,6 +2636,7 @@ def tree_config_creation(ini_path):
     create_or_update_ini_file(ini_path, section_output, 'smoothlayer_output_base_folder', smoothlayer_output_base_folder)
     create_or_update_ini_file(ini_path, section_output, 'basemeshes_db_base_folder', basemeshes_db_base_folder)
     create_or_update_ini_file(ini_path, section_output, 'basemeshes_caves_db_base_folder', basemeshes_caves_db_base_folder)
+    create_or_update_ini_file(ini_path, section_output, 'basemeshes_dungeons_db_base_folder', basemeshes_dungeons_db_base_folder)
     create_or_update_ini_file(ini_path, section_output, 'basemeshes_cache_base_folder', basemeshes_cache_base_folder)
     create_or_update_ini_file(ini_path, section_output, 'basemeshes_heightmap_folder', basemeshes_heightmap_folder)
     create_or_update_ini_file(ini_path, section_output, 'tree_output_base_folder', tree_output_base_folder)
