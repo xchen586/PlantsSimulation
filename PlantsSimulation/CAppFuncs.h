@@ -29,6 +29,8 @@ void SetupInstanceSubOutput(double posX, double posY, double posZ, const CAffine
 bool OutputCSVFileForSubInstances(const string& filePath, std::shared_ptr<InstanceSubOutputVector> subVector);
 bool OutputAllInstance(string outputFilePath, const InstanceSubOutputMap* treeInstances, const InstanceSubOutputMap* poiInstances);
 
+int GetInstancesCountFromInstanceSubOutputMap(const InstanceSubOutputMap& instanceMap);
+
 double GetHeightFor2DPointFromCellTable(double xPos, double yPos, std::vector<std::vector<CCellInfo*>>* pCellTable, InputImageMetaInfo* pMetaInfo);
 
 std::vector<std::vector<double>> PropagateLightingMax(const std::vector<std::vector<double>>& exposure_init_map, const std::vector<std::vector<bool>>& exposure_mask_map, int max_iterations = 1000, const double PROPAGATION_FACTOR = 0.5, const double MIN_THRESHOLD = 0.001);

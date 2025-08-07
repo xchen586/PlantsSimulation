@@ -898,3 +898,15 @@ bool OutputAllInstance(string outputFilePath, const InstanceSubOutputMap* pTreeI
 
 	return true;
 }
+
+int GetInstancesCountFromInstanceSubOutputMap(const InstanceSubOutputMap& instanceMap)
+{
+	int count = 0;
+	for (const auto& pair : instanceMap) {
+		const std::shared_ptr<InstanceSubOutputVector>& subVector = pair.second;
+		if (subVector) {
+			count += static_cast<int>(subVector->size());
+		}
+	}
+	return count;
+}
