@@ -161,12 +161,12 @@ bool CPsInstanceExporter::loadDungeonsPoiFromCSV(const string& filePath, const s
 		double zPos = 0.0;
 
 		if (std::getline(lineStream, field, ',')) {
-			//xPos = std::stod(field);
-			yPos = std::stod(field);
+			xPos = std::stod(field);
+			//yPos = std::stod(field);
 		}
 		if (std::getline(lineStream, field, ',')) {
-			//yPos = std::stod(field);
-			xPos = std::stod(field);
+			yPos = std::stod(field);
+			//xPos = std::stod(field);
 		}
 		if (std::getline(lineStream, field, ',')) {
 			zPos = std::stod(field);
@@ -213,8 +213,8 @@ bool CPsInstanceExporter::loadDungeonsPoiFromCSV(const string& filePath, const s
 		}
 		
 #if USE_CELLINFO_HEIGHT_FOR_POINT_INSTANCE
-		int rowIdx = static_cast<int>(xPos / xRatio);
-		int colIdx = static_cast<int>(yPos / yRatio);
+		int rowIdx = static_cast<int>((xPos - batch_min_x - x0) / xRatio);
+		int colIdx = static_cast<int>((yPos - batch_min_y - y0) / yRatio);
 
 		CCellInfo* pCell = nullptr;
 		if (((rowIdx >= 0) && (rowIdx < tableRowsCount))
@@ -237,8 +237,10 @@ bool CPsInstanceExporter::loadDungeonsPoiFromCSV(const string& filePath, const s
 			negativeHeightCount++;
 		}
 #endif
-		double posX = xPos + batch_min_x + x0;
-		double posY = yPos + batch_min_y + y0;
+		//double posX = xPos + batch_min_x + x0;
+		//double posY = yPos + batch_min_y + y0;
+		double posX = xPos; //Because the dungeon pois are already in the world coordinate system
+		double posY = yPos;
 		double posZ = zPos;
 		
 		std::shared_ptr<PointInstanceSubOutput> sub = std::make_shared<PointInstanceSubOutput>();
@@ -394,7 +396,7 @@ bool CPsInstanceExporter::loadPointInstanceFromCSV(const string& filePath, const
 			negativeHeightCount++;
 		}
 #endif
-		double posX = xPos + batch_min_x + x0;
+		double posX = xPos + batch_min_x + x0;//Because the position in the pois(road) csv is local coordinate system, it neeeds to be converted to world coordinate system
 		double posY = yPos + batch_min_y + y0;
 		double posZ = zPos;
 		//double posZ = zPos ? zPos : 0;
