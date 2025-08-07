@@ -573,7 +573,7 @@ def add_extra_column_to_csv(input_file, output_file, extra_column_name):
         instance_type = row[InstanceType_Attribute]
         instance_index = row[Index_Attribute]
         extra_id = instance_index
-        return calculate_id_for_instance(instance_type, extra_id, extra_id, extra_id, extra_id, extra_id)
+        return calculate_id_for_instance(instance_type, extra_id, extra_id, extra_id, extra_id, extra_id, extra_id, extra_id, extra_id)
     
     merged_df[extra_column_name] = merged_df.apply(update_id, axis=1)
 
