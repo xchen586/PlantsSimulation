@@ -132,6 +132,7 @@ bool CPlantsSimulation::LoadInputImage()
 		m_topLayerImage = LoadInputImageFile(m_inputImageFile);
 		if (!m_topLayerImage)
 		{
+			std::cout << "Failed to load input image file: " << m_inputImageFile << std::endl;
 			return false;
 		}
 
