@@ -557,10 +557,10 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 		//unsigned int mostDistantVariant = static_cast<unsigned int>(PointType::Point_MostDistant);
 		bool getMostDistantPoint = loadPointInstanceFromCSV(m_mostDistantPointFilePath, subFullOutput_Dir_Poi, m_outputPoiMap, transform, cellSize, m_lod, InstanceType::InstanceType_Resource);
 		bool getCentroidPoint = loadPointInstanceFromCSV(m_centroidPointFilePath, subFullOutput_Dir_Poi, m_outputPoiMap, transform, cellSize, m_lod, InstanceType::InstanceType_spawn_Point, false);
-		int beforeMergeDungeonPoiCount = static_cast<int>(m_outputPoiMap.size());
+		int beforeMergeDungeonPoiCount = GetInstancesCountFromInstanceSubOutputMap(m_outputPoiMap);
 		std::cout << "Before merge dungeon poi count is : " << beforeMergeDungeonPoiCount << std::endl;
 		bool getDungeonPoi = loadDungeonsPoiFromCSV(m_dungeonsPoiCsvLevel0Path, subFullOutput_Dir_Poi, m_outputPoiMap, transform, cellSize, m_lod);
-		int afterMergeDungeonPoiCount = static_cast<int>(m_outputPoiMap.size());
+		int afterMergeDungeonPoiCount = GetInstancesCountFromInstanceSubOutputMap(m_outputPoiMap);
 		std::cout << "loadDungeonsPoiFromCSV is : " << getDungeonPoi << std::endl;
 		std::cout << "After merge dungeon poi count is : " << afterMergeDungeonPoiCount << std::endl;
 	}
