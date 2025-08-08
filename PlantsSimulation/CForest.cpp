@@ -368,14 +368,7 @@ TreeClass* CForest::getTreeClassFromStringVector(const std::vector<std::string>&
 	slopeDensity->ease = 5 * (PI / 180.0);
 	pair<string, DensityMap*> slopeDensityPair = GetDensityKeyPairFromTreeClassWithDensityMapType(tree, slopeDensity->type, slopeDensity);
 	tree->masks.insert(slopeDensityPair);
-
-	if (columnCount > static_cast<int>(TreeList_CSV_Columns::TL_SunLightAffinityMax)) {
-		DensityMap* sunLightDensity = new CSunLightAffinityDensityMap();
-		sunLightDensity->minval = sunLightAffinityMin;
-		sunLightDensity->maxval = sunLightAffinityMax;
-		pair<string, DensityMap*> sunLightDensityPair = GetDensityKeyPairFromTreeClassWithDensityMapType(tree, sunLightDensity->type, sunLightDensity);
-		tree->masks.insert(sunLightDensityPair);
-	}
+	
 #if 0
 	DensityMap* roadDensity = new CRoadAttributeDensityMap();
 	roadDensity->minval = roadCloseMin;
@@ -389,6 +382,14 @@ TreeClass* CForest::getTreeClassFromStringVector(const std::vector<std::string>&
 	pair<string, DensityMap*> roughnessDensityPair = GetDensityKeyPairFromTreeClassWithDensityMapType(tree, roughnessDensity->type, roughnessDensity);
 	tree->masks.insert(roughnessDensityPair);
 #endif
+
+	if (columnCount > static_cast<int>(TreeList_CSV_Columns::TL_SunLightAffinityMax)) {
+		DensityMap* sunLightDensity = new CSunLightAffinityDensityMap();
+		sunLightDensity->minval = sunLightAffinityMin;
+		sunLightDensity->maxval = sunLightAffinityMax;
+		pair<string, DensityMap*> sunLightDensityPair = GetDensityKeyPairFromTreeClassWithDensityMapType(tree, sunLightDensity->type, sunLightDensity);
+		tree->masks.insert(sunLightDensityPair);
+	}
 	return tree;
 }
 
