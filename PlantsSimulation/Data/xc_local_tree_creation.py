@@ -2816,7 +2816,7 @@ keep_old_tree_files = False
 test_only_dungeon_poi_generation = True
 
 #test_only_pois_generation = True
-#keep_old_tree_files = True
+keep_old_tree_files = True
 
 
 if only_road_generation:
