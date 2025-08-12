@@ -7,13 +7,17 @@ CCellInfo::CCellInfo(const uint8_t& roadAttributeValue, const uint8_t& moistureV
 	, m_roughnessValue(roughnessValue)
 	, m_heightValue(0)
 	, m_slopeHeightValue(0)
+	, m_level1HeightValue(0)
 	, m_hasHeightValue(0)
+	, m_hasLevel1HeightValue(0)
 	, m_roadAttribute(0)
 	, m_moisture(0)
 	, m_roughness(0)
 	, m_height(0)
 	, m_slopeHeight(0)
+	, m_level1Height(0)
 	, m_hasHeight(false)
+	, m_hasLevel1Height(false)
 	, m_slopeAngleValue(0)
 	, m_sunlightAffinity(0)
 	, m_hasSunlightAffinity(false)
@@ -40,6 +44,12 @@ void CCellInfo::SetSlopeHeightValue(short slopeValue)
 	m_slopeHeight = static_cast<double>(m_slopeHeightValue);
 }
 
+void CCellInfo::SetLevel1HeightValue(short level1HeightValue)
+{
+	m_level1HeightValue = level1HeightValue;
+	m_level1Height = static_cast<double>(m_level1HeightValue);
+}
+
 void CCellInfo::SetSlopeAngleValue(double angle)
 {
 	m_slopeAngleValue = angle;
@@ -49,6 +59,12 @@ void CCellInfo::SetHasHeightValue(short hasHeightValue)
 {
 	m_hasHeightValue = hasHeightValue;
 	m_hasHeight = (m_hasHeightValue != 0) ? true : false;
+}
+
+void CCellInfo::SetHasLevel1HeightValue(short hasLevel1HeightValue)
+{
+	m_hasLevel1HeightValue = hasLevel1HeightValue;
+	m_hasLevel1Height = (m_hasLevel1HeightValue != 0) ? true : false;
 }
 
 double CCellInfo::GetRoadAttribute()
@@ -64,6 +80,11 @@ double CCellInfo::GetHeight()
 double CCellInfo::GetSlopeHeight()
 {
 	return m_slopeHeight;
+}
+
+double CCellInfo::GetLevel1Height()
+{
+	return m_level1Height;
 }
 
 double CCellInfo::GetMoisture()
@@ -84,6 +105,11 @@ double CCellInfo::GetSlopeAngle()
 bool CCellInfo::GetHasHeight()
 {
 	return m_hasHeight;
+}
+
+bool CCellInfo::GetHasLevel1Height()
+{
+	return m_hasLevel1Height;
 }
 
 bool CCellInfo::GetHasSunlightAffinity() const

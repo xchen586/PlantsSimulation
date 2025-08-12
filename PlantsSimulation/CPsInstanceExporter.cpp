@@ -380,13 +380,25 @@ bool CPsInstanceExporter::loadPointInstanceFromCSV(const string& filePath, const
 			&& ((colIdx >= 0) && (colIdx < tableColsCount))) {
 			pCell = (*m_pCellTable)[rowIdx][colIdx];
 		}
-		if ((pCell != nullptr) && (pCell->GetHasHeight()))
+
+		if (isLevel1POI) 
 		{
-			zPos = pCell->GetHeight();
+			if (pCell != nullptr && pCell->GetHasLevel1Height()) {
+				zPos = pCell->GetLevel1Height();
+			}
+			else {
+				hasHeight = false;
+			}
 		}
-		else
-		{
-			hasHeight = false;
+		else {
+			if ((pCell != nullptr) && (pCell->GetHasHeight()))
+			{
+				zPos = pCell->GetHeight();
+			}
+			else
+			{
+				hasHeight = false;
+			}
 		}
 
 		bool negativeZPos = false;

@@ -1205,6 +1205,8 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	std::vector<std::vector<double>> heightMapDouble4096 = ConvertShortMatrixToDouble1(heightMapShort4096);
 	std::vector<std::vector<unsigned short>> heightMapUShort4096 = ConvertShortMatrixToUShort(heightMapShort4096);
 
+	std::vector<std::vector<double>> l1SmoothHeightMapDouble4096 = ConvertShortMatrixToDouble1(l1SmoothHeightMapShort4096);
+
 	std::vector<std::vector<short>> heightMapShort1000 = ScaleArray(heightMapShort4096, 1000, 1000);
 	std::vector<std::vector<unsigned short>> heightMapUShort1000 = ConvertShortMatrixToUShort(heightMapShort1000);
 
@@ -1246,12 +1248,18 @@ bool CPlantsSimulation::LoadInputHeightMap()
 
 				cell->SetSlopeHeightValue(slopeShort4096[i][j]);
 				cell->SetSlopeAngleValue(slopeDouble4096[i][j]);
+
+				cell->SetLevel1HeightValue(l1SmoothHeightMapDouble4096[i][j]);
+
 				short hasHeightValue = heightMasksShort4096[i][j];
 				if (m_isLevel1Instances)
 				{
 					//hasHeightValue = (lakesHeightMasksShort4096[i][j] > 0) ? 0 : heightMasksShort4096[i][j];
 				}
 				cell->SetHasHeightValue(hasHeightValue);
+
+				short hasLevel1HeightValue = l1SmoothHeightMasksShort4096[i][j];
+				cell->SetHasLevel1HeightValue(hasLevel1HeightValue);
 
 				cell->SetSunlightAffinity(exposure_map[i][j]);
 				bool hasSunlightAffinity = exposure_mask_map[i][j];
