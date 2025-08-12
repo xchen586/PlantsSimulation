@@ -8,6 +8,10 @@
 #include <vector>
 #include <cmath>
 #include <algorithm>
+#include <numeric>
+#include <cstddef>
+#include <stdexcept>
+#include <type_traits>
 #include <limits>
 #include <random>
 
@@ -179,6 +183,9 @@ std::vector<std::vector<unsigned char>> resample2DShortMaskToByte(const std::vec
 
 std::vector<std::vector<short>> resample2DShortWithAverage(const std::vector<std::vector<short>>& original, int new_rows, int new_cols);
 std::vector<std::vector<unsigned char>> resample2DUCharWithAverage(const std::vector<std::vector<unsigned char>>& original, int new_rows, int new_cols);
+
+std::string trim(const std::string& str);
+int countColumnsInCSV(const std::string& filePath, char delimiter/* = ','*/);
 
 template <typename T>
 T GenerateRandomT(T min, T max) {
@@ -601,5 +608,245 @@ std::vector<std::vector<TargetType>> Read2DArrayAsType(const std::string& filePa
 	return array;
 }
 
-std::string trim(const std::string& str);
-int countColumnsInCSV(const std::string& filePath, char delimiter/* = ','*/);
+template<typename T>
+std::vector<std::vector<T>> resample2DArrayWithAverage(
+	const std::vector<std::vector<T>>& original,
+	int new_rows,
+	int new_cols) {
+
+	// Static assertion to ensure T is an arithmetic type or std::byte
+	static_assert(std::is_arithmetic_v<T> || std::is_same_v<T, std::byte>,
+		"T must be an arithmetic type or std::byte");
+
+	// Input validation
+	if (new_rows <= 0 || new_cols <= 0) {
+		throw std::invalid_argument("New dimensions must be positive");
+	}
+
+	const int original_rows = static_cast<int>(original.size());
+	if (original_rows == 0) {
+		throw std::invalid_argument("Original grid has no rows");
+	}
+
+	const int original_cols = static_cast<int>(original[0].size());
+	if (original_cols == 0) {
+		throw std::invalid_argument("Original grid has no columns");
+	}
+
+	// Check if all rows have the same number of columns
+	for (size_t i = 1; i < original.size(); ++i) {
+		if (static_cast<int>(original[i].size()) != original_cols) {
+			throw std::invalid_argument("All rows must have the same number of columns");
+		}
+	}
+
+	// Initialize output grid
+	std::vector<std::vector<T>> resampled(new_rows, std::vector<T>(new_cols));
+
+	// Calculate scaling factors
+	const double row_scale = static_cast<double>(original_rows) / new_rows;
+	const double col_scale = static_cast<double>(original_cols) / new_cols;
+
+	// Parallelization-friendly loop structure
+	for (int i = 0; i < new_rows; ++i) {
+		for (int j = 0; j < new_cols; ++j) {
+			// Calculate bounds of current region in original grid
+			const double row_start_f = i * row_scale;
+			const double row_end_f = (i + 1) * row_scale;
+			const double col_start_f = j * col_scale;
+			const double col_end_f = (j + 1) * col_scale;
+
+			// Convert to integer bounds
+			const int row_start = static_cast<int>(std::floor(row_start_f));
+			const int row_end = std::min(static_cast<int>(std::ceil(row_end_f)), original_rows);
+			const int col_start = static_cast<int>(std::floor(col_start_f));
+			const int col_end = std::min(static_cast<int>(std::ceil(col_end_f)), original_cols);
+
+			// Use more precise accumulation type to avoid overflow
+			if constexpr (std::is_same_v<T, std::byte>) {
+				// Special handling for std::byte - convert to unsigned long long for arithmetic
+				unsigned long long sum = 0;
+				int count = 0;
+
+				// Accumulate all values in the region
+				for (int x = row_start; x < row_end; ++x) {
+					for (int y = col_start; y < col_end; ++y) {
+						sum += static_cast<unsigned long long>(static_cast<unsigned char>(original[x][y]));
+						++count;
+					}
+				}
+
+				// Calculate average and assign
+				if (count > 0) {
+					// Use rounding for byte values
+					unsigned char avg = static_cast<unsigned char>((sum + count / 2) / count);
+					resampled[i][j] = static_cast<std::byte>(avg);
+				}
+				else {
+					// Should not happen theoretically, but for safety
+					resampled[i][j] = std::byte{ 0 };
+				}
+			}
+			else {
+				// Original handling for arithmetic types
+				using AccumType = std::conditional_t<std::is_floating_point_v<T>,
+					long double,
+					long long>;
+				AccumType sum = 0;
+				int count = 0;
+
+				// Accumulate all values in the region
+				for (int x = row_start; x < row_end; ++x) {
+					for (int y = col_start; y < col_end; ++y) {
+						sum += static_cast<AccumType>(original[x][y]);
+						++count;
+					}
+				}
+
+				// Calculate average and assign
+				if (count > 0) {
+					if constexpr (std::is_floating_point_v<T>) {
+						resampled[i][j] = static_cast<T>(sum / count);
+					}
+					else {
+						// Use rounding for integer types
+						resampled[i][j] = static_cast<T>((sum + count / 2) / count);
+					}
+				}
+				else {
+					// Should not happen theoretically, but for safety
+					resampled[i][j] = T{};
+				}
+			}
+		}
+	}
+
+	return resampled;
+}
+
+// Nearest neighbor resampling implementation
+template<typename T>
+std::vector<std::vector<T>> resample2DArrayWithNearestNeighbor(
+	const std::vector<std::vector<T>>& original,
+	int new_rows,
+	int new_cols) {
+
+	static_assert(std::is_arithmetic_v<T> || std::is_same_v<T, std::byte>,
+		"T must be an arithmetic type or std::byte");
+
+	if (new_rows <= 0 || new_cols <= 0) {
+		throw std::invalid_argument("New dimensions must be positive");
+	}
+
+	const int original_rows = static_cast<int>(original.size());
+	const int original_cols = static_cast<int>(original[0].size());
+
+	if (original_rows == 0 || original_cols == 0) {
+		throw std::invalid_argument("Original grid cannot be empty");
+	}
+
+	std::vector<std::vector<T>> resampled(new_rows, std::vector<T>(new_cols));
+
+	const double row_scale = static_cast<double>(original_rows) / new_rows;
+	const double col_scale = static_cast<double>(original_cols) / new_cols;
+
+	for (int i = 0; i < new_rows; ++i) {
+		for (int j = 0; j < new_cols; ++j) {
+			const int orig_row = std::min(static_cast<int>(i * row_scale + 0.5), original_rows - 1);
+			const int orig_col = std::min(static_cast<int>(j * col_scale + 0.5), original_cols - 1);
+			resampled[i][j] = original[orig_row][orig_col];
+		}
+	}
+
+	return resampled;
+}
+
+// Bilinear interpolation resampling implementation (for floating-point types only)
+template<typename T>
+std::vector<std::vector<T>> resample2DArrayWithBilinear(
+	const std::vector<std::vector<T>>& original,
+	int new_rows,
+	int new_cols) {
+
+	static_assert(std::is_floating_point_v<T>,
+		"Bilinear interpolation requires floating-point type");
+
+	if (new_rows <= 0 || new_cols <= 0) {
+		throw std::invalid_argument("New dimensions must be positive");
+	}
+
+	const int original_rows = static_cast<int>(original.size());
+	const int original_cols = static_cast<int>(original[0].size());
+
+	if (original_rows == 0 || original_cols == 0) {
+		throw std::invalid_argument("Original grid cannot be empty");
+	}
+
+	std::vector<std::vector<T>> resampled(new_rows, std::vector<T>(new_cols));
+
+	const double row_scale = static_cast<double>(original_rows - 1) / (new_rows - 1);
+	const double col_scale = static_cast<double>(original_cols - 1) / (new_cols - 1);
+
+	for (int i = 0; i < new_rows; ++i) {
+		for (int j = 0; j < new_cols; ++j) {
+			const double orig_row = i * row_scale;
+			const double orig_col = j * col_scale;
+
+			const int row0 = static_cast<int>(std::floor(orig_row));
+			const int row1 = std::min(row0 + 1, original_rows - 1);
+			const int col0 = static_cast<int>(std::floor(orig_col));
+			const int col1 = std::min(col0 + 1, original_cols - 1);
+
+			const double row_weight = orig_row - row0;
+			const double col_weight = orig_col - col0;
+
+			const T val00 = original[row0][col0];
+			const T val01 = original[row0][col1];
+			const T val10 = original[row1][col0];
+			const T val11 = original[row1][col1];
+
+			const T interpolated = static_cast<T>(
+				val00 * (1 - row_weight) * (1 - col_weight) +
+				val01 * (1 - row_weight) * col_weight +
+				val10 * row_weight * (1 - col_weight) +
+				val11 * row_weight * col_weight
+				);
+
+			resampled[i][j] = interpolated;
+		}
+	}
+
+	return resampled;
+}
+
+// Convenience function: supports different resampling strategies
+enum class ResampleMethod {
+	Average,
+	NearestNeighbor,
+	Bilinear
+};
+
+template<typename T>
+std::vector<std::vector<T>> resample2DArray(
+	const std::vector<std::vector<T>>& original,
+	int new_rows,
+	int new_cols,
+	ResampleMethod method = ResampleMethod::Average) {
+
+	switch (method) {
+	case ResampleMethod::Average:
+		return resample2DArrayWithAverage(original, new_rows, new_cols);
+	case ResampleMethod::NearestNeighbor:
+		return resample2DArrayWithNearestNeighbor(original, new_rows, new_cols);
+	case ResampleMethod::Bilinear:
+		// Add compile-time check for bilinear interpolation
+		if constexpr (std::is_floating_point_v<T>) {
+			return resample2DArrayWithBilinear(original, new_rows, new_cols);
+		}
+		else {
+			throw std::invalid_argument("Bilinear interpolation requires floating-point type");
+		}
+	default:
+		throw std::invalid_argument("Unsupported resampling method");
+	}
+}

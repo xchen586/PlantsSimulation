@@ -1218,6 +1218,18 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	std::vector<std::vector<unsigned short>> heightMapExportLowRawUShortInvert = ConvertShortMatrixToUShort(heightMapExportLowRawShort);
 	std::vector<std::vector<unsigned short>> heightMapExportLowRawUShort = invert2DArray(heightMapExportLowRawUShortInvert);
 
+	std::vector<std::vector<short>> l1HeightMapExportLowRawShortInvert = resample2DShortWithAverage(l1SmoothHeightMapShort4096, exportHeightMapLowRawX, exportHeightMapLowRawY);
+	std::vector<std::vector<short>> l1HeightMapExportLowRawShort = invert2DArray(l1HeightMapExportLowRawShortInvert);
+
+	std::vector<std::vector<short>> bedrockHeightMapExportLowRawShortInvert = resample2DShortWithAverage(bedrockHeightMapShort4096, exportHeightMapLowRawX, exportHeightMapLowRawY);
+	std::vector<std::vector<short>> bedrockHeightMapExportLowRawShort = invert2DArray(bedrockHeightMapExportLowRawShortInvert);
+
+	std::vector<std::vector<byte>> exposure_byte_low_map_invert = resample2DArray(exposure_byte_map, exportHeightMapLowRawX, exportHeightMapLowRawY);
+	std::vector<std::vector<byte>> exposure_byte_low_map = invert2DArray(exposure_byte_low_map_invert);
+
+	std::vector<std::vector<byte>> exposure_mask_byte_low_map_invert = resample2DArray(exposure_mask_byte_map, exportHeightMapLowRawX, exportHeightMapLowRawY);
+	std::vector<std::vector<byte>> exposure_mask_byte_low_map = invert2DArray(exposure_mask_byte_low_map_invert);
+
 	int exportHeightMapHighRatio = 2;
 	int exportHeightMapHighRawX = exportHeightMapLowRawX * exportHeightMapHighRatio;
 	int exportHeightMapHighRawY = exportHeightMapLowRawY * exportHeightMapHighRatio;
@@ -1282,6 +1294,11 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	char ushort_height_map_low_raw[MAX_PATH];
 	char ushort_height_map_high_raw[MAX_PATH];
 
+	char short_l1_heightmap_export_low_raw[MAX_PATH];
+	char short_bedrock_heightmap_export_low_raw[MAX_PATH];
+	char byte_exposure_low_map_export[MAX_PATH];
+	char byte_exposure_mask_low_map_export[MAX_PATH];
+
 	memset(mesh_heightmap_raw_export, 0, sizeof(char) * MAX_PATH);
 	memset(mesh2_heightmap_raw_export, 0, sizeof(char) * MAX_PATH);
 	memset(pc_heightmap_raw_export, 0, sizeof(char) * MAX_PATH);
@@ -1293,6 +1310,11 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	memset(angle_slope_map_exportout, 0, sizeof(char) * MAX_PATH);
 	memset(ushort_height_map_low_raw, 0, sizeof(char) * MAX_PATH);
 	memset(ushort_height_map_high_raw, 0, sizeof(char) * MAX_PATH);
+
+	memset(short_l1_heightmap_export_low_raw, 0, sizeof(char) * MAX_PATH);
+	memset(short_bedrock_heightmap_export_low_raw, 0, sizeof(char) * MAX_PATH);
+	memset(byte_exposure_low_map_export, 0, sizeof(char) * MAX_PATH);
+	memset(byte_exposure_mask_low_map_export, 0, sizeof(char) * MAX_PATH);
 
 #if __APPLE__
 #if USE_OUTPUT_HEIGHT_MAP_CSV
@@ -1345,6 +1367,18 @@ bool CPlantsSimulation::LoadInputHeightMap()
 #if USE_OUTPUT_HIGH_ROAD_DATA
 	sprintf_s(ushort_height_map_high_raw, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_ushort_height_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth * exportHeightMapHighRatio, m_roadInputHeightMapHeight * exportHeightMapHighRatio);
 #endif
+#endif
+
+#if __APPLE__
+	snprintf(short_l1_heightmap_export_low_raw, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_short_l1_heightmap_export_low_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
+	snprintf(short_bedrock_heightmap_export_low_raw, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_short_bedrock_heightmap_export_low_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
+	snprintf(byte_exposure_low_map_export, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_byte_exposure_low_map_export.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);	
+	snprintf(byte_exposure_mask_low_map_export, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_byte_exposure_mask_low_map_export.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
+#else
+	sprintf_s(short_l1_heightmap_export_low_raw, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_short_l1_heightmap_export_low_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
+	sprintf_s(short_bedrock_heightmap_export_low_raw, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_short_bedrock_heightmap_export_low_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);	
+	sprintf_s(byte_exposure_low_map_export, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_byte_exposure_low_map_export.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
+	sprintf_s(byte_exposure_mask_low_map_export, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_byte_exposure_mask_low_map_export.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
 #endif
 
 #if USE_EXPORT_HEIGHT_MAP
@@ -1400,6 +1434,12 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	bool outputExposureMap = Output2DVectorToRawFile(exposure_map, exposure_map_raw_export);
 	bool outputExposureByteMap = Output2DVectorToRawFile(exposure_byte_map, exposure_byte_map_raw_export);
 #endif
+
+	bool outputL1HeightMapLow = Output2DVectorToRawFile(l1HeightMapExportLowRawShort, short_l1_heightmap_export_low_raw);
+	bool outputBedrockHeightMapLow = Output2DVectorToRawFile(bedrockHeightMapExportLowRawShort, short_bedrock_heightmap_export_low_raw);
+	bool outputExposureByteLowMap = Output2DVectorToRawFile(exposure_byte_low_map, byte_exposure_low_map_export);
+	bool outputExposureMaskByteLowMap = Output2DVectorToRawFile(exposure_mask_byte_low_map, byte_exposure_mask_low_map_export);
+
 	return true;
 }
 
