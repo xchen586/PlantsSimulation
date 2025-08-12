@@ -271,7 +271,7 @@ bool CPsInstanceExporter::loadDungeonsPoiFromCSV(const string& filePath, const s
 	return true;
 }
 
-bool CPsInstanceExporter::loadPointInstanceFromCSV(const string& filePath, const string& outputSubDir, InstanceSubOutputMap& outputMap, CAffineTransform transform, double cellSize, int32_t lod, InstanceType instanceType, bool canRemovedFromCave = false)
+bool CPsInstanceExporter::loadPointInstanceFromCSV(const string& filePath, const string& outputSubDir, InstanceSubOutputMap& outputMap, CAffineTransform transform, double cellSize, int32_t lod, InstanceType instanceType, bool canRemovedFromCave = false, bool isLevel1POI = false)
 {
 	char delimiter = ',';
 	int columnCount = countColumnsInCSV(filePath, delimiter);
@@ -532,7 +532,7 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 			SetupInstanceSubOutput(instance.posX, instance.posY, instance.posZ, transform, cellSize, m_lod, sub);
 
 			sub->index = instance.index;
-			InstanceType instanceType = m_isLevel1Instances ? InstanceType::InstanceType_Tree_level1 : InstanceType::InstanceType_Tree;
+			InstanceType instanceType = m_isLevel1Instances ? InstanceType::InstanceType_Tree_Level1 : InstanceType::InstanceType_Tree;
 			sub->instanceType = static_cast<unsigned int>(instanceType);
 			sub->variant = instance.m_instance.treeType;
 			sub->age = static_cast<double>(instance.m_instance.age / instance.m_instance.maxAge);
@@ -558,7 +558,7 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 		bool getMostTravelledPoint = loadPointInstanceFromCSV(m_mostTravelledPointFilePath, subFullOutput_Dir_Poi, m_outputPoiMap, transform, cellSize, m_lod, InstanceType::InstanceType_NPC);
 		//unsigned int mostDistantVariant = static_cast<unsigned int>(PointType::Point_MostDistant);
 		bool getMostDistantPoint = loadPointInstanceFromCSV(m_mostDistantPointFilePath, subFullOutput_Dir_Poi, m_outputPoiMap, transform, cellSize, m_lod, InstanceType::InstanceType_Resource);
-		bool getCentroidPoint = loadPointInstanceFromCSV(m_centroidPointFilePath, subFullOutput_Dir_Poi, m_outputPoiMap, transform, cellSize, m_lod, InstanceType::InstanceType_spawn_Point, false);
+		bool getCentroidPoint = loadPointInstanceFromCSV(m_centroidPointFilePath, subFullOutput_Dir_Poi, m_outputPoiMap, transform, cellSize, m_lod, InstanceType::InstanceType_Spawn_Point, false);
 		int beforeMergeDungeonPoiCount = GetInstancesCountFromInstanceSubOutputMap(m_outputPoiMap);
 		std::cout << "Before merge dungeon poi count is : " << beforeMergeDungeonPoiCount << std::endl;
 		bool getDungeonPoi = loadDungeonsPoiFromCSV(m_dungeonsPoiCsvLevel0Path, subFullOutput_Dir_Poi, m_outputPoiMap, transform, cellSize, m_lod);
