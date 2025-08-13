@@ -19,7 +19,7 @@ class CPlantsSimulation
 {
 public:
 	CPlantsSimulation(const string& outputDir, const string& inputTreeList, const string& inputLevel1TreeList, const string& inputImageFile, const string& inputImageMataFile, const string& mesh_HeightMapFile, const string& mesh2_HeightMapFile, const string& pc_HeightMapFile, const string& l1_HeightMapFile, const string& bedrock_HeightMapFile,
-		const string& mesh_HeightMasksFile, const string& mesh2_HeightMasksFile, const string& pc_HeightMasksFile, const string& l1_HeightMasksFile, const string& bedrock_HeightMaskFile, const string& lakes_HeightMasksFile, const string& level1Lakes_HeightMasksFile, const string& mostTravelledPointFile, const string& mostDistantPointFile, const string& centroidPointFile,
+		const string& mesh_HeightMasksFile, const string& mesh2_HeightMasksFile, const string& pc_HeightMasksFile, const string& l1_HeightMasksFile, const string& bedrock_HeightMaskFile, const string& lakes_HeightMasksFile, const string& level1Lakes_HeightMasksFile, const string& mostTravelledPointFile, const string& mostDistantPointFile, const string& level1PoiPointFile, const string& centroidPointFile,
 		const string& cavesPointCloudLevel0File, const string& cavesPointCloudLevel1File, const string& dungeonsPOILevel0File, const string& dungeonsPOILevel1File,
 		const string& regionsRawFile, const string& regionsInfoFile, const string& outputFile_level0, const string& fullOutputFile_level0, const string& pcFullOutputFile_level0, const string& outputFile_level1, const string& fullOutputFile_level1, const string& pcFullOutputFile_level1, int32_t lod, float forestAge, int iteration, int tiles, int tileX, int tileY, int tileScale, int roadHeightMapScaleWidth, int roadHeightMapScaleHeight)
 		: m_outputDir(outputDir)
@@ -41,6 +41,7 @@ public:
 		, m_bedrockHeightMasksFile(bedrock_HeightMaskFile)
 		, m_mostTravelledPointFile(mostTravelledPointFile)
 		, m_mostDistantPointFile(mostDistantPointFile)
+		, m_level1PoiPointFile(level1PoiPointFile)
 		, m_centroidPointFile(centroidPointFile)
 		, m_cavesPointCloudLevel0File(cavesPointCloudLevel0File)
 		, m_cavesPointCloudLevel1File(cavesPointCloudLevel1File)
@@ -95,6 +96,7 @@ private:
 	string m_bedrockHeightMasksFile;
 	string m_mostTravelledPointFile;
 	string m_mostDistantPointFile;
+	string m_level1PoiPointFile;
 	string m_centroidPointFile;
 	string m_cavesPointCloudLevel0File;
 	string m_cavesPointCloudLevel1File;
@@ -171,7 +173,7 @@ private:
 
 	std::vector<std::pair<std::vector<Point>, int>>* LoadCaveNodesFromPointCloud(const std::string& filePath);
 	bool loadPoisLocationsFromCSV(const string& filePath, std::vector<Point>& poisLocations);
-	bool loadAllPoisLocationsFromCSV();
+	bool loadAllSurfacePoisLocationsFromCSV();
 	bool SaveCavesAsRoadMap(std::vector<std::pair<std::vector<Point>, int>>* p2dCaveLevel0Nodes, bool invert/* = false*/);
 	bool SaveCavesAsObj(std::vector<std::pair<std::vector<Point>, int>>* p2dCaveLevel0Nodes);
 	

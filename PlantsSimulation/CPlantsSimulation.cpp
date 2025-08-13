@@ -1951,10 +1951,10 @@ bool CPlantsSimulation::LoadInputData()
 
 	bool outputLake = OutputLakeRawData();
 
-	bool loadAllPois = loadAllPoisLocationsFromCSV();
-	if (!loadAllPois)
+	bool loadAllSurfacePois = loadAllSurfacePoisLocationsFromCSV();
+	if (!loadAllSurfacePois)
 	{
-		std::cout << "Failed to load all pois locations!" << std::endl;
+		std::cout << "Failed to load all surface pois locations!" << std::endl;
 	}
 
 	ret = LoadInputHeightMap();
@@ -2149,8 +2149,9 @@ bool CPlantsSimulation::SaveCavesAsRoadMap(std::vector<std::pair<std::vector<Poi
 	return outputCaveRoadMap;
 }
 
-bool CPlantsSimulation::loadAllPoisLocationsFromCSV()
+bool CPlantsSimulation::loadAllSurfacePoisLocationsFromCSV()
 {
+	//To avoid tree instances appear in the surface pois locations
 	m_PoisLocations.clear();
 	bool loadMostDistant = loadPoisLocationsFromCSV(m_mostDistantPointFile, m_PoisLocations);
 	bool loadMostTravelled = loadPoisLocationsFromCSV(m_mostTravelledPointFile, m_PoisLocations);
@@ -2309,6 +2310,7 @@ bool CPlantsSimulation::LoadInstanceExporter()
 	m_pInstanceExporter->setMetaInfo(m_topLayerMeta);
 	m_pInstanceExporter->setMostTravelledPointFilePath(m_mostTravelledPointFile);
 	m_pInstanceExporter->setMostDistantPointFilePath(m_mostDistantPointFile);
+	m_pInstanceExporter->setLevel1PoiPointFilePath(m_level1PoiPointFile);
 	m_pInstanceExporter->setCentroidPointFilePath(m_centroidPointFile);
 	m_pInstanceExporter->setDungeonsPoiCsvLevel0Path(m_dungeonsPOILevel0File);
 	m_pInstanceExporter->setDungeonsPoiCsvLevel1Path(m_dungeonsPOILevel1File);

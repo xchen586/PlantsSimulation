@@ -46,6 +46,10 @@ public:
 	{
 		m_mostDistantPointFilePath = filePath;
 	}
+	void setLevel1PoiPointFilePath(const string& filePath)
+	{
+		m_level1PoiPointFilePath = filePath;
+	}
 	void setCentroidPointFilePath(const string& filePath)
 	{
 		m_centroidPointFilePath = filePath;
@@ -105,6 +109,7 @@ protected:
 	InputImageMetaInfo* m_pMetaInfo;
 	string m_mostTravelledPointFilePath;
 	string m_mostDistantPointFilePath;
+	string m_level1PoiPointFilePath;
 	string m_centroidPointFilePath;
 	string m_dungeonsPoiCsvLevel0Path;
 	string m_dungeonsPoiCsvLevel1Path;
