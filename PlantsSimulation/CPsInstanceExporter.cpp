@@ -568,15 +568,46 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 	{
 		//unsigned int mostTravelledVariant = static_cast<unsigned int>(PointType::Point_MostTravelled);
 		bool getMostTravelledPoint = loadPointInstanceFromCSV(m_mostTravelledPointFilePath, subFullOutput_Dir_Poi, m_outputPoiMap, transform, cellSize, m_lod, InstanceType::InstanceType_NPC);
+		if (!getMostTravelledPoint)
+		{
+			std::cout << "Failed to load the most travelled point file : " << m_mostTravelledPointFilePath << std::endl;
+			return false;
+		}
 		//unsigned int mostDistantVariant = static_cast<unsigned int>(PointType::Point_MostDistant);
 		bool getMostDistantPoint = loadPointInstanceFromCSV(m_mostDistantPointFilePath, subFullOutput_Dir_Poi, m_outputPoiMap, transform, cellSize, m_lod, InstanceType::InstanceType_Resource);
+		if (!getMostDistantPoint)
+		{
+			std::cout << "Failed to load the most distant point file : " << m_mostDistantPointFilePath << std::endl;
+			return false;
+		}
 		bool getCentroidPoint = loadPointInstanceFromCSV(m_centroidPointFilePath, subFullOutput_Dir_Poi, m_outputPoiMap, transform, cellSize, m_lod, InstanceType::InstanceType_Spawn_Point, false);
+		if (!getCentroidPoint)
+		{
+			std::cout << "Failed to load the centroid point file : " << m_centroidPointFilePath << std::endl;
+			return false;
+		}
 		int beforeMergeDungeonPoiCount = GetInstancesCountFromInstanceSubOutputMap(m_outputPoiMap);
 		std::cout << "Before merge dungeon poi count is : " << beforeMergeDungeonPoiCount << std::endl;
 		bool getDungeonPoi = loadDungeonsPoiFromCSV(m_dungeonsPoiCsvLevel0Path, subFullOutput_Dir_Poi, m_outputPoiMap, transform, cellSize, m_lod);
+		if (!getDungeonPoi)
+		{
+			std::cout << "Failed to load the dungeon poi file : " << m_dungeonsPoiCsvLevel0Path << std::endl;
+			return false;
+		}
 		int afterMergeDungeonPoiCount = GetInstancesCountFromInstanceSubOutputMap(m_outputPoiMap);
 		std::cout << "loadDungeonsPoiFromCSV is : " << getDungeonPoi << std::endl;
 		std::cout << "After merge dungeon poi count is : " << afterMergeDungeonPoiCount << std::endl;
+	}
+	else
+	{
+		bool getLevel1Poi = loadPointInstanceFromCSV(m_level1PoiPointFilePath, subFullOutput_Dir_Poi, m_outputPoiMap, transform, cellSize, m_lod, InstanceType::InstanceType_POI_Level1, false, true);
+		if (!getLevel1Poi)
+		{
+			std::cout << "Failed to load the level 1 poi file : " << m_level1PoiPointFilePath << std::endl;
+			return false;
+		}
+		int level1PoiCount = GetInstancesCountFromInstanceSubOutputMap(m_outputPoiMap);
+		std::cout << "The level 1 poi count is : " << level1PoiCount << std::endl;
 	}
 	
 	std::filesystem::path outputSubsDirPath = outputSubsDir;
