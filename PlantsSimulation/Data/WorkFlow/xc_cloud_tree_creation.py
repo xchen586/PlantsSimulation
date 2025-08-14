@@ -491,12 +491,13 @@ TREE_LEVEL1_INSTANCE = 4
 DUNGEON_QUEST_INSTANCE = 5
 DUNGEON_LOOT_INSTANCE = 6
 DUNGEON_MOD_INSTANCE = 7
+LEVEL1_POI_INSTANCE = 8
 InstanceType_Attribute = 'InstanceType'
 Variant_Attribute = 'Variant'
 Slope_Attribute = 'Slope'
 Index_Attribute = 'Index'
 
-def calculate_id_for_instance(instance_type, tree_index, spawn_index, npc_index, resource_index, tree_level1_index, dungeon_quest_index, dungeon_loot_index, dungeon_mod_index):
+def calculate_id_for_instance(instance_type, tree_index, spawn_index, npc_index, resource_index, tree_level1_index, dungeon_quest_index, dungeon_loot_index, dungeon_mod_index, level1_poi_index):
     # Calculate the extra column value based on the instance type and indices
     instance_string = 'Others'
     index = 0
@@ -524,7 +525,10 @@ def calculate_id_for_instance(instance_type, tree_index, spawn_index, npc_index,
         index = dungeon_loot_index
     elif instance_type == DUNGEON_MOD_INSTANCE:
         instance_string = 'Dungeon_Mod'
-        index = dungeon_mod_index   
+        index = dungeon_mod_index
+    elif instance_type == LEVEL1_POI_INSTANCE:
+        instance_string = 'Poi_Level1'
+        index = level1_poi_index   
     
     extra_value = f'{instance_string} {index}'
     return extra_value
@@ -559,7 +563,7 @@ def add_extra_column_to_csv(input_file, output_file, extra_column_name):
         instance_type = row[InstanceType_Attribute]
         instance_index = row[Index_Attribute]
         extra_id = instance_index
-        return calculate_id_for_instance(instance_type, extra_id, extra_id, extra_id, extra_id, extra_id, extra_id, extra_id, extra_id)
+        return calculate_id_for_instance(instance_type, extra_id, extra_id, extra_id, extra_id, extra_id, extra_id, extra_id, extra_id, extra_id)
     
     merged_df[extra_column_name] = merged_df.apply(update_id, axis=1)
 
@@ -1936,7 +1940,8 @@ def tree_instances_generation(config_path):
     road_regions_namedb_file_path = os.path.join(road_input_folder, road_regions_namedb_file_name)
 
     most_travelled_points_path = os.path.join(road_output_folder, f'{tiles_count}_{tiles_x}_{tiles_y}_Most_Travelled_Points.csv') 
-    most_distant_points_path = os.path.join(road_output_folder, f'{tiles_count}_{tiles_x}_{tiles_y}_Most_Distant_Points.csv') 
+    most_distant_points_path = os.path.join(road_output_folder, f'{tiles_count}_{tiles_x}_{tiles_y}_Most_Distant_Points.csv')
+    level1_poi_points_path = os.path.join(road_output_folder, f'{tiles_count}_{tiles_x}_{tiles_y}_Level1_POI_Points.csv')
     region_centroid_points_path = os.path.join(road_output_folder, f'{tiles_count}_{tiles_x}_{tiles_y}_Region_Centroid_Points.csv')
     regions_raw_path = os.path.join(road_output_folder, f'{tiles_count}_{tiles_x}_{tiles_y}_regions.raw') 
     regions_info_name = f'regions_info.csv'
@@ -2305,6 +2310,7 @@ def tree_instances_generation(config_path):
         create_or_update_ini_file(tree_ini_path, section_input, 'Level1_Lakes_HeightMap_Mask', level1_lakes_heightmap_make_path)
         create_or_update_ini_file(tree_ini_path, section_input, 'Most_Travelled_Points', most_travelled_points_path)
         create_or_update_ini_file(tree_ini_path, section_input, 'Most_Distant_Points', most_distant_points_path)
+        create_or_update_ini_file(tree_ini_path, section_input, 'Level1_POI_Points', level1_poi_points_path)
         create_or_update_ini_file(tree_ini_path, section_input, 'Region_Centroid_Points', region_centroid_points_path)
         create_or_update_ini_file(tree_ini_path, section_input, 'Caves_Point_Cloud_Level_0', caves_point_cloud_level_0_file_path)
         create_or_update_ini_file(tree_ini_path, section_input, 'Caves_Point_Cloud_Level_1', caves_point_cloud_level_1_file_path)
