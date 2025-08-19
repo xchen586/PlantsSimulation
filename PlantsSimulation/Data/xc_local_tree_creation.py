@@ -690,12 +690,14 @@ def xc_process_files_entity(api : voxelfarmclient.rest, project_id, folder_id, r
     print(f'--------Created entity {result.id} for {name} --------')
     return result
 
-def create_geochem_tree_entity(api, project_id, folder_id, geo_chemical_folder, tiles_size, tiles_x, tiles_y, level, version : int):
+def create_geochem_tree_entity(api, project_id, folder_id, geo_chemical_folder, tiles_size, tiles_x, tiles_y, level, isAlllevelGeochem: bool, version : int):
     extra_column_name = 'Id'
     geochems_project_id = project_id
     geochems_folder_id = folder_id
     
     entity_basename = f'GeoChemical_instances_{tiles_size}_{tiles_x}_{tiles_y}_{level}'
+    if isAlllevelGeochem:
+        entity_basename = f'GeoChemical_instances_all_level_{tiles_size}_{tiles_x}_{tiles_y}'
 
     merged_csv_name = f'{tiles_size}_{tiles_x}_{tiles_y}_geo_merged.csv'
     merged_csv_path = os.path.join(geo_chemical_folder, merged_csv_name)
@@ -2450,14 +2452,19 @@ def tree_instances_generation(config_path):
     
         if run_level_0_instances:
             merge_instances_csv_files_multiple(geo_chemical_level0_trees_folder_path, geo_chemical_level0_pois_folder_path, destination_folder=geo_chemical_level0_folder_path)
-            create_geochem_tree_entity(api, Project_id, geochem_result_folder_id, geo_chemical_level0_folder_path, Tiles_size, Tiles_x, Tiles_y, 0, project_output_version)
+            create_geochem_tree_entity(api, Project_id, geochem_result_folder_id, geo_chemical_level0_folder_path, Tiles_size, Tiles_x, Tiles_y, 0, False, project_output_version)
             print(f'create_geochem_tree_entity level 0 from {geo_chemical_level0_folder_path}')
         
         if run_level_1_instances:
             merge_instances_csv_files_multiple(geo_chemical_level1_trees_folder_path, geo_chemical_level1_pois_folder_path, destination_folder=geo_chemical_level1_folder_path)
-            create_geochem_tree_entity(api, Project_id, geochem_result_folder_id, geo_chemical_level1_folder_path, Tiles_size, Tiles_x, Tiles_y, 1, project_output_version)
+            create_geochem_tree_entity(api, Project_id, geochem_result_folder_id, geo_chemical_level1_folder_path, Tiles_size, Tiles_x, Tiles_y, 1, False, project_output_version)
             print(f'create_geochem_tree_entity level 1 from {geo_chemical_level1_folder_path}')
-        
+            
+        if run_level_0_instances and run_level_1_instances:
+            merge_instances_csv_files_multiple(geo_chemical_level0_folder_path, geo_chemical_level1_folder_path, destination_folder=geo_chemical_folder_path)
+            create_geochem_tree_entity(api, Project_id, geochem_result_folder_id, geo_chemical_folder_path, Tiles_size, Tiles_x, Tiles_y, 2, True, project_output_version)
+            print(f'create_geochem_tree_entity all level from {geo_chemical_folder_path}')
+            
         if os.path.exists(tree_height_file_path):
             process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, tree_height_file_path, api.entity_type.VoxelTerrain, final_height_layer_entity_base_name, project_output_version, color=True)
         
@@ -2808,7 +2815,7 @@ caves_voxelization_generation = False
 caves_upload_generation = False
 only_road_generation = False
 
-only_run_level_0_instances = True
+only_run_level_0_instances = False
 only_run_level_1_instances = False
 only_run_POIs = False
 only_load_Road = False
@@ -2819,9 +2826,12 @@ keep_old_tree_files = False
 #smooth_layer_generation_without_road = True
 #road_only_pois_generation = True
 #test_only_tree_generation = True
-test_only_dungeon_poi_generation = True
+#test_only_dungeon_poi_generation = True
+test_only_pois_generation = True
 
-#test_only_pois_generation = True
+#only_run_level_0_instances = True
+only_run_level_1_instances = True
+
 keep_old_tree_files = True
 
 
