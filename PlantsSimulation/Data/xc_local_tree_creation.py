@@ -1000,7 +1000,6 @@ def merge_instances_csv_files_multiple(*source_folders, destination_folder):
             elif len(folders_with_file) > 1:
                 # File exists in multiple folders, merge them with column handling
                 source_paths = [os.path.join(folder, file_name) for folder in folders_with_file]
-                #merge_multiple_csv_files(source_paths, dest_path)
                 merge_multiple_csv_files_with_variable_columns(source_paths, dest_path)
                 print(f"Merged from {len(folders_with_file)} folders: {file_name}")
                 
@@ -1024,11 +1023,12 @@ def merge_multiple_csv_files_with_variable_columns(source_file_paths, dest_path)
     
     try:
         # First pass: collect all unique columns from all files
-        all_columns = OrderedDict()  # Use OrderedDict to maintain column order
-        file_headers = {}  # Store header for each file
+        all_columns = []  # List to maintain order of first appearance
+        file_data = []    # Store all file data for processing
         
         print(f"Analyzing column structures for {len(source_file_paths)} files...")
         
+        # Read all files and collect their headers and data
         for file_path in source_file_paths:
             try:
                 with open(file_path, 'r', newline='', encoding='utf-8') as source_file:
@@ -1036,79 +1036,157 @@ def merge_multiple_csv_files_with_variable_columns(source_file_paths, dest_path)
                     header = next(reader, None)
                     
                     if header:
-                        file_headers[file_path] = header
-                        # Add columns to our master list, preserving order
+                        # Clean up header (strip whitespace)
+                        header = [col.strip() for col in header]
+                        
+                        # Add new columns to master list (preserve order of first appearance)
                         for col in header:
                             if col not in all_columns:
-                                all_columns[col] = len(all_columns)
+                                all_columns.append(col)
+                        
+                        # Read all data rows
+                        rows = []
+                        for row in reader:
+                            rows.append(row)
+                        
+                        file_data.append({
+                            'path': file_path,
+                            'header': header,
+                            'rows': rows
+                        })
+                        
                         print(f"File {os.path.basename(file_path)} has {len(header)} columns: {header}")
+                        print(f"  -> {len(rows)} data rows")
                     else:
-                        file_headers[file_path] = []
                         print(f"Warning: File {file_path} has no header")
                         
             except Exception as e:
-                print(f"Error reading header from {file_path}: {e}")
-                file_headers[file_path] = []
+                print(f"Error reading file {file_path}: {e}")
                 continue
         
         if not all_columns:
             print("No valid headers found in any file")
             return
         
-        unified_header = list(all_columns.keys())
-        print(f"Unified header with {len(unified_header)} columns: {unified_header}")
+        print(f"Unified header with {len(all_columns)} columns: {all_columns}")
         
-        # Second pass: write merged file with unified structure
+        # Write merged file with unified structure
         with open(dest_path, 'w', newline='', encoding='utf-8') as dest_file:
             writer = csv.writer(dest_file)
             
             # Write unified header
-            writer.writerow(unified_header)
+            writer.writerow(all_columns)
             
-            # Process each source file
-            for file_path in source_file_paths:
-                try:
-                    with open(file_path, 'r', newline='', encoding='utf-8') as source_file:
-                        reader = csv.reader(source_file)
-                        
-                        # Skip header row
-                        file_header = next(reader, None)
-                        if not file_header:
-                            continue
-                        
-                        # Create column mapping for this file
-                        col_mapping = {}
-                        for i, col_name in enumerate(file_header):
-                            if col_name in all_columns:
-                                col_mapping[i] = all_columns[col_name]
-                        
-                        # Process data rows
-                        rows_processed = 0
-                        for row in reader:
-                            # Create output row with default values (0)
-                            output_row = ['0'] * len(unified_header)
-                            
-                            # Fill in values from current file
-                            for source_idx, target_idx in col_mapping.items():
-                                if source_idx < len(row) and row[source_idx] is not None:
-                                    output_row[target_idx] = row[source_idx]
-                            
-                            writer.writerow(output_row)
-                            rows_processed += 1
-                        
-                        print(f"Processed {rows_processed} rows from {os.path.basename(file_path)}")
-                        
-                except Exception as e:
-                    print(f"Error processing data from {file_path}: {e}")
-                    continue
+            # Process each file's data
+            total_rows = 0
+            for file_info in file_data:
+                file_path = file_info['path']
+                file_header = file_info['header']
+                file_rows = file_info['rows']
+                
+                print(f"Processing {len(file_rows)} rows from {os.path.basename(file_path)}")
+                
+                # Create column mapping from file columns to unified columns
+                column_mapping = {}
+                for i, col in enumerate(file_header):
+                    if col in all_columns:
+                        column_mapping[i] = all_columns.index(col)
+                
+                # Process each data row
+                for row in file_rows:
+                    # Initialize output row with '0' for all columns
+                    output_row = ['0'] * len(all_columns)
+                    
+                    # Fill in actual values from this file
+                    for file_col_idx, unified_col_idx in column_mapping.items():
+                        if file_col_idx < len(row):
+                            # Use actual value if it exists and is not empty
+                            value = row[file_col_idx].strip() if row[file_col_idx] else '0'
+                            output_row[unified_col_idx] = value if value else '0'
+                    
+                    writer.writerow(output_row)
+                    total_rows += 1
+                
+                print(f"  -> Processed {len(file_rows)} rows from {os.path.basename(file_path)}")
         
         print(f"Successfully created merged file: {dest_path}")
+        print(f"Total rows written: {total_rows}")
+        print(f"Final structure: {len(all_columns)} columns - {all_columns}")
                     
     except Exception as e:
         print(f"Error in merge_multiple_csv_files_with_variable_columns: {e}")
         # Fall back to original method if this fails
         print("Falling back to original merge method...")
         merge_multiple_csv_files(source_file_paths, dest_path)
+
+def merge_multiple_csv_files(source_file_paths, dest_path):
+    """
+    Original merge function - kept as fallback.
+    Merge multiple CSV files, keeping the header from the first file.
+    
+    Args:
+        source_file_paths (list): List of source CSV file paths
+        dest_path (str): Path to destination CSV file
+    """
+    if not source_file_paths:
+        return
+    
+    try:
+        with open(dest_path, 'w', newline='', encoding='utf-8') as dest_file:
+            writer = csv.writer(dest_file)
+            header_written = False
+            
+            for i, file_path in enumerate(source_file_paths):
+                try:
+                    with open(file_path, 'r', newline='', encoding='utf-8') as source_file:
+                        reader = csv.reader(source_file)
+                        
+                        # Handle header
+                        header = next(reader, None)
+                        if header:
+                            if not header_written:
+                                writer.writerow(header)
+                                header_written = True
+                            # Skip header for subsequent files (assuming same structure)
+                        
+                        # Write data rows
+                        for row in reader:
+                            writer.writerow(row)
+                            
+                except Exception as e:
+                    print(f"Error reading file {file_path}: {e}")
+                    continue
+                    
+    except Exception as e:
+        # If CSV parsing fails, fall back to line-by-line merge
+        print(f"CSV parsing failed, using line-by-line merge: {e}")
+        merge_multiple_files_line_by_line(source_file_paths, dest_path)
+
+def merge_multiple_files_line_by_line(source_file_paths, dest_path):
+    """
+    Fallback method: merge multiple files line by line.
+    """
+    try:
+        with open(dest_path, 'w', newline='', encoding='utf-8') as dest_file:
+            for i, file_path in enumerate(source_file_paths):
+                try:
+                    with open(file_path, 'r', newline='', encoding='utf-8') as source_file:
+                        lines = source_file.readlines()
+                        
+                        if i == 0:
+                            # First file: write all lines
+                            dest_file.writelines(lines)
+                        else:
+                            # Subsequent files: skip header (first line) if it exists
+                            if len(lines) > 1:
+                                dest_file.writelines(lines[1:])
+                                
+                except Exception as e:
+                    print(f"Error reading file {file_path}: {e}")
+                    continue
+                    
+    except Exception as e:
+        print(f"Error writing merged file: {e}")
 
 def merge_multiple_csv_files(source_file_paths, dest_path):
     """
