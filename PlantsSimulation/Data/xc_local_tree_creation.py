@@ -2830,7 +2830,7 @@ keep_old_tree_files = False
 test_only_pois_generation = True
 
 #only_run_level_0_instances = True
-only_run_level_1_instances = True
+#only_run_level_1_instances = True
 
 keep_old_tree_files = True
 
