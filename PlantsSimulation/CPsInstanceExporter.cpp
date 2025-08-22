@@ -145,7 +145,7 @@ bool CPsInstanceExporter::loadDungeonsPoiFromCSV(const string& filePath, const s
 	int index = 0;
 	int originalCount = 0;
 
-	unsigned int variant = 0;
+	unsigned int level = 0;
 	unsigned int slopeValue = 0;
 
 	bool useCellHeight = false;
@@ -196,7 +196,7 @@ bool CPsInstanceExporter::loadDungeonsPoiFromCSV(const string& filePath, const s
 		if (columnCount >= 8) //dungeon poi level
 		{
 			if (std::getline(lineStream, field, ',')) {
-				variant = std::stoi(field);
+				level = std::stoi(field);
 			}
 		}
 		if (columnCount >= 9) //Has dungeon instance type
@@ -246,7 +246,8 @@ bool CPsInstanceExporter::loadDungeonsPoiFromCSV(const string& filePath, const s
 		std::shared_ptr<PointInstanceSubOutput> sub = std::make_shared<PointInstanceSubOutput>();
 		SetupInstanceSubOutput(posX, posY, posZ, transform, cellSize, lod, sub);
 		sub->instanceType = static_cast<unsigned int>(instanceValue);
-		sub->variant = variant;
+		sub->variant = 0; // no variant for dungeon poi
+		sub->level = level;
 		sub->age = 1.0;
 		index++;
 		sub->index = index;
@@ -303,6 +304,12 @@ bool CPsInstanceExporter::loadPointInstanceFromCSV(const string& filePath, const
 	int originalCount = 0;
 
 	unsigned int variant = 0;
+	unsigned int level = 0;
+	if (InstanceType::InstanceType_POI_Level1 == instanceType)
+	{
+		level = 6;
+	}
+	
 	unsigned int slopeValue = 0;
 	PointType pointType = PointType::Point_None; // 0 for most travelled, 1 for most distant, 2 for centroid
 	int nPointType = static_cast<int>(pointType);
@@ -430,6 +437,7 @@ bool CPsInstanceExporter::loadPointInstanceFromCSV(const string& filePath, const
 			SetupInstanceSubOutput(posX, posY, posZ, transform, cellSize, lod, sub);
 			sub->instanceType = static_cast<unsigned int>(instanceType);
 			sub->variant = variant;
+			sub->level = level;
 			sub->age = 1.0;
 			index++;
 			sub->index = index;
@@ -547,6 +555,8 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 			InstanceType instanceType = m_isLevel1Instances ? InstanceType::InstanceType_Tree_Level1 : InstanceType::InstanceType_Tree;
 			sub->instanceType = static_cast<unsigned int>(instanceType);
 			sub->variant = instance.m_instance.treeType;
+			sub->level = 0; // for surface tree, level is 0, for level 1 tree, level is not clear yet
+			//sub->level = m_isLevel1Instances ? 0: 1; // for surface tree, level is always 0
 			sub->age = static_cast<double>(instance.m_instance.age / instance.m_instance.maxAge);
 			sub->slopeValue = instance.slopeValue;
 			sub->MakeIdString();

@@ -760,9 +760,9 @@ bool OutputCSVFileForSubInstances(const string& filePath, std::shared_ptr<Instan
 		return false;
 	}
 #if !USE_OUTPUT_INSTANCE_IDSTRING
-	outputFile << "X,Y,Z,ScaleX,ScaleY,ScaleZ,RotationX,RotationY,RotaionZ,InstanceType,Variant,Age,XWorld,YWorld,ZWorld,InstanceIndex" << std::endl;
+	outputFile << "X,Y,Z,ScaleX,ScaleY,ScaleZ,RotationX,RotationY,RotaionZ,InstanceType,Variant,Age,XWorld,YWorld,ZWorld,InstanceIndex,Level" << std::endl;
 #else
-	outputFile << "X,Y,Z,ScaleX,ScaleY,ScaleZ,RotationX,RotationY,RotaionZ,InstanceType,Variant,Age,XWorld,YWorld,ZWorld, idString" << std::endl;
+	outputFile << "X,Y,Z,ScaleX,ScaleY,ScaleZ,RotationX,RotationY,RotaionZ,InstanceType,Variant,Age,XWorld,YWorld,ZWorld,idString,Level" << std::endl;
 #endif
 	int fullOutputItemCount = 15;
 
@@ -789,10 +789,12 @@ bool OutputCSVFileForSubInstances(const string& filePath, std::shared_ptr<Instan
 			<< sub->posY << ","
 #if !USE_OUTPUT_INSTANCE_IDSTRING
 			<< sub->posZ << ","
-			<< sub->index << std::endl;
+			<< sub->index << ","
+			<< sub->level << std::endl;
 #else
 			<< sub->posZ << ","
-			<< sub->idString << std::endl;
+			<< sub->idString << ","
+			<< sub->level <<std::endl;
 #endif
 
 
@@ -837,7 +839,7 @@ bool OutputAllInstance(string outputFilePath, const InstanceSubOutputMap* pTreeI
 	}*/
 	std::cout << "Start to OutputAllInstance to : " << outputFilePath << std::endl;
 
-	outputFile << "XWorld,YWorld,ZWorld,ScaleX,ScaleY,ScaleZ,RotationX,RotationY,RotaionZ,InstanceType,Variant,Age,idString" << std::endl;
+	outputFile << "XWorld,YWorld,ZWorld,ScaleX,ScaleY,ScaleZ,RotationX,RotationY,RotaionZ,InstanceType,Variant,Age,idString,Level" << std::endl;
 
 	if (pTreeInstances)
 	{
@@ -861,7 +863,8 @@ bool OutputAllInstance(string outputFilePath, const InstanceSubOutputMap* pTreeI
 					<< sub->instanceType << ","
 					<< sub->variant << ","
 					<< sub->age << ","
-					<< sub->idString << std::endl;
+					<< sub->idString << ","
+					<< sub->level << std::endl;
 			}
 		}
 	}
@@ -888,7 +891,8 @@ bool OutputAllInstance(string outputFilePath, const InstanceSubOutputMap* pTreeI
 					<< sub->instanceType << ","
 					<< sub->variant << ","
 					<< sub->age << ","
-					<< sub->idString << std::endl;
+					<< sub->idString << "," 
+					<< sub->level << std::endl;
 			}
 		}
 	}
