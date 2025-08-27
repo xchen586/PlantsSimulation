@@ -369,7 +369,7 @@ TreeClass* CForest::getTreeClassFromStringVector(const std::vector<std::string>&
 	pair<string, DensityMap*> slopeDensityPair = GetDensityKeyPairFromTreeClassWithDensityMapType(tree, slopeDensity->type, slopeDensity);
 	tree->masks.insert(slopeDensityPair);
 	
-#if 0
+#if 1
 	DensityMap* roadDensity = new CRoadAttributeDensityMap();
 	roadDensity->minval = roadCloseMin;
 	roadDensity->maxval = roadCloseMax;
