@@ -3096,14 +3096,14 @@ keep_old_tree_files = False
 
 #smooth_layer_generation_without_road = True
 #road_only_pois_generation = True
-#test_only_tree_generation = True
+test_only_tree_generation = True
 #test_only_dungeon_poi_generation = True
-test_only_pois_generation = True
+#test_only_pois_generation = True
 
 #only_run_level_0_instances = True
 #only_run_level_1_instances = True
 
-keep_old_tree_files = True
+#keep_old_tree_files = True
 
 
 if only_road_generation:
