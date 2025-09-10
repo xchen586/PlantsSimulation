@@ -28,6 +28,8 @@ def common_generation_on_receive_data(
         run_upload_smooth_layer: bool,
         run_make_basemeshes: bool,
         run_upload_basemeshes: bool,
+        run_make_caves: bool,
+        run_upload_caves: bool,
         run_make_tree_instances:bool,
         run_upload_tree_instances: bool,
         run_create_geochem_entity: bool,
@@ -100,6 +102,8 @@ def common_generation_on_receive_data(
             'run_upload_smooth_layer': run_upload_smooth_layer,
             'run_make_basemeshes': run_make_basemeshes,
             'run_upload_basemeshes': run_upload_basemeshes,
+            'run_make_caves': run_make_caves,
+            'run_upload_caves': run_upload_caves,
             'run_make_tree_instances':run_make_tree_instances,
             'run_upload_tree_instances': run_upload_tree_instances,
             'run_create_geochem_entity': run_create_geochem_entity,
@@ -422,6 +426,8 @@ def tree_generation_on_receive_data(
                                              , run_upload_smooth_layer=True
                                              , run_make_basemeshes=True
                                              , run_upload_basemeshes=False
+                                             , run_make_caves=True
+                                             , run_upload_caves=False
                                              , run_make_tree_instances=True
                                              , run_upload_tree_instances=True
                                              , run_create_geochem_entity=True
@@ -456,6 +462,8 @@ def basemeshes_generation_on_receive_data(
                                              , run_upload_smooth_layer=False
                                              , run_make_basemeshes=True
                                              , run_upload_basemeshes=True
+                                             , run_make_caves=False
+                                             , run_upload_caves=False
                                              , run_make_tree_instances=False
                                              , run_upload_tree_instances=False
                                              , run_create_geochem_entity=False
@@ -478,6 +486,44 @@ def basemeshes_generation_on_stage_complete(
 
     return {'success': True, 'complete': False, 'error_info': 'None'}
 
+def caves_generation_on_receive_data(
+        vf : voxelfarmclient.rest, 
+        request : workflow_lambda.request, 
+        lambda_host : workflow_lambda.workflow_lambda_host):
+    
+    lambda_host.log('Received base meshes generation data')
+    result = common_generation_on_receive_data(vf ,request ,lambda_host
+                                             , lambda_name='Caves and Dungeons Meshes Generation'
+                                             , test_tree_result=False
+                                             , run_road_exe=False
+                                             , run_worldgen_road=False
+                                             , run_upload_smooth_layer=False
+                                             , run_make_basemeshes=False
+                                             , run_upload_basemeshes=False
+                                             , run_make_caves=True
+                                             , run_upload_caves=True
+                                             , run_make_tree_instances=False
+                                             , run_upload_tree_instances=False
+                                             , run_create_geochem_entity=False
+                                             , run_generate_road_input=False)
+    return {'success': result.success, 'complete': False, 'error_info': ''}
+
+def caves_generation_on_stage_complete(
+        vf_api : voxelfarmclient.rest,
+        request : workflow_lambda.request,
+        lambda_host : workflow_lambda.workflow_lambda_host):
+    
+    update_type = request.update_type
+    lambda_host.log(f'update_type: {update_type}')
+    
+    if update_type == 'msg':
+        #todo read the file that we attached
+        lambda_host.log('Caves and Dungeons Meshes generation stage complete')
+        #create_view_for_basemesh_entity(vf_api, request, lambda_host) #don't need it any more
+        return {'success': True, 'complete': True, 'error_info': 'None'}
+
+    return {'success': True, 'complete': False, 'error_info': 'None'}
+
 def smooth_layer_generation_on_receive_data(
         vf : voxelfarmclient.rest, 
         request : workflow_lambda.request, 
@@ -492,6 +538,8 @@ def smooth_layer_generation_on_receive_data(
                                              , run_upload_smooth_layer=True
                                              , run_make_basemeshes=False
                                              , run_upload_basemeshes=False
+                                             , run_make_caves=False
+                                             , run_upload_caves=False
                                              , run_make_tree_instances=False
                                              , run_upload_tree_instances=False
                                              , run_create_geochem_entity=False
@@ -527,6 +575,8 @@ def road_input_generation_on_receive_data(
                                              , run_upload_smooth_layer=False
                                              , run_make_basemeshes=True
                                              , run_upload_basemeshes=False
+                                             , run_make_caves=True
+                                             , run_upload_caves=False
                                              , run_make_tree_instances=True
                                              , run_upload_tree_instances=False
                                              , run_create_geochem_entity=False
@@ -592,6 +642,8 @@ def whole_result_generation_on_receive_data(
                                              , run_upload_smooth_layer=True
                                              , run_make_basemeshes=True
                                              , run_upload_basemeshes=True
+                                             , run_make_caves=True
+                                             , run_upload_caves=True
                                              , run_make_tree_instances=True
                                              , run_upload_tree_instances=True
                                              , run_create_geochem_entity=True
@@ -628,6 +680,8 @@ def test_tree_generation_on_receive_data(
                                              , run_upload_smooth_layer=True
                                              , run_make_basemeshes=True
                                              , run_upload_basemeshes=False
+                                             , run_make_caves=True
+                                             , run_upload_caves=False
                                              , run_make_tree_instances=True
                                              , run_upload_tree_instances=True
                                              , run_create_geochem_entity=True
@@ -662,6 +716,8 @@ def test_whole_result_generation_on_receive_data(
                                              , run_upload_smooth_layer=True
                                              , run_make_basemeshes=True
                                              , run_upload_basemeshes=True
+                                             , run_make_caves=True
+                                             , run_upload_caves=True
                                              , run_make_tree_instances=True
                                              , run_upload_tree_instances=True
                                              , run_create_geochem_entity=True
@@ -772,6 +828,14 @@ lambda_host.set_workflow_definition(
                 'icon': 'mesh',
                 'on_receive_data': basemeshes_generation_on_receive_data,
                 'on_stage_done': basemeshes_generation_on_stage_complete,
+            },
+            {
+                'id': 'WORKFLOW_CAVES_GENERATION',
+                'name': 'Workflow Caves and Dungeons Meshes Generation',
+                'description': 'The generation of the Caves and Dungeons meshes',
+                'icon': 'mesh',
+                'on_receive_data': caves_generation_on_receive_data,
+                'on_stage_done': caves_generation_on_stage_complete,
             },
             {
                 'id': 'WORKFLOW_SMOOTH_LAYER_GENERATION',
