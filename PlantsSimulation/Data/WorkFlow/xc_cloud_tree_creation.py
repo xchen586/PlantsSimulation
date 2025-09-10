@@ -311,9 +311,9 @@ def post_process_regions_info_csv(file_path, dest_path, namedb_path):
     df.loc[df['MinHeight'] > 4000, 'type 1'] = 'Frozen'
     df.loc[(df['MinHeight'] < 20) & (df['NearSea'] == 1.0), 'type 1'] = 'Ocean'
 
-    lambda_host.log(df.groupby('type 1').count())
+    lambda_host.log(str(df.groupby('type 1').count()))
 
-    lambda_host.log(df[df['type 1'] == 'Unknown'].describe())
+    lambda_host.log(str(df[df['type 1'] == 'Unknown'].describe()))
 
     df['level'] = 0
 
@@ -343,11 +343,11 @@ def post_process_regions_info_csv(file_path, dest_path, namedb_path):
     # load name dataframe from "namedb_path"
     lambda_host.log(f"Loading namedb from {namedb_path}")
     namedb = pd.read_csv(namedb_path, delimiter=',')
-    lambda_host.log(namedb.describe())
+    lambda_host.log(str(namedb.describe()))
 
     # drop duplicated names
     namedb = namedb.drop_duplicates(subset=['Name'])
-    lambda_host.log(namedb.describe())
+    lambda_host.log(str(namedb.describe()))
 
     # rename type 1 column as "Type"
     df.rename(columns={'type 1': 'Type'}, inplace=True)
@@ -389,7 +389,7 @@ def post_process_regions_info_csv(file_path, dest_path, namedb_path):
 
     # count how many regions have "Unknown" name
     unknown_count = df[df['Name'] == 'Unknown'].count()
-    lambda_host.log(f"Number of regions with unknown name: {unknown_count['RegionId']}")
+    lambda_host.log(str(f"Number of regions with unknown name: {unknown_count['RegionId']}"))
 
     # move the "Name" column to be after the "Type" column
     # get the columns of the dataframe
@@ -1841,6 +1841,31 @@ def xc_process_cave_meshes(api : voxelfarmclient.rest, cave_meshes_output_folder
     do_simple_upload_basemeshes(api, cave_meshes_project_id, cave_meshes_db_folder_Id, level0_cave_output_folder, cave_meshes_version, level0_entity_name, pythoncode_data_folder)
     #do_simple_upload_basemeshes(api, cave_meshes_project_id, cave_meshes_db_folder_Id, level1_cave_output_folder, cave_meshes_version, level1_entity_name, pythoncode_data_folder)
     
+#---------------------------------------------------------------------------------------------------------------------------------------------------------------
+def xc_process_dungeons_meshes(api : voxelfarmclient.rest, dungeons_meshes_output_folder_path, dungeon_meshes_result_project_id, dungeon_meshes_result_folder_id, version : int):
+    
+    level0_dungeon_output_folder = os.path.join(dungeons_meshes_output_folder_path, f'{tile_size}_{tile_x}_{tile_y}_0')
+    level1_dungeon_output_folder = os.path.join(dungeons_meshes_output_folder_path, f'{tile_size}_{tile_x}_{tile_y}_1')
+
+    dungeon_meshes_project_id = Project_id #Project: "My Projects > Pangea Next"
+    
+    dungeon_meshes_version = version
+    level0_entity_name = f'Dungeons_{tile_size}_{tile_x}_{tile_y}_0-ver-{dungeon_meshes_version}'
+    level1_entity_name = f'Dungeons_{tile_size}_{tile_x}_{tile_y}_1-ver-{dungeon_meshes_version}'
+
+    lambda_host.log(f'dungeon_meshes_result_project_id :  {dungeon_meshes_result_project_id}')
+    lambda_host.log(f'dungeon_meshes_result_folder_id :  {dungeon_meshes_result_folder_id}')
+    lambda_host.log(f'level0_db_output_folder :  {level0_dungeon_output_folder}')
+    lambda_host.log(f'level1_db_output_folder :  {level1_dungeon_output_folder}')
+    lambda_host.log(f'version :  {dungeon_meshes_version}')
+    lambda_host.log(f'level0_entity_name :  {level0_entity_name}')
+    lambda_host.log(f'level1_entity_name :  {level1_entity_name}')
+    
+    dungeon_meshes_db_folder_Id = dungeon_meshes_result_folder_id
+    
+    do_simple_upload_basemeshes_swarm(api, dungeon_meshes_project_id, dungeon_meshes_db_folder_Id, level0_dungeon_output_folder, dungeon_meshes_version, level0_entity_name, pythoncode_data_folder)
+    #do_simple_upload_basemeshes_swarm(api, dungeon_meshes_project_id, dungeon_meshes_db_folder_Id, level1_dungeon_output_folder, dungeon_meshes_version, level1_entity_name, pythoncode_data_folder)
+    
 #--------------------------------------------------------------------------------------------------------------------------------------------------------------
 def xc_attach_ini_to_lambda(api : voxelfarmclient.rest, workflow_project_id):
     lambda_ini_exist = os.path.exists(g_Lambda_Info_ini_path)
@@ -1977,6 +2002,7 @@ def tree_instances_generation(config_path):
     worldgen_exe_path = read_ini_value(config_path, section_input, 'worldgen_exe_path')
     txt2las_exe_path = read_ini_value(config_path, section_input, 'txt2las_exe_path')
     basemeshes_exe_path = read_ini_value(config_path, section_input, 'basemeshes_exe_path')
+    basemeshes_origin_exe_path = read_ini_value(config_path, section_input, 'basemeshes_origin_exe_path')
     tree_exe_path = read_ini_value(config_path, section_input, 'tree_exe_path')
     qtree_assets_folder = read_ini_value(config_path, section_input, 'qtree_assets_folder')
     tree_list = read_ini_value(config_path, section_input, 'treelist_data_path')
@@ -1987,6 +2013,7 @@ def tree_instances_generation(config_path):
     basemeshes_db_base_folder = read_ini_value(config_path, section_output, 'basemeshes_db_base_folder')
     basemeshes_caves_db_base_folder = read_ini_value(config_path, section_output, 'basemeshes_caves_db_base_folder')
     basemeshes_dungeons_db_base_folder = read_ini_value(config_path, section_output, 'basemeshes_dungeons_db_base_folder')
+    basemeshes_caves_dungeons_db_base_folder = read_ini_value(config_path, section_output, 'basemeshes_caves_dungeons_db_base_folder')
     basemeshes_cache_base_folder = read_ini_value(config_path, section_output, 'basemeshes_cache_base_folder')
     basemeshes_heightmap_folder = read_ini_value(config_path, section_output, 'basemeshes_heightmap_folder')
     
@@ -2179,8 +2206,10 @@ def tree_instances_generation(config_path):
     basemeshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_debug_level} {basemeshes_heightmap_folder}'
     basemeshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_debug_level} {basemeshes_heightmap_folder}'   
     cave_meshes_flag = 1
-    cave_meshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_all_level} {basemeshes_heightmap_folder} {basemeshes_caves_db_base_folder} {cave_meshes_flag}'
-    cave_meshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_all_level} {basemeshes_heightmap_folder} {basemeshes_caves_db_base_folder} {cave_meshes_flag}'       
+    #cave_meshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_all_level} {basemeshes_heightmap_folder} {basemeshes_caves_db_base_folder} {cave_meshes_flag}'
+    #cave_meshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_all_level} {basemeshes_heightmap_folder} {basemeshes_caves_db_base_folder} {cave_meshes_flag}'       
+    
+    cave_meshvoxelizer0_command = f'{basemeshes_origin_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_caves_db_output_level0_folder} {basemeshes_dungeons_db_output_level0_folder} {basemeshes_cache_base_folder} {basemeshes_caves_dungeons_db_base_folder} {smoothlayer_output_folder}'
     
     if use_basemesh_ini:
         lambda_host.log(f'Start to write standard basemeshes ini files : {basemeshes_ini_path}')
@@ -2676,8 +2705,11 @@ def tree_instances_generation(config_path):
     if run_upload_caves:
         lambda_host.log(f'step for to run_upload_caves')
         cave_meshes_result_folder_id = Workflow_Output_Result_Folder_id
+        dungeon_meshes_result_folder_id = Workflow_Output_Result_Folder_id
         xc_process_cave_meshes(api, basemeshes_caves_db_base_folder, Project_id, cave_meshes_result_folder_id, project_output_version)
         lambda_host.log(f'xc_process_cave_meshes for {basemeshes_caves_db_base_folder}')
+        xc_process_dungeons_meshes(api, basemeshes_dungeons_db_base_folder, Project_id, dungeon_meshes_result_folder_id, project_output_version)
+        lambda_host.log(f'xc_process_dungeons_meshes for {basemeshes_caves_db_base_folder}')
 
     lambda_host.log(f'end for step tree_instances_generation')
     return 0
@@ -2704,14 +2736,15 @@ def tree_config_creation(ini_path):
     road_exe_name = f'NPCTest2.exe'
     road_exe_path = os.path.join(Tools_folder, road_exe_name)
     
+    basemeshes_origin_exe_name = f'BaseMeshVoxelizerOrigin.exe'
     basemeshes_exe_name = f'BaseMeshVoxelizer.exe'
-   
     if not use_basemesh_ini:
         basemeshes_exe_name = f'BaseMeshVoxelizerCmd.exe'
            
-            
     lambda_host.log(f'basemeshes_exe_name is {basemeshes_exe_name}')
+    lambda_host.log(f'basemeshes_origin_exe_name is {basemeshes_origin_exe_name}')
 
+    basemeshes_origin_exe_path = os.path.join(Tools_folder, basemeshes_origin_exe_name)
     basemeshes_exe_path = os.path.join(Tools_folder, basemeshes_exe_name)
     worldgen_exe_name = f'WorldGen.exe'
     worldgen_exe_path = os.path.join(Tools_folder, worldgen_exe_name)
@@ -2727,6 +2760,7 @@ def tree_config_creation(ini_path):
     basemeshes_db_base_folder = os.path.join(Data_folder, f'db')
     basemeshes_caves_db_base_folder = os.path.join(Data_folder, f'cavesdb')
     basemeshes_dungeons_db_base_folder = os.path.join(Data_folder, f'dungeonsdb')
+    basemeshes_caves_dungeons_output_folder = os.path.join(Data_folder, f'CaveDungeonsOutput')
     basemeshes_cache_base_folder = os.path.join(Data_folder, f'cache')
     basemeshes_heightmap_folder = os.path.join(Data_folder, f'heightmap')
     tree_output_base_folder = os.path.join(Data_folder, f'tree_output')
@@ -2744,6 +2778,7 @@ def tree_config_creation(ini_path):
 
     create_or_update_ini_file(ini_path, section_input, 'road_input_folder', road_input_folder)
     create_or_update_ini_file(ini_path, section_input, 'road_exe_path', road_exe_path)
+    create_or_update_ini_file(ini_path, section_input, 'basemeshes_origin_exe_path', basemeshes_origin_exe_path)
     create_or_update_ini_file(ini_path, section_input, 'basemeshes_exe_path', basemeshes_exe_path)
     create_or_update_ini_file(ini_path, section_input, 'worldgen_exe_path', worldgen_exe_path)
     create_or_update_ini_file(ini_path, section_input, 'txt2las_exe_path', txt2las_exe_path)
@@ -2757,6 +2792,7 @@ def tree_config_creation(ini_path):
     create_or_update_ini_file(ini_path, section_output, 'basemeshes_db_base_folder', basemeshes_db_base_folder)
     create_or_update_ini_file(ini_path, section_output, 'basemeshes_caves_db_base_folder', basemeshes_caves_db_base_folder)
     create_or_update_ini_file(ini_path, section_output, 'basemeshes_dungeons_db_base_folder', basemeshes_dungeons_db_base_folder)
+    create_or_update_ini_file(ini_path, section_output, 'basemeshes_caves_dungeons_output_folder', basemeshes_caves_dungeons_output_folder)
     create_or_update_ini_file(ini_path, section_output, 'basemeshes_cache_base_folder', basemeshes_cache_base_folder)
     create_or_update_ini_file(ini_path, section_output, 'basemeshes_heightmap_folder', basemeshes_heightmap_folder)
     create_or_update_ini_file(ini_path, section_output, 'tree_output_base_folder', tree_output_base_folder)
