@@ -3072,6 +3072,17 @@ print('qtree_active_version_property: ' + qtree_active_version_property)
 print('tools_active_version_property: ' + tools_active_version_property)
 print('tileinfo_active_version_property: ' + tileinfo_active_version_property)
 
+road_generated_input_version_property = f'D:\\Downloads\\XCTreeWorkFlow\\RoadGeneratedInput'
+print('road_generated_input_version_property: ' + road_generated_input_version_property)
+smooth_layer_generated_input_version_property = f'D:\\Downloads\\XCTreeWorkFlow\\SmoothLayerGeneratedInput'
+print('smooth_layer_generated_input_version_property: ' + smooth_layer_generated_input_version_property)
+basemeshes_generated_input_version_property = f'D:\\Downloads\\XCTreeWorkFlow\\BaseMeshesGeneratedInput'
+print('basemeshes_generated_input_version_property: ' + basemeshes_generated_input_version_property)
+caves_dungeons_generated_input_version_property = f'D:\\Downloads\\XCTreeWorkFlow\\CavesDungeonsGeneratedInput'
+print('caves_dungeons_generated_input_version_property: ' + caves_dungeons_generated_input_version_property)
+tree_program_generated_input_version_property = f'D:\\Downloads\\XCTreeWorkFlow\\TreeProgramGeneratedInput'
+print('tree_program_generated_input_version_property: ' + tree_program_generated_input_version_property)
+
 ###############
 Need_Copy_Assets = False
 # XC Options
@@ -3519,6 +3530,17 @@ print('displacement_data_path: ' + displacement_data_path)
 print('qtree_data_path: ' + qtree_data_path)
 print('tools_data_path: ' + tools_data_path)
 print('tileinfo_data_path: ' + tileinfo_data_path)
+
+road_generated_input_folder = road_generated_input_version_property
+print('road_generated_input_folder: ' + road_generated_input_folder)
+smooth_layer_generated_input_folder = smooth_layer_generated_input_version_property
+print('smooth_layer_generated_input_folder: ' + smooth_layer_generated_input_folder)
+basemeshes_generated_input_folder = basemeshes_generated_input_version_property
+print('basemeshes_generated_input_folder: ' + basemeshes_generated_input_folder)
+caves_dungeons_generated_input_folder = caves_dungeons_generated_input_version_property 
+print('caves_dungeons_generated_input_folder: ' + caves_dungeons_generated_input_folder)
+tree_program_generated_input_folder = tree_program_generated_input_version_property
+print('tree_program_generated_input_folder: ' + tree_program_generated_input_folder)
 
 #Tree_Data_Folder_Name = 'Tree_Instances_Creation'
 Tree_Data_Folder_Name = 'Tree_Big_Creation'

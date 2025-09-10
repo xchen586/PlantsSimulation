@@ -2898,6 +2898,17 @@ lambda_host.log('qtree_active_version_property: ' + qtree_active_version_propert
 lambda_host.log('tools_active_version_property: ' + tools_active_version_property)
 lambda_host.log('tileinfo_active_version_property: ' + tileinfo_active_version_property)
 
+road_generated_input_version_property = lambda_host.input_string('road_generated_input_version_property', 'road_generated_input_version_property', '')
+lambda_host.log('road_generated_input_version_property: ' + road_generated_input_version_property)
+smooth_layer_generated_input_version_property = lambda_host.input_string('smooth_layer_generated_input_version_property', 'smooth_layer_generated_input_version_property', '')
+lambda_host.log('smooth_layer_generated_input_version_property: ' + smooth_layer_generated_input_version_property)
+basemeshes_generated_input_version_property = lambda_host.input_string('basemeshes_generated_input_version_property', 'basemeshes_generated_input_version_property', '')
+lambda_host.log('basemeshes_generated_input_version_property: ' + basemeshes_generated_input_version_property)
+caves_dungeons_generated_input_version_property = lambda_host.input_string('caves_dungeons_generated_input_version_property', 'caves_dungeons_generated_input_version_property', '')
+lambda_host.log('caves_dungeons_generated_input_version_property: ' + caves_dungeons_generated_input_version_property)
+tree_program_generated_input_version_property = lambda_host.input_string('tree_program_generated_input_version_property', 'tree_program_generated_input_version_property', '')
+lambda_host.log('tree_program_generated_input_version_property: ' + tree_program_generated_input_version_property)
+
 is_run_road_exe = lambda_host.input_string('run_road_exe', 'run_road_exe', '')
 is_run_worldgen_road = lambda_host.input_string('run_worldgen_road', 'run_worldgen_road', '')
 is_run_upload_smooth_layer = lambda_host.input_string('run_upload_smooth_layer', 'run_upload_smooth_layer', '')
@@ -2943,6 +2954,18 @@ lambda_host.log('displacement_data_path: ' + displacement_data_path)
 lambda_host.log('qtree_data_path: ' + qtree_data_path)
 lambda_host.log('tools_data_path: ' + tools_data_path)
 lambda_host.log('tileinfo_data_path: ' + tileinfo_data_path)
+
+road_generated_input_folder = road_generated_input_version_property
+lambda_host.log('road_generated_input_folder: ' + road_generated_input_folder)
+smooth_layer_generated_input_folder = smooth_layer_generated_input_version_property
+lambda_host.log('smooth_layer_generated_input_folder: ' + smooth_layer_generated_input_folder) 
+basemeshes_generated_input_folder = basemeshes_generated_input_version_property
+lambda_host.log('basemeshes_generated_input_folder: ' + basemeshes_generated_input_folder)
+caves_dungeons_generated_input_folder = caves_dungeons_generated_input_version_property
+lambda_host.log('caves_dungeons_generated_input_folder: ' + caves_dungeons_generated_input_folder)
+tree_program_generated_input_folder = tree_program_generated_input_version_property
+lambda_host.log('tree_program_generated_input_folder: ' + tree_program_generated_input_folder)
+
 
 only_run_level_0_instances = False
 only_run_level_1_instances = False
