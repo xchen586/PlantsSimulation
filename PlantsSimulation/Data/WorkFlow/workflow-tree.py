@@ -64,6 +64,12 @@ def common_generation_on_receive_data(
     tools_active_version_property = request.get_product_property('TOOLS_FILES', 'raw_data')
     tileinfo_active_version_property = request.get_product_property('TILE_INFO', 'raw_data')
     
+    road_generated_input_version_property = request.get_product_property('ROAD_GENARATED_INPUT_FILES', 'raw_data')
+    smooth_layer_generated_input_version_property = request.get_product_property('SMOOTH_LAYER_GENARATED_INPUT_FILES', 'raw_data')
+    basemeshes_generated_input_version_property = request.get_product_property('BASE_MESHES_GENARATED_INPUT_FILES', 'raw_data')
+    caves_dungeons_generated_input_version_property = request.get_product_property('CAVES_DUNGEONS_GENARATED_INPUT_FILES', 'raw_data')
+    tree_program_generated_input_version_property = request.get_product_property('TREE_PROGRAM_GENARATED_INPUT_FILES', 'raw_data')
+    
     #game_tree_entity_id_property = 'BE04D7A0D18142AE9D024C1A3FD50BED'  #game entity "Pangea Next Game Instances Entity"
     #if test_tree_result:
     #    game_tree_entity_id_property = "6387B1C0BBC24AC3A7830F27807657A7" # xuan test "Pangea Next Test Instances Entity"
@@ -97,6 +103,11 @@ def common_generation_on_receive_data(
             'qtree_active_version_property': qtree_active_version_property,
             'tools_active_version_property': tools_active_version_property,
             'tileinfo_active_version_property': tileinfo_active_version_property,
+            'road_generated_input_version_property': road_generated_input_version_property,
+            'smooth_layer_generated_input_version_property': smooth_layer_generated_input_version_property,
+            'basemeshes_generated_input_version_property': basemeshes_generated_input_version_property,
+            'caves_dungeons_generated_input_version_property': caves_dungeons_generated_input_version_property, 
+            'tree_program_generated_input_version_property': tree_program_generated_input_version_property,
             'run_road_exe': run_road_exe,
             'run_worldgen_road': run_worldgen_road,
             'run_upload_smooth_layer': run_upload_smooth_layer,
