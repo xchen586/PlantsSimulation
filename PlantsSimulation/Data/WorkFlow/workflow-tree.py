@@ -385,6 +385,141 @@ def quadtree_on_receive_data(
     
     return {'success': True, 'complete': True, 'error_info': 'None'}
 
+def road_generated_input_on_receive_data(
+        vf : voxelfarmclient.rest, 
+        request : workflow_lambda.request, 
+        lambda_host : workflow_lambda.workflow_lambda_host):
+    lambda_host.log('Received road generated input')
+
+    entity_id = request.raw_entity_id
+    project_id = request.project_id
+    folder_id = request.version_folder_id
+
+    lambda_host.log('Updating road generated input raw entity...') 
+    result = vf.update_entity(
+        id= entity_id,
+        project=project_id, 
+        fields={
+            'file_type' : vf.entity_type.RawMesh,
+            'name' : 'Road Generated Input files', 
+            'file_folder' : folder_id
+        })
+    if not result.success:
+        return {'success': False, 'error_info': result.error_info}
+    
+    # Save the entity ID that has the input files in the request properties
+    request.properties['raw_data'] = result.id
+    
+    return {'success': True, 'complete': True, 'error_info': 'None'}
+
+def smooth_layer_generated_input_on_receive_data(
+        vf : voxelfarmclient.rest, 
+        request : workflow_lambda.request, 
+        lambda_host : workflow_lambda.workflow_lambda_host):
+    lambda_host.log('Received smooth layer generated input')
+
+    entity_id = request.raw_entity_id
+    project_id = request.project_id
+    folder_id = request.version_folder_id
+
+    lambda_host.log('Updating smooth layer generated input raw entity...') 
+    result = vf.update_entity(
+        id= entity_id,
+        project=project_id, 
+        fields={
+            'file_type' : vf.entity_type.RawMesh,
+            'name' : 'Smooth Layer Generated Input files', 
+            'file_folder' : folder_id
+        })
+    if not result.success:
+        return {'success': False, 'error_info': result.error_info}
+    
+    # Save the entity ID that has the input files in the request properties
+    request.properties['raw_data'] = result.id
+    
+    return {'success': True, 'complete': True, 'error_info': 'None'}
+
+def basemeshes_generated_input_on_receive_data(
+        vf : voxelfarmclient.rest, 
+        request : workflow_lambda.request, 
+        lambda_host : workflow_lambda.workflow_lambda_host):
+    lambda_host.log('Received basemeshes generated input')
+
+    entity_id = request.raw_entity_id
+    project_id = request.project_id
+    folder_id = request.version_folder_id
+
+    lambda_host.log('Updating basemeshes generated input raw entity...') 
+    result = vf.update_entity(
+        id= entity_id,
+        project=project_id, 
+        fields={
+            'file_type' : vf.entity_type.RawMesh,
+            'name' : 'Basemeshes Generated Input files', 
+            'file_folder' : folder_id
+        })
+    if not result.success:
+        return {'success': False, 'error_info': result.error_info}
+    
+    # Save the entity ID that has the input files in the request properties
+    request.properties['raw_data'] = result.id
+    
+    return {'success': True, 'complete': True, 'error_info': 'None'}
+
+def caves_dungeons_generated_input_on_receive_data(
+        vf : voxelfarmclient.rest, 
+        request : workflow_lambda.request, 
+        lambda_host : workflow_lambda.workflow_lambda_host):
+    lambda_host.log('Received caves and dungeons generated input')
+
+    entity_id = request.raw_entity_id
+    project_id = request.project_id
+    folder_id = request.version_folder_id
+
+    lambda_host.log('Updating caves and dungeons generated input raw entity...') 
+    result = vf.update_entity(
+        id= entity_id,
+        project=project_id, 
+        fields={
+            'file_type' : vf.entity_type.RawMesh,
+            'name' : 'Caves and dungeons Generated Input files', 
+            'file_folder' : folder_id
+        })
+    if not result.success:
+        return {'success': False, 'error_info': result.error_info}
+    
+    # Save the entity ID that has the input files in the request properties
+    request.properties['raw_data'] = result.id
+    
+    return {'success': True, 'complete': True, 'error_info': 'None'}
+
+def tree_program_generated_input_on_receive_data(
+        vf : voxelfarmclient.rest, 
+        request : workflow_lambda.request, 
+        lambda_host : workflow_lambda.workflow_lambda_host):
+    lambda_host.log('Received tree program generated input')
+
+    entity_id = request.raw_entity_id
+    project_id = request.project_id
+    folder_id = request.version_folder_id
+
+    lambda_host.log('Updating tree program generated input raw entity...') 
+    result = vf.update_entity(
+        id= entity_id,
+        project=project_id, 
+        fields={
+            'file_type' : vf.entity_type.RawMesh,
+            'name' : 'Tree program Generated Input files', 
+            'file_folder' : folder_id
+        })
+    if not result.success:
+        return {'success': False, 'error_info': result.error_info}
+    
+    # Save the entity ID that has the input files in the request properties
+    request.properties['raw_data'] = result.id
+    
+    return {'success': True, 'complete': True, 'error_info': 'None'}
+
 def tools_on_receive_data(
         vf : voxelfarmclient.rest, 
         request : workflow_lambda.request, 
@@ -411,6 +546,8 @@ def tools_on_receive_data(
     request.properties['raw_data'] = result.id
 
     return {'success': True, 'complete': True, 'error_info': 'None'}
+
+
 
 def tree_generation_on_receive_data(
         vf : voxelfarmclient.rest, 
@@ -810,6 +947,41 @@ lambda_host.set_workflow_definition(
                         'description': 'A collection of python code files',
                         'icon': 'mesh',
                         'on_receive_data': python_code_on_receive_data,
+                    },
+                    {
+                        'id': 'ROAD_GENARATED_INPUT_FILES',
+                        'name': 'Road Generated Input Files',
+                        'description': 'A collection of Road Generated Input Files',
+                        'icon': 'mesh',
+                        'on_receive_data': road_generated_input_on_receive_data,
+                    },
+                    {
+                        'id': 'SMOOTH_LAYER_GENARATED_INPUT_FILES',
+                        'name': 'Smooth Layer Generated Input Files',
+                        'description': 'A collection of Smooth Layer Generated Input Files',
+                        'icon': 'mesh',
+                        'on_receive_data': smooth_layer_generated_input_on_receive_data,
+                    },
+                    {
+                        'id': 'BASE_MESHES_GENARATED_INPUT_FILES',
+                        'name': 'Base Meshes Generated Input Files',
+                        'description': 'A collection of Base Meshes Generated Input Files',
+                        'icon': 'mesh',
+                        'on_receive_data': basemeshes_generated_input_on_receive_data,
+                    },
+                    {
+                        'id': 'CAVES_DUNGEONS_GENARATED_INPUT_FILES',
+                        'name': 'Caves and Dungeons Generated Input Files',
+                        'description': 'A collection of Caves and Dungeons Generated Input Files',
+                        'icon': 'mesh',
+                        'on_receive_data': caves_dungeons_generated_input_on_receive_data,
+                    },
+                    {
+                        'id': 'TREE_PROGRAM_GENARATED_INPUT_FILES',
+                        'name': 'Tree Program Generated Input Files',
+                        'description': 'A collection of Tree Program Generated Input Files',
+                        'icon': 'mesh',
+                        'on_receive_data': tree_program_generated_input_on_receive_data,
                     },
                 ]
             },
