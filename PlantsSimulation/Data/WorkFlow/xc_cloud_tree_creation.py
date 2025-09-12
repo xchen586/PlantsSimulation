@@ -2013,7 +2013,7 @@ def tree_instances_generation(config_path):
     basemeshes_db_base_folder = read_ini_value(config_path, section_output, 'basemeshes_db_base_folder')
     basemeshes_caves_db_base_folder = read_ini_value(config_path, section_output, 'basemeshes_caves_db_base_folder')
     basemeshes_dungeons_db_base_folder = read_ini_value(config_path, section_output, 'basemeshes_dungeons_db_base_folder')
-    basemeshes_caves_dungeons_db_base_folder = read_ini_value(config_path, section_output, 'basemeshes_caves_dungeons_db_base_folder')
+    basemeshes_caves_dungeons_output_folder = read_ini_value(config_path, section_output, 'basemeshes_caves_dungeons_output_folder')
     basemeshes_cache_base_folder = read_ini_value(config_path, section_output, 'basemeshes_cache_base_folder')
     basemeshes_heightmap_folder = read_ini_value(config_path, section_output, 'basemeshes_heightmap_folder')
     
@@ -2209,7 +2209,7 @@ def tree_instances_generation(config_path):
     #cave_meshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_all_level} {basemeshes_heightmap_folder} {basemeshes_caves_db_base_folder} {cave_meshes_flag}'
     #cave_meshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_all_level} {basemeshes_heightmap_folder} {basemeshes_caves_db_base_folder} {cave_meshes_flag}'       
     
-    cave_meshvoxelizer0_command = f'{basemeshes_origin_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_caves_db_output_level0_folder} {basemeshes_dungeons_db_output_level0_folder} {basemeshes_cache_base_folder} {basemeshes_caves_dungeons_db_base_folder} {smoothlayer_output_folder}'
+    cave_meshvoxelizer0_command = f'{basemeshes_origin_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_caves_db_base_folder} {basemeshes_dungeons_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_caves_dungeons_output_folder} {smoothlayer_output_folder}'
     
     if use_basemesh_ini:
         lambda_host.log(f'Start to write standard basemeshes ini files : {basemeshes_ini_path}')
@@ -2871,8 +2871,10 @@ smooth_layer_generated_input_version_property = lambda_host.input_string('smooth
 lambda_host.log('smooth_layer_generated_input_version_property: ' + smooth_layer_generated_input_version_property)
 basemeshes_generated_input_version_property = lambda_host.input_string('basemeshes_generated_input_version_property', 'basemeshes_generated_input_version_property', '')
 lambda_host.log('basemeshes_generated_input_version_property: ' + basemeshes_generated_input_version_property)
-caves_dungeons_generated_input_version_property = lambda_host.input_string('caves_dungeons_generated_input_version_property', 'caves_dungeons_generated_input_version_property', '')
-lambda_host.log('caves_dungeons_generated_input_version_property: ' + caves_dungeons_generated_input_version_property)
+caves_generated_input_version_property = lambda_host.input_string('caves_generated_input_version_property', 'caves_generated_input_version_property', '')
+lambda_host.log('caves_generated_input_version_property: ' + caves_generated_input_version_property)
+dungeons_generated_input_version_property = lambda_host.input_string('dungeons_generated_input_version_property', 'dungeons_generated_input_version_property', '')
+lambda_host.log('dungeons_generated_input_version_property: ' + dungeons_generated_input_version_property)
 tree_program_generated_input_version_property = lambda_host.input_string('tree_program_generated_input_version_property', 'tree_program_generated_input_version_property', '')
 lambda_host.log('tree_program_generated_input_version_property: ' + tree_program_generated_input_version_property)
 
@@ -2928,8 +2930,10 @@ smooth_layer_generated_input_folder = smooth_layer_generated_input_version_prope
 lambda_host.log('smooth_layer_generated_input_folder: ' + smooth_layer_generated_input_folder) 
 basemeshes_generated_input_folder = basemeshes_generated_input_version_property
 lambda_host.log('basemeshes_generated_input_folder: ' + basemeshes_generated_input_folder)
-caves_dungeons_generated_input_folder = caves_dungeons_generated_input_version_property
-lambda_host.log('caves_dungeons_generated_input_folder: ' + caves_dungeons_generated_input_folder)
+caves_generated_input_folder = caves_generated_input_version_property
+lambda_host.log('caves_generated_input_folder: ' + caves_generated_input_folder)
+dungeons_generated_input_folder = dungeons_generated_input_version_property
+lambda_host.log('dungeons_generated_input_folder: ' + dungeons_generated_input_folder)
 tree_program_generated_input_folder = tree_program_generated_input_version_property
 lambda_host.log('tree_program_generated_input_folder: ' + tree_program_generated_input_folder)
 
@@ -2940,7 +2944,7 @@ only_run_POIs = False
 
 keep_old_tree_files = False
 
-Tree_Data_Folder_Name = 'Tree_Instances_Creation'
+Tree_Data_Folder_Name = 'Tree_Big_Creation'
 Data_folder = os.path.join(scrap_folder, Tree_Data_Folder_Name)
 g_Lambda_Info_ini_name = 'lambda_info.ini'
 g_Lambda_Info_ini_path = os.path.join(Data_folder, g_Lambda_Info_ini_name)
@@ -2977,25 +2981,16 @@ tree_exe_name = f'PlantsSimulation.exe'
 tree_exe_path = os.path.join(Tools_folder, tree_exe_name)
 qtree_assets_folder = Data_folder
 
-road_output_folder = os.path.join(Data_folder, f'RoadObjInfo')
-smoothlayer_output_base_folder = os.path.join(Data_folder, f'sommothlayer_output')
-basemeshes_db_base_folder = os.path.join(Data_folder, f'db')
-basemeshes_caves_db_base_folder = os.path.join(Data_folder, f'cavesdb')
-basemeshes_dungeons_db_base_folder = os.path.join(Data_folder, f'dungeonsdb')
-basemeshes_caves_dungeons_output_folder = os.path.join(Data_folder, f'CaveDungeonsOutput')
-basemeshes_cache_base_folder = os.path.join(Data_folder, f'cache')
-basemeshes_heightmap_folder = os.path.join(Data_folder, f'heightmap')
-tree_output_base_folder = os.path.join(Data_folder, f'tree_output')
+treelist_data_path = os.path.join(Data_folder, 'TreeList.csv')
+level1_treelist_data_path = os.path.join(Data_folder, 'Level1_TreeList.csv')
 
-lambda_host.progress(5, 'Start to copy files')
+lambda_host.progress(5, 'Start to copy asset files')
 lambda_host.log(f'start to copy from {pythoncode_data_folder} to {Data_folder}')
 copy_files_in_folder(pythoncode_data_folder, Data_folder)
 lambda_host.log(f'end to copy from {pythoncode_data_folder} to {Data_folder}')
 lambda_host.log(f'start to copy from {treelist_data_folder} to {Data_folder}')
 copy_files_in_folder(treelist_data_folder, Data_folder)
 lambda_host.log(f'end to copy from {treelist_data_folder} to {Data_folder}')
-treelist_data_path = os.path.join(Data_folder, 'TreeList.csv')
-level1_treelist_data_path = os.path.join(Data_folder, 'Level1_TreeList.csv')
 lambda_host.log(f'start to copy from {roaddata_data_path} to {Data_folder}')
 copy_files_in_folder(roaddata_data_path, Data_folder)
 lambda_host.log(f'end to copy from {roaddata_data_path} to {Data_folder}')
@@ -3014,6 +3009,8 @@ lambda_host.log(f'start to copy from {tileinfo_data_path} to {Data_folder}')
 copy_files_in_folder(tileinfo_data_path, Data_folder)
 lambda_host.log(f'end to copy from {tileinfo_data_path} to {Data_folder}')
 
+lambda_host.progress(10, 'End to copy asset files')
+
 Tile_Info_ini_name = 'TileInfo.ini'
 Tile_Info_ini_path = os.path.join(Data_folder, Tile_Info_ini_name)
 if os.path.exists(Tile_Info_ini_path):
@@ -3024,11 +3021,92 @@ if os.path.exists(Tile_Info_ini_path):
     lambda_host.log(f'Tiles_Count of {Tile_Info_ini_path} is {tile_size}')
     lambda_host.log(f'Tiles_X_Index of {Tile_Info_ini_path} is {tile_x}')
     lambda_host.log(f'Tiles_Y_Index of {Tile_Info_ini_path} is {tile_y}')
-    lambda_host.log(f'Tiles_Scale of {Tile_Info_ini_path} is {tile_scale}')    
+    lambda_host.log(f'Tiles_Scale of {Tile_Info_ini_path} is {tile_scale}')
+    
+road_output_folder = os.path.join(Data_folder, f'RoadObjInfo')
+smoothlayer_output_base_folder = os.path.join(Data_folder, f'sommothlayer_output')
+basemeshes_db_base_folder = os.path.join(Data_folder, f'db')
+basemeshes_caves_db_base_folder = os.path.join(Data_folder, f'cavesdb')
+basemeshes_dungeons_db_base_folder = os.path.join(Data_folder, f'dungeonsdb')
+basemeshes_caves_dungeons_output_folder = os.path.join(Data_folder, f'CaveDungeonsOutput')
+basemeshes_cache_base_folder = os.path.join(Data_folder, f'cache')
+basemeshes_heightmap_folder = os.path.join(Data_folder, f'heightmap')
+tree_output_base_folder = os.path.join(Data_folder, f'tree_output')
+
+if not os.path.exists(road_output_folder):
+    os.makedirs(road_output_folder)
+if not os.path.exists(smoothlayer_output_base_folder):
+    os.makedirs(smoothlayer_output_base_folder)
+if not os.path.exists(basemeshes_db_base_folder):
+    os.makedirs(basemeshes_db_base_folder)
+if not os.path.exists(basemeshes_caves_db_base_folder):
+    os.makedirs(basemeshes_caves_db_base_folder)
+if not os.path.exists(basemeshes_dungeons_db_base_folder):
+    os.makedirs(basemeshes_dungeons_db_base_folder)
+if not os.path.exists(basemeshes_caves_dungeons_output_folder):
+    os.makedirs(basemeshes_caves_dungeons_output_folder)
+if not os.path.exists(basemeshes_cache_base_folder):
+    os.makedirs(basemeshes_cache_base_folder)
+if not os.path.exists(basemeshes_heightmap_folder):
+    os.makedirs(basemeshes_heightmap_folder)
+if not os.path.exists(tree_output_base_folder):
+    os.makedirs(tree_output_base_folder)    
+    
+smoothlayer_output_folder = os.path.join(smoothlayer_output_base_folder, f'{tile_size}_{tile_x}_{tile_y}')
+if not os.path.exists(smoothlayer_output_folder):
+    os.makedirs(smoothlayer_output_folder)
+tree_output_folder = os.path.join(tree_output_base_folder, f'{tile_size}_{tile_x}_{tile_y}')
+if not os.path.exists(tree_output_folder):
+    os.makedirs(tree_output_folder)
+    
+basemeshes_db_output_level_0_folder = os.path.join(basemeshes_db_base_folder, f'{tile_size}_{tile_x}_{tile_y}_0')
+if not os.path.exists(basemeshes_db_output_level_0_folder):
+    os.makedirs(basemeshes_db_output_level_0_folder)
+basemeshes_db_output_level_1_folder = os.path.join(basemeshes_db_base_folder, f'{tile_size}_{tile_x}_{tile_y}_1')
+if not os.path.exists(basemeshes_db_output_level_1_folder):
+    os.makedirs(basemeshes_db_output_level_1_folder)
+basemeshes_caves_db_output_level_0_folder = os.path.join(basemeshes_caves_db_base_folder, f'{tile_size}_{tile_x}_{tile_y}_0')
+if not os.path.exists(basemeshes_caves_db_output_level_0_folder):
+    os.makedirs(basemeshes_caves_db_output_level_0_folder)
+basemeshes_caves_db_output_level_1_folder = os.path.join(basemeshes_caves_db_base_folder, f'{tile_size}_{tile_x}_{tile_y}_1')
+if not os.path.exists(basemeshes_caves_db_output_level_1_folder):
+    os.makedirs(basemeshes_caves_db_output_level_1_folder)
+basemeshes_dungeons_db_output_level_0_folder = os.path.join(basemeshes_dungeons_db_base_folder, f'{tile_size}_{tile_x}_{tile_y}_0')
+if not os.path.exists(basemeshes_dungeons_db_output_level_0_folder):
+    os.makedirs(basemeshes_dungeons_db_output_level_0_folder)
+basemeshes_cache_db_output_level_0_folder = os.path.join(basemeshes_cache_base_folder, f'{tile_size}_{tile_x}_{tile_y}_0')
+if not os.path.exists(basemeshes_cache_db_output_level_0_folder):
+    os.makedirs(basemeshes_cache_db_output_level_0_folder)
+basemeshes_cache_db_output_level_1_folder = os.path.join(basemeshes_cache_base_folder, f'{tile_size}_{tile_x}_{tile_y}_1')
+if not os.path.exists(basemeshes_cache_db_output_level_1_folder):
+    os.makedirs(basemeshes_cache_db_output_level_1_folder)
+
 #lambda_host.progress(15, 'Start to download tools files')
 #lambda_host.log(f'start to copy from {tools_data_path} to {Tools_folder}')
 #copy_files_in_folder(tools_data_path, Tools_folder)
 #lambda_host.log(f'end to copy from {tools_data_path} to {Tools_folder}')
+
+lambda_host.progress(13, 'Start to copy generated input files')
+
+lambda_host.log(f'start to copy from {road_generated_input_folder} to {road_output_folder}')
+copy_files_in_folder(road_generated_input_folder, road_output_folder)
+lambda_host.log(f'end to copy from {road_generated_input_folder} to {road_output_folder}')
+lambda_host.log(f'start to copy from {smooth_layer_generated_input_folder} to {smoothlayer_output_folder}')
+copy_files_in_folder(smooth_layer_generated_input_folder, smoothlayer_output_folder)
+lambda_host.log(f'end to copy from {smooth_layer_generated_input_folder} to {smoothlayer_output_folder}')
+lambda_host.log(f'start to copy from {basemeshes_generated_input_folder} to {basemeshes_heightmap_folder}')
+copy_files_in_folder(basemeshes_generated_input_folder, basemeshes_heightmap_folder)
+lambda_host.log(f'end to copy from {basemeshes_generated_input_folder} to {basemeshes_heightmap_folder}')
+lambda_host.log(f'start to copy from {caves_generated_input_folder} to {basemeshes_caves_db_output_level_0_folder}')
+copy_files_in_folder(caves_generated_input_folder, basemeshes_caves_db_output_level_0_folder)
+lambda_host.log(f'end to copy from {caves_generated_input_folder} to {basemeshes_caves_db_output_level_0_folder}')
+lambda_host.log(f'start to copy from {dungeons_generated_input_folder} to {basemeshes_dungeons_db_output_level_0_folder}')
+copy_files_in_folder(dungeons_generated_input_folder, basemeshes_dungeons_db_output_level_0_folder)
+lambda_host.log(f'end to copy from {dungeons_generated_input_folder} to {basemeshes_dungeons_db_output_level_0_folder}')
+lambda_host.log(f'start to copy from {tree_program_generated_input_folder} to {tree_output_folder}')
+copy_files_in_folder(tree_program_generated_input_folder, tree_output_folder)   
+
+lambda_host.progress(14, 'End to copy generated input files')
 
 lambda_host.progress(15, 'Start to get input parameters')
 Cloud_url = 'http://localhost/'

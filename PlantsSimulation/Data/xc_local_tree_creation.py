@@ -2178,7 +2178,7 @@ def tree_instances_generation(config_path):
     basemeshes_db_base_folder = read_ini_value(config_path, section_output, 'basemeshes_db_base_folder')
     basemeshes_caves_db_base_folder = read_ini_value(config_path, section_output, 'basemeshes_caves_db_base_folder')
     basemeshes_dungeons_db_base_folder = read_ini_value(config_path, section_output, 'basemeshes_dungeons_db_base_folder')
-    basemeshes_caves_dungeons_db_base_folder = read_ini_value(config_path, section_output, 'basemeshes_caves_dungeons_db_base_folder')
+    basemeshes_caves_dungeons_output_folder = read_ini_value(config_path, section_output, 'basemeshes_caves_dungeons_output_folder')
     basemeshes_cache_base_folder = read_ini_value(config_path, section_output, 'basemeshes_cache_base_folder')
     basemeshes_heightmap_folder = read_ini_value(config_path, section_output, 'basemeshes_heightmap_folder')
     
@@ -2375,7 +2375,7 @@ def tree_instances_generation(config_path):
     #cave_meshvoxelizer1_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level1} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_all_level} {basemeshes_heightmap_folder} {basemeshes_caves_db_base_folder} {cave_meshes_flag}'
     #cave_meshvoxelizer0_command = f'{basemeshes_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_all_level} {basemeshes_heightmap_folder} {basemeshes_caves_db_base_folder} {cave_meshes_flag}'       
 
-    cave_meshvoxelizer0_command = f'{basemeshes_origin_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_caves_db_output_level0_folder} {basemeshes_dungeons_db_output_level0_folder} {basemeshes_cache_base_folder} {basemeshes_caves_dungeons_db_base_folder} {smoothlayer_output_folder}'
+    cave_meshvoxelizer0_command = f'{basemeshes_origin_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_caves_db_base_folder} {basemeshes_dungeons_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_caves_dungeons_output_folder} {smoothlayer_output_folder}'
     
     if use_basemesh_ini:
         print(f'Start to write standard basemeshes ini files : {basemeshes_ini_path}')
@@ -3042,8 +3042,10 @@ smooth_layer_generated_input_version_property = f'D:\\Downloads\\XCTreeWorkFlow\
 print('smooth_layer_generated_input_version_property: ' + smooth_layer_generated_input_version_property)
 basemeshes_generated_input_version_property = f'D:\\Downloads\\XCTreeWorkFlow\\BaseMeshesGeneratedInput'
 print('basemeshes_generated_input_version_property: ' + basemeshes_generated_input_version_property)
-caves_dungeons_generated_input_version_property = f'D:\\Downloads\\XCTreeWorkFlow\\CavesDungeonsGeneratedInput'
-print('caves_dungeons_generated_input_version_property: ' + caves_dungeons_generated_input_version_property)
+caves_generated_input_version_property = f'D:\\Downloads\\XCTreeWorkFlow\\CavesGeneratedInput'
+print('caves_generated_input_version_property: ' + caves_generated_input_version_property)
+dungeons_generated_input_version_property = f'D:\\Downloads\\XCTreeWorkFlow\\DungeonGeneratedInput'
+print('dungeons_generated_input_version_property: ' + dungeons_generated_input_version_property)
 tree_program_generated_input_version_property = f'D:\\Downloads\\XCTreeWorkFlow\\TreeProgramGeneratedInput'
 print('tree_program_generated_input_version_property: ' + tree_program_generated_input_version_property)
 
@@ -3109,7 +3111,7 @@ keep_old_tree_files = False
 
 #smooth_layer_generation_without_road = True
 #road_only_pois_generation = True
-test_only_tree_generation = True
+#test_only_tree_generation = True
 #test_only_dungeon_poi_generation = True
 #test_only_pois_generation = True
 
@@ -3118,9 +3120,10 @@ test_only_tree_generation = True
 
 #keep_old_tree_files = True
 
+caves_voxelization_generation = True
 
 if only_road_generation:
-    print("Choose only_road_generation to Run")
+    print("Choose only_road_generat ion to Run")
     Game_Tree_Entity_id = Instances_Game_Entity_id  #game entity 
     Workflow_Output_Result_Folder_id = 'B24E708E13C5473FA3BFDBCBA0E68B42'  #Pangea Next > Workflow Output > Workflow Smooth layer Output
     is_run_road_exe = True
@@ -3501,8 +3504,10 @@ smooth_layer_generated_input_folder = smooth_layer_generated_input_version_prope
 print('smooth_layer_generated_input_folder: ' + smooth_layer_generated_input_folder)
 basemeshes_generated_input_folder = basemeshes_generated_input_version_property
 print('basemeshes_generated_input_folder: ' + basemeshes_generated_input_folder)
-caves_dungeons_generated_input_folder = caves_dungeons_generated_input_version_property 
-print('caves_dungeons_generated_input_folder: ' + caves_dungeons_generated_input_folder)
+caves_generated_input_folder = caves_generated_input_version_property 
+print('caves_generated_input_folder: ' + caves_generated_input_folder)
+dungeons_generated_input_folder = dungeons_generated_input_version_property 
+print('dungeons_generated_input_folder: ' + dungeons_generated_input_folder)
 tree_program_generated_input_folder = tree_program_generated_input_version_property
 print('tree_program_generated_input_folder: ' + tree_program_generated_input_folder)
 
@@ -3547,17 +3552,7 @@ qtree_assets_folder = Data_folder
 treelist_data_path = os.path.join(Data_folder, 'TreeList.csv')
 level1_treelist_data_path = os.path.join(Data_folder, 'Level1_TreeList.csv')
 
-road_output_folder = os.path.join(Data_folder, f'RoadObjInfo')
-smoothlayer_output_base_folder = os.path.join(Data_folder, f'sommothlayer_output')
-basemeshes_db_base_folder = os.path.join(Data_folder, f'db')
-basemeshes_caves_db_base_folder = os.path.join(Data_folder, f'cavesdb')
-basemeshes_dungeons_db_base_folder = os.path.join(Data_folder, f'dungeonsdb')
-basemeshes_caves_dungeons_output_folder = os.path.join(Data_folder, f'CaveDungeonsOutput')
-basemeshes_cache_base_folder = os.path.join(Data_folder, f'cache')
-basemeshes_heightmap_folder = os.path.join(Data_folder, f'heightmap')
-tree_output_base_folder = os.path.join(Data_folder, f'tree_output')
-
-print('Start to copy files')
+print('Start to copy asset files')
 
 print(f'start to copy from {tileinfo_data_path} to {Data_folder}')
 copy_files_in_folder(tileinfo_data_path, Data_folder)
@@ -3585,7 +3580,7 @@ if Need_Copy_Assets:
     copy_files_in_folder(qtree_data_path, Data_folder)
     print(f'end to copy from {qtree_data_path} to {Data_folder}')
     
-print('End to copy files')  
+print('End to copy asset files')  
 
 Tile_Info_ini_name = 'TileInfo.ini'
 Tile_Info_ini_path = os.path.join(Data_folder, Tile_Info_ini_name)
@@ -3598,6 +3593,87 @@ if os.path.exists(Tile_Info_ini_path):
     print(f'Tiles_X_Index of {Tile_Info_ini_path} is {tile_x}')
     print(f'Tiles_Y_Index of {Tile_Info_ini_path} is {tile_y}')
     print(f'Tiles_Scale of {Tile_Info_ini_path} is {tile_scale}')
+    
+road_output_folder = os.path.join(Data_folder, f'RoadObjInfo')
+smoothlayer_output_base_folder = os.path.join(Data_folder, f'sommothlayer_output')
+basemeshes_db_base_folder = os.path.join(Data_folder, f'db')
+basemeshes_caves_db_base_folder = os.path.join(Data_folder, f'cavesdb')
+basemeshes_dungeons_db_base_folder = os.path.join(Data_folder, f'dungeonsdb')
+basemeshes_caves_dungeons_output_folder = os.path.join(Data_folder, f'CaveDungeonsOutput')
+basemeshes_cache_base_folder = os.path.join(Data_folder, f'cache')
+basemeshes_heightmap_folder = os.path.join(Data_folder, f'heightmap')
+tree_output_base_folder = os.path.join(Data_folder, f'tree_output')
+
+if not os.path.exists(road_output_folder):
+    os.makedirs(road_output_folder)
+if not os.path.exists(smoothlayer_output_base_folder):
+    os.makedirs(smoothlayer_output_base_folder)
+if not os.path.exists(basemeshes_db_base_folder):
+    os.makedirs(basemeshes_db_base_folder)
+if not os.path.exists(basemeshes_caves_db_base_folder):
+    os.makedirs(basemeshes_caves_db_base_folder)
+if not os.path.exists(basemeshes_dungeons_db_base_folder):
+    os.makedirs(basemeshes_dungeons_db_base_folder)
+if not os.path.exists(basemeshes_caves_dungeons_output_folder):
+    os.makedirs(basemeshes_caves_dungeons_output_folder)
+if not os.path.exists(basemeshes_cache_base_folder):
+    os.makedirs(basemeshes_cache_base_folder)
+if not os.path.exists(basemeshes_heightmap_folder):
+    os.makedirs(basemeshes_heightmap_folder)
+if not os.path.exists(tree_output_base_folder):
+    os.makedirs(tree_output_base_folder)    
+    
+smoothlayer_output_folder = os.path.join(smoothlayer_output_base_folder, f'{tile_size}_{tile_x}_{tile_y}')
+if not os.path.exists(smoothlayer_output_folder):
+    os.makedirs(smoothlayer_output_folder)
+tree_output_folder = os.path.join(tree_output_base_folder, f'{tile_size}_{tile_x}_{tile_y}')
+if not os.path.exists(tree_output_folder):
+    os.makedirs(tree_output_folder)
+    
+basemeshes_db_output_level_0_folder = os.path.join(basemeshes_db_base_folder, f'{tile_size}_{tile_x}_{tile_y}_0')
+if not os.path.exists(basemeshes_db_output_level_0_folder):
+    os.makedirs(basemeshes_db_output_level_0_folder)
+basemeshes_db_output_level_1_folder = os.path.join(basemeshes_db_base_folder, f'{tile_size}_{tile_x}_{tile_y}_1')
+if not os.path.exists(basemeshes_db_output_level_1_folder):
+    os.makedirs(basemeshes_db_output_level_1_folder)
+basemeshes_caves_db_output_level_0_folder = os.path.join(basemeshes_caves_db_base_folder, f'{tile_size}_{tile_x}_{tile_y}_0')
+if not os.path.exists(basemeshes_caves_db_output_level_0_folder):
+    os.makedirs(basemeshes_caves_db_output_level_0_folder)
+basemeshes_caves_db_output_level_1_folder = os.path.join(basemeshes_caves_db_base_folder, f'{tile_size}_{tile_x}_{tile_y}_1')
+if not os.path.exists(basemeshes_caves_db_output_level_1_folder):
+    os.makedirs(basemeshes_caves_db_output_level_1_folder)
+basemeshes_dungeons_db_output_level_0_folder = os.path.join(basemeshes_dungeons_db_base_folder, f'{tile_size}_{tile_x}_{tile_y}_0')
+if not os.path.exists(basemeshes_dungeons_db_output_level_0_folder):
+    os.makedirs(basemeshes_dungeons_db_output_level_0_folder)
+basemeshes_cache_db_output_level_0_folder = os.path.join(basemeshes_cache_base_folder, f'{tile_size}_{tile_x}_{tile_y}_0')
+if not os.path.exists(basemeshes_cache_db_output_level_0_folder):
+    os.makedirs(basemeshes_cache_db_output_level_0_folder)
+basemeshes_cache_db_output_level_1_folder = os.path.join(basemeshes_cache_base_folder, f'{tile_size}_{tile_x}_{tile_y}_1')
+if not os.path.exists(basemeshes_cache_db_output_level_1_folder):
+    os.makedirs(basemeshes_cache_db_output_level_1_folder)
+
+    
+print('Start to copy generated input files')
+
+print(f'start to copy from {road_generated_input_folder} to {road_output_folder}')
+copy_files_in_folder(road_generated_input_folder, road_output_folder)
+print(f'end to copy from {road_generated_input_folder} to {road_output_folder}')
+print(f'start to copy from {smooth_layer_generated_input_folder} to {smoothlayer_output_folder}')
+copy_files_in_folder(smooth_layer_generated_input_folder, smoothlayer_output_folder)
+print(f'end to copy from {smooth_layer_generated_input_folder} to {smoothlayer_output_folder}')
+print(f'start to copy from {basemeshes_generated_input_folder} to {basemeshes_heightmap_folder}')
+copy_files_in_folder(basemeshes_generated_input_folder, basemeshes_heightmap_folder)
+print(f'end to copy from {basemeshes_generated_input_folder} to {basemeshes_heightmap_folder}')
+print(f'start to copy from {caves_generated_input_folder} to {basemeshes_caves_db_output_level_0_folder}')
+copy_files_in_folder(caves_generated_input_folder, basemeshes_caves_db_output_level_0_folder)
+print(f'end to copy from {caves_generated_input_folder} to {basemeshes_caves_db_output_level_0_folder}')
+print(f'start to copy from {dungeons_generated_input_folder} to {basemeshes_dungeons_db_output_level_0_folder}')
+copy_files_in_folder(dungeons_generated_input_folder, basemeshes_dungeons_db_output_level_0_folder)
+print(f'end to copy from {dungeons_generated_input_folder} to {basemeshes_dungeons_db_output_level_0_folder}')
+print(f'start to copy from {tree_program_generated_input_folder} to {tree_output_folder}')
+copy_files_in_folder(tree_program_generated_input_folder, tree_output_folder) 
+
+print('End to copy generated input files')
 
 print('Start to get input parameters')
 Cloud_url = 'https://demo.voxelfarm.com/'

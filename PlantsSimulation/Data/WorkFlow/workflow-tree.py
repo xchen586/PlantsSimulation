@@ -67,7 +67,8 @@ def common_generation_on_receive_data(
     road_generated_input_version_property = request.get_product_property('ROAD_GENARATED_INPUT_FILES', 'raw_data')
     smooth_layer_generated_input_version_property = request.get_product_property('SMOOTH_LAYER_GENARATED_INPUT_FILES', 'raw_data')
     basemeshes_generated_input_version_property = request.get_product_property('BASE_MESHES_GENARATED_INPUT_FILES', 'raw_data')
-    caves_dungeons_generated_input_version_property = request.get_product_property('CAVES_DUNGEONS_GENARATED_INPUT_FILES', 'raw_data')
+    caves_generated_input_version_property = request.get_product_property('CAVES_GENARATED_INPUT_FILES', 'raw_data')
+    dungeons_generated_input_version_property = request.get_product_property('DUNGEONS_GENARATED_INPUT_FILES', 'raw_data')
     tree_program_generated_input_version_property = request.get_product_property('TREE_PROGRAM_GENARATED_INPUT_FILES', 'raw_data')
     
     #game_tree_entity_id_property = 'BE04D7A0D18142AE9D024C1A3FD50BED'  #game entity "Pangea Next Game Instances Entity"
@@ -106,7 +107,8 @@ def common_generation_on_receive_data(
             'road_generated_input_version_property': road_generated_input_version_property,
             'smooth_layer_generated_input_version_property': smooth_layer_generated_input_version_property,
             'basemeshes_generated_input_version_property': basemeshes_generated_input_version_property,
-            'caves_dungeons_generated_input_version_property': caves_dungeons_generated_input_version_property, 
+            'caves_generated_input_version_property': caves_generated_input_version_property, 
+            'dungeons_generated_input_version_property': dungeons_generated_input_version_property, 
             'tree_program_generated_input_version_property': tree_program_generated_input_version_property,
             'run_road_exe': run_road_exe,
             'run_worldgen_road': run_worldgen_road,
@@ -477,23 +479,50 @@ def basemeshes_generated_input_on_receive_data(
     
     return {'success': True, 'complete': True, 'error_info': 'None'}
 
-def caves_dungeons_generated_input_on_receive_data(
+def caves_generated_input_on_receive_data(
         vf : voxelfarmclient.rest, 
         request : workflow_lambda.request, 
         lambda_host : workflow_lambda.workflow_lambda_host):
-    lambda_host.log('Received caves and dungeons generated input')
+    lambda_host.log('Received caves generated input')
 
     entity_id = request.raw_entity_id
     project_id = request.project_id
     folder_id = request.version_folder_id
 
-    lambda_host.log('Updating caves and dungeons generated input raw entity...') 
+    lambda_host.log('Updating caves generated input raw entity...') 
     result = vf.update_entity(
         id= entity_id,
         project=project_id, 
         fields={
             'file_type' : vf.entity_type.RawMesh,
-            'name' : 'Caves and dungeons Generated Input files', 
+            'name' : 'Caves Generated Input files', 
+            'file_folder' : folder_id
+        })
+    if not result.success:
+        return {'success': False, 'error_info': result.error_info}
+    
+    # Save the entity ID that has the input files in the request properties
+    request.properties['raw_data'] = result.id
+    
+    return {'success': True, 'complete': True, 'error_info': 'None'}
+
+def dungeons_generated_input_on_receive_data(
+        vf : voxelfarmclient.rest, 
+        request : workflow_lambda.request, 
+        lambda_host : workflow_lambda.workflow_lambda_host):
+    lambda_host.log('Received dungeons generated input')
+
+    entity_id = request.raw_entity_id
+    project_id = request.project_id
+    folder_id = request.version_folder_id
+
+    lambda_host.log('Updating dungeons generated input raw entity...') 
+    result = vf.update_entity(
+        id= entity_id,
+        project=project_id, 
+        fields={
+            'file_type' : vf.entity_type.RawMesh,
+            'name' : 'Dungeons Generated Input files', 
             'file_folder' : folder_id
         })
     if not result.success:
@@ -559,7 +588,6 @@ def tools_on_receive_data(
     return {'success': True, 'complete': True, 'error_info': 'None'}
 
 
-
 def tree_generation_on_receive_data(
         vf : voxelfarmclient.rest, 
         request : workflow_lambda.request, 
@@ -592,6 +620,42 @@ def tree_generation_on_stage_complete(
     lambda_host.log(f'update_type: {update_type}')
     if update_type == 'msg':
         lambda_host.log('Tree generation stage complete')
+        return {'success': True, 'complete': True, 'error_info': 'None'}
+
+    return {'success': True, 'complete': False, 'error_info': 'None'}
+
+def test_tree_generation_on_receive_data(
+        vf : voxelfarmclient.rest, 
+        request : workflow_lambda.request, 
+        lambda_host : workflow_lambda.workflow_lambda_host):
+    
+    lambda_host.log('Received test tree generation data')
+    result = common_generation_on_receive_data(vf ,request ,lambda_host
+                                             , lambda_name="Test Tree Generation"
+                                             , test_tree_result=True
+                                             , run_road_exe=True
+                                             , run_worldgen_road=True
+                                             , run_upload_smooth_layer=True
+                                             , run_make_basemeshes=True
+                                             , run_upload_basemeshes=False
+                                             , run_make_caves=True
+                                             , run_upload_caves=False
+                                             , run_make_tree_instances=True
+                                             , run_upload_tree_instances=True
+                                             , run_create_geochem_entity=True
+                                             , run_generate_road_input=False)
+    
+    return {'success': result.success, 'complete': False, 'error_info': ''}
+
+def test_tree_generation_on_stage_complete(
+        vf_api : voxelfarmclient.rest,
+        request : workflow_lambda.request,
+        lambda_host : workflow_lambda.workflow_lambda_host):
+    
+    update_type = request.update_type
+    lambda_host.log(f'update_type: {update_type}')
+    if update_type == 'msg':
+        lambda_host.log('Test tree generation stage complete')
         return {'success': True, 'complete': True, 'error_info': 'None'}
 
     return {'success': True, 'complete': False, 'error_info': 'None'}
@@ -709,6 +773,78 @@ def smooth_layer_generation_on_stage_complete(
 
     return {'success': True, 'complete': False, 'error_info': 'None'}
 
+def only_tree_generation_on_receive_data(
+        vf : voxelfarmclient.rest, 
+        request : workflow_lambda.request, 
+        lambda_host : workflow_lambda.workflow_lambda_host):
+    
+    lambda_host.log('Received only tree generation data')
+    result = common_generation_on_receive_data(vf ,request ,lambda_host
+                                             , lambda_name="Only Tree Generation"
+                                             , test_tree_result=False
+                                             , run_road_exe=False
+                                             , run_worldgen_road=False
+                                             , run_upload_smooth_layer=False
+                                             , run_make_basemeshes=False
+                                             , run_upload_basemeshes=False
+                                             , run_make_caves=False
+                                             , run_upload_caves=False
+                                             , run_make_tree_instances=True
+                                             , run_upload_tree_instances=True
+                                             , run_create_geochem_entity=True
+                                             , run_generate_road_input=False)
+
+    return {'success': result.success, 'complete': False, 'error_info': ''}
+
+def only_tree_generation_on_stage_complete(
+        vf_api : voxelfarmclient.rest,
+        request : workflow_lambda.request,
+        lambda_host : workflow_lambda.workflow_lambda_host):
+    
+    update_type = request.update_type
+    lambda_host.log(f'update_type: {update_type}')
+    if update_type == 'msg':
+        lambda_host.log('Only Tree generation stage complete')
+        return {'success': True, 'complete': True, 'error_info': 'None'}
+
+    return {'success': True, 'complete': False, 'error_info': 'None'}
+
+def test_only_tree_generation_on_receive_data(
+        vf : voxelfarmclient.rest, 
+        request : workflow_lambda.request, 
+        lambda_host : workflow_lambda.workflow_lambda_host):
+    
+    lambda_host.log('Received test only tree generation data')
+    result = common_generation_on_receive_data(vf ,request ,lambda_host
+                                             , lambda_name="Test Only Tree Generation"
+                                             , test_tree_result=True
+                                             , run_road_exe=False
+                                             , run_worldgen_road=False
+                                             , run_upload_smooth_layer=False
+                                             , run_make_basemeshes=False
+                                             , run_upload_basemeshes=False
+                                             , run_make_caves=False
+                                             , run_upload_caves=False
+                                             , run_make_tree_instances=True
+                                             , run_upload_tree_instances=True
+                                             , run_create_geochem_entity=True
+                                             , run_generate_road_input=False)
+    
+    return {'success': result.success, 'complete': False, 'error_info': ''}
+
+def test_only_tree_generation_on_stage_complete(
+        vf_api : voxelfarmclient.rest,
+        request : workflow_lambda.request,
+        lambda_host : workflow_lambda.workflow_lambda_host):
+    
+    update_type = request.update_type
+    lambda_host.log(f'update_type: {update_type}')
+    if update_type == 'msg':
+        lambda_host.log('Test only tree generation stage complete')
+        return {'success': True, 'complete': True, 'error_info': 'None'}
+
+    return {'success': True, 'complete': False, 'error_info': 'None'}
+
 def road_input_generation_on_receive_data(
         vf : voxelfarmclient.rest, 
         request : workflow_lambda.request, 
@@ -810,42 +946,6 @@ def whole_result_generation_on_stage_complete(
     if update_type == 'msg':
         #todo read the file that we attached
         lambda_host.log('Whole result generation stage complete')
-        return {'success': True, 'complete': True, 'error_info': 'None'}
-
-    return {'success': True, 'complete': False, 'error_info': 'None'}
-
-def test_tree_generation_on_receive_data(
-        vf : voxelfarmclient.rest, 
-        request : workflow_lambda.request, 
-        lambda_host : workflow_lambda.workflow_lambda_host):
-    
-    lambda_host.log('Received test tree generation data')
-    result = common_generation_on_receive_data(vf ,request ,lambda_host
-                                             , lambda_name="Test Tree Generation"
-                                             , test_tree_result=True
-                                             , run_road_exe=True
-                                             , run_worldgen_road=True
-                                             , run_upload_smooth_layer=True
-                                             , run_make_basemeshes=True
-                                             , run_upload_basemeshes=False
-                                             , run_make_caves=True
-                                             , run_upload_caves=False
-                                             , run_make_tree_instances=True
-                                             , run_upload_tree_instances=True
-                                             , run_create_geochem_entity=True
-                                             , run_generate_road_input=False)
-    
-    return {'success': result.success, 'complete': False, 'error_info': ''}
-
-def test_tree_generation_on_stage_complete(
-        vf_api : voxelfarmclient.rest,
-        request : workflow_lambda.request,
-        lambda_host : workflow_lambda.workflow_lambda_host):
-    
-    update_type = request.update_type
-    lambda_host.log(f'update_type: {update_type}')
-    if update_type == 'msg':
-        lambda_host.log('Test tree generation stage complete')
         return {'success': True, 'complete': True, 'error_info': 'None'}
 
     return {'success': True, 'complete': False, 'error_info': 'None'}
@@ -981,11 +1081,18 @@ lambda_host.set_workflow_definition(
                         'on_receive_data': basemeshes_generated_input_on_receive_data,
                     },
                     {
-                        'id': 'CAVES_DUNGEONS_GENARATED_INPUT_FILES',
-                        'name': 'Caves and Dungeons Generated Input Files',
-                        'description': 'A collection of Caves and Dungeons Generated Input Files',
+                        'id': 'CAVES_GENARATED_INPUT_FILES',
+                        'name': 'Caves Generated Input Files',
+                        'description': 'A collection of Caves Generated Input Files',
                         'icon': 'mesh',
-                        'on_receive_data': caves_dungeons_generated_input_on_receive_data,
+                        'on_receive_data': caves_generated_input_on_receive_data,
+                    },
+                    {
+                        'id': 'DUNGEONS_GENARATED_INPUT_FILES',
+                        'name': 'Dungeons Generated Input Files',
+                        'description': 'A collection of Dungeons Generated Input Files',
+                        'icon': 'mesh',
+                        'on_receive_data': dungeons_generated_input_on_receive_data,
                     },
                     {
                         'id': 'TREE_PROGRAM_GENARATED_INPUT_FILES',
@@ -1003,6 +1110,14 @@ lambda_host.set_workflow_definition(
                 'icon': 'mesh',
                 'on_receive_data': tree_generation_on_receive_data,
                 'on_stage_done': tree_generation_on_stage_complete,
+            },
+            {
+                'id': 'TEST_WORKFLOW_TREE_GENERATION',
+                'name': 'Test Workflow Tree Generation',
+                'description': 'The test generation of the tree',
+                'icon': 'mesh',
+                'on_receive_data': test_tree_generation_on_receive_data,
+                'on_stage_done': test_tree_generation_on_stage_complete,
             },
             {
                 'id': 'WORKFLOW_BASEMESHES_GENERATION',
@@ -1029,6 +1144,22 @@ lambda_host.set_workflow_definition(
                 'on_stage_done': smooth_layer_generation_on_stage_complete,
             },
             {
+                'id': 'WORKFLOW_ONLY_TREE_GENERATION',
+                'name': 'Workflow Only Tree Generation',
+                'description': 'The generation of the only tree',
+                'icon': 'mesh',
+                'on_receive_data': only_tree_generation_on_receive_data,
+                'on_stage_done': only_tree_generation_on_stage_complete,
+            },
+            {
+                'id': 'TEST_WORKFLOW_ONLY_TREE_GENERATION',
+                'name': 'Test Workflow Only Tree Generation',
+                'description': 'The test generation of the only tree',
+                'icon': 'mesh',
+                'on_receive_data': test_only_tree_generation_on_receive_data,
+                'on_stage_done': test_only_tree_generation_on_stage_complete,
+            },
+            {
                 'id': 'WORKFLOW_ROAD_INPUT_GENERATION',
                 'name': 'Workflow Road Input Generation',
                 'description': 'The generation of the road input',
@@ -1043,14 +1174,6 @@ lambda_host.set_workflow_definition(
                 'icon': 'mesh',
                 'on_receive_data': whole_result_generation_on_receive_data,
                 'on_stage_done': whole_result_generation_on_stage_complete,
-            },
-            {
-                'id': 'TEST_WORKFLOW_TREE_GENERATION',
-                'name': 'Test Workflow Tree Generation',
-                'description': 'The test generation of the tree',
-                'icon': 'mesh',
-                'on_receive_data': test_tree_generation_on_receive_data,
-                'on_stage_done': test_tree_generation_on_stage_complete,
             },
             {
                 'id': 'TEST_WORKFLOW_WHOLE_RESULT_GENERATION',
