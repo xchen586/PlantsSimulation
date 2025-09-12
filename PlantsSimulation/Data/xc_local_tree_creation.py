@@ -2895,42 +2895,6 @@ def tree_config_creation(ini_path):
     #road_input_folder = f'{Data_folder}\\RoadRawInit'
     print(f'start to create tree_config_creation : {ini_path}')
 
-    road_input_folder = f'{Data_folder}'
-    road_exe_name = f'NPCTest2.exe'
-    road_exe_path = os.path.join(Tools_folder, road_exe_name)
-    
-    basemeshes_origin_exe_name = f'BaseMeshVoxelizerOrigin.exe'
-    basemeshes_exe_name = f'BaseMeshVoxelizer.exe'
-    if not use_basemesh_ini:
-        basemeshes_exe_name = f'BaseMeshVoxelizerCmd.exe'
-                
-    print(f'basemeshes_exe_name is {basemeshes_exe_name}')
-    print(f'basemeshes_origin_exe_name is {basemeshes_origin_exe_name}')
-
-    basemeshes_origin_exe_path = os.path.join(Tools_folder, basemeshes_origin_exe_name)
-    basemeshes_exe_path = os.path.join(Tools_folder, basemeshes_exe_name)
-    worldgen_exe_name = f'WorldGen.exe'
-    worldgen_exe_path = os.path.join(Tools_folder, worldgen_exe_name)
-    #txt2las_exe_name = 'txt2las.exe'
-    txt2las_exe_name = 'txt2las64.exe'
-    txt2las_exe_path = os.path.join(Tools_folder, txt2las_exe_name)
-    tree_exe_name = f'PlantsSimulation.exe'
-    tree_exe_path = os.path.join(Tools_folder, tree_exe_name)
-    qtree_assets_folder = Data_folder
-    
-    treelist_data_path = os.path.join(Data_folder, 'TreeList.csv')
-    level1_treelist_data_path = os.path.join(Data_folder, 'Level1_TreeList.csv')
-
-    road_output_folder = os.path.join(Data_folder, f'RoadObjInfo')
-    smoothlayer_output_base_folder = os.path.join(Data_folder, f'sommothlayer_output')
-    basemeshes_db_base_folder = os.path.join(Data_folder, f'db')
-    basemeshes_caves_db_base_folder = os.path.join(Data_folder, f'cavesdb')
-    basemeshes_dungeons_db_base_folder = os.path.join(Data_folder, f'dungeonsdb')
-    basemeshes_caves_dungeons_output_folder = os.path.join(Data_folder, f'CaveDungeonsOutput')
-    basemeshes_cache_base_folder = os.path.join(Data_folder, f'cache')
-    basemeshes_heightmap_folder = os.path.join(Data_folder, f'heightmap')
-    tree_output_base_folder = os.path.join(Data_folder, f'tree_output')
-
     create_or_overwrite_empty_file(ini_path)
 
     create_or_update_ini_file(ini_path, section_main, 'cloud_url', Cloud_url)
@@ -3556,6 +3520,42 @@ Tools_folder = tools_data_path
 print(f'Tools_folder: {Tools_folder}')
 if not os.path.exists(Tools_folder):
     os.makedirs(Tools_folder)
+    
+road_input_folder = f'{Data_folder}'
+road_exe_name = f'NPCTest2.exe'
+road_exe_path = os.path.join(Tools_folder, road_exe_name)
+
+basemeshes_origin_exe_name = f'BaseMeshVoxelizerOrigin.exe'
+basemeshes_exe_name = f'BaseMeshVoxelizer.exe'
+if not use_basemesh_ini:
+    basemeshes_exe_name = f'BaseMeshVoxelizerCmd.exe'
+            
+print(f'basemeshes_exe_name is {basemeshes_exe_name}')
+print(f'basemeshes_origin_exe_name is {basemeshes_origin_exe_name}')
+
+basemeshes_origin_exe_path = os.path.join(Tools_folder, basemeshes_origin_exe_name)
+basemeshes_exe_path = os.path.join(Tools_folder, basemeshes_exe_name)
+worldgen_exe_name = f'WorldGen.exe'
+worldgen_exe_path = os.path.join(Tools_folder, worldgen_exe_name)
+#txt2las_exe_name = 'txt2las.exe'
+txt2las_exe_name = 'txt2las64.exe'
+txt2las_exe_path = os.path.join(Tools_folder, txt2las_exe_name)
+tree_exe_name = f'PlantsSimulation.exe'
+tree_exe_path = os.path.join(Tools_folder, tree_exe_name)
+qtree_assets_folder = Data_folder
+
+treelist_data_path = os.path.join(Data_folder, 'TreeList.csv')
+level1_treelist_data_path = os.path.join(Data_folder, 'Level1_TreeList.csv')
+
+road_output_folder = os.path.join(Data_folder, f'RoadObjInfo')
+smoothlayer_output_base_folder = os.path.join(Data_folder, f'sommothlayer_output')
+basemeshes_db_base_folder = os.path.join(Data_folder, f'db')
+basemeshes_caves_db_base_folder = os.path.join(Data_folder, f'cavesdb')
+basemeshes_dungeons_db_base_folder = os.path.join(Data_folder, f'dungeonsdb')
+basemeshes_caves_dungeons_output_folder = os.path.join(Data_folder, f'CaveDungeonsOutput')
+basemeshes_cache_base_folder = os.path.join(Data_folder, f'cache')
+basemeshes_heightmap_folder = os.path.join(Data_folder, f'heightmap')
+tree_output_base_folder = os.path.join(Data_folder, f'tree_output')
 
 print('Start to copy files')
 
@@ -3624,6 +3624,8 @@ print(f'Tree instance generation configfile_path: {configfile_path}')
 print(f'Tree instance generation config file : {configfile_path}')
 
 run_result = 0
+
+
 
 print('Start to config files')
 print(f'start tree_config_creation: {configfile_path}')
