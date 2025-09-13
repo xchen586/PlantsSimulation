@@ -3042,7 +3042,7 @@ smooth_layer_generated_input_version_property = f'D:\\Downloads\\XCTreeWorkFlow\
 print('smooth_layer_generated_input_version_property: ' + smooth_layer_generated_input_version_property)
 basemeshes_generated_input_version_property = f'D:\\Downloads\\XCTreeWorkFlow\\BaseMeshesGeneratedInput'
 print('basemeshes_generated_input_version_property: ' + basemeshes_generated_input_version_property)
-caves_generated_input_version_property = f'D:\\Downloads\\XCTreeWorkFlow\\CavesGeneratedInput'
+caves_generated_input_version_property = f'D:\\Downloads\\XCTreeWorkFlow\\CaveGeneratedInput'
 print('caves_generated_input_version_property: ' + caves_generated_input_version_property)
 dungeons_generated_input_version_property = f'D:\\Downloads\\XCTreeWorkFlow\\DungeonGeneratedInput'
 print('dungeons_generated_input_version_property: ' + dungeons_generated_input_version_property)
