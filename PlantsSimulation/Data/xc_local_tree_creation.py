@@ -3656,22 +3656,30 @@ if not os.path.exists(basemeshes_cache_db_output_level_1_folder):
 print('Start to copy generated input files')
 
 print(f'start to copy from {road_generated_input_folder} to {road_output_folder}')
-copy_files_in_folder(road_generated_input_folder, road_output_folder)
-print(f'end to copy from {road_generated_input_folder} to {road_output_folder}')
+if os.path.exists(road_generated_input_folder):
+    copy_files_in_folder(road_generated_input_folder, road_output_folder)
+    print(f'end to copy from {road_generated_input_folder} to {road_output_folder}')
 print(f'start to copy from {smooth_layer_generated_input_folder} to {smoothlayer_output_folder}')
-copy_files_in_folder(smooth_layer_generated_input_folder, smoothlayer_output_folder)
-print(f'end to copy from {smooth_layer_generated_input_folder} to {smoothlayer_output_folder}')
+if os.path.exists(smooth_layer_generated_input_folder):
+    copy_files_in_folder(smooth_layer_generated_input_folder, smoothlayer_output_folder)
+    print(f'end to copy from {smooth_layer_generated_input_folder} to {smoothlayer_output_folder}')
 print(f'start to copy from {basemeshes_generated_input_folder} to {basemeshes_heightmap_folder}')
-copy_files_in_folder(basemeshes_generated_input_folder, basemeshes_heightmap_folder)
-print(f'end to copy from {basemeshes_generated_input_folder} to {basemeshes_heightmap_folder}')
+if os.path.exists(basemeshes_generated_input_folder):
+    copy_files_in_folder(basemeshes_generated_input_folder, basemeshes_heightmap_folder)
+    print(f'end to copy from {basemeshes_generated_input_folder} to {basemeshes_heightmap_folder}')
 print(f'start to copy from {caves_generated_input_folder} to {basemeshes_caves_db_output_level_0_folder}')
-copy_files_in_folder(caves_generated_input_folder, basemeshes_caves_db_output_level_0_folder)
-print(f'end to copy from {caves_generated_input_folder} to {basemeshes_caves_db_output_level_0_folder}')
+if os.path.exists(caves_generated_input_folder):
+    copy_files_in_folder(caves_generated_input_folder, basemeshes_caves_db_output_level_0_folder)
+    print(f'end to copy from {caves_generated_input_folder} to {basemeshes_caves_db_output_level_0_folder}')
 print(f'start to copy from {dungeons_generated_input_folder} to {basemeshes_dungeons_db_output_level_0_folder}')
-copy_files_in_folder(dungeons_generated_input_folder, basemeshes_dungeons_db_output_level_0_folder)
-print(f'end to copy from {dungeons_generated_input_folder} to {basemeshes_dungeons_db_output_level_0_folder}')
-print(f'start to copy from {tree_program_generated_input_folder} to {tree_output_folder}')
-copy_files_in_folder(tree_program_generated_input_folder, tree_output_folder) 
+if os.path.exists(dungeons_generated_input_folder):
+    copy_files_in_folder(dungeons_generated_input_folder, basemeshes_dungeons_db_output_level_0_folder)
+    print(f'end to copy from {dungeons_generated_input_folder} to {basemeshes_dungeons_db_output_level_0_folder}')
+
+#print(f'start to copy from {tree_program_generated_input_folder} to {tree_output_folder}')
+#if os.path.exists(tree_program_generated_input_folder):
+#    copy_files_in_folder(tree_program_generated_input_folder, tree_output_folder)   
+#    print(f'end to copy from {tree_program_generated_input_folder} to {tree_output_folder}')
 
 print('End to copy generated input files')
 
