@@ -2542,8 +2542,15 @@ def tree_instances_generation(config_path):
         lambda_host.log(f'new_road_heightmap_file_path is : {new_road_heightmap_file_path}')
         lambda_host.log(f'new_road_humidity_file_path is : {new_road_humidity_file_path}')
         lambda_host.log(f'new_road_cave_file_path is : {new_road_cave_file_path}')
+        lambda_host.log(f'new_road_lake_file_path is : {new_road_lake_file_path}')
+        lambda_host.log(f'new_road_top_lake_file_path is : {new_road_top_lake_file_path}')
+        lambda_host.log(f'new_road_level1_lake_file_path is : {new_road_level1_lake_file_path}')
         
-        
+        lambda_host.log(f'new_road_cave_obj_file_path is : {new_road_cave_obj_file_path}')
+        lambda_host.log(f'new_road_level1_heightmap_file_path is : {new_road_level1_heightmap_file_path}')
+        lambda_host.log(f'new_road_bedrock_heightmap_file_path is : {new_road_bedrock_heightmap_file_path}')
+        lambda_host.log(f'new_road_exposure_mask_file_path is : {new_road_exposure_mask_file_path}')
+        lambda_host.log(f'new_road_exposure_file_path is : {new_road_exposure_file_path}')
     
         attach_file_to_lambda(api, workflow_project_id, lambda_entity_id, new_road_heightmap_file_path)
         attach_file_to_lambda(api, workflow_project_id, lambda_entity_id, new_road_humidity_file_path)
@@ -2552,6 +2559,11 @@ def tree_instances_generation(config_path):
         attach_file_to_lambda(api, workflow_project_id, lambda_entity_id, new_road_top_lake_file_path)
         attach_file_to_lambda(api, workflow_project_id, lambda_entity_id, new_road_level1_lake_file_path)
         
+        attach_file_to_lambda(api, workflow_project_id, lambda_entity_id, new_road_cave_obj_file_path)
+        attach_file_to_lambda(api, workflow_project_id, lambda_entity_id, new_road_level1_heightmap_file_path)
+        attach_file_to_lambda(api, workflow_project_id, lambda_entity_id, new_road_bedrock_heightmap_file_path)
+        attach_file_to_lambda(api, workflow_project_id, lambda_entity_id, new_road_exposure_mask_file_path)
+        attach_file_to_lambda(api, workflow_project_id, lambda_entity_id, new_road_exposure_file_path)
         
         #attach_file_to_lambda(api, workflow_project_id, lambda_entity_id, road_regions_name_file_path)
         #attach_file_to_lambda(api, workflow_project_id, lambda_entity_id, road_regions_namelist_file_path)
@@ -2628,18 +2640,18 @@ def tree_instances_generation(config_path):
     
         if run_level_0_instances:
             merge_instances_csv_files_multiple(geo_chemical_level0_trees_folder_path, geo_chemical_level0_pois_folder_path, destination_folder=geo_chemical_level0_folder_path)
-            create_geochem_tree_entity(api, Project_id, geochem_result_folder_id, geo_chemical_level0_folder_path, Tiles_size, Tiles_x, Tiles_y, 0, project_output_version)
-            print(f'create_geochem_tree_entity level 0 from {geo_chemical_level0_folder_path}')
+            create_geochem_tree_entity(api, Project_id, geochem_result_folder_id, geo_chemical_level0_folder_path, Tiles_size, Tiles_x, Tiles_y, 0, False, project_output_version)
+            lambda_host.log(f'create_geochem_tree_entity level 0 from {geo_chemical_level0_folder_path}')
         
         if run_level_1_instances:
             merge_instances_csv_files_multiple(geo_chemical_level1_trees_folder_path, geo_chemical_level1_pois_folder_path, destination_folder=geo_chemical_level1_folder_path)
-            create_geochem_tree_entity(api, Project_id, geochem_result_folder_id, geo_chemical_level1_folder_path, Tiles_size, Tiles_x, Tiles_y, 1, project_output_version)
-            print(f'create_geochem_tree_entity level 1 from {geo_chemical_level1_folder_path}')
+            create_geochem_tree_entity(api, Project_id, geochem_result_folder_id, geo_chemical_level1_folder_path, Tiles_size, Tiles_x, Tiles_y, 1, False, project_output_version)
+            lambda_host.log(f'create_geochem_tree_entity level 1 from {geo_chemical_level1_folder_path}')
             
         if run_level_0_instances and run_level_1_instances:
             merge_instances_csv_files_multiple(geo_chemical_level0_folder_path, geo_chemical_level1_folder_path, destination_folder=geo_chemical_folder_path)
             create_geochem_tree_entity(api, Project_id, geochem_result_folder_id, geo_chemical_folder_path, Tiles_size, Tiles_x, Tiles_y, 2, True, project_output_version)
-            print(f'create_geochem_tree_entity all level from {geo_chemical_folder_path}')
+            lambda_host.log(f'create_geochem_tree_entity all level from {geo_chemical_folder_path}')
         
         if os.path.exists(tree_height_file_path):
             process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, tree_height_file_path, api.entity_type.VoxelTerrain, final_height_layer_entity_base_name, project_output_version, color=True)    
