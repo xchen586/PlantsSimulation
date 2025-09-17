@@ -2194,7 +2194,10 @@ def tree_instances_generation(config_path):
     api.update_entity(project=project_id, id=project_id, fields={'version': project_output_version})
     
     dont_run_road_game = 1
-    road_exe_command = f'{road_exe_path} {tiles_count} {tiles_x} {tiles_y} {tiles_scale} {road_heightmap_scale_width} {road_heightmap_scale_height} {road_input_folder} {road_output_folder} {dont_run_road_game}'
+    load_road_from_file = 0
+    if only_load_Road:
+        load_road_from_file = 1
+    road_exe_command = f'{road_exe_path} {tiles_count} {tiles_x} {tiles_y} {tiles_scale} {road_heightmap_scale_width} {road_heightmap_scale_height} {road_input_folder} {road_output_folder} {dont_run_road_game} {load_road_from_file}'
     worldgen_level = 5
     worldgen_command =  f'{worldgen_exe_path} {tiles_count} {tiles_x} {tiles_y} {worldgen_level} {tiles_scale} {road_heightmap_scale_width} {road_heightmap_scale_height} {qtree_assets_folder} {smoothlayer_output_base_folder} {road_output_folder}'
     if run_generate_road_input:
@@ -2945,6 +2948,7 @@ lambda_host.log('tree_program_generated_input_folder: ' + tree_program_generated
 only_run_level_0_instances = False
 only_run_level_1_instances = False
 only_run_POIs = False
+only_load_Road = False
 
 keep_old_tree_files = False
 
