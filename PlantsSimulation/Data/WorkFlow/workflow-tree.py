@@ -59,6 +59,7 @@ def common_generation_on_receive_data(
     treelist_active_version_property = request.get_product_property('TREE_LIST_FILES', 'raw_data')
     roaddata_active_version_property = request.get_product_property('ROAD_DATA_FILES', 'raw_data')
     basemeshes_active_version_property = request.get_product_property('BASE_MESHES_FILES', 'raw_data')
+    caves_dungeons_asset_active_version_property = request.get_product_property('CAVES_DUNGEONS_ASSET_FILES', 'raw_data')
     displacement_active_version_property = request.get_product_property('DISPLACEMENT_MAPS_FILES', 'raw_data')
     qtree_active_version_property = request.get_product_property('QUADTREE_FILES', 'raw_data')
     tools_active_version_property = request.get_product_property('TOOLS_FILES', 'raw_data')
@@ -100,6 +101,7 @@ def common_generation_on_receive_data(
             'treelist_active_version_property': treelist_active_version_property,
             'roaddata_active_version_property': roaddata_active_version_property,
             'basemeshes_active_version_property': basemeshes_active_version_property,
+            'caves_dungeons_asset_active_version_property': caves_dungeons_asset_active_version_property,
             'displacement_active_version_property': displacement_active_version_property,
             'qtree_active_version_property': qtree_active_version_property,
             'tools_active_version_property': tools_active_version_property,
@@ -328,6 +330,33 @@ def base_meshes_on_receive_data(
     folder_id = request.version_folder_id
 
     lambda_host.log('Updating base meshes raw entity...') 
+    result = vf.update_entity(
+        id= entity_id,
+        project=project_id, 
+        fields={
+            'file_type' : vf.entity_type.RawMesh,
+            'name' : 'Base Meshes Input files', 
+            'file_folder' : folder_id
+        })
+    if not result.success:
+        return {'success': False, 'error_info': result.error_info}
+    
+    # Save the entity ID that has the input files in the request properties
+    request.properties['raw_data'] = result.id
+    
+    return {'success': True, 'complete': True, 'error_info': 'None'}
+
+def caves_dungeons_asset_on_receive_data(
+        vf : voxelfarmclient.rest, 
+        request : workflow_lambda.request, 
+        lambda_host : workflow_lambda.workflow_lambda_host):
+    lambda_host.log('Received caves and dungeons asset files')
+
+    entity_id = request.raw_entity_id
+    project_id = request.project_id
+    folder_id = request.version_folder_id
+
+    lambda_host.log('Updating caves and dungeons asset raw entity...') 
     result = vf.update_entity(
         id= entity_id,
         project=project_id, 
@@ -1037,6 +1066,13 @@ lambda_host.set_workflow_definition(
                         'description': 'A collection of OBJ meshes',
                         'icon': 'mesh',
                         'on_receive_data': base_meshes_on_receive_data,
+                    },
+                    {
+                        'id': 'CAVES_DUNGEONS_ASSET_FILES',
+                        'name': 'Caves and Dungeons Asset Files',
+                        'description': 'A collection of Caves and Dungeons Asset Files',
+                        'icon': 'mesh',
+                        'on_receive_data': caves_dungeons_asset_on_receive_data,
                     },
                     {
                         'id': 'TREE_LIST_FILES',

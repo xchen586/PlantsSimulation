@@ -3022,6 +3022,7 @@ pythoncode_active_version_property = f'D:\\Downloads\\XCTreeWorkFlow\\PythonCode
 treelist_active_version_property = f'D:\\Downloads\\XCTreeWorkFlow\\TreeList'
 roaddata_active_version_property = f'D:\\Downloads\\XCTreeWorkFlow\\RoadData'
 basemeshes_active_version_property = f'D:\\Downloads\\XCTreeWorkFlow\\BaseMeshes'
+caves_dungeons_asset_active_version_property = f'D:\\Downloads\\XCTreeWorkFlow\\CaveAndDungeonAsset'
 displacement_active_version_property = f'D:\\Downloads\\XCTreeWorkFlow\\DisplacementMaps'
 qtree_active_version_property = f'D:\\Downloads\\XCTreeWorkFlow\\QTree'
 tools_active_version_property = f'D:\\Downloads\\XCTreeWorkFlow\\Tools'
@@ -3031,6 +3032,7 @@ print('pythoncode_active_version_property: ' + pythoncode_active_version_propert
 print('treelist_active_version_property: ' + treelist_active_version_property)
 print('roaddata_active_version_property: ' + roaddata_active_version_property)
 print('basemeshes_active_version_property: ' + basemeshes_active_version_property)
+print('caves_dungeons_asset_active_version_property: ' + caves_dungeons_asset_active_version_property)
 print('displacement_active_version_property: ' + displacement_active_version_property)
 print('qtree_active_version_property: ' + qtree_active_version_property)
 print('tools_active_version_property: ' + tools_active_version_property)
@@ -3484,6 +3486,7 @@ treelist_data_folder = treelist_active_version_property
 #treelist_data_path = os.path.join(treelist_data_folder, 'TreeList.csv')
 roaddata_data_path = roaddata_active_version_property
 basemeshes_data_path = basemeshes_active_version_property
+caves_dungeons_asset_data_path = caves_dungeons_asset_active_version_property
 displacement_data_path = displacement_active_version_property
 qtree_data_path = qtree_active_version_property
 tools_data_path = tools_active_version_property
@@ -3493,6 +3496,7 @@ print('pythoncode_data_folder: ' + pythoncode_data_folder)
 print('treelist_data_folder: ' + treelist_data_folder)
 print('roaddata_data_path: ' + roaddata_data_path)
 print('basemeshes_data_path: ' + basemeshes_data_path)
+print('caves_dungeons_asset_data_path: ' + caves_dungeons_asset_data_path)
 print('displacement_data_path: ' + displacement_data_path)
 print('qtree_data_path: ' + qtree_data_path)
 print('tools_data_path: ' + tools_data_path)
@@ -3568,7 +3572,9 @@ if Need_Copy_Assets:
     print(f'start to copy from {treelist_data_folder} to {Data_folder}')
     copy_files_in_folder(treelist_data_folder, Data_folder)
     print(f'end to copy from {treelist_data_folder} to {Data_folder}')
-    
+    print(f'start to copy from {caves_dungeons_asset_data_path} to {Data_folder}')
+    copy_files_in_folder(caves_dungeons_asset_data_path, Data_folder)
+    print(f'end to copy from {caves_dungeons_asset_data_path} to {Data_folder}')
     print(f'start to copy from {basemeshes_data_path} to {Data_folder}')
     copy_files_in_folder(basemeshes_data_path, Data_folder)
     print(f'end to copy from {basemeshes_data_path} to {Data_folder}')
