@@ -2983,17 +2983,17 @@ lambda_host.log('qtree_data_path: ' + qtree_data_path)
 lambda_host.log('tools_data_path: ' + tools_data_path)
 lambda_host.log('tileinfo_data_path: ' + tileinfo_data_path)
 
-road_generated_input_folder = road_generated_input_version_property
+road_generated_input_folder = lambda_host.download_entity_files(road_generated_input_version_property)
 lambda_host.log('road_generated_input_folder: ' + road_generated_input_folder)
-smooth_layer_generated_input_folder = smooth_layer_generated_input_version_property
+smooth_layer_generated_input_folder = lambda_host.download_entity_files(smooth_layer_generated_input_version_property)
 lambda_host.log('smooth_layer_generated_input_folder: ' + smooth_layer_generated_input_folder) 
-basemeshes_generated_input_folder = basemeshes_generated_input_version_property
+basemeshes_generated_input_folder = lambda_host.download_entity_files(basemeshes_generated_input_version_property)
 lambda_host.log('basemeshes_generated_input_folder: ' + basemeshes_generated_input_folder)
-caves_generated_input_folder = caves_generated_input_version_property
+caves_generated_input_folder = lambda_host.download_entity_files(caves_generated_input_version_property)
 lambda_host.log('caves_generated_input_folder: ' + caves_generated_input_folder)
-dungeons_generated_input_folder = dungeons_generated_input_version_property
+dungeons_generated_input_folder = lambda_host.download_entity_files(dungeons_generated_input_version_property)
 lambda_host.log('dungeons_generated_input_folder: ' + dungeons_generated_input_folder)
-tree_program_generated_input_folder = tree_program_generated_input_version_property
+tree_program_generated_input_folder = lambda_host.download_entity_files(tree_program_generated_input_version_property)
 lambda_host.log('tree_program_generated_input_folder: ' + tree_program_generated_input_folder)
 
 
