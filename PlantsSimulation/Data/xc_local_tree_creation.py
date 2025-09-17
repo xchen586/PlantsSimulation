@@ -2483,6 +2483,20 @@ def tree_instances_generation(config_path):
             print(f'Start to post process region info csv file : {regions_info_path}')
             post_process_regions_info_csv(regions_info_path, regions_info_path, road_regions_namedb_file_path)
             print(f'End to post process region info csv file : {regions_info_path}')
+            
+            if need_update_road_generated_input_version_property:
+                shutil.copy2(most_travelled_points_path, road_generated_input_version_property)
+                print(f'Update road generated input version property file : {most_travelled_points_path}')
+                shutil.copy2(most_distant_points_path, road_generated_input_version_property)
+                print(f'Update road generated input version property file : {most_distant_points_path}')
+                shutil.copy2(level1_poi_points_path, road_generated_input_version_property)
+                print(f'Update road generated input version property file : {level1_poi_points_path}')
+                shutil.copy2(region_centroid_points_path, road_generated_input_version_property)
+                print(f'Update road generated input version property file : {region_centroid_points_path}')
+                shutil.copy2(regions_raw_path, road_generated_input_version_property)
+                print(f'Update road generated input version property file : {regions_raw_path}')
+                shutil.copy2(regions_info_path, road_generated_input_version_property)
+                print(f'Update road generated input version property file : {regions_info_path}')
         else:
             print(f'Error: The process ({road_exe_command}) returned a non-zero exit code ({run_road_exe}).')
             return -1
@@ -2511,6 +2525,29 @@ def tree_instances_generation(config_path):
         return_code_worldgen_road = xc_run_tool(worldgen_command, 41, 60)
         if return_code_worldgen_road == 0:
             print(f'Process ({worldgen_command}) executed successfully.')
+            
+            if need_update_smooth_layer_generated_input_version_property:
+                shutil.copy2(toplayer_image_png_path, smooth_layer_generated_input_version_property)
+                print(f'Update smooth layer generated input version property file : {toplayer_image_png_path}')
+                shutil.copy2(toplayer_image_png_meta_path, smooth_layer_generated_input_version_property)
+                print(f'Update smooth layer generated input version property file : {toplayer_image_png_meta_path}')
+                shutil.copy2(toplayer_heightmap_path, smooth_layer_generated_input_version_property)
+                print(f'Update smooth layer generated input version property file : {toplayer_heightmap_path}')
+                shutil.copy2(toplayer_heightmap_mask_path, smooth_layer_generated_input_version_property)
+                print(f'Update smooth layer generated input version property file : {toplayer_heightmap_mask_path}')
+                shutil.copy2(level1_heightmap_path, smooth_layer_generated_input_version_property)
+                print(f'Update smooth layer generated input version property file : {level1_heightmap_path}')
+                shutil.copy2(level1_heightmap_mask_path, smooth_layer_generated_input_version_property)
+                print(f'Update smooth layer generated input version property file : {level1_heightmap_mask_path}')
+                shutil.copy2(bedrock_heightmap_path, smooth_layer_generated_input_version_property)
+                print(f'Update smooth layer generated input version property file : {bedrock_heightmap_path}')
+                shutil.copy2(bedrock_heightmap_mask_path, smooth_layer_generated_input_version_property)
+                print(f'Update smooth layer generated input version property file : {bedrock_heightmap_mask_path}')
+                shutil.copy2(lakes_heightmap_make_path, smooth_layer_generated_input_version_property)
+                print(f'Update smooth layer generated input version property file : {lakes_heightmap_make_path}')
+                shutil.copy2(level1_lakes_heightmap_make_path, smooth_layer_generated_input_version_property)
+                print(f'Update smooth layer generated input version property file : {level1_lakes_heightmap_make_path}')
+                
         else:
             print(f'Error: The process ({worldgen_command}) returned a non-zero exit code ({return_code_worldgen_road}).')
             return -1
@@ -2572,6 +2609,13 @@ def tree_instances_generation(config_path):
             return_code_basemash0 = xc_run_tool(basemeshvoxelizer0_command, 0, 100)
             if return_code_basemash0 == 0:
                 print(f'Process ({basemeshvoxelizer0_command}) executed successfully.')
+                
+                if need_update_basemeshes_generated_input_version_property:
+                    shutil.copy2(basemeshes_0_heightmap_path, basemeshes_generated_input_version_property)
+                    print(f'Update basemeshes generated input version property file : {basemeshes_0_heightmap_path}')
+                    shutil.copy2(basemeshes_0_heightmap_mask_path, basemeshes_generated_input_version_property)
+                    print(f'Update basemeshes generated input version property file : {basemeshes_0_heightmap_mask_path}')  
+                    
             else:
                 print(f'Error: The process ({basemeshvoxelizer0_command}) returned a non-zero exit code ({return_code_basemash0}).')
                 return -1
@@ -2581,6 +2625,13 @@ def tree_instances_generation(config_path):
             return_code_basemash1 = xc_run_tool(basemeshvoxelizer1_command, 0, 100)
             if return_code_basemash1 == 0:
                 print(f'Process ({basemeshvoxelizer1_command}) executed successfully.')
+                
+                if need_update_basemeshes_generated_input_version_property:
+                    shutil.copy2(basemeshes_1_heightmap_path, basemeshes_generated_input_version_property)
+                    print(f'Update basemeshes generated input version property file : {basemeshes_1_heightmap_path}')
+                    shutil.copy2(basemeshes_1_heightmap_mask_path, basemeshes_generated_input_version_property)
+                    print(f'Update basemeshes generated input version property file : {basemeshes_1_heightmap_mask_path}')
+                    
             else:
                 print(f'Error: The process ({basemeshvoxelizer1_command}) returned a non-zero exit code ({return_code_basemash1}).')
                 return -1
@@ -2707,23 +2758,35 @@ def tree_instances_generation(config_path):
         print(f'new_road_exposure_mask_file_path is : {new_road_exposure_mask_file_path}')
         print(f'new_road_exposure_file_path is : {new_road_exposure_file_path}')
         
-        #shutil.copy2(new_road_heightmap_file_path, original_road_heightmap_file_path)
-        shutil.copy2(new_road_heightmap_file_path, road_generated_input_version_property)
-        
-        #shutil.copy2(new_road_humidity_file_path, original_road_humidity_file_path)
-        shutil.copy2(new_road_humidity_file_path, road_generated_input_version_property)
-        
-        shutil.copy2(new_road_cave_file_path, road_generated_input_version_property)
-        
-        shutil.copy2(new_road_lake_file_path, road_generated_input_version_property)
-        shutil.copy2(new_road_top_lake_file_path, road_generated_input_version_property)
-        shutil.copy2(new_road_level1_lake_file_path, road_generated_input_version_property)
-        
-        shutil.copy2(new_road_cave_obj_file_path, road_generated_input_version_property)
-        shutil.copy2(new_road_level1_heightmap_file_path, road_generated_input_version_property)
-        shutil.copy2(new_road_bedrock_heightmap_file_path, road_generated_input_version_property)
-        shutil.copy2(new_road_exposure_mask_file_path, road_generated_input_version_property)
-        shutil.copy2(new_road_exposure_file_path, road_generated_input_version_property)
+        if need_update_tree_program_generated_input_version_property:
+            #shutil.copy2(new_road_heightmap_file_path, original_road_heightmap_file_path)
+            shutil.copy2(new_road_heightmap_file_path, tree_program_generated_input_version_property)
+            print(f'Update tree program generated input version property file : {new_road_heightmap_file_path}')
+            
+            #shutil.copy2(new_road_humidity_file_path, original_road_humidity_file_path)
+            shutil.copy2(new_road_humidity_file_path, tree_program_generated_input_version_property)
+            print(f'Update tree program generated input version property file : {new_road_humidity_file_path}')
+            
+            shutil.copy2(new_road_cave_file_path, tree_program_generated_input_version_property)
+            print(f'Update tree program generated input version property file : {new_road_cave_file_path}')
+            
+            shutil.copy2(new_road_lake_file_path, tree_program_generated_input_version_property)
+            print(f'Update tree program generated input version property file : {new_road_lake_file_path}')
+            shutil.copy2(new_road_top_lake_file_path, tree_program_generated_input_version_property)
+            print(f'Update tree program generated input version property file : {new_road_top_lake_file_path}')
+            shutil.copy2(new_road_level1_lake_file_path, tree_program_generated_input_version_property)
+            print(f'Update tree program generated input version property file : {new_road_level1_lake_file_path}')
+            
+            shutil.copy2(new_road_cave_obj_file_path, tree_program_generated_input_version_property)
+            print(f'Update tree program generated input version property file : {new_road_cave_obj_file_path}')
+            shutil.copy2(new_road_level1_heightmap_file_path, tree_program_generated_input_version_property)
+            print(f'Update tree program generated input version property file : {new_road_level1_heightmap_file_path}')
+            shutil.copy2(new_road_bedrock_heightmap_file_path, tree_program_generated_input_version_property)
+            print(f'Update tree program generated input version property file : {new_road_bedrock_heightmap_file_path}')
+            shutil.copy2(new_road_exposure_mask_file_path, tree_program_generated_input_version_property)
+            print(f'Update tree program generated input version property file : {new_road_exposure_mask_file_path}')
+            shutil.copy2(new_road_exposure_file_path, tree_program_generated_input_version_property)
+            print(f'Update tree program generated input version property file : {new_road_exposure_file_path}')
             
         print(f'End to run_generate_road_input')
 
@@ -2897,6 +2960,15 @@ def tree_instances_generation(config_path):
         return_code_cave_mash0 = xc_run_tool(cave_meshvoxelizer0_command, 0, 100)
         if return_code_cave_mash0 == 0:
             print(f'Process ({cave_meshvoxelizer0_command}) executed successfully.')
+            
+            if need_update_caves_generated_input_version_property:
+                shutil.copy2(caves_point_cloud_level_0_file_path, caves_generated_input_version_property)
+                print(f'Update caves generated input version property file : {caves_point_cloud_level_0_file_path}')
+                
+            if need_update_dungeons_generated_input_version_property:
+                shutil.copy2(dungeons_poi_csv_level_0_file_path, dungeons_generated_input_version_property)
+                print(f'Update dungeons generated input version property file : {dungeons_poi_csv_level_0_file_path}')
+                
         else:
             print(f'Error: The process ({cave_meshvoxelizer0_command}) returned a non-zero exit code ({return_code_cave_mash0}).')
             return -1
@@ -3095,6 +3167,19 @@ print('dungeons_generated_input_version_property: ' + dungeons_generated_input_v
 tree_program_generated_input_version_property = f'D:\\Downloads\\XCTreeWorkFlow\\TreeProgramGeneratedInput'
 print('tree_program_generated_input_version_property: ' + tree_program_generated_input_version_property)
 
+need_update_road_generated_input_version_property = False
+need_update_smooth_layer_generated_input_version_property = False
+need_update_basemeshes_generated_input_version_property = False
+need_update_caves_generated_input_version_property = False
+need_update_dungeons_generated_input_version_property = False
+need_update_tree_program_generated_input_version_property = False
+
+print('need_update_road_generated_input_version_property: ' + str(need_update_road_generated_input_version_property))
+print('need_update_smooth_layer_generated_input_version_property: ' + str(need_update_smooth_layer_generated_input_version_property))
+print('need_update_basemeshes_generated_input_version_property: ' + str(need_update_basemeshes_generated_input_version_property))
+print('need_update_caves_generated_input_version_property: ' + str(need_update_caves_generated_input_version_property))
+print('need_update_dungeons_generated_input_version_property: ' + str(need_update_dungeons_generated_input_version_property))
+print('need_update_tree_program_generated_input_version_property: ' + str(need_update_tree_program_generated_input_version_property))
 ###############
 Need_Copy_Assets = False
 # XC Options

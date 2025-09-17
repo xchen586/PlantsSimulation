@@ -2319,6 +2319,14 @@ def tree_instances_generation(config_path):
             lambda_host.log(f'Start to post process region info csv file : {regions_info_path}')
             post_process_regions_info_csv(regions_info_path, regions_info_path, road_regions_namedb_file_path)
             lambda_host.log(f'End to post process region info csv file : {regions_info_path}')
+            
+            attach_file_to_lambda(api, workflow_project_id, lambda_entity_id, most_travelled_points_path)
+            attach_file_to_lambda(api, workflow_project_id, lambda_entity_id, most_distant_points_path)
+            attach_file_to_lambda(api, workflow_project_id, lambda_entity_id, level1_poi_points_path)
+            attach_file_to_lambda(api, workflow_project_id, lambda_entity_id, region_centroid_points_path)
+            attach_file_to_lambda(api, workflow_project_id, lambda_entity_id, regions_raw_path)
+            attach_file_to_lambda(api, workflow_project_id, lambda_entity_id, regions_info_path)
+            
         else:
             lambda_host.log(f'Error: The process ({road_exe_command}) returned a non-zero exit code ({run_road_exe}).')
             exit_code(2)
@@ -2348,6 +2356,18 @@ def tree_instances_generation(config_path):
         return_code_worldgen_road = xc_run_tool(worldgen_command, 41, 60)
         if return_code_worldgen_road == 0:
             lambda_host.log(f'Process ({worldgen_command}) executed successfully.')
+            
+            attach_file_to_lambda(api, workflow_project_id, lambda_entity_id, toplayer_image_png_path)
+            attach_file_to_lambda(api, workflow_project_id, lambda_entity_id, toplayer_image_png_meta_path)
+            attach_file_to_lambda(api, workflow_project_id, lambda_entity_id, toplayer_heightmap_path)
+            attach_file_to_lambda(api, workflow_project_id, lambda_entity_id, toplayer_heightmap_mask_path)
+            attach_file_to_lambda(api, workflow_project_id, lambda_entity_id, level1_heightmap_path)
+            attach_file_to_lambda(api, workflow_project_id, lambda_entity_id, level1_heightmap_mask_path)
+            attach_file_to_lambda(api, workflow_project_id, lambda_entity_id, bedrock_heightmap_path)
+            attach_file_to_lambda(api, workflow_project_id, lambda_entity_id, bedrock_heightmap_mask_path)
+            attach_file_to_lambda(api, workflow_project_id, lambda_entity_id, lakes_heightmap_make_path)
+            attach_file_to_lambda(api, workflow_project_id, lambda_entity_id, level1_lakes_heightmap_make_path)
+            
         else:
             lambda_host.log(f'Error: The process ({worldgen_command}) returned a non-zero exit code ({return_code_worldgen_road}).')
             exit_code(2)
@@ -2410,6 +2430,10 @@ def tree_instances_generation(config_path):
             return_code_basemash0 = xc_run_tool(basemeshvoxelizer0_command, 0, 100)
             if return_code_basemash0 == 0:
                 lambda_host.log(f'Process ({basemeshvoxelizer0_command}) executed successfully.')
+                
+                attach_file_to_lambda(api, workflow_project_id, lambda_entity_id, basemeshes_0_heightmap_path)
+                attach_file_to_lambda(api, workflow_project_id, lambda_entity_id, basemeshes_0_heightmap_mask_path)
+                
             else:
                 lambda_host.log(f'Error: The process ({basemeshvoxelizer0_command}) returned a non-zero exit code ({return_code_basemash0}).')
                 return -1
@@ -2419,6 +2443,10 @@ def tree_instances_generation(config_path):
             return_code_basemash1 = xc_run_tool(basemeshvoxelizer1_command, 0, 100)
             if return_code_basemash1 == 0:
                 lambda_host.log(f'Process ({basemeshvoxelizer1_command}) executed successfully.')
+                
+                attach_file_to_lambda(api, workflow_project_id, lambda_entity_id, basemeshes_1_heightmap_path)
+                attach_file_to_lambda(api, workflow_project_id, lambda_entity_id, basemeshes_1_heightmap_mask_path)
+                
             else:
                 lambda_host.log(f'Error: The process ({basemeshvoxelizer1_command}) returned a non-zero exit code ({return_code_basemash1}).')
                 return -1
@@ -2745,6 +2773,11 @@ def tree_instances_generation(config_path):
         return_code_cave_mash0 = xc_run_tool(cave_meshvoxelizer0_command, 0, 100)
         if return_code_cave_mash0 == 0:
             lambda_host.log(f'Process ({cave_meshvoxelizer0_command}) executed successfully.')
+            
+            attach_file_to_lambda(api, workflow_project_id, lambda_entity_id, caves_point_cloud_level_0_file_path)
+            
+            attach_file_to_lambda(api, workflow_project_id, lambda_entity_id, dungeons_poi_csv_level_0_file_path)
+            
         else:
             lambda_host.log(f'Error: The process ({cave_meshvoxelizer0_command}) returned a non-zero exit code ({return_code_cave_mash0}).')
             return -1
@@ -2954,11 +2987,12 @@ lambda_host.log('is_run_worldgen_road: ' + is_run_worldgen_road)
 lambda_host.log('is_run_upload_smooth_layer: ' + is_run_upload_smooth_layer)
 lambda_host.log('is_run_make_basemeshes: ' + is_run_make_basemeshes)
 lambda_host.log('is_run_upload_basemeshes: ' + is_run_upload_basemeshes)
+lambda_host.log('is_run_make_caves is ' + is_run_make_caves)
+lambda_host.log('is_run_upload_caves is ' + is_run_upload_caves) 
 lambda_host.log('is_run_make_tree_instances: ' + is_run_make_tree_instances)
 lambda_host.log('is_run_upload_tree_instances: ' + is_run_upload_tree_instances)
 lambda_host.log('is_run_create_geochem_entity: ' + is_run_create_geochem_entity)
-lambda_host.log('is_run_generate_road_input: ' + is_run_generate_road_input)
-
+lambda_host.log('is_run_generate_road_input: ' + is_run_generate_road_input)   
 lambda_host.log('is_run_make_tree_instances is ' + is_run_make_tree_instances)
 
 lambda_host.progress(1, 'Start to download files')
