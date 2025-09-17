@@ -330,6 +330,7 @@ def base_meshes_on_receive_data(
     folder_id = request.version_folder_id
 
     lambda_host.log('Updating base meshes raw entity...') 
+    
     result = vf.update_entity(
         id= entity_id,
         project=project_id, 
@@ -915,9 +916,9 @@ def road_input_generation_on_stage_complete(
     update_type = request.update_type
     
     project_id = request.project_id
-    product_id = 'ROAD_DATA_FILES'
+    product_id = 'ROAD_GENARATED_INPUT_FILES'
     inputs = {
-            "comment": f'ROAD_DATA_FILES is Triggered by Road input generation version folder : {request.version_folder_id}',
+            "comment": f'ROAD_GENARATED_INPUT_FILES is Triggered by Road input generation version folder : {request.version_folder_id}',
         }
     
     entity_id = request.raw_entity_id
