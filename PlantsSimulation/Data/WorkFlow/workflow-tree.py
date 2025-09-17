@@ -362,7 +362,7 @@ def caves_dungeons_asset_on_receive_data(
         project=project_id, 
         fields={
             'file_type' : vf.entity_type.RawMesh,
-            'name' : 'Base Meshes Input files', 
+            'name' : ' Caves and dungeons asset files', 
             'file_folder' : folder_id
         })
     if not result.success:
