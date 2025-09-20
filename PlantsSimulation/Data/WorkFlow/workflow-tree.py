@@ -16,6 +16,7 @@ level = 6
 tree_lod =  8
 forest_age = 15000
 tree_iteration = 300
+pangea_next_project_id = '1D4CBBD1D957477E8CC3FF376FB87470'
 
 def common_generation_on_receive_data(
         vf : voxelfarmclient.rest, 
@@ -23,6 +24,12 @@ def common_generation_on_receive_data(
         lambda_host : workflow_lambda.workflow_lambda_host,
         lambda_name : str,
         test_tree_result: bool,
+        need_update_road_generated_input_version_property: bool,
+        need_update_smooth_layer_generated_input_version_property: bool,
+        need_update_basemeshes_generated_input_version_property: bool,
+        need_update_caves_generated_input_version_property: bool,
+        need_update_dungeons_generated_input_version_property: bool,
+        need_update_tree_program_generated_input_version_property: bool,
         run_road_exe: bool,
         run_worldgen_road: bool,
         run_upload_smooth_layer: bool,
@@ -112,6 +119,12 @@ def common_generation_on_receive_data(
             'caves_generated_input_version_property': caves_generated_input_version_property, 
             'dungeons_generated_input_version_property': dungeons_generated_input_version_property, 
             'tree_program_generated_input_version_property': tree_program_generated_input_version_property,
+            'need_update_road_generated_input_version_property': need_update_road_generated_input_version_property,
+            'need_update_smooth_layer_generated_input_version_property': need_update_smooth_layer_generated_input_version_property,
+            'need_update_basemeshes_generated_input_version_property': need_update_basemeshes_generated_input_version_property,
+            'need_update_caves_generated_input_version_property': need_update_caves_generated_input_version_property,
+            'need_update_dungeons_generated_input_version_property': need_update_dungeons_generated_input_version_property,
+            'need_update_tree_program_generated_input_version_property': need_update_tree_program_generated_input_version_property,
             'run_road_exe': run_road_exe,
             'run_worldgen_road': run_worldgen_road,
             'run_upload_smooth_layer': run_upload_smooth_layer,
@@ -137,6 +150,9 @@ def common_generation_on_receive_data(
         code='xc_cloud_tree_creation.py',
         files=['xc_cloud_tree_creation.py', 'xc_lambda-uploaddb.py'],
         update_type='msg')
+    
+    request.properties['process_lambda_host_id'] = result.id
+    lambda_host.log(f'process_lambda_host_id is {result.id}')
     
     return result
     
@@ -627,6 +643,12 @@ def tree_generation_on_receive_data(
     result = common_generation_on_receive_data(vf ,request ,lambda_host
                                              , lambda_name="Tree Generation"
                                              , test_tree_result=False
+                                             , need_update_road_generated_input_version_property=True
+                                             , need_update_smooth_layer_generated_input_version_property=True   
+                                             , need_update_basemeshes_generated_input_version_property=True
+                                             , need_update_caves_generated_input_version_property=True
+                                             , need_update_dungeons_generated_input_version_property=True
+                                             , need_update_tree_program_generated_input_version_property=False
                                              , run_road_exe=True
                                              , run_worldgen_road=True
                                              , run_upload_smooth_layer=True
@@ -663,6 +685,12 @@ def test_tree_generation_on_receive_data(
     result = common_generation_on_receive_data(vf ,request ,lambda_host
                                              , lambda_name="Test Tree Generation"
                                              , test_tree_result=True
+                                             , need_update_road_generated_input_version_property=True
+                                             , need_update_smooth_layer_generated_input_version_property=True   
+                                             , need_update_basemeshes_generated_input_version_property=True
+                                             , need_update_caves_generated_input_version_property=True
+                                             , need_update_dungeons_generated_input_version_property=True
+                                             , need_update_tree_program_generated_input_version_property=False
                                              , run_road_exe=True
                                              , run_worldgen_road=True
                                              , run_upload_smooth_layer=True
@@ -699,6 +727,12 @@ def basemeshes_generation_on_receive_data(
     result = common_generation_on_receive_data(vf ,request ,lambda_host
                                              , lambda_name='Base Meshes Generation'
                                              , test_tree_result=False
+                                             , need_update_road_generated_input_version_property=False
+                                             , need_update_smooth_layer_generated_input_version_property=False  
+                                             , need_update_basemeshes_generated_input_version_property=True
+                                             , need_update_caves_generated_input_version_property=False
+                                             , need_update_dungeons_generated_input_version_property=False
+                                             , need_update_tree_program_generated_input_version_property=False
                                              , run_road_exe=False
                                              , run_worldgen_road=False
                                              , run_upload_smooth_layer=False
@@ -737,6 +771,12 @@ def caves_generation_on_receive_data(
     result = common_generation_on_receive_data(vf ,request ,lambda_host
                                              , lambda_name='Caves and Dungeons Meshes Generation'
                                              , test_tree_result=False
+                                             , need_update_road_generated_input_version_property=False
+                                             , need_update_smooth_layer_generated_input_version_property=False   
+                                             , need_update_basemeshes_generated_input_version_property=False
+                                             , need_update_caves_generated_input_version_property=True
+                                             , need_update_dungeons_generated_input_version_property=True
+                                             , need_update_tree_program_generated_input_version_property=False
                                              , run_road_exe=False
                                              , run_worldgen_road=False
                                              , run_upload_smooth_layer=False
@@ -775,6 +815,12 @@ def smooth_layer_generation_on_receive_data(
     result = common_generation_on_receive_data(vf ,request ,lambda_host
                                              , lambda_name='Smooth Layer Generation'
                                              , test_tree_result=False
+                                             , need_update_road_generated_input_version_property=True
+                                             , need_update_smooth_layer_generated_input_version_property=True   
+                                             , need_update_basemeshes_generated_input_version_property=False
+                                             , need_update_caves_generated_input_version_property=False
+                                             , need_update_dungeons_generated_input_version_property=False
+                                             , need_update_tree_program_generated_input_version_property=False
                                              , run_road_exe=True
                                              , run_worldgen_road=True
                                              , run_upload_smooth_layer=True
@@ -796,6 +842,17 @@ def smooth_layer_generation_on_stage_complete(
     update_type = request.update_type
     lambda_host.log(f'update_type: {update_type}')
     
+    process_lambda_host_id = request.properties['process_lambda_host_id']   
+    lambda_host.log(f'process_lambda_host_id from request properties: {process_lambda_host_id}')
+    process_lambda_host_entity = vf_api.get_entity(process_lambda_host_id)
+    lambda_host.log(f'lambda_entity id is  : {process_lambda_host_entity}')
+    
+    if 'property_smooth_layer_generated_input_entity' in process_lambda_host_entity:
+        smooth_layer_geneated_input_entity_id = process_lambda_host_entity['property_smooth_layer_generated_input_entity']
+        lambda_host.log(f'smooth_layer_geneated_input_entity_id from request properties: {smooth_layer_geneated_input_entity_id}')
+    else:
+        lambda_host.log(f'No smooth_layer_generated_input_entity found in the process_lambda_host_entity')
+    
     if update_type == 'msg':
         #todo read the file that we attached
         lambda_host.log('Smooth layers generation stage complete')
@@ -812,6 +869,12 @@ def only_tree_generation_on_receive_data(
     result = common_generation_on_receive_data(vf ,request ,lambda_host
                                              , lambda_name="Only Tree Generation"
                                              , test_tree_result=False
+                                             , need_update_road_generated_input_version_property=False
+                                             , need_update_smooth_layer_generated_input_version_property=False   
+                                             , need_update_basemeshes_generated_input_version_property=False
+                                             , need_update_caves_generated_input_version_property=False
+                                             , need_update_dungeons_generated_input_version_property=False
+                                             , need_update_tree_program_generated_input_version_property=False
                                              , run_road_exe=False
                                              , run_worldgen_road=False
                                              , run_upload_smooth_layer=False
@@ -848,6 +911,12 @@ def test_only_tree_generation_on_receive_data(
     result = common_generation_on_receive_data(vf ,request ,lambda_host
                                              , lambda_name="Test Only Tree Generation"
                                              , test_tree_result=True
+                                             , need_update_road_generated_input_version_property=False
+                                             , need_update_smooth_layer_generated_input_version_property=False   
+                                             , need_update_basemeshes_generated_input_version_property=False
+                                             , need_update_caves_generated_input_version_property=False
+                                             , need_update_dungeons_generated_input_version_property=False
+                                             , need_update_tree_program_generated_input_version_property=False
                                              , run_road_exe=False
                                              , run_worldgen_road=False
                                              , run_upload_smooth_layer=False
@@ -884,6 +953,12 @@ def road_input_generation_on_receive_data(
     result = common_generation_on_receive_data(vf ,request ,lambda_host
                                              , lambda_name='Road Input Generation'
                                              , test_tree_result=False
+                                             , need_update_road_generated_input_version_property=False
+                                             , need_update_smooth_layer_generated_input_version_property=False   
+                                             , need_update_basemeshes_generated_input_version_property=False
+                                             , need_update_caves_generated_input_version_property=False
+                                             , need_update_dungeons_generated_input_version_property=False
+                                             , need_update_tree_program_generated_input_version_property=True
                                              , run_road_exe=False
                                              , run_worldgen_road=True
                                              , run_upload_smooth_layer=False
@@ -951,6 +1026,12 @@ def whole_result_generation_on_receive_data(
     result = common_generation_on_receive_data(vf ,request ,lambda_host
                                              , lambda_name='Whole Result Generation'
                                              , test_tree_result=False
+                                             , need_update_road_generated_input_version_property=True
+                                             , need_update_smooth_layer_generated_input_version_property=True   
+                                             , need_update_basemeshes_generated_input_version_property=True
+                                             , need_update_caves_generated_input_version_property=True
+                                             , need_update_dungeons_generated_input_version_property=True
+                                             , need_update_tree_program_generated_input_version_property=False
                                              , run_road_exe=True
                                              , run_worldgen_road=True
                                              , run_upload_smooth_layer=True
@@ -989,6 +1070,12 @@ def test_whole_result_generation_on_receive_data(
     result = common_generation_on_receive_data(vf ,request ,lambda_host
                                              , lambda_name='Test Whole Result Generation'
                                              , test_tree_result=True
+                                             , need_update_road_generated_input_version_property=True
+                                             , need_update_smooth_layer_generated_input_version_property=True   
+                                             , need_update_basemeshes_generated_input_version_property=True
+                                             , need_update_caves_generated_input_version_property=True
+                                             , need_update_dungeons_generated_input_version_property=True
+                                             , need_update_tree_program_generated_input_version_property=False
                                              , run_road_exe=True
                                              , run_worldgen_road=True
                                              , run_upload_smooth_layer=True

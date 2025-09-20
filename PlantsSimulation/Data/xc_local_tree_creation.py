@@ -416,7 +416,6 @@ def post_process_regions_info_csv(file_path, dest_path, namedb_path):
     df.to_csv(dest_path, index=False)
 
 def update_attach_file_for_entity(api : voxelfarmclient.rest, project_id, entity_id, file_path):
-
     if not os.path.exists(file_path):
         print(f'Attach File {file_path} does not exist')
         return
@@ -429,8 +428,18 @@ def update_attach_file_for_entity(api : voxelfarmclient.rest, project_id, entity
         with open(file_path, "rb") as file:
             api.attach_files(project=project_id, id=entity_id, files={'file': file})
             
-def update_attach_files_for_entity(api : voxelfarmclient.rest, project_id, entity_id, folder_path):
-
+def update_attach_file_list_for_entity(api : voxelfarmclient.rest, project_id, entity_id, file_path_list: list[str]):   
+    file_list = ", ".join(file_path_list)
+    print(f'Attaching file {file_list} to entity {entity_id}')
+    for file_path in file_path_list:
+        if os.path.exists(file_path):
+            print(f'Attach File {file_path} does not exist')
+            with open(file_path, "rb") as file:
+                api.attach_files(project=project_id, id=entity_id, files={'file': file})
+        else:
+            print(f'Attach File {file_path} does not exist, cannot attach it to entity {entity_id}')
+            
+def update_attach_folder_files_for_entity(api : voxelfarmclient.rest, project_id, entity_id, folder_path):
     if not os.path.exists(folder_path):
         print(f'File {folder_path} does not exist')
         return
@@ -2485,6 +2494,7 @@ def tree_instances_generation(config_path):
             print(f'End to post process region info csv file : {regions_info_path}')
             
             if need_update_road_generated_input_version_property:
+                
                 shutil.copy2(most_travelled_points_path, road_generated_input_version_property)
                 print(f'Update road generated input version property file : {most_travelled_points_path}')
                 shutil.copy2(most_distant_points_path, road_generated_input_version_property)
@@ -2497,6 +2507,7 @@ def tree_instances_generation(config_path):
                 print(f'Update road generated input version property file : {regions_raw_path}')
                 shutil.copy2(regions_info_path, road_generated_input_version_property)
                 print(f'Update road generated input version property file : {regions_info_path}')
+                
         else:
             print(f'Error: The process ({road_exe_command}) returned a non-zero exit code ({run_road_exe}).')
             return -1
@@ -2882,7 +2893,7 @@ def tree_instances_generation(config_path):
         merge_instances_csv_files(tree_instance_level0_trees_output_folder_path, tree_instance_level0_pois_output_folder_path, tree_instance_level0_merge_output_foler_path)
         merge_instances_csv_files(tree_instance_level1_trees_output_folder_path, tree_instance_level1_pois_output_folder_path, tree_instance_level1_merge_output_foler_path)
         merge_instances_csv_files(tree_instance_level0_merge_output_foler_path, tree_instance_level1_merge_output_foler_path, tree_instance_output_folder_path)
-        update_attach_files_for_entity(api, project_id, tree_entity_id, tree_instance_output_folder_path)
+        update_attach_folder_files_for_entity(api, project_id, tree_entity_id, tree_instance_output_folder_path)
         print(f'update_attach_files_for_entity tree instances from {tree_instance_output_folder_path} for {tree_entity_id}')
         
         ##### Update the tree region files of tree entity. 
@@ -2890,7 +2901,7 @@ def tree_instances_generation(config_path):
         print(f'copy {regions_info_path} to {regions_info_upload_path}')
         update_attach_file_for_entity(api, project_id, tree_entity_id, regions_info_upload_path)
         print(f'update_attach_file_for_entity regions info csv from {regions_info_upload_path} for {tree_entity_id}')
-        update_attach_files_for_entity(api, project_id, tree_entity_id, regions_output_folder_path)
+        update_attach_folder_files_for_entity(api, project_id, tree_entity_id, regions_output_folder_path)
         print(f'update_attach_files_for_entity cell regions from {regions_output_folder_path} for {tree_entity_id}')
 
     if run_make_basemeshes and run_upload_basemeshes: 
