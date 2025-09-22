@@ -848,6 +848,8 @@ def tree_generation_on_stage_complete(
         request : workflow_lambda.request,
         lambda_host : workflow_lambda.workflow_lambda_host):
     
+    lambda_host.log('Start tree_generation_on_stage_complete')
+    
     update_type = request.update_type
     lambda_host.log(f'update_type: {update_type}')
     if update_type == 'msg':
@@ -891,6 +893,8 @@ def test_tree_generation_on_stage_complete(
         request : workflow_lambda.request,
         lambda_host : workflow_lambda.workflow_lambda_host):
     
+    lambda_host.log('Start test_tree_generation_on_stage_complete')
+    
     update_type = request.update_type
     lambda_host.log(f'update_type: {update_type}')
     if update_type == 'msg':
@@ -932,6 +936,8 @@ def basemeshes_generation_on_stage_complete(
         vf_api : voxelfarmclient.rest,
         request : workflow_lambda.request,
         lambda_host : workflow_lambda.workflow_lambda_host):
+    
+    lambda_host.log('Start basemeshes_generation_on_stage_complete')
     
     update_type = request.update_type
     lambda_host.log(f'update_type: {update_type}')
@@ -978,6 +984,8 @@ def caves_generation_on_stage_complete(
         request : workflow_lambda.request,
         lambda_host : workflow_lambda.workflow_lambda_host):
     
+    lambda_host.log('Start caves_generation_on_stage_complete')
+    
     update_type = request.update_type
     lambda_host.log(f'update_type: {update_type}')
     
@@ -1022,12 +1030,15 @@ def smooth_layer_generation_on_stage_complete(
         request : workflow_lambda.request,
         lambda_host : workflow_lambda.workflow_lambda_host):
     
+    lambda_host.log('Start smooth_layer_generation_on_stage_complete')
+    
     update_type = request.update_type
     lambda_host.log(f'update_type: {update_type}')
     
     if update_type == 'msg':
         #todo read the file that we attached
         lambda_host.log('Smooth layers generation stage complete')
+        common_tigger_new_product_version_from_data_entity_handler(vf_api, request, lambda_host)
         return {'success': True, 'complete': True, 'error_info': 'None'}
 
     return {'success': True, 'complete': False, 'error_info': 'None'}
@@ -1065,6 +1076,8 @@ def only_tree_generation_on_stage_complete(
         vf_api : voxelfarmclient.rest,
         request : workflow_lambda.request,
         lambda_host : workflow_lambda.workflow_lambda_host):
+    
+    lambda_host.log('Start only_tree_generation_on_stage_complete')
     
     update_type = request.update_type
     lambda_host.log(f'update_type: {update_type}')
@@ -1108,6 +1121,8 @@ def test_only_tree_generation_on_stage_complete(
         vf_api : voxelfarmclient.rest,
         request : workflow_lambda.request,
         lambda_host : workflow_lambda.workflow_lambda_host):
+    
+    lambda_host.log('Start test_only_tree_generation_on_stage_complete')
     
     update_type = request.update_type
     lambda_host.log(f'update_type: {update_type}')
@@ -1156,12 +1171,7 @@ def road_input_generation_on_stage_complete(
         lambda_host : workflow_lambda.workflow_lambda_host):
     
     lambda_host.log(f'Start road_input_generation_on_stage_complete')
-    # Check if the lambda completed sucessuflly
-    lambda_entity_id = request.properties['road_input_generation_lambda_id']
-    lambda_entity = lambda_host.get_entity(lambda_entity_id)
-    if not 'state' in lambda_entity or lambda_entity['state'] != 'COMPLETE':
-        return {'success': False, 'complete': False, 'error_info': f'Lambda {lambda_entity_id} was not completed properly'}
-
+    
     update_type = request.update_type
     lambda_host.log(f'update_type: {update_type}')
     
@@ -1207,6 +1217,8 @@ def whole_result_generation_on_stage_complete(
         request : workflow_lambda.request,
         lambda_host : workflow_lambda.workflow_lambda_host):
     
+    lambda_host.log('Start whole_result_generation_on_stage_complete')
+    
     update_type = request.update_type
     lambda_host.log(f'update_type: {update_type}')
     
@@ -1251,6 +1263,8 @@ def test_whole_result_generation_on_stage_complete(
         vf_api : voxelfarmclient.rest,
         request : workflow_lambda.request,
         lambda_host : workflow_lambda.workflow_lambda_host):
+    
+    lambda_host.log('Start test_whole_result_generation_on_stage_complete')
     
     update_type = request.update_type
     lambda_host.log(f'update_type: {update_type}')
