@@ -63,11 +63,11 @@ void PrintMemoryUsage() {
 
     // Get the memory usage of the current process
     if (GetProcessMemoryInfo(process, &pmc, sizeof(pmc))) {
-        std::cout << "Worldgen.exe process Memory Usage (in bytes):\n";
-        std::cout << "Worldgen.exe process Pagefile usage (peak): " << pmc.PeakPagefileUsage << " bytes\n";
-        std::cout << "Worldgen.exe process Pagefile usage: " << pmc.PagefileUsage << " bytes\n";
-        std::cout << "Worldgen.exe process Working Set Size (peak): " << pmc.PeakWorkingSetSize << " bytes\n";
-        std::cout << "Worldgen.exe process Working Set Size: " << pmc.WorkingSetSize << " bytes\n";
+        std::cout << "PlantsSimulation.exe process Memory Usage (in bytes):\n";
+        std::cout << "PlantsSimulation.exe process Pagefile usage (peak): " << pmc.PeakPagefileUsage << " bytes\n";
+        std::cout << "PlantsSimulation.exe process Pagefile usage: " << pmc.PagefileUsage << " bytes\n";
+        std::cout << "PlantsSimulation.exe process Working Set Size (peak): " << pmc.PeakWorkingSetSize << " bytes\n";
+        std::cout << "PlantsSimulation.exe process Working Set Size: " << pmc.WorkingSetSize << " bytes\n";
     }
     else {
         std::cerr << "Failed to retrieve memory information." << std::endl;

@@ -691,6 +691,8 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 
 	bool allTreeOk = true;
 	if (!m_isOnlyPoIs) {
+#if 0   
+		//It is good for run in the local, but failed in Azure VM for thread exhaustion/resource contention issue
 		std::vector<std::future<bool>> treeResults;
 		// Launch threads using std::async for trees
 		for (const auto& pair : m_outputTreeMap) {
@@ -702,6 +704,53 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 				std::cout << "OutputCSVFileForSubInstances Tree Processing failed!" << std::endl;
 				allTreeOk = false;
 			}
+		}
+#endif 
+#if 0 
+		// Temporary fix - process sequentially
+		for (const auto& pair : m_outputTreeMap) {
+			if (!OutputCSVFileForSubInstances(pair.first, pair.second)) {
+				std::cout << "OutputCSVFileForSubInstances Tree Processing failed!" << std::endl;
+				allTreeOk = false;
+			}
+		}
+#endif 
+
+#if 0
+		//Using thread pool
+		ThreadPool pool(4); // Use 4 threads
+		std::vector<std::future<bool>> treeResults;
+
+		for (const auto& pair : m_outputTreeMap) {
+			treeResults.emplace_back(pool.enqueue([&pair]() {
+				return OutputCSVFileForSubInstances(pair.first, pair.second);
+				}));
+		}
+#endif
+		// Limit to hardware concurrency or a reasonable number
+		const size_t maxThreads = std::min(std::thread::hardware_concurrency(), 8u);
+		const size_t totalTasks = m_outputTreeMap.size();
+
+		std::vector<std::future<bool>> treeResults;
+		auto it = m_outputTreeMap.begin();
+
+		for (size_t processed = 0; processed < totalTasks; processed += maxThreads) {
+			// Process in batches
+			size_t batchSize = std::min(maxThreads, totalTasks - processed);
+
+			for (size_t i = 0; i < batchSize && it != m_outputTreeMap.end(); ++i, ++it) {
+				treeResults.emplace_back(std::async(std::launch::async,
+					OutputCSVFileForSubInstances, it->first, it->second));
+			}
+
+			// Wait for this batch to complete
+			for (auto& future : treeResults) {
+				if (!future.get()) {
+					std::cout << "OutputCSVFileForSubInstances Tree Processing failed!" << std::endl;
+					allTreeOk = false;
+				}
+			}
+			treeResults.clear();
 		}
 	}
 	
