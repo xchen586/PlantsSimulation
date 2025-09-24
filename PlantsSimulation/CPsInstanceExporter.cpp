@@ -500,8 +500,8 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 	snprintf(subFullOutput_Dir_Tree, MAX_PATH, "%s/Trees", outputSubsDir.c_str());
 	snprintf(subFullOutput_Dir_Poi, MAX_PATH, "%s/POIs", outputSubsDir.c_str());
 #else
-	sprintf_s(subFullOutput_Dir_Tree, MAX_PATH, "%s/Trees", outputSubsDir.c_str());
-	sprintf_s(subFullOutput_Dir_Poi, MAX_PATH, "%s/POIs", outputSubsDir.c_str());
+	sprintf_s(subFullOutput_Dir_Tree, MAX_PATH, "%s\\Trees", outputSubsDir.c_str());
+	sprintf_s(subFullOutput_Dir_Poi, MAX_PATH, "%s\\POIs", outputSubsDir.c_str());
 #endif
 
 	if (!std::filesystem::exists(subFullOutput_Dir_Tree)) {

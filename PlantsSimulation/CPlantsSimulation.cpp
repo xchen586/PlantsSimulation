@@ -2378,7 +2378,7 @@ bool CPlantsSimulation::OutputResults()
 		std::cout << "Fail to m_pForest->LoadInstanceExporter()" << std::endl;
 		return false;
 	}
-	const int MAX_PATH = 250;
+	const int MAX_PATH = 260;
 	char subFullOutput_Dir[MAX_PATH];
 	memset(subFullOutput_Dir, 0, sizeof(char) * MAX_PATH);
 
