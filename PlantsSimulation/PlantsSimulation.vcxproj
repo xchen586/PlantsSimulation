@@ -150,6 +150,7 @@
     <ClCompile Include="CPlantsSimulation.cpp" />
     <ClCompile Include="CPsInstanceExporter.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="StackWalker.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Common\Include\CCellInfo.h" />
@@ -180,6 +181,7 @@
     <ClInclude Include="CSlopeDensityMap.h" />
     <ClInclude Include="CSunLightAffinityDensityMap.h" />
     <ClInclude Include="I2DMask.h" />
+    <ClInclude Include="StackWalker.h" />
     <ClInclude Include="TreeClasses.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

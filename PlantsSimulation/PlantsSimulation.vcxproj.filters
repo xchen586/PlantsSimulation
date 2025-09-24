@@ -48,6 +48,9 @@
     <ClCompile Include="CAppFuncs.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="StackWalker.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CPlantsSimulation.h">
@@ -136,6 +139,9 @@
     </ClInclude>
     <ClInclude Include="..\Common\Include\XcDualLogging.h">
       <Filter>Common</Filter>
+    </ClInclude>
+    <ClInclude Include="StackWalker.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

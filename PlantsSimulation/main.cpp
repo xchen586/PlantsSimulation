@@ -1,3 +1,12 @@
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#include "StackWalker.h"
+
+#include <psapi.h>
+#pragma comment(lib, "psapi.lib")
+#endif
+
 #include <iostream>
 #include <fstream>
 #include <filesystem> 
@@ -10,6 +19,70 @@
 #include "../Common/include/PsIniParser.h"
 #else
 #include "..\Common\include\PsIniParser.h"
+#endif
+
+#ifdef _WIN32
+class MyStackWalker : public StackWalker {
+public:
+    MyStackWalker() : StackWalker() {}
+
+protected:
+    virtual void OnCallstackEntry(CallstackEntryType eType, CallstackEntry& entry) override {
+        StackWalker::OnCallstackEntry(eType, entry);
+        if (eType == lastEntry) return;
+
+        // Safe string copy with size limit
+        if (entry.name[0] == '\0') {
+            strncpy_s(entry.name, "(function-name not available)", sizeof(entry.name) - 1);
+            entry.name[sizeof(entry.name) - 1] = '\0'; // Ensure null-termination
+        }
+        if (entry.undName[0] != '\0') {
+            strncpy_s(entry.name, entry.undName, sizeof(entry.name) - 1);
+            entry.name[sizeof(entry.name) - 1] = '\0'; // Ensure null-termination
+        }
+        if (entry.undFullName[0] != '\0') {
+            strncpy_s(entry.name, entry.undFullName, sizeof(entry.name) - 1);
+            entry.name[sizeof(entry.name) - 1] = '\0'; // Ensure null-termination
+        }
+
+        // Print to console
+        std::cout << entry.lineFileName << " (" << entry.lineNumber << "): " << entry.name << std::endl;
+    }
+protected:
+    virtual void OnOutput(LPCSTR szText) override {
+        std::cout << szText << std::endl;
+    }
+};
+
+void PrintMemoryUsage() {
+    // Get the handle to the current process
+    HANDLE process = GetCurrentProcess();
+
+    // Create a PROCESS_MEMORY_COUNTERS structure to store memory info
+    PROCESS_MEMORY_COUNTERS pmc;
+
+    // Get the memory usage of the current process
+    if (GetProcessMemoryInfo(process, &pmc, sizeof(pmc))) {
+        std::cout << "Worldgen.exe process Memory Usage (in bytes):\n";
+        std::cout << "Worldgen.exe process Pagefile usage (peak): " << pmc.PeakPagefileUsage << " bytes\n";
+        std::cout << "Worldgen.exe process Pagefile usage: " << pmc.PagefileUsage << " bytes\n";
+        std::cout << "Worldgen.exe process Working Set Size (peak): " << pmc.PeakWorkingSetSize << " bytes\n";
+        std::cout << "Worldgen.exe process Working Set Size: " << pmc.WorkingSetSize << " bytes\n";
+    }
+    else {
+        std::cerr << "Failed to retrieve memory information." << std::endl;
+    }
+
+    // Close the process handle
+    CloseHandle(process);
+}
+
+LONG WINAPI CustomUnhandledExceptionFilter(EXCEPTION_POINTERS* pExceptionInfo) {
+    PrintMemoryUsage();
+    MyStackWalker sw;
+    sw.ShowCallstack(GetCurrentThread(), pExceptionInfo->ContextRecord);
+    return EXCEPTION_EXECUTE_HANDLER;
+}
 #endif
 
 int iniAbsolutePathMain(int argc, const char* argv[])
@@ -202,23 +275,23 @@ int iniAbsolutePathMain(int argc, const char* argv[])
 	int tileScale = scale;
 	int roadHeightMapScaleWidth = scaleWidth;
 	int roadHeightMapScaleHeight = scaleHeight;
-    const int MAX_PATH = 250;
+    const int MY_MAX_PATH = 260;
 
-    char output_final_path[MAX_PATH];
-    char output_file_level0[MAX_PATH];
-    char fullOutput_file_level0[MAX_PATH];
-    char pcFullOutput_file_level0[MAX_PATH];
-    char output_file_level1[MAX_PATH];
-    char fullOutput_file_level1[MAX_PATH];
-    char pcFullOutput_file_level1[MAX_PATH];
+    char output_final_path[MY_MAX_PATH];
+    char output_file_level0[MY_MAX_PATH];
+    char fullOutput_file_level0[MY_MAX_PATH];
+    char pcFullOutput_file_level0[MY_MAX_PATH];
+    char output_file_level1[MY_MAX_PATH];
+    char fullOutput_file_level1[MY_MAX_PATH];
+    char pcFullOutput_file_level1[MY_MAX_PATH];
     
-    memset(output_final_path, 0, sizeof(char) * MAX_PATH);
-    memset(output_file_level0, 0, sizeof(char) * MAX_PATH);
-    memset(fullOutput_file_level0, 0, sizeof(char) * MAX_PATH);
-    memset(pcFullOutput_file_level0, 0, sizeof(char) * MAX_PATH);
-    memset(output_file_level1, 0, sizeof(char) * MAX_PATH);
-    memset(fullOutput_file_level1, 0, sizeof(char) * MAX_PATH);
-    memset(pcFullOutput_file_level1, 0, sizeof(char) * MAX_PATH);
+    memset(output_final_path, 0, sizeof(char) * MY_MAX_PATH);
+    memset(output_file_level0, 0, sizeof(char) * MY_MAX_PATH);
+    memset(fullOutput_file_level0, 0, sizeof(char) * MY_MAX_PATH);
+    memset(pcFullOutput_file_level0, 0, sizeof(char) * MY_MAX_PATH);
+    memset(output_file_level1, 0, sizeof(char) * MY_MAX_PATH);
+    memset(fullOutput_file_level1, 0, sizeof(char) * MY_MAX_PATH);
+    memset(pcFullOutput_file_level1, 0, sizeof(char) * MY_MAX_PATH);
 
 #if __APPLE__
     snprintf(output_final_path, MAX_PATH, "%s/%d_%d_%d", output_path, tiles, tileX, tileY);
@@ -229,13 +302,13 @@ int iniAbsolutePathMain(int argc, const char* argv[])
     snprintf(fullOutput_file_level1, MAX_PATH, "%s/%d_%d_%d_plantsfulloutput_level1.csv", output_final_path, tiles, tileX, tileY);
     snprintf(pcFullOutput_file_level1, MAX_PATH, "%s/points_%d_%d_%d_tree_level1.xyz", output_final_path, tiles, tileX, tileY);
 #else
-    sprintf_s(output_final_path, MAX_PATH, "%s\\%d_%d_%d", output_path, tiles, tileX, tileY);
-    sprintf_s(output_file_level0, MAX_PATH, "%s\\%d_%d_%d_plants_level0.csv", output_final_path, tiles, tileX, tileY);
-    sprintf_s(fullOutput_file_level0, MAX_PATH, "%s\\%d_%d_%d_plantsfulloutput_level0.csv", output_final_path, tiles, tileX, tileY);
-    sprintf_s(pcFullOutput_file_level0, MAX_PATH, "%s\\points_%d_%d_%d_tree_level0.xyz", output_final_path, tiles, tileX, tileY);
-    sprintf_s(output_file_level1, MAX_PATH, "%s\\%d_%d_%d_plants_level1.csv", output_final_path, tiles, tileX, tileY);
-    sprintf_s(fullOutput_file_level1, MAX_PATH, "%s\\%d_%d_%d_plantsfulloutput_level1.csv", output_final_path, tiles, tileX, tileY);
-    sprintf_s(pcFullOutput_file_level1, MAX_PATH, "%s\\points_%d_%d_%d_tree_level1.xyz", output_final_path, tiles, tileX, tileY);
+    sprintf_s(output_final_path, MY_MAX_PATH, "%s\\%d_%d_%d", output_path, tiles, tileX, tileY);
+    sprintf_s(output_file_level0, MY_MAX_PATH, "%s\\%d_%d_%d_plants_level0.csv", output_final_path, tiles, tileX, tileY);
+    sprintf_s(fullOutput_file_level0, MY_MAX_PATH, "%s\\%d_%d_%d_plantsfulloutput_level0.csv", output_final_path, tiles, tileX, tileY);
+    sprintf_s(pcFullOutput_file_level0, MY_MAX_PATH, "%s\\points_%d_%d_%d_tree_level0.xyz", output_final_path, tiles, tileX, tileY);
+    sprintf_s(output_file_level1, MY_MAX_PATH, "%s\\%d_%d_%d_plants_level1.csv", output_final_path, tiles, tileX, tileY);
+    sprintf_s(fullOutput_file_level1, MY_MAX_PATH, "%s\\%d_%d_%d_plantsfulloutput_level1.csv", output_final_path, tiles, tileX, tileY);
+    sprintf_s(pcFullOutput_file_level1, MY_MAX_PATH, "%s\\points_%d_%d_%d_tree_level1.xyz", output_final_path, tiles, tileX, tileY);
 #endif
 
     if (!std::filesystem::exists(output_path)) {
@@ -329,5 +402,8 @@ mainEnd:
 int main(int argc, const char* argv[])
 {
     setupDualLogging(argv[0]);
+#ifdef _WIN32
+    SetUnhandledExceptionFilter(CustomUnhandledExceptionFilter);
+#endif
     return iniAbsolutePathMain(argc, argv);
 }
