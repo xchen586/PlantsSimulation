@@ -136,7 +136,10 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <PostBuildEvent>
-      <Command>copy "$(TargetPath)" "D:\Downloads\XCTreeWorkFlow\Tools"</Command>
+      <Command>copy "$(TargetPath)" "D:\Downloads\XCTreeWorkFlow\Tools"
+copy "$(TargetPath)" "D:\Downloads\XCTreeCreation\Tools"
+copy "$(OutDir)$(TargetName).pdb" "D:\Downloads\XCTreeWorkFlow\Tools"
+copy "$(OutDir)$(TargetName).pdb" "D:\Downloads\XCTreeCreation\Tools"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
