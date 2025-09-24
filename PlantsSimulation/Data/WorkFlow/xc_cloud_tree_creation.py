@@ -3353,7 +3353,7 @@ if os.path.exists(dungeons_generated_input_folder):
     lambda_host.log(f'end to copy from {dungeons_generated_input_folder} to {basemeshes_dungeons_db_output_level_0_folder}')
 if os.path.exists(tree_program_generated_input_folder):
     copy_files_in_folder(tree_program_generated_input_folder, tree_output_folder)
-    lambda_host.log(f'end to copy from {tree_program_generated_input_folder} to {tree_output_folder}')
+    lambda_host.log(f'end to copy from {tree_program_generated_input_folder} to {Data_folder}')
 
 #lambda_host.log(f'start to copy from {tree_program_generated_input_folder} to {tree_output_folder}')
 #if os.path.exists(tree_program_generated_input_folder):

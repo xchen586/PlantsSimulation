@@ -15,7 +15,7 @@ tile_scale = 1
 level = 6
 tree_lod =  8
 forest_age = 15000
-tree_iteration = 30
+tree_iteration = 300
 pangea_next_project_id = '1D4CBBD1D957477E8CC3FF376FB87470'
 
 def common_generation_on_receive_data(
