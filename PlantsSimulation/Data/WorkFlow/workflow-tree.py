@@ -18,6 +18,24 @@ forest_age = 15000
 tree_iteration = 300
 pangea_next_project_id = '1D4CBBD1D957477E8CC3FF376FB87470'
 
+def common_trigger_new_product_version(
+        vf_api : voxelfarmclient.rest,
+        request : workflow_lambda.request,
+        lambda_host : workflow_lambda.workflow_lambda_host, 
+        product_id : str,
+        file_paths : list[str]):
+    
+    inputs = {  
+        "comment": f'new product version of {product_id} is Triggered by version folder : {request.version_folder_id}',
+    }
+    
+    lambda_host.log(f'inputs for create_product_version: {inputs}')
+    lambda_host.log(f'Start to create_product_version for {product_id}')
+    new_product_verion = lambda_host.create_product_version(request.project_id, product_id, inputs, file_paths)
+    lambda_host.log(f'{product_id} new product version : {new_product_verion} is triggered!')
+    
+    return new_product_verion
+
 def common_generation_on_receive_data(
         vf : voxelfarmclient.rest, 
         request : workflow_lambda.request, 
@@ -163,7 +181,7 @@ def common_generation_on_receive_data(
     
     return result
 
-def triger_new_product_version_from_data_entity(
+def trigger_new_product_version_from_data_entity(
         vf_api : voxelfarmclient.rest,
         request : workflow_lambda.request,
         lambda_host : workflow_lambda.workflow_lambda_host, 
@@ -195,7 +213,7 @@ def triger_new_product_version_from_data_entity(
         }
     lambda_host.log(f'inputs for create_product_version: {inputs}')
     lambda_host.log(f'Start to create_product_version for {product_id}')
-    new_product_verion = lambda_host.create_product_version(project_id, product_id, {}, file_paths)
+    new_product_verion = lambda_host.create_product_version(project_id, product_id, inputs, file_paths)
     lambda_host.log(f'{product_id} new product version : {new_product_verion} is triggered!')
     return {'success': True, 'complete': True, 'error_info': 'None'}
     
@@ -237,7 +255,7 @@ def common_tigger_new_product_version_from_data_entity_handler(
         if property_road_generated_input_entity_id in process_lambda_host_entity:
             road_generated_input_entity_id = process_lambda_host_entity[property_road_generated_input_entity_id]
             lambda_host.log(f'{property_road_generated_input_entity_id} from request properties: {road_generated_input_entity_id}')
-            road_result = triger_new_product_version_from_data_entity(vf_api, request, lambda_host, road_generated_input_entity_id, 'ROAD_GENARATED_INPUT_FILES')
+            road_result = trigger_new_product_version_from_data_entity(vf_api, request, lambda_host, road_generated_input_entity_id, 'ROAD_GENARATED_INPUT_FILES')
             allGood = allGood and road_result['success']
             error_msg = error_msg + '\n' + road_result['error_info']
             if road_result['success'] == True:
@@ -254,7 +272,7 @@ def common_tigger_new_product_version_from_data_entity_handler(
         if property_smooth_layer_generated_input_entity_id in process_lambda_host_entity:
             smooth_layer_generated_input_entity_id = process_lambda_host_entity[property_smooth_layer_generated_input_entity_id]
             lambda_host.log(f'{property_smooth_layer_generated_input_entity_id} from request properties: {smooth_layer_generated_input_entity_id}')
-            smooth_layer_result = triger_new_product_version_from_data_entity(vf_api, request, lambda_host, smooth_layer_generated_input_entity_id, 'SMOOTH_LAYER_GENARATED_INPUT_FILES')
+            smooth_layer_result = trigger_new_product_version_from_data_entity(vf_api, request, lambda_host, smooth_layer_generated_input_entity_id, 'SMOOTH_LAYER_GENARATED_INPUT_FILES')
             allGood = allGood and smooth_layer_result['success']
             error_msg = error_msg + '\n' + smooth_layer_result['error_info']
             if smooth_layer_result['success'] == True:
@@ -271,7 +289,7 @@ def common_tigger_new_product_version_from_data_entity_handler(
         if property_basemeshes_generated_input_entity_id in process_lambda_host_entity:
             basemeshes_generated_input_entity_id = process_lambda_host_entity[property_basemeshes_generated_input_entity_id]
             lambda_host.log(f'{property_basemeshes_generated_input_entity_id} from request properties: {basemeshes_generated_input_entity_id}')
-            basemeshes_result = triger_new_product_version_from_data_entity(vf_api, request, lambda_host, basemeshes_generated_input_entity_id, 'BASEMESHES_GENARATED_INPUT_FILES')
+            basemeshes_result = trigger_new_product_version_from_data_entity(vf_api, request, lambda_host, basemeshes_generated_input_entity_id, 'BASEMESHES_GENARATED_INPUT_FILES')
             allGood = allGood and basemeshes_result['success']
             error_msg = error_msg + '\n' + basemeshes_result['error_info']
             if basemeshes_result['success'] == True:
@@ -288,7 +306,7 @@ def common_tigger_new_product_version_from_data_entity_handler(
         if property_caves_generated_input_entity_id in process_lambda_host_entity:
             caves_generated_input_entity_id = process_lambda_host_entity[property_caves_generated_input_entity_id]
             lambda_host.log(f'{property_caves_generated_input_entity_id} from request properties: {caves_generated_input_entity_id}')
-            caves_result = triger_new_product_version_from_data_entity(vf_api, request, lambda_host, caves_generated_input_entity_id, 'CAVES_GENARATED_INPUT_FILES')
+            caves_result = trigger_new_product_version_from_data_entity(vf_api, request, lambda_host, caves_generated_input_entity_id, 'CAVES_GENARATED_INPUT_FILES')
             allGood = allGood and caves_result['success']
             error_msg = error_msg + '\n' + caves_result['error_info']
             if caves_result['success'] == True:
@@ -305,7 +323,7 @@ def common_tigger_new_product_version_from_data_entity_handler(
         if property_dungeons_generated_input_entity_id in process_lambda_host_entity:
             dungeons_generated_input_entity_id = process_lambda_host_entity[property_dungeons_generated_input_entity_id]
             lambda_host.log(f'{property_dungeons_generated_input_entity_id} from request properties: {dungeons_generated_input_entity_id}')
-            dungeons_result = triger_new_product_version_from_data_entity(vf_api, request, lambda_host, dungeons_generated_input_entity_id, 'DUNGEONS_GENARATED_INPUT_FILES')
+            dungeons_result = trigger_new_product_version_from_data_entity(vf_api, request, lambda_host, dungeons_generated_input_entity_id, 'DUNGEONS_GENARATED_INPUT_FILES')
             allGood = allGood and dungeons_result['success']
             error_msg = error_msg + '\n' + dungeons_result['error_info']
             if dungeons_result['success'] == True:
@@ -322,7 +340,7 @@ def common_tigger_new_product_version_from_data_entity_handler(
         if property_tree_program_generated_input_entity_id in process_lambda_host_entity:
             tree_program_generated_input_entity_id = process_lambda_host_entity[property_tree_program_generated_input_entity_id]
             lambda_host.log(f'{property_tree_program_generated_input_entity_id} from request properties: {tree_program_generated_input_entity_id}')
-            tree_program_result = triger_new_product_version_from_data_entity(vf_api, request, lambda_host, tree_program_generated_input_entity_id, 'TREE_PROGRAM_GENARATED_INPUT_FILES')
+            tree_program_result = trigger_new_product_version_from_data_entity(vf_api, request, lambda_host, tree_program_generated_input_entity_id, 'TREE_PROGRAM_GENARATED_INPUT_FILES')
             allGood = allGood and tree_program_result['success']
             error_msg = error_msg + '\n' + tree_program_result['error_info']
             if tree_program_result['success'] == True:
@@ -473,14 +491,10 @@ def road_data_on_receive_data(
     
     triggerOthers = False
     if triggerOthers:
-        lambda_host.log(f'Start to trigger the whole result generation workflow!')
-        product_id = 'WORKFLOW_WHOLE_RESULT_GENERATION'
-        inputs = {
-                "comment": f'Triggered by Road Data version folder : {request.version_folder_id}',
-            }
-        files = []
-        new_whole_version = lambda_host.create_product_version(project_id, product_id, inputs, files)
-        lambda_host.log(f'The whole result generation workflow version : {new_whole_version} is triggered!')
+        lambda_host.log('Triggering others')
+        product_id = 'Workflow_Road_Changed_Tree_Generation'
+        new_trigger_product_version = common_trigger_new_product_version(vf, request, lambda_host, product_id, [])
+        lambda_host.log(f'product : {product_id} has new_trigger_product_version: {new_trigger_product_version}')
     
     lambda_host.log('Updating road data raw entity...') 
     result = vf.update_entity(
@@ -783,6 +797,10 @@ def tree_program_generated_input_on_receive_data(
     
     # Save the entity ID that has the input files in the request properties
     request.properties['raw_data'] = result.id
+    
+    product_id = 'Workflow_Road_Changed_Tree_Generation'
+    new_trigger_product_version = common_trigger_new_product_version(vf, request, lambda_host, product_id, [])
+    lambda_host.log(f'product : {product_id} has new_trigger_product_version: {new_trigger_product_version}')
     
     return {'success': True, 'complete': True, 'error_info': 'None'}
 
@@ -1183,6 +1201,54 @@ def road_input_generation_on_stage_complete(
 
     return {'success': True, 'complete': False, 'error_info': 'None'}
 
+def road_changed_tree_generation_on_receive_data(
+        vf : voxelfarmclient.rest, 
+        request : workflow_lambda.request, 
+        lambda_host : workflow_lambda.workflow_lambda_host):
+    
+    lambda_host.log('Received road changed tree generation data')
+    result = common_generation_on_receive_data(vf ,request ,lambda_host
+                                             , lambda_name='Road Changed Tree Generation'
+                                             , test_tree_result=False
+                                             , need_update_road_generated_input_version_property=False
+                                             , need_update_smooth_layer_generated_input_version_property=False   
+                                             , need_update_basemeshes_generated_input_version_property=False
+                                             , need_update_caves_generated_input_version_property=False
+                                             , need_update_dungeons_generated_input_version_property=False
+                                             , need_update_tree_program_generated_input_version_property=False
+                                             , run_road_exe=True
+                                             , run_worldgen_road=True
+                                             , run_upload_smooth_layer=True
+                                             , run_make_basemeshes=False
+                                             , run_upload_basemeshes=False
+                                             , run_make_caves=False
+                                             , run_upload_caves=False
+                                             , run_make_tree_instances=True
+                                             , run_upload_tree_instances=True
+                                             , run_create_geochem_entity=True
+                                             , run_generate_road_input=False)   
+
+    return {'success': result.success, 'complete': False, 'error_info': ''}
+
+def road_changed_tree_generation_on_stage_complete(
+        vf_api : voxelfarmclient.rest,
+        request : workflow_lambda.request,
+        lambda_host : workflow_lambda.workflow_lambda_host):
+    
+    lambda_host.log('Start road_changed_tree_generation_on_stage_complete')
+    
+    update_type = request.update_type
+    lambda_host.log(f'update_type: {update_type}')
+    
+    if update_type == 'msg':
+        #todo read the file that we attached
+        lambda_host.log('Road changed tree generation stage complete')
+        
+        return {'success': True, 'complete': True, 'error_info': 'None'}
+
+    return {'success': True, 'complete': False, 'error_info': 'None'}
+
+
 def whole_result_generation_on_receive_data(
         vf : voxelfarmclient.rest, 
         request : workflow_lambda.request, 
@@ -1462,6 +1528,14 @@ lambda_host.set_workflow_definition(
                 'icon': 'mesh',
                 'on_receive_data': road_input_generation_on_receive_data,
                 'on_stage_done': road_input_generation_on_stage_complete,
+            },
+            {
+                'id': 'WORKFLOW_ROAD_CHANGED_TREE_GENERATION',
+                'name': 'Workflow Road Changed Tree Generation',
+                'description': 'The tree generation trigger by road changed',
+                'icon': 'mesh',
+                'on_receive_data': road_changed_tree_generation_on_receive_data,
+                'on_stage_done': road_changed_tree_generation_on_stage_complete,
             },
             {
                 'id': 'WORKFLOW_WHOLE_RESULT_GENERATION',
