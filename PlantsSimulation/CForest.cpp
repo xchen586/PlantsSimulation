@@ -876,6 +876,7 @@ void CForest::generate(float forestAge, int iterations)
 		int sizeAfter = trees.size();
 		std::cout << "After remove tree from cave level 0, Trees Size is :" << " " << sizeAfter << std::endl;
 
+		sizeBefore = sizeBefore ? sizeBefore : 1;
 		double percentageCount = static_cast<double>(100 * sizeAfter / sizeBefore);
 		std::cout << "After Cave removal the rest of tree has pencentage of " << percentageCount << " before tree count!" << std::endl;
 
