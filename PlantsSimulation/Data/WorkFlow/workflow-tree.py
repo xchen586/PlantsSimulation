@@ -32,7 +32,11 @@ def common_trigger_new_product_version(
     lambda_host.log(f'inputs for create_product_version: {inputs}')
     lambda_host.log(f'Start to create_product_version for {product_id}')
     new_product_verion = lambda_host.create_product_version(request.project_id, product_id, inputs, file_paths)
-    lambda_host.log(f'{product_id} new product version : {new_product_verion} is triggered!')
+    if new_product_verion == None:
+        lambda_host.log(f'Failed to create_product_version for {product_id}')
+        return None
+    else:
+        lambda_host.log(f'{product_id} new product version : {new_product_verion} is triggered!')
     
     return new_product_verion
 
@@ -214,8 +218,12 @@ def trigger_new_product_version_from_data_entity(
     lambda_host.log(f'inputs for create_product_version: {inputs}')
     lambda_host.log(f'Start to create_product_version for {product_id}')
     new_product_verion = lambda_host.create_product_version(project_id, product_id, inputs, file_paths)
-    lambda_host.log(f'{product_id} new product version : {new_product_verion} is triggered!')
-    return {'success': True, 'complete': True, 'error_info': 'None'}
+    if new_product_verion is None:
+        lambda_host.log(f'Failed to create_product_version for {product_id}')
+        return {'success': False, 'complete': False, 'error_info': f'Failed to create_product_version for {product_id}'}
+    else:
+        lambda_host.log(f'{product_id} new product version : {new_product_verion} is triggered!')
+        return {'success': True, 'complete': True, 'error_info': 'None'}
     
 def common_tigger_new_product_version_from_data_entity_handler(
         vf_api : voxelfarmclient.rest,
@@ -492,9 +500,13 @@ def road_data_on_receive_data(
     triggerOthers = False
     if triggerOthers:
         lambda_host.log('Triggering others')
-        product_id = 'Workflow_Road_Changed_Tree_Generation'
-        new_trigger_product_version = common_trigger_new_product_version(vf, request, lambda_host, product_id, [])
-        lambda_host.log(f'product : {product_id} has new_trigger_product_version: {new_trigger_product_version}')
+        trigged_product_id = 'Workflow_Road_Changed_Tree_Generation'
+        new_trigger_product_version = common_trigger_new_product_version(vf, request, lambda_host, trigged_product_id, [])
+        if new_trigger_product_version is None:
+            lambda_host.log(f'Failed to trigger new product version for {trigged_product_id}')
+            return {'success': False, 'error_info': f'Failed to trigger new product version for {trigged_product_id}'}
+        else:
+            lambda_host.log(f'product : {trigged_product_id} has new_trigger_product_version: {new_trigger_product_version}')
     
     lambda_host.log('Updating road data raw entity...') 
     result = vf.update_entity(
@@ -690,6 +702,12 @@ def smooth_layer_generated_input_on_receive_data(
     # Save the entity ID that has the input files in the request properties
     request.properties['raw_data'] = result.id
     
+    trigged_product_id = 'TEST_WORKFLOW_ONLY_TREE_GENERATION'
+    trigged_new_product_version = common_trigger_new_product_version(
+        vf, request, lambda_host, trigged_product_id, [])
+    if trigged_new_product_version is None:
+        return {'success': False, 'error_info': 'Failed to trigger new product version for product: ' + trigged_product_id}
+    
     return {'success': True, 'complete': True, 'error_info': 'None'}
 
 def basemeshes_generated_input_on_receive_data(
@@ -798,9 +816,11 @@ def tree_program_generated_input_on_receive_data(
     # Save the entity ID that has the input files in the request properties
     request.properties['raw_data'] = result.id
     
-    product_id = 'Workflow_Road_Changed_Tree_Generation'
-    new_trigger_product_version = common_trigger_new_product_version(vf, request, lambda_host, product_id, [])
-    lambda_host.log(f'product : {product_id} has new_trigger_product_version: {new_trigger_product_version}')
+    trigged_product_id = 'Workflow_Road_Changed_Tree_Generation'
+    new_trigger_product_version = common_trigger_new_product_version(vf, request, lambda_host, trigged_product_id, [])
+    if new_trigger_product_version is None:
+        return {'success': False, 'error_info': 'Failed to trigger new product version for product: ' + trigged_product_id}
+    lambda_host.log(f'product : {trigged_product_id} has new_trigger_product_version: {new_trigger_product_version}')
     
     return {'success': True, 'complete': True, 'error_info': 'None'}
 
