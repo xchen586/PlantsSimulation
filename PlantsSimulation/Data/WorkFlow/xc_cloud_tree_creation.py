@@ -407,9 +407,9 @@ def update_attach_file_for_entity(api : voxelfarmclient.rest, project_id, entity
         return
     
     file_paths = [file_path]    
-    lambda_host.log(f'{file_paths}')
+    lambda_host.log(f'{", ".join(file_paths)}')
 
-    lambda_host.log(f'Attaching file {file_paths} to entity {entity_id}')
+    lambda_host.log(f'Attaching file {", ".join(file_paths)} to entity {entity_id}')
     for file_path in file_paths:
         with open(file_path, "rb") as file:
             api.attach_files(project=project_id, id=entity_id, files={'file': file})
@@ -435,9 +435,9 @@ def update_attach_folder_files_for_entity(api : voxelfarmclient.rest, project_id
 
     # Create a list of file paths by joining the folder path with each file name
     file_paths = [os.path.join(folder_path, file_name) for file_name in file_names]    
-    lambda_host.log(file_paths)
+    lambda_host.log("\n ".join(file_paths))
 
-    lambda_host.log(f'Attaching file {file_paths} to entity {entity_id}')
+    lambda_host.log(f'Attaching file {", ".join(file_paths)} to entity {entity_id}')
     for file_path in file_paths:
         with open(file_path, "rb") as file:
             api.attach_files(project=project_id, id=entity_id, files={'file': file})
