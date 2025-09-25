@@ -6,6 +6,7 @@
 #include <filesystem> 
 #include <thread>
 #include <future>
+#include <algorithm>
 
 #if __APPLE__
 #include "../Common/include/PsMarco.h"
@@ -37,6 +38,244 @@ void CPsInstanceExporter::DeInitialize()
 	}
 	m_outputPoiMap.clear(); // Now the map itself is empty	
 }
+
+// Helper function to process a map with thread limiting
+bool CPsInstanceExporter::ProcessMapWithThreadLimiting(const InstanceSubOutputMap& outputMap, const std::string& mapName) {
+	bool allOk = true;
+
+	if (outputMap.empty()) {
+		return true; // Nothing to process
+	}
+
+	// Limit concurrent threads to avoid resource exhaustion on Azure VM
+	const size_t maxThreads = std::min(std::thread::hardware_concurrency(), 6u);
+	const size_t totalTasks = outputMap.size();
+
+	std::cout << "Processing " << totalTasks << " " << mapName << " tasks with max " << maxThreads << " threads" << std::endl;
+
+	auto it = outputMap.begin();
+
+	for (size_t processed = 0; processed < totalTasks; processed += maxThreads) {
+		std::vector<std::future<bool>> results;
+
+		// Create batch of tasks (up to maxThreads)
+		size_t batchSize = std::min(maxThreads, totalTasks - processed);
+
+		for (size_t i = 0; i < batchSize && it != outputMap.end(); ++i, ++it) {
+			try {
+				results.emplace_back(std::async(std::launch::async,
+					OutputCSVFileForSubInstances, it->first, it->second));
+			}
+			catch (const std::exception& e) {
+				std::cout << "Failed to launch async task for " << mapName << ": " << e.what() << std::endl;
+				allOk = false;
+				continue;
+			}
+		}
+
+		// Wait for this batch to complete and check results
+		for (auto& future : results) {
+			try {
+				if (!future.get()) {
+					std::cout << "OutputCSVFileForSubInstances " << mapName << " Processing failed!" << std::endl;
+					allOk = false;
+				}
+			}
+			catch (const std::exception& e) {
+				std::cout << "Exception during " << mapName << " task execution: " << e.what() << std::endl;
+				allOk = false;
+			}
+		}
+
+		// Progress indication
+		std::cout << "Completed " << (processed + batchSize) << " of " << totalTasks << " " << mapName << " tasks" << std::endl;
+	}
+
+	return allOk;
+}
+
+// Your fixed main processing code
+bool CPsInstanceExporter::ProcessOutputMaps() {
+	bool allTreeOk = true;
+
+	// Process trees if not only POIs
+	if (!m_isOnlyPoIs) {
+		allTreeOk = ProcessMapWithThreadLimiting(m_outputTreeMap, "Tree");
+	}
+
+	// Process POIs
+	bool allPoiOk = ProcessMapWithThreadLimiting(m_outputPoiMap, "POI");
+
+	return allTreeOk && allPoiOk;
+}
+
+// Alternative: More explicit version matching your original structure
+bool CPsInstanceExporter::ProcessOutputMapsExplicit() {
+	bool allTreeOk = true;
+
+	// Process Trees
+	if (!m_isOnlyPoIs) {
+		if (!m_outputTreeMap.empty()) {
+			const size_t maxThreads = std::min(std::thread::hardware_concurrency(), 6u);
+			const size_t totalTreeTasks = m_outputTreeMap.size();
+
+			auto treeIt = m_outputTreeMap.begin();
+
+			for (size_t processed = 0; processed < totalTreeTasks; processed += maxThreads) {
+				std::vector<std::future<bool>> treeResults;
+
+				// Launch batch of threads for trees
+				size_t batchSize = std::min(maxThreads, totalTreeTasks - processed);
+				for (size_t i = 0; i < batchSize && treeIt != m_outputTreeMap.end(); ++i, ++treeIt) {
+					try {
+						treeResults.emplace_back(std::async(std::launch::async,
+							OutputCSVFileForSubInstances, treeIt->first, treeIt->second));
+					}
+					catch (const std::exception& e) {
+						std::cout << "Failed to launch tree task: " << e.what() << std::endl;
+						allTreeOk = false;
+						continue;
+					}
+				}
+
+				// Check tree results
+				for (auto& future : treeResults) {
+					try {
+						if (!future.get()) {
+							std::cout << "OutputCSVFileForSubInstances Tree Processing failed!" << std::endl;
+							allTreeOk = false;
+						}
+					}
+					catch (const std::exception& e) {
+						std::cout << "Exception during tree processing: " << e.what() << std::endl;
+						allTreeOk = false;
+					}
+				}
+
+				std::cout << "Completed " << (processed + batchSize) << " of " << totalTreeTasks << " tree tasks" << std::endl;
+			}
+		}
+	}
+
+	// Process POIs
+	bool allPoiOk = true;
+	if (!m_outputPoiMap.empty()) {
+		const size_t maxThreads = std::min(std::thread::hardware_concurrency(), 6u);
+		const size_t totalPoiTasks = m_outputPoiMap.size();
+
+		auto poiIt = m_outputPoiMap.begin();
+
+		for (size_t processed = 0; processed < totalPoiTasks; processed += maxThreads) {
+			std::vector<std::future<bool>> poiResults;
+
+			// Launch batch of threads for POIs
+			size_t batchSize = std::min(maxThreads, totalPoiTasks - processed);
+			for (size_t i = 0; i < batchSize && poiIt != m_outputPoiMap.end(); ++i, ++poiIt) {
+				try {
+					poiResults.emplace_back(std::async(std::launch::async,
+						OutputCSVFileForSubInstances, poiIt->first, poiIt->second));
+				}
+				catch (const std::exception& e) {
+					std::cout << "Failed to launch POI task: " << e.what() << std::endl;
+					allPoiOk = false;
+					continue;
+				}
+			}
+
+			// Check POI results
+			for (auto& future : poiResults) {
+				try {
+					if (!future.get()) {
+						std::cout << "OutputCSVFileForSubInstances POI Processing failed!" << std::endl;
+						allPoiOk = false;
+					}
+				}
+				catch (const std::exception& e) {
+					std::cout << "Exception during POI processing: " << e.what() << std::endl;
+					allPoiOk = false;
+				}
+			}
+
+			std::cout << "Completed " << (processed + batchSize) << " of " << totalPoiTasks << " POI tasks" << std::endl;
+		}
+	}
+
+	return allTreeOk && allPoiOk;
+}
+
+// Fallback: Sequential processing if threading issues persist
+bool CPsInstanceExporter::ProcessOutputMapsSequential() {
+	bool allTreeOk = true;
+
+	// Process trees sequentially
+	if (!m_isOnlyPoIs) {
+		for (const auto& pair : m_outputTreeMap) {
+			try {
+				if (!OutputCSVFileForSubInstances(pair.first, pair.second)) {
+					std::cout << "OutputCSVFileForSubInstances Tree Processing failed for: " << pair.first << std::endl;
+					allTreeOk = false;
+				}
+			}
+			catch (const std::exception& e) {
+				std::cout << "Exception processing tree " << pair.first << ": " << e.what() << std::endl;
+				allTreeOk = false;
+			}
+		}
+	}
+
+	// Process POIs sequentially
+	bool allPoiOk = true;
+	for (const auto& pair : m_outputPoiMap) {
+		try {
+			if (!OutputCSVFileForSubInstances(pair.first, pair.second)) {
+				std::cout << "OutputCSVFileForSubInstances POI Processing failed for: " << pair.first << std::endl;
+				allPoiOk = false;
+			}
+		}
+		catch (const std::exception& e) {
+			std::cout << "Exception processing POI " << pair.first << ": " << e.what() << std::endl;
+			allPoiOk = false;
+		}
+	}
+
+	return allTreeOk && allPoiOk;
+}
+
+bool CPsInstanceExporter::ProcessOutputMapsLocal()
+{
+	bool allTreeOk = true;
+	if (!m_isOnlyPoIs) {
+		std::vector<std::future<bool>> treeResults;
+		// Launch threads using std::async for trees
+		for (const auto& pair : m_outputTreeMap) {
+			treeResults.emplace_back(std::async(std::launch::async, OutputCSVFileForSubInstances, pair.first, pair.second));
+		}
+		// Check results
+		for (auto& future : treeResults) {
+			if (!future.get()) {  // .get() waits for the result and retrieves it
+				std::cout << "OutputCSVFileForSubInstances Tree Processing failed!" << std::endl;
+				allTreeOk = false;
+			}
+		}
+	}
+
+	std::vector<std::future<bool>> poiResults;
+	// Launch threads for POIs
+	for (const auto& pair : m_outputPoiMap) {
+		poiResults.emplace_back(std::async(std::launch::async, OutputCSVFileForSubInstances, pair.first, pair.second));
+	}
+	// Check results
+	bool allPoiOk = true;
+	for (auto& future : poiResults) {
+		if (!future.get()) {  // .get() waits for the result and retrieves it
+			std::cout << "OutputCSVFileForSubInstances POI Processing failed!" << std::endl;
+			allPoiOk = false;
+		}
+	}
+
+	return allTreeOk && allPoiOk;
+}
+
 bool CPsInstanceExporter::OutputAllInstanceGeoChem(string outputFilePath, const InstanceSubOutputMap* pTreeInstances, const InstanceSubOutputMap* pPoiInstances)
 {
 	std::cout << "Start to OutputAllInstanceGeoChem to : " << outputFilePath << std::endl;
@@ -689,91 +928,7 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 		}
 	}*/
 
-	bool allTreeOk = true;
-	if (!m_isOnlyPoIs) {
-#if 0   
-		//It is good for run in the local, but failed in Azure VM for thread exhaustion/resource contention issue
-		std::vector<std::future<bool>> treeResults;
-		// Launch threads using std::async for trees
-		for (const auto& pair : m_outputTreeMap) {
-			treeResults.emplace_back(std::async(std::launch::async, OutputCSVFileForSubInstances, pair.first, pair.second));
-		}
-		// Check results
-		for (auto& future : treeResults) {
-			if (!future.get()) {  // .get() waits for the result and retrieves it
-				std::cout << "OutputCSVFileForSubInstances Tree Processing failed!" << std::endl;
-				allTreeOk = false;
-			}
-		}
-#endif 
-#if 0 
-		// Temporary fix - process sequentially
-		for (const auto& pair : m_outputTreeMap) {
-			if (!OutputCSVFileForSubInstances(pair.first, pair.second)) {
-				std::cout << "OutputCSVFileForSubInstances Tree Processing failed!" << std::endl;
-				allTreeOk = false;
-			}
-		}
-#endif 
-
-#if 0
-		//Using thread pool
-		ThreadPool pool(4); // Use 4 threads
-		std::vector<std::future<bool>> treeResults;
-
-		for (const auto& pair : m_outputTreeMap) {
-			treeResults.emplace_back(pool.enqueue([&pair]() {
-				return OutputCSVFileForSubInstances(pair.first, pair.second);
-				}));
-		}
-#endif
-		// Limit to hardware concurrency or a reasonable number
-		const size_t maxThreads = std::min(std::thread::hardware_concurrency(), 8u);
-		const size_t totalTasks = m_outputTreeMap.size();
-
-		std::vector<std::future<bool>> treeResults;
-		auto it = m_outputTreeMap.begin();
-
-		for (size_t processed = 0; processed < totalTasks; processed += maxThreads) {
-			// Process in batches
-			size_t batchSize = std::min(maxThreads, totalTasks - processed);
-
-			for (size_t i = 0; i < batchSize && it != m_outputTreeMap.end(); ++i, ++it) {
-				treeResults.emplace_back(std::async(std::launch::async,
-					OutputCSVFileForSubInstances, it->first, it->second));
-			}
-
-			// Wait for this batch to complete
-			for (auto& future : treeResults) {
-				if (!future.get()) {
-					std::cout << "OutputCSVFileForSubInstances Tree Processing failed!" << std::endl;
-					allTreeOk = false;
-				}
-			}
-			treeResults.clear();
-		}
-	}
 	
-	std::vector<std::future<bool>> poiResults;
-	// Launch threads for POIs
-	for (const auto& pair : m_outputPoiMap) {
-		poiResults.emplace_back(std::async(std::launch::async, OutputCSVFileForSubInstances, pair.first, pair.second));
-	}
-	// Check results
-	bool allPoiOk = true;
-	for (auto& future : poiResults) {
-		if (!future.get()) {  // .get() waits for the result and retrieves it
-			std::cout << "OutputCSVFileForSubInstances POI Processing failed!" << std::endl;
-			allPoiOk = false;
-		}
-	}
-
-	if (!std::filesystem::exists(allinstancesGeo_folder)) {
-		if (!std::filesystem::create_directory(allinstancesGeo_folder)) {
-			std::cerr << "Failed to create the directory of allinstancesGeo_folder: " << allinstancesGeo_folder << std::endl;
-			return false;
-		}
-	}
 
 	bool outputGeoTree = true;
 	if (!m_isOnlyPoIs)
@@ -792,9 +947,19 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 	outputGeo = OutputAllInstanceGeoChem(allinstancesGeo_Csv, &m_outputTreeMap, &m_outputPoiMap);
 	std::cout << "End OutputAllInstanceGeoChem : " << allinstancesGeo_Csv << std::endl;*/
 
+	bool processOutputMapsOk = ProcessOutputMapsSequential();
+	//bool processOutputMapsOK = ProcessOutputMaps();
+
+	if (!std::filesystem::exists(allinstancesGeo_folder)) {
+		if (!std::filesystem::create_directory(allinstancesGeo_folder)) {
+			std::cerr << "Failed to create the directory of allinstancesGeo_folder: " << allinstancesGeo_folder << std::endl;
+			return false;
+		}
+	}
+
 	std::cout << "End to CPsInstanceExporter::outputSubfiles to : " << outputSubsDir << std::endl;
 
-	return allTreeOk && allPoiOk && outputGeo; 
+	return processOutputMapsOk && outputGeo;
 	/*std::ofstream outputFile(subFilePath);
 	if (!outputFile.is_open()) {
 		std::cerr << "Error: Unable to open the subFilePath file " << subFilePath << std::endl;

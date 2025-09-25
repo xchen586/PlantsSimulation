@@ -127,5 +127,11 @@ protected:
 	bool m_isKeepOldTreeFiles{ false }; // If true, keep old tree files, otherwise remove them
 	void DeInitialize();
 	bool ShouldKeepOldTreeInstances();
+
+	bool ProcessMapWithThreadLimiting(const InstanceSubOutputMap& outputMap, const std::string& mapName);
+	bool ProcessOutputMaps();
+	bool ProcessOutputMapsExplicit();
+	bool ProcessOutputMapsSequential();
+	bool ProcessOutputMapsLocal();
 };
 
