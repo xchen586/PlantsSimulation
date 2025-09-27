@@ -67,11 +67,17 @@ def common_generation_on_receive_data(
     request.properties['my_property'] = 'my_value'
     
     request.properties['need_update_road_generated_input_version_property'] = need_update_road_generated_input_version_property
+    lambda_host.log(f'request.properties[need_update_road_generated_input_version_property]: {need_update_road_generated_input_version_property}')
     request.properties['need_update_smooth_layer_generated_input_version_property'] = need_update_smooth_layer_generated_input_version_property
+    lambda_host.log(f'request.properties[need_update_smooth_layer_generated_input_version_property]: {need_update_smooth_layer_generated_input_version_property}')
     request.properties['need_update_basemeshes_generated_input_version_property'] = need_update_basemeshes_generated_input_version_property
+    lambda_host.log(f'request.properties[need_update_basemeshes_generated_input_version_property]: {need_update_basemeshes_generated_input_version_property}')
     request.properties['need_update_caves_generated_input_version_property'] = need_update_caves_generated_input_version_property
+    lambda_host.log(f'request.properties[need_update_caves_generated_input_version_property]: {need_update_caves_generated_input_version_property}')
     request.properties['need_update_dungeons_generated_input_version_property'] = need_update_dungeons_generated_input_version_property
+    lambda_host.log(f'request.properties[need_update_dungeons_generated_input_version_property]: {need_update_dungeons_generated_input_version_property}')
     request.properties['need_update_tree_program_generated_input_version_property'] = need_update_tree_program_generated_input_version_property
+    lambda_host.log(f'request.properties[need_update_tree_program_generated_input_version_property]: {need_update_tree_program_generated_input_version_property}')
     
     lambda_host.log(f'request.product_folder_id is {request.product_folder_id}')
     lambda_host.log(f'request.active_version_folder_id is {request.active_version_folder_id}')

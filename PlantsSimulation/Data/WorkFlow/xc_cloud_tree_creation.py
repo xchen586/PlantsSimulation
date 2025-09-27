@@ -2348,7 +2348,7 @@ def tree_instances_generation(config_path):
                         road_generated_input_file_list = [most_travelled_points_path, most_distant_points_path, level1_poi_points_path, region_centroid_points_path, regions_raw_path, regions_info_path]
                         lambda_host.log(f'update_attach_file_list_for_entity for entity : {road_generated_input_entity_id} with files)')
                         update_attach_file_list_for_entity(api, project_id, road_generated_input_entity_id, road_generated_input_file_list)
-                        lambda_host.set_property('road_geneated_input_entity_id', road_generated_input_entity_id)
+                        lambda_host.set_property('road_generated_input_entity_id', road_generated_input_entity_id)
                         
         else:
             lambda_host.log(f'Error: The process ({road_exe_command}) returned a non-zero exit code ({run_road_exe}).')
@@ -2399,7 +2399,7 @@ def tree_instances_generation(config_path):
                         smooth_layer_generated_input_file_list = [toplayer_image_png_path, toplayer_image_png_meta_path, toplayer_heightmap_path, toplayer_heightmap_mask_path, level1_heightmap_path, level1_heightmap_mask_path, bedrock_heightmap_path, bedrock_heightmap_mask_path, lakes_heightmap_make_path, level1_lakes_heightmap_make_path]
                         lambda_host.log(f'update_attach_file_list_for_entity for entity : {smooth_layer_generated_input_entity_id} with files)')
                         update_attach_file_list_for_entity(api, project_id, smooth_layer_generated_input_entity_id, smooth_layer_generated_input_file_list)
-                        lambda_host.set_property('smooth_layer_geneated_input_entity_id', smooth_layer_generated_input_entity_id)
+                        lambda_host.set_property('smooth_layer_generated_input_entity_id', smooth_layer_generated_input_entity_id)
             
         else:
             lambda_host.log(f'Error: The process ({worldgen_command}) returned a non-zero exit code ({return_code_worldgen_road}).')
@@ -2483,7 +2483,7 @@ def tree_instances_generation(config_path):
                             basemeshes_generated_input_file_list = [basemeshes_0_heightmap_path, basemeshes_0_heightmap_mask_path]
                             lambda_host.log(f'update_attach_file_list_for_entity for entity : {basemeshes_generated_input_entity_id} with files)')
                             update_attach_file_list_for_entity(api, project_id, basemeshes_generated_input_entity_id, basemeshes_generated_input_file_list)
-                            lambda_host.set_property('basemeshes_geneated_input_entity_id', basemeshes_generated_input_entity_id)
+                            lambda_host.set_property('basemeshes_generated_input_entity_id', basemeshes_generated_input_entity_id)
                 
             else:
                 lambda_host.log(f'Error: The process ({basemeshvoxelizer0_command}) returned a non-zero exit code ({return_code_basemash0}).')
@@ -2496,8 +2496,8 @@ def tree_instances_generation(config_path):
                 lambda_host.log(f'Process ({basemeshvoxelizer1_command}) executed successfully.')
                 
                 if need_update_basemeshes_generated_input_version_property:
-                    if lambda_host.get_property('basemeshes_geneated_input_entity_id'):
-                        basemeshes_generated_input_entity_id = lambda_host.get_property('basemeshes_geneated_input_entity_id')
+                    if lambda_host.get_property('basemeshes_generated_input_entity_id'):
+                        basemeshes_generated_input_entity_id = lambda_host.get_property('basemeshes_generated_input_entity_id')
                         basemeshes_generated_input_file_list = [basemeshes_1_heightmap_path, basemeshes_1_heightmap_mask_path]
                         lambda_host.log(f'update_attach_file_list_for_entity for entity : {basemeshes_generated_input_entity_id} with files)')
                         update_attach_file_list_for_entity(api, project_id, basemeshes_generated_input_entity_id, basemeshes_generated_input_file_list)
@@ -2520,7 +2520,7 @@ def tree_instances_generation(config_path):
                                 if result.success:
                                     lambda_host.log(f'end to create Lambda_BaseMeshes_Generated_Input entity : {project_output_version}_src')
                                     basemeshes_generated_input_entity_id = result.id
-                                    lambda_host.set_property('basemeshes_geneated_input_entity_id', basemeshes_generated_input_entity_id)
+                                    lambda_host.set_property('basemeshes_generated_input_entity_id', basemeshes_generated_input_entity_id)
                                     basemeshes_generated_input_file_list = [basemeshes_1_heightmap_path, basemeshes_1_heightmap_mask_path]
                                     lambda_host.log(f'update_attach_file_list_for_entity for entity : {basemeshes_generated_input_entity_id} with files)')
                                     update_attach_file_list_for_entity(api, project_id, basemeshes_generated_input_entity_id, basemeshes_generated_input_file_list)
@@ -2678,7 +2678,7 @@ def tree_instances_generation(config_path):
                                                                 new_road_cave_obj_file_path, new_road_level1_heightmap_file_path, new_road_bedrock_heightmap_file_path, new_road_exposure_mask_file_path, new_road_exposure_file_path]
                     lambda_host.log(f'update_attach_file_list_for_entity for entity : {tree_program_generated_input_entity_id} with files)')
                     update_attach_file_list_for_entity(api, project_id, tree_program_generated_input_entity_id, tree_program_generated_input_file_list)
-                    lambda_host.set_property('tree_program_geneated_input_entity_id', tree_program_generated_input_entity_id)
+                    lambda_host.set_property('tree_program_generated_input_entity_id', tree_program_generated_input_entity_id)
         
         #attach_file_to_lambda(api, workflow_project_id, lambda_entity_id, road_regions_name_file_path)
         #attach_file_to_lambda(api, workflow_project_id, lambda_entity_id, road_regions_namelist_file_path)
