@@ -3118,6 +3118,9 @@ lambda_host.log('need_update_dungeons_generated_input_version_property: ' + need
 need_update_tree_program_generated_input_version_property = lambda_host.input_string('need_update_tree_program_generated_input_version_property', 'need_update_tree_program_generated_input_version_property', '')
 lambda_host.log('need_update_tree_program_generated_input_version_property: ' + need_update_tree_program_generated_input_version_property)
 
+only_load_road_from_file = lambda_host.input_string('only_load_road_from_file', 'only_load_road_from_file', '')
+lambda_host.log('only_load_road_from_file: ' + only_load_road_from_file)
+
 is_run_road_exe = lambda_host.input_string('run_road_exe', 'run_road_exe', '')
 is_run_worldgen_road = lambda_host.input_string('run_worldgen_road', 'run_worldgen_road', '')
 is_run_upload_smooth_layer = lambda_host.input_string('run_upload_smooth_layer', 'run_upload_smooth_layer', '')
@@ -3185,6 +3188,7 @@ only_run_level_0_instances = False
 only_run_level_1_instances = False
 only_run_POIs = False
 only_load_Road = False
+only_load_Road = (only_load_road_from_file == 'True')
 
 keep_old_tree_files = False
 

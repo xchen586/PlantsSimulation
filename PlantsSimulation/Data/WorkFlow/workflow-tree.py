@@ -52,6 +52,7 @@ def common_generation_on_receive_data(
         need_update_caves_generated_input_version_property: bool,
         need_update_dungeons_generated_input_version_property: bool,
         need_update_tree_program_generated_input_version_property: bool,
+        only_load_road_from_file: bool,
         run_road_exe: bool,
         run_worldgen_road: bool,
         run_upload_smooth_layer: bool,
@@ -162,6 +163,7 @@ def common_generation_on_receive_data(
             'need_update_caves_generated_input_version_property': need_update_caves_generated_input_version_property,
             'need_update_dungeons_generated_input_version_property': need_update_dungeons_generated_input_version_property,
             'need_update_tree_program_generated_input_version_property': need_update_tree_program_generated_input_version_property,
+            'only_load_road_from_file': only_load_road_from_file,
             'run_road_exe': run_road_exe,
             'run_worldgen_road': run_worldgen_road,
             'run_upload_smooth_layer': run_upload_smooth_layer,
@@ -881,6 +883,7 @@ def tree_generation_on_receive_data(
                                              , need_update_caves_generated_input_version_property=True
                                              , need_update_dungeons_generated_input_version_property=True
                                              , need_update_tree_program_generated_input_version_property=False
+                                             , only_load_road_from_file=False
                                              , run_road_exe=True
                                              , run_worldgen_road=True
                                              , run_upload_smooth_layer=True
@@ -926,6 +929,7 @@ def test_tree_generation_on_receive_data(
                                              , need_update_caves_generated_input_version_property=True
                                              , need_update_dungeons_generated_input_version_property=True
                                              , need_update_tree_program_generated_input_version_property=False
+                                             , only_load_road_from_file=False
                                              , run_road_exe=True
                                              , run_worldgen_road=True
                                              , run_upload_smooth_layer=True
@@ -971,6 +975,7 @@ def basemeshes_generation_on_receive_data(
                                              , need_update_caves_generated_input_version_property=False
                                              , need_update_dungeons_generated_input_version_property=False
                                              , need_update_tree_program_generated_input_version_property=False
+                                             , only_load_road_from_file=False
                                              , run_road_exe=False
                                              , run_worldgen_road=False
                                              , run_upload_smooth_layer=False
@@ -1018,6 +1023,7 @@ def caves_generation_on_receive_data(
                                              , need_update_caves_generated_input_version_property=True
                                              , need_update_dungeons_generated_input_version_property=True
                                              , need_update_tree_program_generated_input_version_property=False
+                                             , only_load_road_from_file=False
                                              , run_road_exe=False
                                              , run_worldgen_road=False
                                              , run_upload_smooth_layer=False
@@ -1064,6 +1070,7 @@ def smooth_layer_generation_on_receive_data(
                                              , need_update_caves_generated_input_version_property=False
                                              , need_update_dungeons_generated_input_version_property=False
                                              , need_update_tree_program_generated_input_version_property=False
+                                             , only_load_road_from_file=False
                                              , run_road_exe=True
                                              , run_worldgen_road=True
                                              , run_upload_smooth_layer=True
@@ -1110,6 +1117,7 @@ def only_smooth_layer_generation_on_receive_data(
                                              , need_update_caves_generated_input_version_property=False
                                              , need_update_dungeons_generated_input_version_property=False
                                              , need_update_tree_program_generated_input_version_property=False
+                                             , only_load_road_from_file=False
                                              , run_road_exe=False
                                              , run_worldgen_road=True
                                              , run_upload_smooth_layer=True
@@ -1156,6 +1164,7 @@ def only_tree_generation_on_receive_data(
                                              , need_update_caves_generated_input_version_property=False
                                              , need_update_dungeons_generated_input_version_property=False
                                              , need_update_tree_program_generated_input_version_property=False
+                                             , only_load_road_from_file=False
                                              , run_road_exe=False
                                              , run_worldgen_road=False
                                              , run_upload_smooth_layer=False
@@ -1201,6 +1210,7 @@ def test_only_tree_generation_on_receive_data(
                                              , need_update_caves_generated_input_version_property=False
                                              , need_update_dungeons_generated_input_version_property=False
                                              , need_update_tree_program_generated_input_version_property=False
+                                             , only_load_road_from_file=False
                                              , run_road_exe=False
                                              , run_worldgen_road=False
                                              , run_upload_smooth_layer=False
@@ -1246,6 +1256,7 @@ def road_input_generation_on_receive_data(
                                              , need_update_caves_generated_input_version_property=False
                                              , need_update_dungeons_generated_input_version_property=False
                                              , need_update_tree_program_generated_input_version_property=True
+                                             , only_load_road_from_file=False
                                              , run_road_exe=False
                                              , run_worldgen_road=True
                                              , run_upload_smooth_layer=False
@@ -1296,6 +1307,7 @@ def road_changed_tree_generation_on_receive_data(
                                              , need_update_caves_generated_input_version_property=False
                                              , need_update_dungeons_generated_input_version_property=False
                                              , need_update_tree_program_generated_input_version_property=False
+                                             , only_load_road_from_file=False
                                              , run_road_exe=True
                                              , run_worldgen_road=True
                                              , run_upload_smooth_layer=True
@@ -1344,6 +1356,7 @@ def whole_result_generation_on_receive_data(
                                              , need_update_caves_generated_input_version_property=True
                                              , need_update_dungeons_generated_input_version_property=True
                                              , need_update_tree_program_generated_input_version_property=False
+                                             , only_load_road_from_file=False
                                              , run_road_exe=True
                                              , run_worldgen_road=True
                                              , run_upload_smooth_layer=True
@@ -1391,6 +1404,7 @@ def test_whole_result_generation_on_receive_data(
                                              , need_update_caves_generated_input_version_property=True
                                              , need_update_dungeons_generated_input_version_property=True
                                              , need_update_tree_program_generated_input_version_property=False
+                                             , only_load_road_from_file=False
                                              , run_road_exe=True
                                              , run_worldgen_road=True
                                              , run_upload_smooth_layer=True
