@@ -122,6 +122,8 @@ def common_generation_on_receive_data(
     if test_tree_result:
         game_tree_entity_id_property = "DB5EFD08F7AF4725BABBFDC74E2C5ED8" # xuan test entity 12_4_2_Pangea_Test_Game_Instances_Entity_573
         
+    lambda_host.log(f'game_tree_entity_id_property: {game_tree_entity_id_property}')
+        
     #game_tree_entity_id_property = 'C45A2A58F7CA4482939921388FAECD0C'  #game entity 12_4_2_Pangea_Next_Game_Instances_Entity_New_Regions
     #if test_tree_result:
     #    game_tree_entity_id_property = "3D832611AA9A4BC69ABEB34039AAFED2" # xuan test 12_4_2_Pangea_Next_Test_Instances_Entity_New_Regions
@@ -202,8 +204,8 @@ def trigger_new_product_version_from_data_entity(
     if data_entity is None:
         return {'success': True, 'complete': False, 'error_info': f'Failed to get data_entity {data_entity_id}'} 
     
-    project_id = data_entity['project_id']
-    lambda_host.log(f'get project_id : {project_id} from data_entity[project_id] property')
+    #project_id = data_entity['project_id'] // not work
+    #lambda_host.log(f'get project_id : {project_id} from data_entity[project_id] property')
     project_id = request.project_id
     lambda_host.log(f'get project_id : {project_id} from request.project_id property')
     
@@ -258,7 +260,7 @@ def common_tigger_new_product_version_from_data_entity_handler(
     lambda_host.log(f'process_lambda_host_id from request properties: {process_lambda_host_id}')
     
     process_lambda_host_entity = vf_api.get_entity(process_lambda_host_id)
-    lambda_host.log(f'lambda_entity id is  : {process_lambda_host_entity}')
+    lambda_host.log(f'process_lambda_host_entity content is  : {process_lambda_host_entity}')
     
     property_prefix = 'property_'
     
@@ -266,6 +268,7 @@ def common_tigger_new_product_version_from_data_entity_handler(
     error_msg = ''
     if need_update_road_generated_input_version_property:
         property_road_generated_input_entity_id = property_prefix + 'road_generated_input_entity_id'
+        lambda_host.log(f'property_road_generated_input_entity_id property name is : {property_road_generated_input_entity_id}')
         if property_road_generated_input_entity_id in process_lambda_host_entity:
             road_generated_input_entity_id = process_lambda_host_entity[property_road_generated_input_entity_id]
             lambda_host.log(f'{property_road_generated_input_entity_id} from request properties: {road_generated_input_entity_id}')
@@ -283,6 +286,7 @@ def common_tigger_new_product_version_from_data_entity_handler(
             
     if need_update_smooth_layer_generated_input_version_property:
         property_smooth_layer_generated_input_entity_id = property_prefix + 'smooth_layer_generated_input_entity_id'
+        lambda_host.log(f'property_smooth_layer_generated_input_entity_id property name is : {property_smooth_layer_generated_input_entity_id}')
         if property_smooth_layer_generated_input_entity_id in process_lambda_host_entity:
             smooth_layer_generated_input_entity_id = process_lambda_host_entity[property_smooth_layer_generated_input_entity_id]
             lambda_host.log(f'{property_smooth_layer_generated_input_entity_id} from request properties: {smooth_layer_generated_input_entity_id}')
@@ -300,6 +304,7 @@ def common_tigger_new_product_version_from_data_entity_handler(
             
     if need_update_basemeshes_generated_input_version_property:
         property_basemeshes_generated_input_entity_id = property_prefix + 'basemeshes_generated_input_entity_id'
+        lambda_host.log(f'property_basemeshes_generated_input_entity_id property name is : {property_basemeshes_generated_input_entity_id}')
         if property_basemeshes_generated_input_entity_id in process_lambda_host_entity:
             basemeshes_generated_input_entity_id = process_lambda_host_entity[property_basemeshes_generated_input_entity_id]
             lambda_host.log(f'{property_basemeshes_generated_input_entity_id} from request properties: {basemeshes_generated_input_entity_id}')
@@ -317,6 +322,7 @@ def common_tigger_new_product_version_from_data_entity_handler(
         
     if need_update_caves_generated_input_version_property:
         property_caves_generated_input_entity_id = property_prefix + 'caves_generated_input_entity_id'
+        lambda_host.log(f'property_caves_generated_input_entity_id property name is : {property_caves_generated_input_entity_id}')
         if property_caves_generated_input_entity_id in process_lambda_host_entity:
             caves_generated_input_entity_id = process_lambda_host_entity[property_caves_generated_input_entity_id]
             lambda_host.log(f'{property_caves_generated_input_entity_id} from request properties: {caves_generated_input_entity_id}')
@@ -334,6 +340,7 @@ def common_tigger_new_product_version_from_data_entity_handler(
             
     if need_update_dungeons_generated_input_version_property:
         property_dungeons_generated_input_entity_id = property_prefix + 'dungeons_generated_input_entity_id'
+        lambda_host.log(f'property_dungeons_generated_input_entity_id property name is : {property_dungeons_generated_input_entity_id}')
         if property_dungeons_generated_input_entity_id in process_lambda_host_entity:
             dungeons_generated_input_entity_id = process_lambda_host_entity[property_dungeons_generated_input_entity_id]
             lambda_host.log(f'{property_dungeons_generated_input_entity_id} from request properties: {dungeons_generated_input_entity_id}')
@@ -351,6 +358,7 @@ def common_tigger_new_product_version_from_data_entity_handler(
             
     if need_update_tree_program_generated_input_version_property:
         property_tree_program_generated_input_entity_id = property_prefix + 'tree_program_generated_input_entity_id'
+        lambda_host.log(f'property_tree_program_generated_input_entity_id property name is : {property_tree_program_generated_input_entity_id}')
         if property_tree_program_generated_input_entity_id in process_lambda_host_entity:
             tree_program_generated_input_entity_id = process_lambda_host_entity[property_tree_program_generated_input_entity_id]
             lambda_host.log(f'{property_tree_program_generated_input_entity_id} from request properties: {tree_program_generated_input_entity_id}')
@@ -1087,6 +1095,52 @@ def smooth_layer_generation_on_stage_complete(
 
     return {'success': True, 'complete': False, 'error_info': 'None'}
 
+def only_smooth_layer_generation_on_receive_data(
+        vf : voxelfarmclient.rest, 
+        request : workflow_lambda.request, 
+        lambda_host : workflow_lambda.workflow_lambda_host):
+    
+    lambda_host.log('Received only smooth layer generation data')
+    result = common_generation_on_receive_data(vf ,request ,lambda_host
+                                             , lambda_name='Only Smooth Layer Generation'
+                                             , test_tree_result=False
+                                             , need_update_road_generated_input_version_property=False
+                                             , need_update_smooth_layer_generated_input_version_property=True   
+                                             , need_update_basemeshes_generated_input_version_property=False
+                                             , need_update_caves_generated_input_version_property=False
+                                             , need_update_dungeons_generated_input_version_property=False
+                                             , need_update_tree_program_generated_input_version_property=False
+                                             , run_road_exe=False
+                                             , run_worldgen_road=True
+                                             , run_upload_smooth_layer=True
+                                             , run_make_basemeshes=False
+                                             , run_upload_basemeshes=False
+                                             , run_make_caves=False
+                                             , run_upload_caves=False
+                                             , run_make_tree_instances=False
+                                             , run_upload_tree_instances=False
+                                             , run_create_geochem_entity=False
+                                             , run_generate_road_input=False)
+    return {'success': result.success, 'complete': False, 'error_info': ''}
+
+def only_smooth_layer_generation_on_stage_complete(
+        vf_api : voxelfarmclient.rest,
+        request : workflow_lambda.request,
+        lambda_host : workflow_lambda.workflow_lambda_host):
+    
+    lambda_host.log('Start only_smooth_layer_generation_on_stage_complete')
+    
+    update_type = request.update_type
+    lambda_host.log(f'update_type: {update_type}')
+    
+    if update_type == 'msg':
+        #todo read the file that we attached
+        lambda_host.log('Only smooth layers generation stage complete')
+        common_tigger_new_product_version_from_data_entity_handler(vf_api, request, lambda_host)
+        return {'success': True, 'complete': True, 'error_info': 'None'}
+
+    return {'success': True, 'complete': False, 'error_info': 'None'}
+
 def only_tree_generation_on_receive_data(
         vf : voxelfarmclient.rest, 
         request : workflow_lambda.request, 
@@ -1530,6 +1584,14 @@ lambda_host.set_workflow_definition(
                 'icon': 'mesh',
                 'on_receive_data': smooth_layer_generation_on_receive_data,
                 'on_stage_done': smooth_layer_generation_on_stage_complete,
+            },
+            {
+                'id': 'WORKFLOW_ONLY_SMOOTH_LAYER_GENERATION',
+                'name': 'Workflow Only Smooth Layers Generation',
+                'description': 'The generation of the Only smooth layers',
+                'icon': 'mesh',
+                'on_receive_data': only_smooth_layer_generation_on_receive_data,
+                'on_stage_done': only_smooth_layer_generation_on_stage_complete,
             },
             {
                 'id': 'WORKFLOW_ONLY_TREE_GENERATION',
