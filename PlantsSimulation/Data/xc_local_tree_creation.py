@@ -2267,6 +2267,10 @@ def tree_instances_generation(config_path):
     regions_info_name = f'regions_info.csv'
     regions_info_path = os.path.join(road_output_folder, f'{tiles_count}_{tiles_x}_{tiles_y}_{regions_info_name}') 
     
+    road_map_bmp_path = os.path.join(road_output_folder, f'{tiles_count}_{tiles_x}_{tiles_y}_roadmap.bmp')
+    road_roads_obj_path = os.path.join(road_output_folder, f'{tiles_count}_{tiles_x}_{tiles_y}_roads.obj')
+    road_slope_raw_path = os.path.join(road_output_folder, f'{tiles_count}_{tiles_x}_{tiles_y}_slopes.raw')
+    
     tree_ini_folder = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}') 
     tree_ini_name = 'TreesInstancesAbsolutePathWin.ini'
     tree_ini_path = os.path.join(tree_ini_folder, tree_ini_name) 
@@ -2507,6 +2511,13 @@ def tree_instances_generation(config_path):
                 print(f'Update road generated input version property file : {regions_raw_path}')
                 shutil.copy2(regions_info_path, road_generated_input_version_property)
                 print(f'Update road generated input version property file : {regions_info_path}')
+                
+                shutil.copy2(road_map_bmp_path, road_generated_input_version_property)
+                print(f'Update road generated input version property file : {road_map_bmp_path}')
+                shutil.copy2(road_roads_obj_path, road_generated_input_version_property)
+                print(f'Update road generated input version property file : {road_roads_obj_path}')
+                shutil.copy2(road_slope_raw_path, road_generated_input_version_property)
+                print(f'Update road generated input version property file : {road_slope_raw_path}')
                 
         else:
             print(f'Error: The process ({road_exe_command}) returned a non-zero exit code ({run_road_exe}).')

@@ -2100,7 +2100,11 @@ def tree_instances_generation(config_path):
     region_centroid_points_path = os.path.join(road_output_folder, f'{tiles_count}_{tiles_x}_{tiles_y}_Region_Centroid_Points.csv')
     regions_raw_path = os.path.join(road_output_folder, f'{tiles_count}_{tiles_x}_{tiles_y}_regions.raw') 
     regions_info_name = f'regions_info.csv'
-    regions_info_path = os.path.join(road_output_folder, f'{tiles_count}_{tiles_x}_{tiles_y}_{regions_info_name}') 
+    regions_info_path = os.path.join(road_output_folder, f'{tiles_count}_{tiles_x}_{tiles_y}_{regions_info_name}')
+    
+    road_map_bmp_path = os.path.join(road_output_folder, f'{tiles_count}_{tiles_x}_{tiles_y}_roadmap.bmp')
+    road_roads_obj_path = os.path.join(road_output_folder, f'{tiles_count}_{tiles_x}_{tiles_y}_roads.obj')
+    road_slope_raw_path = os.path.join(road_output_folder, f'{tiles_count}_{tiles_x}_{tiles_y}_slopes.raw')
     
     tree_ini_folder = os.path.join(tree_output_base_folder, f'{tiles_count}_{tiles_x}_{tiles_y}') 
     tree_ini_name = 'TreesInstancesAbsolutePathWin.ini'
@@ -2345,7 +2349,7 @@ def tree_instances_generation(config_path):
                     if result.success:
                         lambda_host.log(f'end to create Lambda_Road_Generated_Input entity : {project_output_version}_src')
                         road_generated_input_entity_id = result.id
-                        road_generated_input_file_list = [most_travelled_points_path, most_distant_points_path, level1_poi_points_path, region_centroid_points_path, regions_raw_path, regions_info_path]
+                        road_generated_input_file_list = [most_travelled_points_path, most_distant_points_path, level1_poi_points_path, region_centroid_points_path, regions_raw_path, regions_info_path, road_map_bmp_path, road_roads_obj_path, road_slope_raw_path]
                         lambda_host.log(f'update_attach_file_list_for_entity for entity : {road_generated_input_entity_id} with files)')
                         update_attach_file_list_for_entity(api, project_id, road_generated_input_entity_id, road_generated_input_file_list)
                         lambda_host.set_property('road_generated_input_entity_id', road_generated_input_entity_id)
