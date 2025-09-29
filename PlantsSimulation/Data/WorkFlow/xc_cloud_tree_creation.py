@@ -419,7 +419,7 @@ def update_attach_file_list_for_entity(api : voxelfarmclient.rest, project_id, e
     lambda_host.log(f'Attaching file {file_list} to entity {entity_id}')
     for file_path in file_path_list:
         if os.path.exists(file_path):
-            lambda_host.log(f'Attach File {file_path} does not exist')
+            lambda_host.log(f'Attach File {file_path} is exist')
             with open(file_path, "rb") as file:
                 api.attach_files(project=project_id, id=entity_id, files={'file': file})
         else:

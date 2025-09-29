@@ -433,7 +433,7 @@ def update_attach_file_list_for_entity(api : voxelfarmclient.rest, project_id, e
     print(f'Attaching file {file_list} to entity {entity_id}')
     for file_path in file_path_list:
         if os.path.exists(file_path):
-            print(f'Attach File {file_path} does not exist')
+            print(f'Attach File {file_path} is exist')
             with open(file_path, "rb") as file:
                 api.attach_files(project=project_id, id=entity_id, files={'file': file})
         else:
@@ -3273,7 +3273,8 @@ keep_old_tree_files = False
 
 #keep_old_tree_files = True
 
-caves_voxelization_generation = True
+#caves_voxelization_generation = True
+smooth_layer_generation = True
 
 if only_road_generation:
     print("Choose only_road_generat ion to Run")
