@@ -6,6 +6,8 @@ import configparser
 
 g_trigger_others = False
 
+g_debug_generation = True
+
 road_input_scale_width = 300
 road_input_scale_height = 300
 tile_size = 25
@@ -235,12 +237,12 @@ def trigger_new_product_version_from_data_entity(
         lambda_host.log(f'{product_id} new product version : {new_product_verion} is triggered!')
         return {'success': True, 'complete': True, 'error_info': 'None'}
     
-def common_tigger_new_product_version_from_data_entity_handler(
+def common_trigger_new_product_version_from_data_entity_handler(
         vf_api : voxelfarmclient.rest,
         request : workflow_lambda.request,
         lambda_host : workflow_lambda.workflow_lambda_host):
     
-    lambda_host.log('Start common_tigger_new_product_version_from_data_entity_handler data')
+    lambda_host.log('Start common_trigger_new_product_version_from_data_entity_handler data')
     need_update_road_generated_input_version_property = request.properties['need_update_road_generated_input_version_property']
     lambda_host.log(f'need_update_road_generated_input_version_property: {need_update_road_generated_input_version_property}')
     need_update_smooth_layer_generated_input_version_property = request.properties['need_update_smooth_layer_generated_input_version_property']
@@ -513,17 +515,6 @@ def road_data_on_receive_data(
     project_id = request.project_id
     folder_id = request.version_folder_id
     
-    triggerOthers = False
-    if triggerOthers:
-        lambda_host.log('Triggering others')
-        trigged_product_id = 'Workflow_Road_Changed_Tree_Generation'
-        new_trigger_product_version = common_trigger_new_product_version(vf, request, lambda_host, trigged_product_id, [])
-        if new_trigger_product_version is None:
-            lambda_host.log(f'Failed to trigger new product version for {trigged_product_id}')
-            return {'success': False, 'error_info': f'Failed to trigger new product version for {trigged_product_id}'}
-        else:
-            lambda_host.log(f'product : {trigged_product_id} has new_trigger_product_version: {new_trigger_product_version}')
-    
     lambda_host.log('Updating road data raw entity...') 
     result = vf.update_entity(
         id= entity_id,
@@ -538,6 +529,17 @@ def road_data_on_receive_data(
     
     # Save the entity ID that has the input files in the request properties
     request.properties['raw_data'] = result.id
+    
+    triggerOthers = True
+    if triggerOthers:
+        lambda_host.log('Triggering others')
+        trigged_product_id = 'Workflow_Road_Changed_Tree_Generation'
+        new_trigger_product_version = common_trigger_new_product_version(vf, request, lambda_host, trigged_product_id, [])
+        if new_trigger_product_version is None:
+            lambda_host.log(f'Failed to trigger new product version for {trigged_product_id}')
+            return {'success': False, 'error_info': f'Failed to trigger new product version for {trigged_product_id}'}
+        else:
+            lambda_host.log(f'product : {trigged_product_id} has new_trigger_product_version: {new_trigger_product_version}')
 
     return {'success': True, 'complete': True, 'error_info': 'None'}
 
@@ -664,6 +666,15 @@ def quadtree_on_receive_data(
     # Save the entity ID that has the input files in the request properties
     request.properties['raw_data'] = result.id
     
+    triggerOthers = True
+    if triggerOthers:
+        lambda_host.log('Triggering others')
+        trigged_product_id = 'WORKFLOW_ROAD_INPUT_GENERATION'
+        trigged_new_product_version = common_trigger_new_product_version(
+            vf, request, lambda_host, trigged_product_id, [])
+        if trigged_new_product_version is None:
+            return {'success': False, 'error_info': 'Failed to trigger new product version for product: ' + trigged_product_id}
+    
     return {'success': True, 'complete': True, 'error_info': 'None'}
 
 def road_generated_input_on_receive_data(
@@ -718,11 +729,17 @@ def smooth_layer_generated_input_on_receive_data(
     # Save the entity ID that has the input files in the request properties
     request.properties['raw_data'] = result.id
     
-    trigged_product_id = 'TEST_WORKFLOW_ONLY_TREE_GENERATION'
-    trigged_new_product_version = common_trigger_new_product_version(
-        vf, request, lambda_host, trigged_product_id, [])
-    if trigged_new_product_version is None:
-        return {'success': False, 'error_info': 'Failed to trigger new product version for product: ' + trigged_product_id}
+    triggerOthers = True
+    if triggerOthers:
+        lambda_host.log('Triggering others')
+        trigged_product_id = 'WORKFLOW_ONLY_TREE_GENERATION'
+        if g_debug_generation:
+            trigged_product_id = 'TEST_WORKFLOW_ONLY_TREE_GENERATION'
+            lambda_host.log(f'g_debug_generation is {g_debug_generation}, use {trigged_product_id} to trigger')
+        trigged_new_product_version = common_trigger_new_product_version(
+            vf, request, lambda_host, trigged_product_id, [])
+        if trigged_new_product_version is None:
+            return {'success': False, 'error_info': 'Failed to trigger new product version for product: ' + trigged_product_id}
     
     return {'success': True, 'complete': True, 'error_info': 'None'}
 
@@ -832,11 +849,14 @@ def tree_program_generated_input_on_receive_data(
     # Save the entity ID that has the input files in the request properties
     request.properties['raw_data'] = result.id
     
-    trigged_product_id = 'Workflow_Road_Changed_Tree_Generation'
-    new_trigger_product_version = common_trigger_new_product_version(vf, request, lambda_host, trigged_product_id, [])
-    if new_trigger_product_version is None:
-        return {'success': False, 'error_info': 'Failed to trigger new product version for product: ' + trigged_product_id}
-    lambda_host.log(f'product : {trigged_product_id} has new_trigger_product_version: {new_trigger_product_version}')
+    triggerOthers = True
+    if triggerOthers:
+        lambda_host.log('Triggering others')
+        trigged_product_id = 'Workflow_Road_Changed_Tree_Generation'
+        new_trigger_product_version = common_trigger_new_product_version(vf, request, lambda_host, trigged_product_id, [])
+        if new_trigger_product_version is None:
+            return {'success': False, 'error_info': 'Failed to trigger new product version for product: ' + trigged_product_id}
+        lambda_host.log(f'product : {trigged_product_id} has new_trigger_product_version: {new_trigger_product_version}')
     
     return {'success': True, 'complete': True, 'error_info': 'None'}
 
@@ -909,7 +929,7 @@ def tree_generation_on_stage_complete(
     lambda_host.log(f'update_type: {update_type}')
     if update_type == 'msg':
         lambda_host.log('Tree generation stage complete')
-        common_tigger_new_product_version_from_data_entity_handler(vf_api, request, lambda_host)
+        common_trigger_new_product_version_from_data_entity_handler(vf_api, request, lambda_host)
         return {'success': True, 'complete': True, 'error_info': 'None'}
 
     return {'success': True, 'complete': False, 'error_info': 'None'}
@@ -955,7 +975,7 @@ def test_tree_generation_on_stage_complete(
     lambda_host.log(f'update_type: {update_type}')
     if update_type == 'msg':
         lambda_host.log('Test tree generation stage complete')
-        common_tigger_new_product_version_from_data_entity_handler(vf_api, request, lambda_host)
+        common_trigger_new_product_version_from_data_entity_handler(vf_api, request, lambda_host)
         return {'success': True, 'complete': True, 'error_info': 'None'}
 
     return {'success': True, 'complete': False, 'error_info': 'None'}
@@ -1003,7 +1023,7 @@ def basemeshes_generation_on_stage_complete(
         #todo read the file that we attached
         lambda_host.log('Base meshes generation stage complete')
         #create_view_for_basemesh_entity(vf_api, request, lambda_host) #don't need it any more
-        common_tigger_new_product_version_from_data_entity_handler(vf_api, request, lambda_host)
+        common_trigger_new_product_version_from_data_entity_handler(vf_api, request, lambda_host)
         return {'success': True, 'complete': True, 'error_info': 'None'}
 
     return {'success': True, 'complete': False, 'error_info': 'None'}
@@ -1050,7 +1070,7 @@ def caves_generation_on_stage_complete(
     if update_type == 'msg':
         #todo read the file that we attached
         lambda_host.log('Caves and Dungeons Meshes generation stage complete')
-        common_tigger_new_product_version_from_data_entity_handler(vf_api, request, lambda_host)
+        common_trigger_new_product_version_from_data_entity_handler(vf_api, request, lambda_host)
         return {'success': True, 'complete': True, 'error_info': 'None'}
 
     return {'success': True, 'complete': False, 'error_info': 'None'}
@@ -1097,7 +1117,7 @@ def smooth_layer_generation_on_stage_complete(
     if update_type == 'msg':
         #todo read the file that we attached
         lambda_host.log('Smooth layers generation stage complete')
-        common_tigger_new_product_version_from_data_entity_handler(vf_api, request, lambda_host)
+        common_trigger_new_product_version_from_data_entity_handler(vf_api, request, lambda_host)
         return {'success': True, 'complete': True, 'error_info': 'None'}
 
     return {'success': True, 'complete': False, 'error_info': 'None'}
@@ -1144,7 +1164,7 @@ def only_smooth_layer_generation_on_stage_complete(
     if update_type == 'msg':
         #todo read the file that we attached
         lambda_host.log('Only smooth layers generation stage complete')
-        common_tigger_new_product_version_from_data_entity_handler(vf_api, request, lambda_host)
+        common_trigger_new_product_version_from_data_entity_handler(vf_api, request, lambda_host)
         return {'success': True, 'complete': True, 'error_info': 'None'}
 
     return {'success': True, 'complete': False, 'error_info': 'None'}
@@ -1190,7 +1210,7 @@ def only_tree_generation_on_stage_complete(
     lambda_host.log(f'update_type: {update_type}')
     if update_type == 'msg':
         lambda_host.log('Only Tree generation stage complete')
-        common_tigger_new_product_version_from_data_entity_handler(vf_api, request, lambda_host)
+        common_trigger_new_product_version_from_data_entity_handler(vf_api, request, lambda_host)
         return {'success': True, 'complete': True, 'error_info': 'None'}
 
     return {'success': True, 'complete': False, 'error_info': 'None'}
@@ -1236,7 +1256,7 @@ def test_only_tree_generation_on_stage_complete(
     lambda_host.log(f'update_type: {update_type}')
     if update_type == 'msg':
         lambda_host.log('Test only tree generation stage complete')
-        common_tigger_new_product_version_from_data_entity_handler(vf_api, request, lambda_host)
+        common_trigger_new_product_version_from_data_entity_handler(vf_api, request, lambda_host)
         return {'success': True, 'complete': True, 'error_info': 'None'}
 
     return {'success': True, 'complete': False, 'error_info': 'None'}
@@ -1287,7 +1307,7 @@ def road_input_generation_on_stage_complete(
     if update_type == 'msg':
         #todo read the file that we attached
         lambda_host.log('Road input generation stage complete')
-        common_tigger_new_product_version_from_data_entity_handler(vf_api, request, lambda_host)
+        common_trigger_new_product_version_from_data_entity_handler(vf_api, request, lambda_host)
         return {'success': True, 'complete': True, 'error_info': 'None'}
 
     return {'success': True, 'complete': False, 'error_info': 'None'}
@@ -1384,7 +1404,7 @@ def whole_result_generation_on_stage_complete(
     if update_type == 'msg':
         #todo read the file that we attached
         lambda_host.log('Whole result generation stage complete')
-        common_tigger_new_product_version_from_data_entity_handler(vf_api, request, lambda_host)
+        common_trigger_new_product_version_from_data_entity_handler(vf_api, request, lambda_host)
         return {'success': True, 'complete': True, 'error_info': 'None'}
 
     return {'success': True, 'complete': False, 'error_info': 'None'}
@@ -1432,7 +1452,7 @@ def test_whole_result_generation_on_stage_complete(
     if update_type == 'msg':
         #todo read the file that we attached
         lambda_host.log('Test whole result generation stage complete')
-        common_tigger_new_product_version_from_data_entity_handler(vf_api, request, lambda_host)
+        common_trigger_new_product_version_from_data_entity_handler(vf_api, request, lambda_host)
         return {'success': True, 'complete': True, 'error_info': 'None'}
 
     return {'success': True, 'complete': False, 'error_info': 'None'}
