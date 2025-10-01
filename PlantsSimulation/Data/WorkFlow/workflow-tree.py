@@ -8,6 +8,8 @@ g_trigger_others = False
 
 g_debug_generation = True
 
+g_file_name_of_trigger_others = 'need_to_trigger_other_workflow.txt'
+
 road_input_scale_width = 300
 road_input_scale_height = 300
 tile_size = 25
@@ -20,6 +22,27 @@ forest_age = 15000
 tree_iteration = 300
 pangea_next_project_id = '1D4CBBD1D957477E8CC3FF376FB87470'
 
+def has_trigger_other_workflow_file(vf : voxelfarmclient.rest,
+        request : workflow_lambda.request,
+        lambda_host : workflow_lambda.workflow_lambda_host):
+    
+    has_file = False
+    data_entity_id = request.entity_id
+    workflow_lambda.log(f'Check if entity {data_entity_id} has file {g_file_name_of_trigger_others}')   
+    file_list = []
+    folder_path = lambda_host.download_entity_files(data_entity_id)
+    lambda_host.log(f'folder_path of data_entity_id {data_entity_id} attach files is {folder_path}')
+    for filename in os.listdir(folder_path):
+        lambda_host.log(f'{filename} is in the folder {folder_path} of entity {data_entity_id}')
+        file_list.append(filename)
+    if g_file_name_of_trigger_others in file_list:
+        has_file = True
+        lambda_host.log(f'Found file {g_file_name_of_trigger_others} in the folder {folder_path} of entity {data_entity_id}')
+    else:
+        lambda_host.log(f'No file {g_file_name_of_trigger_others} in the folder {folder_path} of entity {data_entity_id}')
+        
+    return has_file
+    
 def trigger_other_project_workflow(
         vf : voxelfarmclient.rest,
         request : workflow_lambda.request,
@@ -490,7 +513,7 @@ def tile_info_on_receive_data(
     # Save the entity ID that has the input files in the request properties
     request.properties['raw_data'] = result.id
     
-    triggerOthers = False
+    triggerOthers = has_trigger_other_workflow_file(vf, request, lambda_host)
     if triggerOthers:
         lambda_host.log('Triggering others')
         trigged_product_id = 'WORKFLOW_WHOLE_RESULT_GENERATION'
@@ -527,7 +550,7 @@ def tree_list_on_receive_data(
     # Save the entity ID that has the input files in the request properties
     request.properties['raw_data'] = result.id
     
-    triggerOthers = False
+    triggerOthers = has_trigger_other_workflow_file(vf, request, lambda_host)
     if triggerOthers:
         lambda_host.log('Triggering others')
         trigged_product_id = 'WORKFLOW_ONLY_TREE_GENERATION'
@@ -564,7 +587,7 @@ def road_data_on_receive_data(
     # Save the entity ID that has the input files in the request properties
     request.properties['raw_data'] = result.id
     
-    triggerOthers = False
+    triggerOthers = has_trigger_other_workflow_file(vf, request, lambda_host)
     if triggerOthers:
         lambda_host.log('Triggering others')
         trigged_product_id = 'Workflow_Road_Changed_Tree_Generation'
@@ -599,7 +622,7 @@ def base_meshes_on_receive_data(
     # Save the entity ID that has the input files in the request properties
     request.properties['raw_data'] = result.id
     
-    triggerOthers = False
+    triggerOthers = has_trigger_other_workflow_file(vf, request, lambda_host)
     if triggerOthers:
         lambda_host.log('Triggering others')
         trigged_product_id = 'WORKFLOW_BASEMESHES_GENERATION'
@@ -633,7 +656,7 @@ def caves_dungeons_asset_on_receive_data(
     # Save the entity ID that has the input files in the request properties
     request.properties['raw_data'] = result.id
     
-    triggerOthers = False
+    triggerOthers = has_trigger_other_workflow_file(vf, request, lambda_host)
     if triggerOthers:
         lambda_host.log('Triggering others')
         trigged_product_id = 'WORKFLOW_CAVES_GENERATION'
@@ -667,7 +690,7 @@ def displacement_maps_on_receive_data(
     # Save the entity ID that has the input files in the request properties
     request.properties['raw_data'] = result.id
 
-    triggerOthers = False
+    triggerOthers = has_trigger_other_workflow_file(vf, request, lambda_host)
     if triggerOthers:
         lambda_host.log('Triggering others')
         trigged_product_id = 'WORKFLOW_ONLY_SMOOTH_LAYER_GENERATION' # WORKFLOW_SMOOTH_LAYER_GENERATION
@@ -701,7 +724,7 @@ def quadtree_on_receive_data(
     # Save the entity ID that has the input files in the request properties
     request.properties['raw_data'] = result.id
     
-    triggerOthers = False
+    triggerOthers = has_trigger_other_workflow_file(vf, request, lambda_host)
     if triggerOthers:
         lambda_host.log('Triggering others')
         trigged_product_id = 'WORKFLOW_WHOLE_RESULT_GENERATION'
@@ -765,7 +788,7 @@ def smooth_layer_generated_input_on_receive_data(
     # Save the entity ID that has the input files in the request properties
     request.properties['raw_data'] = result.id
     
-    triggerOthers = False
+    triggerOthers = has_trigger_other_workflow_file(vf, request, lambda_host)
     if triggerOthers:
         lambda_host.log('Triggering others')
         trigged_product_id = 'WORKFLOW_ONLY_TREE_GENERATION'
@@ -829,7 +852,7 @@ def caves_generated_input_on_receive_data(
     # Save the entity ID that has the input files in the request properties
     request.properties['raw_data'] = result.id
     
-    triggerOthers = False
+    triggerOthers = has_trigger_other_workflow_file(vf, request, lambda_host)
     if triggerOthers:
         lambda_host.log('Triggering others')
         trigged_product_id = 'Workflow_Road_Changed_Tree_Generation'
@@ -863,7 +886,7 @@ def dungeons_generated_input_on_receive_data(
     # Save the entity ID that has the input files in the request properties
     request.properties['raw_data'] = result.id
     
-    triggerOthers = False
+    triggerOthers = has_trigger_other_workflow_file(vf, request, lambda_host)
     if triggerOthers:
         lambda_host.log('Triggering others')
         trigged_product_id = 'WORKFLOW_ONLY_TREE_GENERATION'
@@ -900,7 +923,7 @@ def tree_program_generated_input_on_receive_data(
     # Save the entity ID that has the input files in the request properties
     request.properties['raw_data'] = result.id
     
-    triggerOthers = False
+    triggerOthers = has_trigger_other_workflow_file(vf, request, lambda_host)
     if triggerOthers:
         lambda_host.log('Triggering others')
         trigged_product_id = 'Workflow_Road_Changed_Tree_Generation'
