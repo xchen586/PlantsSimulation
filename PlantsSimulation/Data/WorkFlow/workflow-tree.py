@@ -20,6 +20,20 @@ forest_age = 15000
 tree_iteration = 300
 pangea_next_project_id = '1D4CBBD1D957477E8CC3FF376FB87470'
 
+def trigger_other_project_workflow(
+        vf : voxelfarmclient.rest,
+        request : workflow_lambda.request,
+        lambda_host : workflow_lambda.workflow_lambda_host, 
+        trigged_product_id : str):
+    
+        new_trigger_product_version = common_trigger_new_product_version(vf, request, lambda_host, trigged_product_id, [])
+        if new_trigger_product_version is None:
+            lambda_host.log(f'Failed to trigger new product version for {trigged_product_id}')
+            return {'success': False, 'error_info': f'Failed to trigger new product version for {trigged_product_id}'}
+        else:
+            lambda_host.log(f'product : {trigged_product_id} has new_trigger_product_version: {new_trigger_product_version}')
+            return {'success': True, 'complete': True, 'error_info': 'None'}
+
 def common_trigger_new_product_version(
         vf_api : voxelfarmclient.rest,
         request : workflow_lambda.request,
@@ -475,6 +489,16 @@ def tile_info_on_receive_data(
     
     # Save the entity ID that has the input files in the request properties
     request.properties['raw_data'] = result.id
+    
+    triggerOthers = False
+    if triggerOthers:
+        lambda_host.log('Triggering others')
+        trigged_product_id = 'WORKFLOW_WHOLE_RESULT_GENERATION'
+        if g_debug_generation:
+            trigged_product_id = 'TEST_WORKFLOW_WHOLE_RESULT_GENERATION'
+            lambda_host.log(f'g_debug_generation is {g_debug_generation}, use {trigged_product_id} to trigger')
+        ret = trigger_other_project_workflow(vf, request, lambda_host, trigged_product_id)
+        return ret
 
     return {'success': True, 'complete': True, 'error_info': 'None'}
 
@@ -502,6 +526,16 @@ def tree_list_on_receive_data(
     
     # Save the entity ID that has the input files in the request properties
     request.properties['raw_data'] = result.id
+    
+    triggerOthers = False
+    if triggerOthers:
+        lambda_host.log('Triggering others')
+        trigged_product_id = 'WORKFLOW_ONLY_TREE_GENERATION'
+        if g_debug_generation:
+            trigged_product_id = 'TEST_WORKFLOW_ONLY_TREE_GENERATION'
+            lambda_host.log(f'g_debug_generation is {g_debug_generation}, use {trigged_product_id} to trigger')
+        ret = trigger_other_project_workflow(vf, request, lambda_host, trigged_product_id)
+        return ret
 
     return {'success': True, 'complete': True, 'error_info': 'None'}
 
@@ -530,34 +564,14 @@ def road_data_on_receive_data(
     # Save the entity ID that has the input files in the request properties
     request.properties['raw_data'] = result.id
     
-    triggerOthers = True
+    triggerOthers = False
     if triggerOthers:
         lambda_host.log('Triggering others')
         trigged_product_id = 'Workflow_Road_Changed_Tree_Generation'
-        new_trigger_product_version = common_trigger_new_product_version(vf, request, lambda_host, trigged_product_id, [])
-        if new_trigger_product_version is None:
-            lambda_host.log(f'Failed to trigger new product version for {trigged_product_id}')
-            return {'success': False, 'error_info': f'Failed to trigger new product version for {trigged_product_id}'}
-        else:
-            lambda_host.log(f'product : {trigged_product_id} has new_trigger_product_version: {new_trigger_product_version}')
+        ret = trigger_other_project_workflow(vf, request, lambda_host, trigged_product_id)
+        return ret
 
     return {'success': True, 'complete': True, 'error_info': 'None'}
-
-def road_data_on_stage_complete(
-        vf_api : voxelfarmclient.rest,
-        request : workflow_lambda.request,
-        lambda_host : workflow_lambda.workflow_lambda_host):
-    
-    lambda_host.log(f'road_data_on_stage_complete is start')
-    
-    
-    update_type = request.update_type
-    lambda_host.log(f'update_type: {update_type}')
-    if update_type == 'msg':
-        lambda_host.log('Road data on stage complete')
-        return {'success': True, 'complete': True, 'error_info': 'None'}
-
-    return {'success': True, 'complete': False, 'error_info': 'None'}
 
 def base_meshes_on_receive_data(
         vf : voxelfarmclient.rest, 
@@ -584,6 +598,13 @@ def base_meshes_on_receive_data(
     
     # Save the entity ID that has the input files in the request properties
     request.properties['raw_data'] = result.id
+    
+    triggerOthers = False
+    if triggerOthers:
+        lambda_host.log('Triggering others')
+        trigged_product_id = 'WORKFLOW_BASEMESHES_GENERATION'
+        ret = trigger_other_project_workflow(vf, request, lambda_host, trigged_product_id)
+        return ret
     
     return {'success': True, 'complete': True, 'error_info': 'None'}
 
@@ -612,6 +633,13 @@ def caves_dungeons_asset_on_receive_data(
     # Save the entity ID that has the input files in the request properties
     request.properties['raw_data'] = result.id
     
+    triggerOthers = False
+    if triggerOthers:
+        lambda_host.log('Triggering others')
+        trigged_product_id = 'WORKFLOW_CAVES_GENERATION'
+        ret = trigger_other_project_workflow(vf, request, lambda_host, trigged_product_id)
+        return ret
+    
     return {'success': True, 'complete': True, 'error_info': 'None'}
 
 def displacement_maps_on_receive_data(
@@ -639,6 +667,13 @@ def displacement_maps_on_receive_data(
     # Save the entity ID that has the input files in the request properties
     request.properties['raw_data'] = result.id
 
+    triggerOthers = False
+    if triggerOthers:
+        lambda_host.log('Triggering others')
+        trigged_product_id = 'WORKFLOW_ONLY_SMOOTH_LAYER_GENERATION' # WORKFLOW_SMOOTH_LAYER_GENERATION
+        ret = trigger_other_project_workflow(vf, request, lambda_host, trigged_product_id)
+        return ret
+        
     return {'success': True, 'complete': True, 'error_info': 'None'}
 
 def quadtree_on_receive_data(
@@ -666,14 +701,15 @@ def quadtree_on_receive_data(
     # Save the entity ID that has the input files in the request properties
     request.properties['raw_data'] = result.id
     
-    triggerOthers = True
+    triggerOthers = False
     if triggerOthers:
         lambda_host.log('Triggering others')
-        trigged_product_id = 'WORKFLOW_ROAD_INPUT_GENERATION'
-        trigged_new_product_version = common_trigger_new_product_version(
-            vf, request, lambda_host, trigged_product_id, [])
-        if trigged_new_product_version is None:
-            return {'success': False, 'error_info': 'Failed to trigger new product version for product: ' + trigged_product_id}
+        trigged_product_id = 'WORKFLOW_WHOLE_RESULT_GENERATION'
+        if g_debug_generation:
+            trigged_product_id = 'TEST_WORKFLOW_WHOLE_RESULT_GENERATION'
+            lambda_host.log(f'g_debug_generation is {g_debug_generation}, use {trigged_product_id} to trigger')
+        ret = trigger_other_project_workflow(vf, request, lambda_host, trigged_product_id)
+        return ret
     
     return {'success': True, 'complete': True, 'error_info': 'None'}
 
@@ -729,17 +765,15 @@ def smooth_layer_generated_input_on_receive_data(
     # Save the entity ID that has the input files in the request properties
     request.properties['raw_data'] = result.id
     
-    triggerOthers = True
+    triggerOthers = False
     if triggerOthers:
         lambda_host.log('Triggering others')
         trigged_product_id = 'WORKFLOW_ONLY_TREE_GENERATION'
         if g_debug_generation:
             trigged_product_id = 'TEST_WORKFLOW_ONLY_TREE_GENERATION'
             lambda_host.log(f'g_debug_generation is {g_debug_generation}, use {trigged_product_id} to trigger')
-        trigged_new_product_version = common_trigger_new_product_version(
-            vf, request, lambda_host, trigged_product_id, [])
-        if trigged_new_product_version is None:
-            return {'success': False, 'error_info': 'Failed to trigger new product version for product: ' + trigged_product_id}
+        ret = trigger_other_project_workflow(vf, request, lambda_host, trigged_product_id)
+        return ret
     
     return {'success': True, 'complete': True, 'error_info': 'None'}
 
@@ -795,6 +829,13 @@ def caves_generated_input_on_receive_data(
     # Save the entity ID that has the input files in the request properties
     request.properties['raw_data'] = result.id
     
+    triggerOthers = False
+    if triggerOthers:
+        lambda_host.log('Triggering others')
+        trigged_product_id = 'Workflow_Road_Changed_Tree_Generation'
+        ret = trigger_other_project_workflow(vf, request, lambda_host, trigged_product_id)
+        return ret
+    
     return {'success': True, 'complete': True, 'error_info': 'None'}
 
 def dungeons_generated_input_on_receive_data(
@@ -821,6 +862,16 @@ def dungeons_generated_input_on_receive_data(
     
     # Save the entity ID that has the input files in the request properties
     request.properties['raw_data'] = result.id
+    
+    triggerOthers = False
+    if triggerOthers:
+        lambda_host.log('Triggering others')
+        trigged_product_id = 'WORKFLOW_ONLY_TREE_GENERATION'
+        if g_debug_generation:
+            trigged_product_id = 'TEST_WORKFLOW_ONLY_TREE_GENERATION'
+            lambda_host.log(f'g_debug_generation is {g_debug_generation}, use {trigged_product_id} to trigger')
+        ret = trigger_other_project_workflow(vf, request, lambda_host, trigged_product_id)
+        return ret
     
     return {'success': True, 'complete': True, 'error_info': 'None'}
 
@@ -849,14 +900,12 @@ def tree_program_generated_input_on_receive_data(
     # Save the entity ID that has the input files in the request properties
     request.properties['raw_data'] = result.id
     
-    triggerOthers = True
+    triggerOthers = False
     if triggerOthers:
         lambda_host.log('Triggering others')
         trigged_product_id = 'Workflow_Road_Changed_Tree_Generation'
-        new_trigger_product_version = common_trigger_new_product_version(vf, request, lambda_host, trigged_product_id, [])
-        if new_trigger_product_version is None:
-            return {'success': False, 'error_info': 'Failed to trigger new product version for product: ' + trigged_product_id}
-        lambda_host.log(f'product : {trigged_product_id} has new_trigger_product_version: {new_trigger_product_version}')
+        ret = trigger_other_project_workflow(vf, request, lambda_host, trigged_product_id)
+        return ret
     
     return {'success': True, 'complete': True, 'error_info': 'None'}
 
@@ -1320,7 +1369,7 @@ def road_changed_tree_generation_on_receive_data(
     lambda_host.log('Received road changed tree generation data')
     result = common_generation_on_receive_data(vf ,request ,lambda_host
                                              , lambda_name='Road Changed Tree Generation'
-                                             , test_tree_result=False
+                                             , test_tree_result=g_debug_generation
                                              , need_update_road_generated_input_version_property=False
                                              , need_update_smooth_layer_generated_input_version_property=False   
                                              , need_update_basemeshes_generated_input_version_property=False
@@ -1331,10 +1380,10 @@ def road_changed_tree_generation_on_receive_data(
                                              , run_road_exe=True
                                              , run_worldgen_road=True
                                              , run_upload_smooth_layer=True
-                                             , run_make_basemeshes=False
-                                             , run_upload_basemeshes=False
-                                             , run_make_caves=False
-                                             , run_upload_caves=False
+                                             , run_make_basemeshes=True
+                                             , run_upload_basemeshes=True
+                                             , run_make_caves=True
+                                             , run_upload_caves=True
                                              , run_make_tree_instances=True
                                              , run_upload_tree_instances=True
                                              , run_create_geochem_entity=True
