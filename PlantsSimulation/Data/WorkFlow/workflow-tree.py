@@ -27,7 +27,7 @@ def has_trigger_other_workflow_file(vf : voxelfarmclient.rest,
         lambda_host : workflow_lambda.workflow_lambda_host):
     
     has_file = False
-    data_entity_id = request.entity_id
+    data_entity_id = request.raw_entity_id
     lambda_host.log(f'Check if entity {data_entity_id} has file {g_file_name_of_trigger_others}')   
     file_list = []
     folder_path = lambda_host.download_entity_files(data_entity_id)
