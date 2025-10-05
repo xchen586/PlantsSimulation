@@ -1403,10 +1403,10 @@ def road_changed_tree_generation_on_receive_data(
                                              , run_road_exe=True
                                              , run_worldgen_road=True
                                              , run_upload_smooth_layer=True
-                                             , run_make_basemeshes=True
-                                             , run_upload_basemeshes=True
-                                             , run_make_caves=True
-                                             , run_upload_caves=True
+                                             , run_make_basemeshes=False
+                                             , run_upload_basemeshes=False
+                                             , run_make_caves=False
+                                             , run_upload_caves=False
                                              , run_make_tree_instances=True
                                              , run_upload_tree_instances=True
                                              , run_create_geochem_entity=True
