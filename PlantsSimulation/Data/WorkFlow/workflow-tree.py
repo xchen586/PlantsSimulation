@@ -590,7 +590,7 @@ def road_data_on_receive_data(
     triggerOthers = has_trigger_other_workflow_file(vf, request, lambda_host)
     if triggerOthers:
         lambda_host.log('Triggering others')
-        trigged_product_id = 'Workflow_Road_Changed_Tree_Generation'
+        trigged_product_id = 'WORKFLOW_ROAD_CHANGED_TREE_GENERATION'
         ret = trigger_other_project_workflow(vf, request, lambda_host, trigged_product_id)
         return ret
 
@@ -855,7 +855,7 @@ def caves_generated_input_on_receive_data(
     triggerOthers = has_trigger_other_workflow_file(vf, request, lambda_host)
     if triggerOthers:
         lambda_host.log('Triggering others')
-        trigged_product_id = 'Workflow_Road_Changed_Tree_Generation'
+        trigged_product_id = 'WORKFLOW_ROAD_CHANGED_TREE_GENERATION'
         ret = trigger_other_project_workflow(vf, request, lambda_host, trigged_product_id)
         return ret
     
@@ -926,7 +926,7 @@ def tree_program_generated_input_on_receive_data(
     triggerOthers = has_trigger_other_workflow_file(vf, request, lambda_host)
     if triggerOthers:
         lambda_host.log('Triggering others')
-        trigged_product_id = 'Workflow_Road_Changed_Tree_Generation'
+        trigged_product_id = 'WORKFLOW_ROAD_CHANGED_TREE_GENERATION'
         ret = trigger_other_project_workflow(vf, request, lambda_host, trigged_product_id)
         return ret
     
