@@ -91,6 +91,9 @@ public:
 	bool parseTreeListCsv(const string& inputTreeListCsv);
 	TreeClass* getTreeClassFromStringVector(const std::vector<std::string>& row, int columnCount);
 
+	void removeTreesNearPOIs();
+	void removeTreesNearCaves();
+
 public:
 	vector<TreeClass*> classes;
 	map<string, I2DMask*> masks;

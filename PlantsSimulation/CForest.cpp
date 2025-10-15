@@ -812,74 +812,11 @@ void CForest::generate(float forestAge, int iterations)
 		}
 	}
 
-	if (m_pPoisLocations)
+	removeTreesNearPOIs();
+
+	if (!m_isLevel1Instances)
 	{
-		string title = "Remove the tree instances from pois : ";
-		CTimeCounter timeCounter(title);
-
-		int sizeBefore = trees.size();
-		std::cout << "Before remove tree from pois, Trees Size is :" << " " << sizeBefore << std::endl;
-
-		// Method 3: Using remove_if and erase (erase-remove idiom)
-		// Best when you can express removal condition as a predicate
-		trees.erase(
-			std::remove_if(trees.begin(), trees.end(),
-				[this](auto tree) {
-					Point p(tree.x, tree.z);
-					double distance = GetDistancesToPOIs(p, m_pPoisLocations, TREE_FROM_POI_DISTANCE_LIMIT);
-					bool beRemovedFromTree = (distance < TREE_FROM_POI_DISTANCE_LIMIT) ? true : false;
-					return beRemovedFromTree;
-				}
-			),
-			trees.end()
-		);
-		int sizeAfter = trees.size();
-		std::cout << "After remove tree from pois, Trees Size is :" << " " << sizeAfter << std::endl;
-
-		sizeBefore = sizeBefore ? sizeBefore : 1;
-		double percentageCount = static_cast<double>(100 * sizeAfter / sizeBefore);
-		std::cout << "After removal from pois the rest of tree has pencentage of " << percentageCount << " before tree count!" << std::endl;
-	}
-
-	if (m_p2dCaveLevel0Nodes 
-		//&& (!m_isLevel1Instances)
-		)
-	{
-		string title = "Remove the tree instances from caves level 0 : ";
-		CTimeCounter timeCounter(title);
-
-		int sizeBefore = trees.size();
-		std::cout << "Before remove tree from cave level 0, Trees Size is :" << " " << sizeBefore << std::endl;
-			
-		// Method 3: Using remove_if and erase (erase-remove idiom)
-		// Best when you can express removal condition as a predicate
-		trees.erase(
-			std::remove_if(trees.begin(), trees.end(),
-				[this](auto tree) {  
-					Point p(tree.x, tree.z);
-					double distance = GetDistanceToCaveNodes(p, m_p2dCaveLevel0Nodes, CAVE_DISTANCE_LIMIT_TREE);
-					bool beRemovedFromCave = (distance < CAVE_DISTANCE_LIMIT_TREE) ? true : false;
-					return beRemovedFromCave; 
-				}
-			),
-			trees.end()
-		);
-		/*
-		// Method 2: Using iterator and erase (backwards iteration)
-		// This is safer because erasing doesn't affect elements we haven't processed yet
-		for (auto it = trees.end(); it != trees.begin();) {
-			--it;
-			if ((*m_pCave0Array)[(*it).z][(*it).x]) {
-				it = trees.erase(it);
-			}
-		}*/
-		int sizeAfter = trees.size();
-		std::cout << "After remove tree from cave level 0, Trees Size is :" << " " << sizeAfter << std::endl;
-
-		sizeBefore = sizeBefore ? sizeBefore : 1;
-		double percentageCount = static_cast<double>(100 * sizeAfter / sizeBefore);
-		std::cout << "After Cave removal the rest of tree has pencentage of " << percentageCount << " before tree count!" << std::endl;
-
+		removeTreesNearCaves();
 	}
 	
 	std::cout << "Trees Size :" << " " << trees.size() << std::endl;
@@ -1167,4 +1104,64 @@ pair<string, I2DMask*> GetI2DMaskKeyPairFromTreeClassWithDensityMapType(TreeClas
 	string keyString = TreeClassWithDensityMapTypeToMaskString(treeClass, densityType);
 	pair<string, I2DMask*> ret(keyString, pI2dMask);
 	return ret;
+}
+
+// Remove trees near POIs
+void CForest::removeTreesNearPOIs() {
+	if (!m_pPoisLocations)
+		return;
+
+	string title = "Remove the tree instances from pois : ";
+	CTimeCounter timeCounter(title);
+
+	int sizeBefore = trees.size();
+	cout << "Before remove tree from pois, Trees Size is : " << sizeBefore << endl;
+
+	trees.erase(
+		std::remove_if(trees.begin(), trees.end(),
+			[this](auto tree) {
+				Point p(tree.x, tree.z);
+				double distance = GetDistancesToPOIs(p, m_pPoisLocations, TREE_FROM_POI_DISTANCE_LIMIT);
+				return distance < TREE_FROM_POI_DISTANCE_LIMIT;
+			}
+		),
+		trees.end()
+	);
+
+	int sizeAfter = trees.size();
+	cout << "After remove tree from pois, Trees Size is : " << sizeAfter << endl;
+
+	sizeBefore = sizeBefore ? sizeBefore : 1;
+	double percentageCount = static_cast<double>(100 * sizeAfter / sizeBefore);
+	cout << "After removal from pois the rest of tree has percentage of " << percentageCount << " before tree count!" << endl;
+}
+
+// Remove trees near caves
+void CForest::removeTreesNearCaves() {
+	if (!m_p2dCaveLevel0Nodes)
+		return;
+
+	string title = "Remove the tree instances from caves level 0 : ";
+	CTimeCounter timeCounter(title);
+
+	int sizeBefore = trees.size();
+	cout << "Before remove tree from cave level 0, Trees Size is : " << sizeBefore << endl;
+
+	trees.erase(
+		std::remove_if(trees.begin(), trees.end(),
+			[this](auto tree) {
+				Point p(tree.x, tree.z);
+				double distance = GetDistanceToCaveNodes(p, m_p2dCaveLevel0Nodes, CAVE_DISTANCE_LIMIT_TREE);
+				return distance < CAVE_DISTANCE_LIMIT_TREE;
+			}
+		),
+		trees.end()
+	);
+
+	int sizeAfter = trees.size();
+	cout << "After remove tree from cave level 0, Trees Size is : " << sizeAfter << endl;
+
+	sizeBefore = sizeBefore ? sizeBefore : 1;
+	double percentageCount = static_cast<double>(100 * sizeAfter / sizeBefore);
+	cout << "After Cave removal the rest of tree has percentage of " << percentageCount << " before tree count!" << endl;
 }
