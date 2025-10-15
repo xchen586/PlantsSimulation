@@ -1106,6 +1106,342 @@ pair<string, I2DMask*> GetI2DMaskKeyPairFromTreeClassWithDensityMapType(TreeClas
 	return ret;
 }
 
+// Calculate mask value for a tree class at a position
+double CForest::calculateMaskValue(TreeClass* treeClass, int x, int z) {
+	double maskValue = 1.0;
+
+	for (auto iMask = masks.begin(); iMask != masks.end() && maskValue > 0.0; ++iMask) {
+		string maskId = iMask->first;
+		auto classMask = treeClass->masks.find(maskId);
+
+		if (classMask != treeClass->masks.end()) {
+			DensityMap* dmap = classMask->second;
+			double mask = iMask->second->get2DMaskValue(x, z, dmap->blur);
+			maskValue = dmap->GetDensityValue(mask);
+		}
+	}
+
+	return maskValue;
+}
+
+// Select tree class based on mask values at position
+TreeClass* CForest::selectTreeClass(ClassStrength* classArray, int x, int z) {
+	int classIdx = 0;
+	double maskSpan = 0.0;
+
+	for (auto i = classes.begin(); i != classes.end(); ++i) {
+		TreeClass* treeClass = *i;
+		double maskValue = calculateMaskValue(treeClass, x, z);
+
+		maskSpan += maskValue;
+		ClassStrength& c = classArray[classIdx];
+		c.strength = maskValue;
+		c.treeClass = treeClass;
+		classIdx++;
+	}
+
+	double dice = maskSpan * rand() / RAND_MAX;
+	double sum = 0.0;
+	TreeClass* chosen = NULL;
+
+	for (int i = 0; i < classIdx && sum < dice; i++) {
+		ClassStrength& c = classArray[i];
+		chosen = c.treeClass;
+		sum += c.strength;
+	}
+
+	return chosen;
+}
+
+// Clamp position within forest boundaries
+double CForest::clampPosition(double pos, double gridPos, double offset, int limit, int origin, bool isAtLimit) {
+	if (isAtLimit) {
+		return gridPos - GenerateRandomDouble(0, offset);
+	}
+	if (pos <= origin) {
+		return gridPos + GenerateRandomDouble(0, offset);
+	}
+	return pos;
+}
+
+// Check if grid cell is empty or has dead tree
+bool CForest::isGridCellAvailable(GenerationContext& ctx, int gridX, int gridZ) {
+	int& gridP = ctx.grid.at(gridX, gridZ);
+
+	if (gridP > 0) {
+		CTreeInstance& neighborTree = ctx.instances[gridP - 1];
+		return neighborTree.dead;
+	}
+
+	return true;
+}
+
+// Generate initial tree instances for empty areas
+void CForest::generateInitialInstances(GenerationContext& ctx) {
+	for (int x = ctx.xo; x < ctx.xo + ctx.xSize; x += ctx.grid.gridDelta) {
+		for (int z = ctx.zo; z < ctx.zo + ctx.zSize; z += ctx.grid.gridDelta) {
+			if (rand() > RAND_MAX / 10) {
+				continue;
+			}
+
+			int gridX = (x - ctx.xo) / ctx.grid.gridDelta;
+			int gridZ = (z - ctx.zo) / ctx.grid.gridDelta;
+
+			if (!isGridCellAvailable(ctx, gridX, gridZ)) {
+				continue;
+			}
+
+			TreeClass* chosen = selectTreeClass(ctx.classArray, x, z);
+
+			if (chosen != NULL) {
+				createTreeInstance(ctx, chosen, x, z, gridX, gridZ);
+			}
+		}
+	}
+}
+
+
+// Create new tree instance at position
+void CForest::createTreeInstance(GenerationContext& ctx, TreeClass* treeClass, 
+                                 int x, int z, int gridX, int gridZ) {
+    int xLimit = ctx.xo + ctx.xSize;
+    int zLimit = ctx.zo + ctx.zSize;
+    
+    CTreeInstance& t = ctx.instances[ctx.instanceIndex];
+    t.treeClass = treeClass;
+    t.bday = ctx.time - min((float)(ctx.timeSlice), (float)(rand() * treeClass->matureAge / RAND_MAX));
+    
+    t.x = x + GenerateRandomDouble(-ctx.grid.gridDelta, ctx.grid.gridDelta);
+    t.x = clampPosition(t.x, x, ctx.grid.gridDelta, xLimit, ctx.xo, t.x >= xLimit);
+    
+    t.z = z + GenerateRandomDouble(-ctx.grid.gridDelta, ctx.grid.gridDelta);
+    t.z = clampPosition(t.z, z, ctx.grid.gridDelta, zLimit, ctx.zo, t.z >= zLimit);
+    
+    t.dead = false;
+    t.mature = false;
+    
+    ctx.instanceIndex++;
+    ctx.grid.at(gridX, gridZ) = ctx.instanceIndex;
+}
+
+
+TreeGrowth CForest::calculateTreeGrowth(CTreeInstance& tree, double time, double sizeFactor) {
+	TreeGrowth result;
+	result.age = time - tree.bday;
+
+	result.growth = 1.0 - max(0.0, (tree.treeClass->matureAge - result.age) / tree.treeClass->matureAge);
+
+	result.minRx = 0.7 * sizeFactor * result.growth *
+		tree.treeClass->xRadius.getValue(tree.x, 0, tree.z) *
+		tree.treeClass->radius.getValue(tree.x, 0, tree.z);
+
+	result.minRz = 0.7 * sizeFactor * result.growth *
+		tree.treeClass->zRadius.getValue(tree.x, 0, tree.z) *
+		tree.treeClass->radius.getValue(tree.x, 0, tree.z);
+
+	result.mature = tree.mature;
+
+	return result;
+}
+
+// Check competition with neighboring trees
+bool CForest::checkTreeCompetition(GenerationContext& ctx, CTreeInstance& tree,
+	const TreeGrowth& growth, int iTree, double sizeFactor) {
+
+	for (double x = tree.x - growth.minRx; x <= tree.x + growth.minRx && !tree.dead; x += ctx.grid.gridDelta) {
+		for (double z = tree.z - growth.minRz; z <= tree.z + growth.minRz && !tree.dead; z += ctx.grid.gridDelta) {
+			int xi = (int)x;
+			int zi = (int)z;
+
+			int gridX = (xi - ctx.xo) / ctx.grid.gridDelta;
+			int gridZ = (zi - ctx.zo) / ctx.grid.gridDelta;
+
+			if (gridX < 0 || gridX >= ctx.grid.gridXSize ||
+				gridZ < 0 || gridZ >= ctx.grid.gridZSize)
+				continue;
+
+			int& gridP = ctx.grid.at(gridX, gridZ);
+
+			if (gridP > 0) {
+				CTreeInstance& neighborTree = ctx.instances[gridP - 1];
+
+				if (&neighborTree != &tree && !neighborTree.dead) {
+					double neighborAge = ctx.time - neighborTree.bday;
+					double neighborGrowth = 1.0 - max(0.0, (neighborTree.treeClass->matureAge - neighborAge) /
+						neighborTree.treeClass->matureAge);
+
+					double minNeighborRx = sizeFactor * neighborGrowth *
+						neighborTree.treeClass->xRadius.getValue(neighborTree.x, 0, neighborTree.z) *
+						neighborTree.treeClass->radius.getValue(neighborTree.x, 0, neighborTree.z);
+					double minNeighborRz = sizeFactor * neighborGrowth *
+						neighborTree.treeClass->zRadius.getValue(neighborTree.x, 0, neighborTree.z) *
+						neighborTree.treeClass->radius.getValue(neighborTree.x, 0, neighborTree.z);
+
+					double neighborSize = max(minNeighborRx, minNeighborRz);
+					double size = max(growth.minRx, growth.minRz);
+
+					tree.dead = 
+						(neighborSize > size ||
+						ctx.time - neighborTree.bday > neighborTree.treeClass->matureAge);
+				}
+			}
+
+			if (!tree.dead) {
+				gridP = iTree + 1;
+			}
+		}
+	}
+
+	return !tree.dead;
+}
+
+// Generate seeds from mature tree
+void CForest::generateSeeds(GenerationContext& ctx, CTreeInstance& tree, const TreeGrowth& growth) {
+	double seedRx = tree.treeClass->seedRange;
+	double seedRz = tree.treeClass->seedRange;
+	double timeSlice = ctx.timeSlice;
+
+	for (double x = tree.x - seedRx; x <= tree.x + seedRx; x += ctx.grid.gridDelta) {
+		for (double z = tree.z - seedRz; z <= tree.z + seedRz; z += ctx.grid.gridDelta) {
+			if (x >= tree.x - growth.minRx && x <= tree.x + growth.minRx &&
+				z >= tree.z - growth.minRz && z <= tree.z + growth.minRz)
+				continue;
+
+#if USE_RANDOM_SEED
+			if (rand() > RAND_MAX / 1000) {
+				continue;
+			}
+#endif
+
+			int xi = (int)x;
+			int zi = (int)z;
+
+			int gridX = (xi - ctx.xo) / ctx.grid.gridDelta;
+			int gridZ = (zi - ctx.zo) / ctx.grid.gridDelta;
+
+			if (gridX < 0 || gridX >= ctx.grid.gridXSize ||
+				gridZ < 0 || gridZ >= ctx.grid.gridZSize)
+				continue;
+
+			int& gridP = ctx.grid.at(gridX, gridZ);
+
+			bool empty = false;
+			if (gridP > 0) {
+				CTreeInstance& neighborTree = ctx.instances[gridP - 1];
+				empty = &neighborTree != &tree && neighborTree.dead;
+			}
+			else {
+				empty = true;
+			}
+
+			if (empty) {
+				double maskval = 1.0;
+				for (auto imap = tree.treeClass->masks.begin(); imap != tree.treeClass->masks.end(); ++imap) {
+					auto imask = masks.find(imap->first);
+					if (imask != masks.end()) {
+						DensityMap* dmap = imap->second;
+						double value = imask->second->get2DMaskValue(x, z, dmap->blur);
+						value = dmap->GetDensityValue(value);
+						maskval *= value;
+					}
+				}
+
+				double dice = ((double)rand()) / RAND_MAX;
+				if (dice < maskval) {
+					CTreeInstance& t = ctx.instances[ctx.instanceIndex];
+					t.treeClass = tree.treeClass;
+					t.bday = ctx.time - min(timeSlice, (float)rand() * tree.treeClass->matureAge / RAND_MAX);
+					t.x = x;
+					t.z = z;
+					t.dead = false;
+					t.mature = false;
+
+					ctx.instanceIndex++;
+					gridP = ctx.instanceIndex;
+				}
+			}
+		}
+	}
+}
+
+// Process all trees in current iteration
+void CForest::processTreeIterationForDominatePlants(GenerationContext& ctx, int currentCount) {
+	for (int iTree = 0; iTree < currentCount; ++iTree) {
+		CTreeInstance& tree = ctx.instances[iTree];
+
+		if (tree.dead)
+			continue;
+
+		double age = ctx.time - tree.bday;
+		tree.age = age;
+		tree.dead = age > tree.treeClass->maxAge;
+
+		if (tree.dead)
+			continue;
+
+		double sizeFactor = 0.9;
+		TreeGrowth growth = calculateTreeGrowth(tree, ctx.time, sizeFactor);
+
+		if (!tree.mature) {
+			tree.mature = abs(growth.growth - 1.0) < 0.00001 || ctx.lastIteration;
+			checkTreeCompetition(ctx, tree, growth, iTree, sizeFactor);
+		}
+
+		if (!tree.dead && tree.mature) {
+			generateSeeds(ctx, tree, growth);
+		}
+	}
+}
+
+// Apply thinning mask to tree
+double CForest::applyThinningMasks(CTreeInstance& tree) {
+	double maskval = 1.0;
+
+	for (auto imap = tree.treeClass->masks.begin(); imap != tree.treeClass->masks.end(); ++imap) {
+		auto imask = masks.find(imap->first);
+
+		if (imask != masks.end()) {
+			DensityMap* dmap = imap->second;
+			if (dmap->useForThinning) {
+				double value = imask->second->get2DMaskValue(tree.x, tree.z, dmap->blur);
+				value = dmap->GetDensityValue(value);
+				maskval *= value;
+			}
+		}
+	}
+
+	for (auto imap = globalMasks.begin(); imap != globalMasks.end(); ++imap) {
+		auto imask = masks.find(imap->first);
+
+		if (imask != masks.end()) {
+			DensityMap* dmap = imap->second;
+			double value = imask->second->get2DMaskValue(tree.x, tree.z, dmap->blur);
+			value = dmap->GetDensityValue(value);
+			maskval *= value;
+		}
+	}
+
+	return maskval;
+}
+
+// Filter mature trees and apply thinning
+void CForest::filterMatureTrees(CTreeInstance* instances, int instanceIndex) {
+	trees.clear();
+
+	for (int i = 0; i < instanceIndex; i++) {
+		CTreeInstance& tree = instances[i];
+
+		if (!tree.dead && tree.mature) {
+			double maskval = applyThinningMasks(tree);
+			double dice = ((double)rand()) / RAND_MAX;
+
+			if (dice <= maskval) {
+				trees.push_back(tree);
+			}
+		}
+	}
+}
+
 // Remove trees near POIs
 void CForest::removeTreesNearPOIs() {
 	if (!m_pPoisLocations)
@@ -1164,4 +1500,63 @@ void CForest::removeTreesNearCaves() {
 	sizeBefore = sizeBefore ? sizeBefore : 1;
 	double percentageCount = static_cast<double>(100 * sizeAfter / sizeBefore);
 	cout << "After Cave removal the rest of tree has percentage of " << percentageCount << " before tree count!" << endl;
+}
+
+// Main generate function - refactored
+void CForest::generate2(float forestAge, int iterations) {
+	string title = "CForest::generate generate whole tree instances : ";
+	CTimeCounter timeCounter(title);
+
+	// Initialize grid
+	const int gridDelta = 30;
+	GridInfo grid(xSize, zSize, gridDelta);
+
+	cout << "gridDelta is : " << gridDelta << endl;
+	cout << "gridXSize is : " << grid.gridXSize << endl;
+	cout << "gridZSize is : " << grid.gridZSize << endl;
+	cout << "gridSize is : " << grid.gridTotalSize << endl;
+
+	// Initialize instances and class array
+	CTreeInstance* instances = (CTreeInstance*)malloc(SEED_MAX * sizeof(CTreeInstance));
+	memset(instances, 0, SEED_MAX * sizeof(CTreeInstance));
+
+	ClassStrength* classArray = (ClassStrength*)malloc(classes.size() * sizeof(ClassStrength));
+
+	// Iterate through forest age
+	double timeSlice = forestAge / iterations;
+
+	GenerationContext ctx = {
+		instances, 0, classArray, grid, xo, zo, xSize, zSize, 0.0, timeSlice, false
+	};
+
+	for (int iteration = 0; iteration < iterations; iteration++) {
+		ctx.lastIteration = (iteration == iterations - 1);
+		ctx.time = timeSlice * iteration;
+
+		generateInitialInstances(ctx);
+
+		int currentCount = ctx.instanceIndex;
+		int currentProgressInt = static_cast<int>(100.0 * iteration / iterations);
+
+		cout << "Current iteration count is : " << iteration << endl;
+		cout << "Current iteration : " << iteration << " has current instance count : " << currentCount << endl;
+		cout << "progress " << currentProgressInt << " has current instance count : " << currentCount << endl;
+
+		processTreeIterationForDominatePlants(ctx, currentCount);
+	}
+
+	cout << "Tree Instances Count : " << ctx.instanceIndex + 1 << endl;
+
+	// Filter and finalize trees
+	filterMatureTrees(instances, ctx.instanceIndex);
+	removeTreesNearPOIs();
+	if (!m_isLevel1Instances)
+	{
+		removeTreesNearCaves();
+	}
+	cout << "Trees Size : " << trees.size() << endl;
+
+	// Cleanup
+	delete instances;
+	free(classArray);
 }

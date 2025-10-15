@@ -27,12 +27,59 @@ struct ClassStrength
 	TreeClass* treeClass;
 };
 
+// Helper structure and initialization
+struct GridInfo {
+	int gridDelta;
+	int gridXSize;
+	int gridZSize;
+	int gridTotalSize;
+	int* girdData;
+
+	GridInfo(int forestXSize, int forestZSize, int gridDelta)
+		: gridDelta(gridDelta),
+		gridXSize(forestXSize / gridDelta),
+		gridZSize(forestZSize / gridDelta) {
+		gridTotalSize = (gridXSize + 1) * (gridZSize + 1) * sizeof(int);
+		girdData = (int*)malloc(gridTotalSize);
+		memset(girdData, 0, gridTotalSize);
+	}
+
+	~GridInfo() {
+		if (girdData) free(girdData);
+	}
+
+	int& at(int gridX, int gridZ) {
+		return girdData[gridXSize * gridZ + gridX];
+	}
+};
+
+struct GenerationContext {
+	CTreeInstance* instances;
+	int instanceIndex;
+	ClassStrength* classArray;
+	GridInfo& grid;
+	int xo, zo, xSize, zSize;
+	double time;
+	double timeSlice;
+	bool lastIteration;
+};
+
+// Calculate tree growth parameters
+struct TreeGrowth {
+	double age;
+	double growth;
+	double minRx;
+	double minRz;
+	bool mature;
+};
+
 class CForest
 {
 public:
 	CForest(void);
 	~CForest(void);
 public:
+	void generate2(float forestAge, int iterations);
 	void generate(float forestAge, int iterations);
 	void loadDefaultTreeClasses();
 	void loadDefaultMasks();
@@ -93,6 +140,18 @@ public:
 
 	void removeTreesNearPOIs();
 	void removeTreesNearCaves();
+	double calculateMaskValue(TreeClass* treeClass, int x, int z);
+	TreeClass* selectTreeClass(ClassStrength* classArray, int x, int z);
+	double clampPosition(double pos, double gridPos, double offset, int limit, int origin, bool isAtLimit);
+	void createTreeInstance(GenerationContext& ctx, TreeClass* treeClass,int x, int z, int gridX, int gridZ);
+	bool isGridCellAvailable(GenerationContext& ctx, int gridX, int gridZ);
+	void generateInitialInstances(GenerationContext& ctx);
+	TreeGrowth calculateTreeGrowth(CTreeInstance& tree, double time, double sizeFactor);
+	bool checkTreeCompetition(GenerationContext& ctx, CTreeInstance& tree, const TreeGrowth& growth, int iTree, double sizeFactor);
+	void generateSeeds(GenerationContext& ctx, CTreeInstance& tree, const TreeGrowth& growth);
+	void processTreeIterationForDominatePlants(GenerationContext& ctx, int currentCount);
+	double applyThinningMasks(CTreeInstance& tree);
+	void filterMatureTrees(CTreeInstance* instances, int instanceIndex);
 
 public:
 	vector<TreeClass*> classes;
