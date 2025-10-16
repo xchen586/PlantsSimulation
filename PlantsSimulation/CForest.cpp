@@ -1560,3 +1560,805 @@ void CForest::generate2(float forestAge, int iterations) {
 	delete instances;
 	free(classArray);
 }
+
+
+// Add to CForest.cpp
+
+// Build optimized cache once at start
+void CForest::buildOptimizedTreeClassCache(std::vector<TreeClassCacheOptimized>& cache) {
+	cache.reserve(classes.size());
+
+	for (TreeClass* treeClass : classes) {
+		TreeClassCacheOptimized tc;
+		tc.treeClass = treeClass;
+		tc.matureAge = treeClass->matureAge;
+		tc.maxAge = treeClass->maxAge;
+		tc.seedRange = treeClass->seedRange;
+
+		// Cache mask pointers for fast access
+		tc.maskData.reserve(treeClass->masks.size());
+		for (auto& maskPair : treeClass->masks) {
+			auto maskIt = masks.find(maskPair.first);
+			if (maskIt != masks.end()) {
+				tc.maskData.emplace_back(maskIt->second, maskPair.second);
+				if (maskPair.second->useForThinning) {
+					tc.thinningMasks.emplace_back(maskIt->second, maskPair.second);
+				}
+			}
+		}
+		cache.push_back(std::move(tc));
+	}
+}
+
+// Optimized mask calculation with early exit
+inline double calculateMaskValueFast(const TreeClassCacheOptimized& tc, int x, int z) {
+	double maskValue = 1.0;
+
+	for (const auto& [mask, density] : tc.maskData) {
+		double value = mask->get2DMaskValue(x, z, density->blur);
+		maskValue *= density->GetDensityValue(value);
+		if (maskValue <= 0.0) return 0.0; // Early exit
+	}
+
+	return maskValue;
+}
+
+// Optimized tree class selection
+TreeClass* selectTreeClassFast(
+	const std::vector<TreeClassCacheOptimized>& cache,
+	ClassStrength* classArray,
+	int x, int z) {
+
+	double maskSpan = 0.0;
+	int classIdx = 0;
+
+	for (const auto& tc : cache) {
+		double maskValue = calculateMaskValueFast(tc, x, z);
+		maskSpan += maskValue;
+		classArray[classIdx].strength = maskValue;
+		classArray[classIdx].treeClass = tc.treeClass;
+		classIdx++;
+	}
+
+	if (maskSpan <= 0.0) return nullptr;
+
+	double dice = maskSpan * rand() / RAND_MAX;
+	double sum = 0.0;
+
+	for (int i = 0; i < classIdx; i++) {
+		sum += classArray[i].strength;
+		if (sum >= dice) {
+			return classArray[i].treeClass;
+		}
+	}
+
+	return classArray[classIdx - 1].treeClass;
+}
+
+// Optimized position clamping
+inline double clampPositionFast(double pos, double gridPos, double offset,
+	int limit, int origin) {
+	if (pos >= limit) {
+		return gridPos - GenerateRandomDouble(0, offset);
+	}
+	if (pos <= origin) {
+		return gridPos + GenerateRandomDouble(0, offset);
+	}
+	return pos;
+}
+
+// Check if grid cell is available
+inline bool isGridCellAvailableFast(OptimizedGenerationContext& ctx, int gridX, int gridZ) {
+	if (!ctx.isValidGridPos(gridX, gridZ)) return false;
+
+	int& gridP = ctx.gridAt(gridX, gridZ);
+	if (gridP == 0) return true;
+
+	return ctx.instances[gridP - 1].dead;
+}
+
+// Create tree instance - optimized
+void createTreeInstanceFast(OptimizedGenerationContext& ctx, TreeClass* treeClass,
+	int x, int z, int gridX, int gridZ) {
+	CTreeInstance& t = ctx.instances[ctx.instanceIndex];
+	t.treeClass = treeClass;
+	t.bday = ctx.time - min(static_cast<float>(ctx.timeSlice),
+		static_cast<float>(rand() * treeClass->matureAge / RAND_MAX));
+
+	const int xLimit = ctx.xo + ctx.xSize;
+	const int zLimit = ctx.zo + ctx.zSize;
+
+	t.x = x + GenerateRandomDouble(-ctx.gridDelta, ctx.gridDelta);
+	t.x = clampPositionFast(t.x, x, ctx.gridDelta, xLimit, ctx.xo);
+
+	t.z = z + GenerateRandomDouble(-ctx.gridDelta, ctx.gridDelta);
+	t.z = clampPositionFast(t.z, z, ctx.gridDelta, zLimit, ctx.zo);
+
+	t.dead = false;
+	t.mature = false;
+
+	ctx.instanceIndex++;
+	ctx.gridAt(gridX, gridZ) = ctx.instanceIndex;
+}
+
+// Calculate tree growth parameters - optimized
+struct TreeGrowthFast {
+	double age;
+	double growth;
+	double minRx;
+	double minRz;
+	bool mature;
+
+	TreeGrowthFast(CTreeInstance& tree, double time, double sizeFactor,
+		const TreeClassCacheOptimized& tc) {
+		age = time - tree.bday;
+		growth = 1.0 - max(0.0, (tc.matureAge - age) / tc.matureAge);
+
+		const double radius = tc.getRadiusValue(tree.x, tree.z);
+		minRx = 0.7 * sizeFactor * growth * tc.getXRadiusValue(tree.x, tree.z) * radius;
+		minRz = 0.7 * sizeFactor * growth * tc.getZRadiusValue(tree.x, tree.z) * radius;
+		mature = tree.mature;
+	}
+};
+
+// Generate initial instances - optimized
+void generateInitialInstancesFast(OptimizedGenerationContext& ctx) {
+	const int xLimit = ctx.xo + ctx.xSize;
+	const int zLimit = ctx.zo + ctx.zSize;
+	const int randThreshold = RAND_MAX / 10;
+
+	for (int x = ctx.xo; x < xLimit; x += ctx.gridDelta) {
+		for (int z = ctx.zo; z < zLimit; z += ctx.gridDelta) {
+			if (rand() > randThreshold) continue;
+
+			const int gridX = (x - ctx.xo) / ctx.gridDelta;
+			const int gridZ = (z - ctx.zo) / ctx.gridDelta;
+
+			if (!isGridCellAvailableFast(ctx, gridX, gridZ)) continue;
+
+			TreeClass* chosen = selectTreeClassFast(*ctx.treeCache, ctx.classArray, x, z);
+			if (chosen) {
+				createTreeInstanceFast(ctx, chosen, x, z, gridX, gridZ);
+			}
+		}
+	}
+}
+
+// Check tree competition - optimized with early exit
+bool checkTreeCompetitionFast(OptimizedGenerationContext& ctx, CTreeInstance& tree,
+	const TreeGrowthFast& growth, int iTree, double sizeFactor,
+	const TreeClassCacheOptimized& treeCache) {
+
+	for (double x = tree.x - growth.minRx; x <= tree.x + growth.minRx && !tree.dead;
+		x += ctx.gridDelta) {
+		for (double z = tree.z - growth.minRz; z <= tree.z + growth.minRz && !tree.dead;
+			z += ctx.gridDelta) {
+
+			const int gridX = (static_cast<int>(x) - ctx.xo) / ctx.gridDelta;
+			const int gridZ = (static_cast<int>(z) - ctx.zo) / ctx.gridDelta;
+
+			if (!ctx.isValidGridPos(gridX, gridZ)) continue;
+
+			int& gridP = ctx.gridAt(gridX, gridZ);
+
+			if (gridP > 0) {
+				CTreeInstance& neighbor = ctx.instances[gridP - 1];
+
+				if (&neighbor != &tree && !neighbor.dead) {
+					const double neighborAge = ctx.time - neighbor.bday;
+
+					// Find neighbor's cache
+					const TreeClassCacheOptimized* neighborCache = nullptr;
+					for (const auto& tc : *ctx.treeCache) {
+						if (tc.treeClass == neighbor.treeClass) {
+							neighborCache = &tc;
+							break;
+						}
+					}
+
+					if (neighborCache) {
+						const double neighborGrowth = 1.0 - max(0.0,
+							(neighborCache->matureAge - neighborAge) / neighborCache->matureAge);
+
+						const double nRadius = neighborCache->getRadiusValue(neighbor.x, neighbor.z);
+						const double minNeighborRx = sizeFactor * neighborGrowth *
+							neighborCache->getXRadiusValue(neighbor.x, neighbor.z) * nRadius;
+						const double minNeighborRz = sizeFactor * neighborGrowth *
+							neighborCache->getZRadiusValue(neighbor.x, neighbor.z) * nRadius;
+
+						const double neighborSize = max(minNeighborRx, minNeighborRz);
+						const double size = max(growth.minRx, growth.minRz);
+
+						tree.dead = (neighborSize > size) ||
+							(ctx.time - neighbor.bday > neighborCache->matureAge);
+					}
+				}
+			}
+
+			if (!tree.dead) {
+				gridP = iTree + 1;
+			}
+		}
+	}
+
+	return !tree.dead;
+}
+
+// Generate seeds - optimized
+void generateSeedsFast(OptimizedGenerationContext& ctx, CTreeInstance& tree,
+	const TreeGrowthFast& growth, const TreeClassCacheOptimized& treeCache) {
+
+	const double seedRx = treeCache.seedRange;
+	const double seedRz = treeCache.seedRange;
+
+	for (double x = tree.x - seedRx; x <= tree.x + seedRx; x += ctx.gridDelta) {
+		for (double z = tree.z - seedRz; z <= tree.z + seedRz; z += ctx.gridDelta) {
+			// Skip crown area
+			if (x >= tree.x - growth.minRx && x <= tree.x + growth.minRx &&
+				z >= tree.z - growth.minRz && z <= tree.z + growth.minRz)
+				continue;
+
+#if USE_RANDOM_SEED
+			if (rand() > RAND_MAX / 1000) continue;
+#endif
+
+			const int gridX = (static_cast<int>(x) - ctx.xo) / ctx.gridDelta;
+			const int gridZ = (static_cast<int>(z) - ctx.zo) / ctx.gridDelta;
+
+			if (!ctx.isValidGridPos(gridX, gridZ)) continue;
+
+			int& gridP = ctx.gridAt(gridX, gridZ);
+
+			// Check if empty
+			bool empty = (gridP == 0) ||
+				(ctx.instances[gridP - 1].dead && &ctx.instances[gridP - 1] != &tree);
+
+			if (empty) {
+				// Calculate mask value using cached data
+				double maskval = 1.0;
+				for (const auto& [mask, density] : treeCache.maskData) {
+					double value = mask->get2DMaskValue(x, z, density->blur);
+					maskval *= density->GetDensityValue(value);
+					if (maskval <= 0.0) break;
+				}
+
+				if (static_cast<double>(rand()) / RAND_MAX < maskval) {
+					CTreeInstance& t = ctx.instances[ctx.instanceIndex];
+					t.treeClass = tree.treeClass;
+					t.bday = ctx.time - min(static_cast<float>(ctx.timeSlice),
+						static_cast<float>(rand() * treeCache.matureAge / RAND_MAX));
+					t.x = x;
+					t.z = z;
+					t.dead = false;
+					t.mature = false;
+
+					ctx.instanceIndex++;
+					gridP = ctx.instanceIndex;
+				}
+			}
+		}
+	}
+}
+
+// Process tree iteration - optimized
+void processTreeIterationOptimized(OptimizedGenerationContext& ctx, int currentCount) {
+	const double sizeFactor = 0.9;
+
+	for (int iTree = 0; iTree < currentCount; ++iTree) {
+		CTreeInstance& tree = ctx.instances[iTree];
+
+		if (tree.dead) continue;
+
+		const double age = ctx.time - tree.bday;
+		tree.age = age;
+
+		// Find tree's cache
+		const TreeClassCacheOptimized* treeCache = nullptr;
+		for (const auto& tc : *ctx.treeCache) {
+			if (tc.treeClass == tree.treeClass) {
+				treeCache = &tc;
+				break;
+			}
+		}
+
+		if (!treeCache) continue;
+
+		if (age > treeCache->maxAge) {
+			tree.dead = true;
+			continue;
+		}
+
+		TreeGrowthFast growth(tree, ctx.time, sizeFactor, *treeCache);
+
+		if (!tree.mature) {
+			tree.mature = (abs(growth.growth - 1.0) < 0.00001) || ctx.lastIteration;
+			checkTreeCompetitionFast(ctx, tree, growth, iTree, sizeFactor, *treeCache);
+		}
+
+		if (!tree.dead && tree.mature) {
+			generateSeedsFast(ctx, tree, growth, *treeCache);
+		}
+	}
+}
+
+// Apply thinning masks - optimized
+double applyThinningMasksFast(CTreeInstance& tree, const TreeClassCacheOptimized& treeCache,
+	const std::map<string, DensityMap*>& globalMasks,
+	const std::map<string, I2DMask*>& masks) {
+	double maskval = 1.0;
+
+	// Use cached thinning masks
+	for (const auto& [mask, density] : treeCache.thinningMasks) {
+		double value = mask->get2DMaskValue(tree.x, tree.z, density->blur);
+		maskval *= density->GetDensityValue(value);
+		if (maskval <= 0.0) return 0.0;
+	}
+
+	// Global masks
+	for (const auto& [key, dmap] : globalMasks) {
+		auto imask = masks.find(key);
+		if (imask != masks.end()) {
+			double value = imask->second->get2DMaskValue(tree.x, tree.z, dmap->blur);
+			maskval *= dmap->GetDensityValue(value);
+			if (maskval <= 0.0) return 0.0;
+		}
+	}
+
+	return maskval;
+}
+
+// Filter mature trees - optimized
+void filterMatureTreesFast(CTreeInstance* instances, int instanceIndex,
+	std::vector<CTreeInstance>& trees,
+	const std::vector<TreeClassCacheOptimized>& treeCache,
+	const std::map<string, DensityMap*>& globalMasks,
+	const std::map<string, I2DMask*>& masks) {
+	trees.clear();
+	trees.reserve(instanceIndex / 3); // Estimate capacity
+
+	for (int i = 0; i < instanceIndex; i++) {
+		CTreeInstance& tree = instances[i];
+
+		if (!tree.dead && tree.mature) {
+			// Find tree's cache
+			const TreeClassCacheOptimized* tc = nullptr;
+			for (const auto& cache : treeCache) {
+				if (cache.treeClass == tree.treeClass) {
+					tc = &cache;
+					break;
+				}
+			}
+
+			if (!tc) continue;
+
+			double maskval = applyThinningMasksFast(tree, *tc, globalMasks, masks);
+
+			if (static_cast<double>(rand()) / RAND_MAX <= maskval) {
+				trees.push_back(tree);
+			}
+		}
+	}
+}
+
+// MAIN OPTIMIZED FUNCTION
+void CForest::generateOptimized(float forestAge, int iterations) {
+	string title = "CForest::generateOptimized - generate whole tree instances : ";
+	CTimeCounter timeCounter(title);
+
+	// Grid setup
+	const int gridDelta = 30;
+	const int gridXSize = xSize / gridDelta;
+	const int gridZSize = zSize / gridDelta;
+	const int gridSize = (gridXSize + 1) * (gridZSize + 1) * sizeof(int);
+	int* grid = (int*)malloc(gridSize);
+	memset(grid, 0, gridSize);
+
+	cout << "gridDelta: " << gridDelta
+		<< ", gridXSize: " << gridXSize
+		<< ", gridZSize: " << gridZSize << endl;
+
+	// Allocate instances
+	CTreeInstance* instances = (CTreeInstance*)malloc(SEED_MAX * sizeof(CTreeInstance));
+	memset(instances, 0, SEED_MAX * sizeof(CTreeInstance));
+
+	ClassStrength* classArray = (ClassStrength*)malloc(classes.size() * sizeof(ClassStrength));
+
+	// Build cache once
+	std::vector<TreeClassCacheOptimized> treeClassCache;
+	buildOptimizedTreeClassCache(treeClassCache);
+
+	// Setup context
+	OptimizedGenerationContext ctx;
+	ctx.instances = instances;
+	ctx.instanceIndex = 0;
+	ctx.classArray = classArray;
+	ctx.grid = grid;
+	ctx.gridXSize = gridXSize;
+	ctx.gridZSize = gridZSize;
+	ctx.gridDelta = gridDelta;
+	ctx.xo = xo;
+	ctx.zo = zo;
+	ctx.xSize = xSize;
+	ctx.zSize = zSize;
+	ctx.timeSlice = forestAge / iterations;
+	ctx.treeCache = &treeClassCache;
+
+	// Main iteration loop
+	for (int iteration = 0; iteration < iterations; iteration++) {
+		ctx.lastIteration = (iteration == iterations - 1);
+		ctx.time = ctx.timeSlice * iteration;
+
+		generateInitialInstancesFast(ctx);
+
+		const int currentCount = ctx.instanceIndex;
+		const int progressPct = static_cast<int>(100.0 * iteration / iterations);
+
+		cout << "Iteration " << iteration
+			<< ": " << currentCount << " instances ("
+			<< progressPct << "%)" << endl;
+
+		processTreeIterationOptimized(ctx, currentCount);
+	}
+
+	cout << "Tree Instances index Count: " << ctx.instanceIndex << endl;
+
+	// Filter and finalize
+	filterMatureTreesFast(instances, ctx.instanceIndex, trees,
+		treeClassCache, globalMasks, masks);
+
+	removeTreesNearPOIs();
+	if (!m_isLevel1Instances) {
+		removeTreesNearCaves();
+	}
+
+	cout << "Final Trees Size: " << trees.size() << endl;
+
+	// Cleanup
+	free(instances);
+	free(grid);
+	free(classArray);
+}
+
+// Pre-compute mask lookups to avoid repeated map searches
+void CForest::buildTreeClassCache(std::vector<TreeClassCache>& cache) {
+	cache.reserve(classes.size());
+
+	for (TreeClass* treeClass : classes) {
+		TreeClassCache tc;
+		tc.treeClass = treeClass;
+		tc.matureAge = treeClass->matureAge;
+		tc.maxAge = treeClass->maxAge;
+		tc.seedRange = treeClass->seedRange;
+
+		for (auto& maskPair : treeClass->masks) {
+			auto maskIt = masks.find(maskPair.first);
+			if (maskIt != masks.end()) {
+				CachedMaskData cmd;
+				cmd.mask = maskIt->second;
+				cmd.density = maskPair.second;
+				cmd.useForThinning = maskPair.second->useForThinning;
+				tc.maskData.push_back(cmd);
+			}
+		}
+		cache.push_back(tc);
+	}
+}
+
+// Optimized mask value calculation using cached data
+inline double calculateMaskValueOptimized(const TreeClassCache& tc, int x, int z) {
+	double maskValue = 1.0;
+
+	for (const auto& cmd : tc.maskData) {
+		double mask = cmd.mask->get2DMaskValue(x, z, cmd.density->blur);
+		maskValue *= cmd.density->GetDensityValue(mask);
+		if (maskValue <= 0.0) break; // Early exit
+	}
+
+	return maskValue;
+}
+
+// Optimized tree class selection with pre-computed probabilities
+TreeClass* selectTreeClassOptimized(
+	const std::vector<TreeClassCache>& cache,
+	ClassStrength* classArray,
+	int x, int z,
+	double& maskSpan) {
+
+	maskSpan = 0.0;
+	int classIdx = 0;
+
+	for (const auto& tc : cache) {
+		double maskValue = calculateMaskValueOptimized(tc, x, z);
+		maskSpan += maskValue;
+		classArray[classIdx].strength = maskValue;
+		classArray[classIdx].treeClass = tc.treeClass;
+		classIdx++;
+	}
+
+	if (maskSpan <= 0.0) return nullptr;
+
+	double dice = maskSpan * rand() / RAND_MAX;
+	double sum = 0.0;
+
+	for (int i = 0; i < classIdx; i++) {
+		sum += classArray[i].strength;
+		if (sum >= dice) {
+			return classArray[i].treeClass;
+		}
+	}
+
+	return classArray[classIdx - 1].treeClass;
+}
+
+// Optimized grid access with inline function
+inline int& getGridValue(int* grid, int gridXSize, int gridX, int gridZ) {
+	return grid[gridXSize * gridZ + gridX];
+}
+
+// MAIN OPTIMIZED GENERATE FUNCTION
+void CForest::generateFast(float forestAge, int iterations) {
+	string title = "CForest::generate generate whole tree instances : ";
+	CTimeCounter timeCounter(title);
+
+	// Grid setup
+	const int gridDelta = 30;
+	const int gridXSize = xSize / gridDelta;
+	const int gridZSize = zSize / gridDelta;
+	const int gridSize = (gridXSize + 1) * (gridZSize + 1) * sizeof(int);
+	int* grid = (int*)malloc(gridSize);
+	memset(grid, 0, gridSize);
+
+	cout << "gridDelta: " << gridDelta << ", gridXSize: " << gridXSize
+		<< ", gridZSize: " << gridZSize << endl;
+
+	// Instance allocation
+	CTreeInstance* instances = (CTreeInstance*)malloc(SEED_MAX * sizeof(CTreeInstance));
+	memset(instances, 0, SEED_MAX * sizeof(CTreeInstance));
+	int instanceIndex = 0;
+
+	// Pre-allocate class array
+	ClassStrength* classArray = (ClassStrength*)malloc(classes.size() * sizeof(ClassStrength));
+
+	// Build cache once
+	std::vector<TreeClassCache> treeClassCache;
+	buildTreeClassCache(treeClassCache);
+
+	// Pre-compute constants
+	const int xLimit = xo + xSize;
+	const int zLimit = zo + zSize;
+	const double timeSlice = forestAge / iterations;
+	const double sizeFactor = 0.9;
+	const double growthFactor = 0.7;
+	const int randThreshold = RAND_MAX / 10;
+	const int seedRandThreshold = RAND_MAX / 1000;
+
+	// Main iteration loop
+	for (int iteration = 0; iteration < iterations; iteration++) {
+		const bool lastIteration = (iteration == iterations - 1);
+		const double time = timeSlice * iteration;
+
+		// Phase 1: Generate initial instances in empty areas
+		for (int x = xo; x < xLimit; x += gridDelta) {
+			for (int z = zo; z < zLimit; z += gridDelta) {
+				if (rand() > randThreshold) continue;
+
+				const int gridX = (x - xo) / gridDelta;
+				const int gridZ = (z - zo) / gridDelta;
+				int& gridP = getGridValue(grid, gridXSize, gridX, gridZ);
+
+				// Check if cell is empty
+				bool empty = (gridP == 0) || instances[gridP - 1].dead;
+				if (!empty) continue;
+
+				// Select tree class
+				double maskSpan;
+				TreeClass* chosen = selectTreeClassOptimized(treeClassCache, classArray, x, z, maskSpan);
+
+				if (chosen) {
+					CTreeInstance& t = instances[instanceIndex];
+					t.treeClass = chosen;
+					t.bday = time - min(timeSlice, (float)rand() * chosen->matureAge / RAND_MAX);
+
+					// Position with boundary clamping
+					t.x = x + GenerateRandomDouble(-gridDelta, gridDelta);
+					t.x = (t.x >= xLimit) ? (x - GenerateRandomDouble(0, gridDelta)) :
+						(t.x <= xo) ? (x + GenerateRandomDouble(0, gridDelta)) : t.x;
+
+					t.z = z + GenerateRandomDouble(-gridDelta, gridDelta);
+					t.z = (t.z >= zLimit) ? (z - GenerateRandomDouble(0, gridDelta)) :
+						(t.z <= zo) ? (z + GenerateRandomDouble(0, gridDelta)) : t.z;
+
+					t.dead = false;
+					t.mature = false;
+
+					instanceIndex++;
+					gridP = instanceIndex;
+				}
+			}
+		}
+
+		const int currentCount = instanceIndex;
+		cout << "Iteration " << iteration << ": " << currentCount << " instances ("
+			<< (100 * iteration / iterations) << "%)" << endl;
+
+		// Phase 2: Process competition and seed generation
+		for (int iTree = 0; iTree < currentCount; ++iTree) {
+			CTreeInstance& tree = instances[iTree];
+
+			if (tree.dead) continue;
+
+			const double age = time - tree.bday;
+			tree.age = age;
+
+			if (age > tree.treeClass->maxAge) {
+				tree.dead = true;
+				continue;
+			}
+
+			const double growth = 1.0 - max(0.0, (tree.treeClass->matureAge - age) / tree.treeClass->matureAge);
+			const double minRx = growthFactor * sizeFactor * growth *
+				tree.treeClass->xRadius.getValue(tree.x, 0, tree.z) *
+				tree.treeClass->radius.getValue(tree.x, 0, tree.z);
+			const double minRz = growthFactor * sizeFactor * growth *
+				tree.treeClass->zRadius.getValue(tree.x, 0, tree.z) *
+				tree.treeClass->radius.getValue(tree.x, 0, tree.z);
+
+			// Competition check for immature trees
+			if (!tree.mature) {
+				tree.mature = (abs(growth - 1.0) < 0.00001) || lastIteration;
+
+				for (double x = tree.x - minRx; x <= tree.x + minRx && !tree.dead; x += gridDelta) {
+					for (double z = tree.z - minRz; z <= tree.z + minRz && !tree.dead; z += gridDelta) {
+						const int gridX = ((int)x - xo) / gridDelta;
+						const int gridZ = ((int)z - zo) / gridDelta;
+
+						if (gridX < 0 || gridX >= gridXSize || gridZ < 0 || gridZ >= gridZSize)
+							continue;
+
+						int& gridP = getGridValue(grid, gridXSize, gridX, gridZ);
+
+						if (gridP > 0) {
+							CTreeInstance& neighbor = instances[gridP - 1];
+
+							if (&neighbor != &tree && !neighbor.dead) {
+								const double neighborAge = time - neighbor.bday;
+								const double neighborGrowth = 1.0 - max(0.0,
+									(neighbor.treeClass->matureAge - neighborAge) / neighbor.treeClass->matureAge);
+
+								const double minNeighborRx = sizeFactor * neighborGrowth *
+									neighbor.treeClass->xRadius.getValue(neighbor.x, 0, neighbor.z) *
+									neighbor.treeClass->radius.getValue(neighbor.x, 0, neighbor.z);
+								const double minNeighborRz = sizeFactor * neighborGrowth *
+									neighbor.treeClass->zRadius.getValue(neighbor.x, 0, neighbor.z) *
+									neighbor.treeClass->radius.getValue(neighbor.x, 0, neighbor.z);
+
+								const double neighborSize = max(minNeighborRx, minNeighborRz);
+								const double size = max(minRx, minRz);
+
+								tree.dead = (neighborSize > size) ||
+									(time - neighbor.bday > neighbor.treeClass->matureAge);
+							}
+						}
+
+						if (!tree.dead) gridP = iTree + 1;
+					}
+				}
+			}
+
+			// Seed generation for mature trees
+			if (!tree.dead && tree.mature) {
+				const double seedRx = tree.treeClass->seedRange;
+				const double seedRz = tree.treeClass->seedRange;
+
+				for (double x = tree.x - seedRx; x <= tree.x + seedRx; x += gridDelta) {
+					for (double z = tree.z - seedRz; z <= tree.z + seedRz; z += gridDelta) {
+						// Skip area within tree crown
+						if (x >= tree.x - minRx && x <= tree.x + minRx &&
+							z >= tree.z - minRz && z <= tree.z + minRz)
+							continue;
+
+#if USE_RANDOM_SEED
+						if (rand() > seedRandThreshold) continue;
+#endif
+
+						const int gridX = ((int)x - xo) / gridDelta;
+						const int gridZ = ((int)z - zo) / gridDelta;
+
+						if (gridX < 0 || gridX >= gridXSize || gridZ < 0 || gridZ >= gridZSize)
+							continue;
+
+						int& gridP = getGridValue(grid, gridXSize, gridX, gridZ);
+
+						// Check if location is empty
+						bool empty = (gridP == 0) ||
+							(instances[gridP - 1].dead && &instances[gridP - 1] != &tree);
+
+						if (empty) {
+							// Calculate mask value using cached data
+							double maskval = 1.0;
+
+							for (const auto& cmd : treeClassCache[0].maskData) { // Find correct cache
+								auto it = std::find_if(treeClassCache.begin(), treeClassCache.end(),
+									[&tree](const TreeClassCache& tc) { return tc.treeClass == tree.treeClass; });
+
+								if (it != treeClassCache.end()) {
+									for (const auto& cmd : it->maskData) {
+										double value = cmd.mask->get2DMaskValue(x, z, cmd.density->blur);
+										maskval *= cmd.density->GetDensityValue(value);
+										if (maskval <= 0.0) break;
+									}
+									break;
+								}
+							}
+
+							if (((double)rand() / RAND_MAX) < maskval) {
+								CTreeInstance& t = instances[instanceIndex];
+								t.treeClass = tree.treeClass;
+								t.bday = time - min(timeSlice, (float)rand() * tree.treeClass->matureAge / RAND_MAX);
+								t.x = x;
+								t.z = z;
+								t.dead = false;
+								t.mature = false;
+
+								instanceIndex++;
+								gridP = instanceIndex;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	cout << "Tree Instances index Count: " << instanceIndex << endl;
+
+	// Phase 3: Filter mature trees and apply thinning
+	trees.clear();
+	trees.reserve(instanceIndex / 2); // Reserve approximate capacity
+
+	for (int i = 0; i < instanceIndex; i++) {
+		CTreeInstance& tree = instances[i];
+
+		if (!tree.dead && tree.mature) {
+			double maskval = 1.0;
+
+			// Apply thinning masks
+			for (const auto& imap : tree.treeClass->masks) {
+				auto imask = masks.find(imap.first);
+				if (imask != masks.end() && imap.second->useForThinning) {
+					double value = imask->second->get2DMaskValue(tree.x, tree.z, imap.second->blur);
+					maskval *= imap.second->GetDensityValue(value);
+					if (maskval <= 0.0) break;
+				}
+			}
+
+			// Apply global masks
+			if (maskval > 0.0) {
+				for (const auto& imap : globalMasks) {
+					auto imask = masks.find(imap.first);
+					if (imask != masks.end()) {
+						double value = imask->second->get2DMaskValue(tree.x, tree.z, imap.second->blur);
+						maskval *= imap.second->GetDensityValue(value);
+						if (maskval <= 0.0) break;
+					}
+				}
+			}
+
+			if (((double)rand() / RAND_MAX) <= maskval) {
+				trees.push_back(tree);
+			}
+		}
+	}
+
+	removeTreesNearPOIs();
+	if (!m_isLevel1Instances) {
+		removeTreesNearCaves();
+	}
+
+	cout << "Final Trees Size: " << trees.size() << endl;
+
+	// Cleanup
+	free(instances);
+	free(grid);
+	free(classArray);
+}

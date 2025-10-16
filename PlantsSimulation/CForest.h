@@ -73,12 +73,74 @@ struct TreeGrowth {
 	bool mature;
 };
 
+struct TreeClassCacheOptimized {
+	TreeClass* treeClass;
+	std::vector<std::pair<I2DMask*, DensityMap*>> maskData;
+	std::vector<std::pair<I2DMask*, DensityMap*>> thinningMasks;
+	double matureAge;
+	double maxAge;
+	double seedRange;
+
+	// Pre-computed radius accessors
+	inline double getRadiusValue(double x, double z) const {
+		return treeClass->radius.getValue(x, 0, z);
+	}
+
+	inline double getXRadiusValue(double x, double z) const {
+		return treeClass->xRadius.getValue(x, 0, z);
+	}
+
+	inline double getZRadiusValue(double x, double z) const {
+		return treeClass->zRadius.getValue(x, 0, z);
+	}
+};
+
+struct OptimizedGenerationContext {
+	CTreeInstance* instances;
+	int instanceIndex;
+	ClassStrength* classArray;
+	int* grid;
+	int gridXSize;
+	int gridZSize;
+	int gridDelta;
+	int xo, zo, xSize, zSize;
+	double time;
+	double timeSlice;
+	bool lastIteration;
+	const std::vector<TreeClassCacheOptimized>* treeCache;
+
+	inline int& gridAt(int gridX, int gridZ) {
+		return grid[gridXSize * gridZ + gridX];
+	}
+
+	inline bool isValidGridPos(int gridX, int gridZ) const {
+		return gridX >= 0 && gridX < gridXSize && gridZ >= 0 && gridZ < gridZSize;
+	}
+};
+
+// Optimized helper structures
+struct CachedMaskData {
+	I2DMask* mask;
+	DensityMap* density;
+	bool useForThinning;
+};
+
+struct TreeClassCache {
+	TreeClass* treeClass;
+	std::vector<CachedMaskData> maskData;
+	double matureAge;
+	double maxAge;
+	double seedRange;
+};
+
 class CForest
 {
 public:
 	CForest(void);
 	~CForest(void);
 public:
+	void generateFast(float forestAge, int iterations);
+	void generateOptimized(float forestAge, int iterations);
 	void generate2(float forestAge, int iterations);
 	void generate(float forestAge, int iterations);
 	void loadDefaultTreeClasses();
@@ -152,6 +214,10 @@ public:
 	void processTreeIterationForDominatePlants(GenerationContext& ctx, int currentCount);
 	double applyThinningMasks(CTreeInstance& tree);
 	void filterMatureTrees(CTreeInstance* instances, int instanceIndex);
+
+	void buildOptimizedTreeClassCache(std::vector<TreeClassCacheOptimized>& cache);
+
+	void buildTreeClassCache(std::vector<TreeClassCache>& cache);
 
 public:
 	vector<TreeClass*> classes;
