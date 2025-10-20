@@ -1,4 +1,4 @@
-#include "CForest.h"
+﻿#include "CForest.h"
 
 #include <iostream>
 #include <fstream>
@@ -2097,27 +2097,52 @@ inline int& getGridValue(int* grid, int gridXSize, int gridX, int gridZ) {
 
 // MAIN OPTIMIZED GENERATE FUNCTION
 void CForest::generateFast(float forestAge, int iterations) {
-	string title = "CForest::generate generate whole tree instances : ";
+	string title = "CForest::generateFast - generate whole tree instances : ";
 	CTimeCounter timeCounter(title);
 
 	// Grid setup
 	const int gridDelta = 30;
 	const int gridXSize = xSize / gridDelta;
 	const int gridZSize = zSize / gridDelta;
+	const int totalGridCells = (gridXSize + 1) * (gridZSize + 1);
+
+	cout << "gridDelta: " << gridDelta
+		<< ", gridXSize: " << gridXSize
+		<< ", gridZSize: " << gridZSize
+		<< ", totalGridCells: " << totalGridCells << endl;
+
+	// Calculate initial capacity
+	int initialCapacity = static_cast<int>(totalGridCells * 0.5 * iterations);
+	const int ABSOLUTE_MIN = 100000;
+	const int ABSOLUTE_MAX = 32 * 1024 * 1024;
+	initialCapacity = max(ABSOLUTE_MIN, min(initialCapacity, ABSOLUTE_MAX));
+
+	// Use vector instead of raw pointer
+	std::vector<CTreeInstance> instances;
+	instances.reserve(initialCapacity);
+
+	cout << "Initial capacity reserved: " << initialCapacity
+		<< " (" << (initialCapacity * sizeof(CTreeInstance) / (1024.0 * 1024.0))
+		<< " MB)" << endl;
+
+	int instanceIndex = 0;
+
+	// Grid allocation
 	const int gridSize = (gridXSize + 1) * (gridZSize + 1) * sizeof(int);
 	int* grid = (int*)malloc(gridSize);
+	if (!grid) {
+		cerr << "Failed to allocate grid memory!" << endl;
+		return;
+	}
 	memset(grid, 0, gridSize);
-
-	cout << "gridDelta: " << gridDelta << ", gridXSize: " << gridXSize
-		<< ", gridZSize: " << gridZSize << endl;
-
-	// Instance allocation
-	CTreeInstance* instances = (CTreeInstance*)malloc(SEED_MAX * sizeof(CTreeInstance));
-	memset(instances, 0, SEED_MAX * sizeof(CTreeInstance));
-	int instanceIndex = 0;
 
 	// Pre-allocate class array
 	ClassStrength* classArray = (ClassStrength*)malloc(classes.size() * sizeof(ClassStrength));
+	if (!classArray) {
+		cerr << "Failed to allocate class array!" << endl;
+		free(grid);
+		return;
+	}
 
 	// Build cache once
 	std::vector<TreeClassCache> treeClassCache;
@@ -2155,9 +2180,22 @@ void CForest::generateFast(float forestAge, int iterations) {
 				TreeClass* chosen = selectTreeClassOptimized(treeClassCache, classArray, x, z, maskSpan);
 
 				if (chosen) {
+					// Auto-expansion check
+					if (instanceIndex >= static_cast<int>(instances.size())) {
+						size_t newSize = instances.size() + max(10000, static_cast<int>(instances.size() * 0.2));
+						if (newSize > ABSOLUTE_MAX) {
+							cout << "Warning: Reached absolute maximum instance limit (" << ABSOLUTE_MAX
+								<< "). Stopping generation at iteration " << iteration << endl;
+							goto finish_generation; // Break out of all loops
+						}
+						cout << "Auto-expanding instances buffer from " << instances.size()
+							<< " to " << newSize << endl;
+						instances.resize(newSize);
+					}
+
 					CTreeInstance& t = instances[instanceIndex];
 					t.treeClass = chosen;
-					t.bday = time - min(timeSlice, (float)rand() * chosen->matureAge / RAND_MAX);
+					t.bday = time - min(timeSlice, static_cast<float>(rand()) * chosen->matureAge / RAND_MAX);
 
 					// Position with boundary clamping
 					t.x = x + GenerateRandomDouble(-gridDelta, gridDelta);
@@ -2178,8 +2216,9 @@ void CForest::generateFast(float forestAge, int iterations) {
 		}
 
 		const int currentCount = instanceIndex;
+		const int progressPct = static_cast<int>(100.0 * iteration / iterations);
 		cout << "Iteration " << iteration << ": " << currentCount << " instances ("
-			<< (100 * iteration / iterations) << "%)" << endl;
+			<< progressPct << "%, capacity: " << instances.size() << ")" << endl;
 
 		// Phase 2: Process competition and seed generation
 		for (int iTree = 0; iTree < currentCount; ++iTree) {
@@ -2209,8 +2248,8 @@ void CForest::generateFast(float forestAge, int iterations) {
 
 				for (double x = tree.x - minRx; x <= tree.x + minRx && !tree.dead; x += gridDelta) {
 					for (double z = tree.z - minRz; z <= tree.z + minRz && !tree.dead; z += gridDelta) {
-						const int gridX = ((int)x - xo) / gridDelta;
-						const int gridZ = ((int)z - zo) / gridDelta;
+						const int gridX = (static_cast<int>(x) - xo) / gridDelta;
+						const int gridZ = (static_cast<int>(z) - zo) / gridDelta;
 
 						if (gridX < 0 || gridX >= gridXSize || gridZ < 0 || gridZ >= gridZSize)
 							continue;
@@ -2261,8 +2300,8 @@ void CForest::generateFast(float forestAge, int iterations) {
 						if (rand() > seedRandThreshold) continue;
 #endif
 
-						const int gridX = ((int)x - xo) / gridDelta;
-						const int gridZ = ((int)z - zo) / gridDelta;
+						const int gridX = (static_cast<int>(x) - xo) / gridDelta;
+						const int gridZ = (static_cast<int>(z) - zo) / gridDelta;
 
 						if (gridX < 0 || gridX >= gridXSize || gridZ < 0 || gridZ >= gridZSize)
 							continue;
@@ -2277,24 +2316,35 @@ void CForest::generateFast(float forestAge, int iterations) {
 							// Calculate mask value using cached data
 							double maskval = 1.0;
 
-							for (const auto& cmd : treeClassCache[0].maskData) { // Find correct cache
-								auto it = std::find_if(treeClassCache.begin(), treeClassCache.end(),
-									[&tree](const TreeClassCache& tc) { return tc.treeClass == tree.treeClass; });
+							// Find correct cache for this tree class
+							auto it = std::find_if(treeClassCache.begin(), treeClassCache.end(),
+								[&tree](const TreeClassCache& tc) { return tc.treeClass == tree.treeClass; });
 
-								if (it != treeClassCache.end()) {
-									for (const auto& cmd : it->maskData) {
-										double value = cmd.mask->get2DMaskValue(x, z, cmd.density->blur);
-										maskval *= cmd.density->GetDensityValue(value);
-										if (maskval <= 0.0) break;
-									}
-									break;
+							if (it != treeClassCache.end()) {
+								for (const auto& cmd : it->maskData) {
+									double value = cmd.mask->get2DMaskValue(x, z, cmd.density->blur);
+									maskval *= cmd.density->GetDensityValue(value);
+									if (maskval <= 0.0) break;
 								}
 							}
 
-							if (((double)rand() / RAND_MAX) < maskval) {
+							if ((static_cast<double>(rand()) / RAND_MAX) < maskval) {
+								// Auto-expansion check
+								if (instanceIndex >= static_cast<int>(instances.size())) {
+									size_t newSize = instances.size() + max(10000, static_cast<int>(instances.size() * 0.2));
+									if (newSize > ABSOLUTE_MAX) {
+										cout << "Warning: Reached absolute maximum instance limit during seed generation. "
+											<< "Stopping at iteration " << iteration << endl;
+										goto finish_generation;
+									}
+									cout << "Auto-expanding instances buffer (seed phase) from " << instances.size()
+										<< " to " << newSize << endl;
+									instances.resize(newSize);
+								}
+
 								CTreeInstance& t = instances[instanceIndex];
 								t.treeClass = tree.treeClass;
-								t.bday = time - min(timeSlice, (float)rand() * tree.treeClass->matureAge / RAND_MAX);
+								t.bday = time - min(timeSlice, static_cast<float>(rand()) * tree.treeClass->matureAge / RAND_MAX);
 								t.x = x;
 								t.z = z;
 								t.dead = false;
@@ -2310,7 +2360,10 @@ void CForest::generateFast(float forestAge, int iterations) {
 		}
 	}
 
-	cout << "Tree Instances index Count: " << instanceIndex << endl;
+finish_generation:
+	cout << "Tree Instances Count: " << instanceIndex << endl;
+	cout << "Final buffer capacity: " << instances.size()
+		<< " (utilization: " << (100.0 * instanceIndex / instances.size()) << "%)" << endl;
 
 	// Phase 3: Filter mature trees and apply thinning
 	trees.clear();
@@ -2344,7 +2397,7 @@ void CForest::generateFast(float forestAge, int iterations) {
 				}
 			}
 
-			if (((double)rand() / RAND_MAX) <= maskval) {
+			if ((static_cast<double>(rand()) / RAND_MAX) <= maskval) {
 				trees.push_back(tree);
 			}
 		}
@@ -2357,8 +2410,7 @@ void CForest::generateFast(float forestAge, int iterations) {
 
 	cout << "Final Trees Size: " << trees.size() << endl;
 
-	// Cleanup
-	free(instances);
+	// Cleanup - vector auto-releases, only need to free other allocated memory
 	free(grid);
 	free(classArray);
 }
