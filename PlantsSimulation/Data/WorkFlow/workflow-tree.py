@@ -20,6 +20,13 @@ level = 6
 tree_lod =  8
 forest_age = 15000
 tree_iteration = 300
+grid_delta = 30
+initial_density = 0.1
+seed_density = 0.001
+competition_factor = 0.9
+growth_factor = 0.7
+thinning_threshold = 1.0
+
 pangea_next_project_id = '1D4CBBD1D957477E8CC3FF376FB87470'
 
 def has_trigger_other_workflow_file(vf : voxelfarmclient.rest,
@@ -223,7 +230,13 @@ def common_generation_on_receive_data(
             'level' : level,
             'tree_lod': tree_lod,
             'forest_age': forest_age,
-            'tree_iteration':tree_iteration
+            'tree_iteration':tree_iteration,
+            'grid_delta': grid_delta,
+            'initial_density': initial_density,
+            'seed_density': seed_density,
+            'competition_factor': competition_factor,
+            'growth_factor': growth_factor,
+            'thinning_threshold': thinning_threshold
         },
         code='xc_cloud_tree_creation.py',
         files=['xc_cloud_tree_creation.py', 'xc_lambda-uploaddb.py'],

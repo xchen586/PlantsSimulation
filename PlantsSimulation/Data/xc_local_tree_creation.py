@@ -2215,7 +2215,13 @@ def tree_instances_generation(config_path):
     tree_lod = read_ini_value(config_path, section_others, 'tree_lod', value_type=int)
     forest_age = read_ini_value(config_path, section_others, 'forest_age', value_type=int)
     tree_iteration = read_ini_value(config_path, section_others, 'tree_iteration', value_type=int)
-
+    grid_delta = read_ini_value(config_path, section_others, 'grid_delta', value_type=float)
+    initial_density = read_ini_value(config_path, section_others, 'initial_density', value_type=float)
+    seed_density = read_ini_value(config_path, section_others, 'seed_density', value_type=float)
+    competition_factor = read_ini_value(config_path, section_others, 'competition_factor', value_type=float)
+    growth_factor = read_ini_value(config_path, section_others, 'growth_factor', value_type=float)
+    thinning_threshold = read_ini_value(config_path, section_others, 'thinning_threshold', value_type=float)
+    
     print(f'End to read value from {config_path}')
 
     print(f'Start to prepare input data parameter for TreesInstancesAbsolutePathWin.ini')
@@ -2712,6 +2718,12 @@ def tree_instances_generation(config_path):
         create_or_update_ini_file(tree_ini_path, section_others, 'Lod', tree_lod)
         create_or_update_ini_file(tree_ini_path, section_others, 'Forest_Age', forest_age)
         create_or_update_ini_file(tree_ini_path, section_others, 'Tree_Iteration', tree_iteration)
+        create_or_update_ini_file(tree_ini_path, section_others, 'Grid_Delta', grid_delta)
+        create_or_update_ini_file(tree_ini_path, section_others, 'Initial_Density', initial_density)
+        create_or_update_ini_file(tree_ini_path, section_others, 'Seed_Density', seed_density)
+        create_or_update_ini_file(tree_ini_path, section_others, 'Competition_Factor', competition_factor)
+        create_or_update_ini_file(tree_ini_path, section_others, 'growth_factor', growth_factor)
+        create_or_update_ini_file(tree_ini_path, section_others, 'Thinning_Threshold', thinning_threshold)
         
         create_or_update_ini_file(tree_ini_path, section_options,'Only_Road_Data', run_generate_road_input)
         create_or_update_ini_file(tree_ini_path, section_options,'Use_With_BaseMeshes_Level1', useWithBaseMeshesLevel1)
@@ -3084,6 +3096,12 @@ def tree_config_creation(ini_path):
     create_or_update_ini_file(ini_path, section_others, 'tree_lod', Tree_load)
     create_or_update_ini_file(ini_path, section_others, 'forest_age', Forest_age)
     create_or_update_ini_file(ini_path, section_others, 'tree_iteration', Tree_iteration)
+    create_or_update_ini_file(ini_path, section_others, 'grid_delta', Grid_Delta)
+    create_or_update_ini_file(ini_path, section_others, 'initial_density', Initial_Density)
+    create_or_update_ini_file(ini_path, section_others, 'seed_density', Seed_Density)
+    create_or_update_ini_file(ini_path, section_others, 'competition_factor', Competition_Factor)
+    create_or_update_ini_file(ini_path, section_others, 'growth_factor', Growth_Factor)
+    create_or_update_ini_file(ini_path, section_others, 'thinning_threshold', Thinning_Threshold)
     
     print(f'end to create tree_config_creation : {ini_path}')
     ini_string = ini_file_to_string(ini_path)
@@ -3150,6 +3168,18 @@ Forest_age = 15000
 print(f'foreForest_agest_age: {Forest_age}')
 Tree_iteration = 300
 print(f'Tree_iteration: {Tree_iteration}')
+Grid_Delta = 30
+print(f'Grid_Delta: {Grid_Delta}')
+Initial_Density = 0.1
+print(f'Initial_Density: {Initial_Density}')
+Seed_Density = 0.001
+print(f'Seed_Density: {Seed_Density}')
+Competition_Factor = 0.9
+print(f'Competition_Factor: {Competition_Factor}')
+Growth_Factor = 0.7
+print(f'Growth_Factor: {Growth_Factor}')
+Thinning_Threshold = 1.0
+print(f'Thinning_Threshold: {Thinning_Threshold}')
 
 Road_Input_Scale_Width = 300
 print(f'Road_Input_Scale_Width: {Road_Input_Scale_Width}')
