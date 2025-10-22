@@ -2420,65 +2420,108 @@ finish_generation:
  *
  * @param forestAge Total age of the forest simulation
  * @param iterations Number of growth iterations
+ *
  * @param gridDelta Grid cell size - HIGHEST IMPACT on tree count
  *                  Smaller values = more sampling points = more trees
  *                  Impact: O(1/gridDelta²) - reducing by half increases trees ~4x
  *                  Range: 10-50, Default: 30
  *                  Example: 30->20 = 2.25x trees, 30->15 = 4x trees
+ *                  NOTE: Smaller values significantly increase computation time
  *
  * @param initialDensity Probability of tree spawn in empty grid cells - HIGH IMPACT
- *                       Higher values = more initial trees
+ *                       Higher values = more initial trees spawned
  *                       Impact: Linear - doubling increases initial trees ~2x
- *                       Range: 0.05-0.5, Default: 0.1 (10%)
+ *                       Range: 0.01-0.9, Default: 0.1 (10%)
  *                       Example: 0.1->0.2 = 2x initial trees
+ *                       Logic: rand() <= (RAND_MAX * initialDensity) will spawn tree
+ *                       - 0.05 = 5% of grid positions attempt spawn
+ *                       - 0.10 = 10% of grid positions attempt spawn
+ *                       - 0.20 = 20% of grid positions attempt spawn
  *
  * @param seedDensity Probability of seed generation from mature trees - MEDIUM-HIGH IMPACT
  *                    Higher values = more seeds = more trees over iterations
- *                    Impact: Linear but multiplied by mature tree count
- *                    Range: 0.0005-0.02, Default: 0.001 (0.1%)
- *                    Example: 0.001->0.005 = 5x seeds per mature tree
+ *                    Impact: Linear but multiplied by mature tree count and seed range
+ *                    Range: 0.0001-0.05, Default: 0.001 (0.1%)
+ *                    Example: 0.001->0.005 = 5x seeds per potential seed location
+ *                    Logic: rand() <= (RAND_MAX * seedDensity) will spawn seed
+ *                    - 0.0005 = 0.05% of seed locations attempt spawn
+ *                    - 0.001 = 0.1% of seed locations attempt spawn
+ *                    - 0.005 = 0.5% of seed locations attempt spawn
+ *                    NOTE: Effect compounds over iterations as more trees mature
  *
  * @param competitionFactor Tree crown size multiplier - MEDIUM IMPACT
  *                          Lower values = smaller crowns = less competition = more trees survive
- *                          Impact: Affects survival rate, O(1/competitionFactor²) area
- *                          Range: 0.5-1.0, Default: 0.9
- *                          Example: 0.9->0.7 = ~1.6x more trees survive
+ *                          Impact: Affects survival rate, O(1/competitionFactor²) influence area
+ *                          Range: 0.3-1.0, Default: 0.9
+ *                          Example: 0.9->0.7 = ~1.65x smaller crown area = ~1.6x more trees survive
+ *                          Logic: Applied as sizeFactor in crown radius calculation
+ *                          - 1.0 = full crown size (maximum competition)
+ *                          - 0.7 = 70% crown size (moderate competition)
+ *                          - 0.5 = 50% crown size (minimal competition)
  *
  * @param growthFactor Additional crown size reduction factor - MEDIUM IMPACT
- *                     Lower values = even smaller effective crowns
+ *                     Lower values = even smaller effective crowns = less competition
  *                     Impact: Multiplicative with competitionFactor
- *                     Range: 0.4-0.8, Default: 0.7
- *                     Example: 0.7->0.5 = ~1.4x more trees survive
+ *                     Range: 0.3-0.9, Default: 0.7
+ *                     Example: 0.7->0.5 = 71% of crown radius = ~2x smaller area
+ *                     Logic: Multiplied with competitionFactor in radius calculation
+ *                     Combined effect: minRadius = growthFactor * competitionFactor * ...
+ *                     - 0.9 * 0.7 = 0.63 (63% effective radius)
+ *                     - 0.7 * 0.5 = 0.35 (35% effective radius = ~3x more density)
  *
  * @param thinningThreshold Final filtering threshold - LOW-MEDIUM IMPACT
- *                          Lower values = more trees pass final filter
- *                          Impact: Affects final count directly but after competition
- *                          Range: 0.3-1.0, Default: 1.0 (no additional thinning)
- *                          Example: 1.0->0.5 = potentially 2x trees (if not limited by space)
+ *                          Lower values = more aggressive final filtering = fewer trees
+ *                          Impact: Affects final count after all competition resolved
+ *                          Range: 0.1-1.0, Default: 1.0 (no additional thinning)
+ *                          Example: 1.0->0.5 = potentially 50% fewer trees in final output
+ *                          Logic: rand() <= (maskval * thinningThreshold) passes filter
+ *                          - 1.0 = only mask-based filtering (default behavior)
+ *                          - 0.7 = 70% pass rate (additional 30% reduction)
+ *                          - 0.5 = 50% pass rate (additional 50% reduction)
+ *                          NOTE: Actual impact depends on available space after competition
  *
- * Performance notes:
+ * Parameter Interaction Effects:
+ * - gridDelta affects total available positions (quadratic impact)
+ * - initialDensity determines how many positions are initially populated
+ * - seedDensity controls reproduction rate (compounds over iterations)
+ * - competitionFactor + growthFactor determine survival space (combined effect)
+ * - thinningThreshold provides final density control
+ *
+ * Performance Notes:
  * - Reducing gridDelta has O(n²) impact on computation time
  * - Increasing densities has linear impact on computation time
  * - Memory usage scales with total tree instances generated
+ * - Large parameter values may hit ABSOLUTE_MAX limit (64M instances)
  *
- * Recommended presets:
+ * Recommended Presets:
  * - Sparse forest:  (30, 0.05, 0.0005, 0.9, 0.7, 1.0) -> baseline × 0.5
  * - Normal forest:  (30, 0.10, 0.0010, 0.9, 0.7, 1.0) -> baseline × 1.0
  * - Dense forest:   (25, 0.15, 0.0020, 0.8, 0.6, 0.8) -> baseline × 3-4
  * - Very dense:     (20, 0.20, 0.0050, 0.7, 0.5, 0.7) -> baseline × 6-8
  * - Ultra dense:    (15, 0.30, 0.0100, 0.6, 0.4, 0.5) -> baseline × 15-20
+ *
+ * Example Usage:
+ * @code
+ * // Default parameters
+ * forest.generateFastAdjustAmount(100.0f, 30);
+ *
+ * // Double tree density
+ * forest.generateFastAdjustAmount(100.0f, 30, 30, 0.2, 0.002);
+ *
+ * // Very dense forest
+ * forest.generateFastAdjustAmount(100.0f, 30, 20, 0.2, 0.005, 0.7, 0.5, 0.7);
+ * @endcode
  */
 void CForest::generateFastAdjustAmount(
 	float forestAge,
 	int iterations,
-	int gridDelta/* = 30 */,                      // [1] HIGHEST IMPACT - Grid sampling density
+	int gridDelta/* = 30*/,                      // [1] HIGHEST IMPACT - Grid sampling density
 	double initialDensity/* = 0.1*/,             // [2] HIGH IMPACT - Initial tree spawn rate
-	double seedDensity/* = 0.001 */ ,              // [3] MEDIUM-HIGH IMPACT - Seed generation rate
+	double seedDensity/* = 0.001*/,              // [3] MEDIUM-HIGH IMPACT - Seed generation rate
 	double competitionFactor/* = 0.9*/,          // [4] MEDIUM IMPACT - Tree crown size (competition)
 	double growthFactor/* = 0.7*/,               // [5] MEDIUM IMPACT - Crown size reduction
 	double thinningThreshold/* = 1.0*/           // [6] LOW-MEDIUM IMPACT - Final filter strength
-) 
-{
+) {
 	string title = "CForest::generateFastAdjustAmount - generate whole tree instances : ";
 	CTimeCounter timeCounter(title);
 
@@ -2514,7 +2557,7 @@ void CForest::generateFastAdjustAmount(
 	// Calculate initial capacity with safety margins
 	int initialCapacity = static_cast<int>(totalGridCells * 0.5 * iterations);
 	const int ABSOLUTE_MIN = 100000;
-	const int ABSOLUTE_MAX = 64 * 1024 * 1024;  // Increased for very dense forests
+	const int ABSOLUTE_MAX = 64 * 1024 * 1024;
 	initialCapacity = max(ABSOLUTE_MIN, min(initialCapacity, ABSOLUTE_MAX));
 
 	// Use vector instead of raw pointer
@@ -2552,21 +2595,24 @@ void CForest::generateFastAdjustAmount(
 	const int xLimit = xo + xSize;
 	const int zLimit = zo + zSize;
 	const double timeSlice = forestAge / iterations;
-	const double sizeFactor = competitionFactor;  // Use competition factor as size factor
+	const double sizeFactor = competitionFactor;
 
-	// Convert density probabilities to RAND_MAX thresholds
-	const int randThreshold = static_cast<int>(RAND_MAX * (1.0 - initialDensity));
+	// FIXED: Use density values directly to calculate thresholds (Method 1)
+	// Logic: rand() generates [0, RAND_MAX]
+	//        if rand() <= threshold, action is taken
+	//        threshold = RAND_MAX * density gives us the desired probability
+	const int randThreshold = static_cast<int>(RAND_MAX * initialDensity);
 
 #if USE_RANDOM_SEED
-	const int seedRandThreshold = static_cast<int>(RAND_MAX * (1.0 - seedDensity));
+	const int seedRandThreshold = static_cast<int>(RAND_MAX * seedDensity);
 #endif
 
 	cout << "Computed thresholds:" << endl;
 	cout << "  randThreshold: " << randThreshold
-		<< " (1 in " << static_cast<int>(1.0 / initialDensity) << " chance)" << endl;
+		<< " (" << (initialDensity * 100) << "% will attempt spawn)" << endl;
 #if USE_RANDOM_SEED
 	cout << "  seedRandThreshold: " << seedRandThreshold
-		<< " (1 in " << static_cast<int>(1.0 / seedDensity) << " chance)" << endl;
+		<< " (" << (seedDensity * 100) << "% will attempt seed)" << endl;
 #endif
 	cout << endl;
 
@@ -2578,7 +2624,11 @@ void CForest::generateFastAdjustAmount(
 		// Phase 1: Generate initial instances in empty areas
 		for (int x = xo; x < xLimit; x += gridDelta) {
 			for (int z = zo; z < zLimit; z += gridDelta) {
-				// Use initialDensity parameter for spawn probability
+				// FIXED logic:
+				// Skip when rand() > randThreshold (don't spawn)
+				// Continue when rand() <= randThreshold (attempt spawn)
+				// Example: initialDensity=0.1 -> randThreshold=3276
+				//       -> about 10% of rand() values <= 3276 -> 10% spawn probability
 				if (rand() > randThreshold) continue;
 
 				const int gridX = (x - xo) / gridDelta;
@@ -2713,7 +2763,11 @@ void CForest::generateFastAdjustAmount(
 							continue;
 
 #if USE_RANDOM_SEED
-						// Use seedDensity parameter for seed probability
+						// FIXED logic:
+						// Skip when rand() > seedRandThreshold (don't spawn seed)
+						// Continue when rand() <= seedRandThreshold (attempt seed spawn)
+						// Example: seedDensity=0.001 -> seedRandThreshold=32
+						//       -> about 0.1% of rand() values <= 32 -> 0.1% seed probability
 						if (rand() > seedRandThreshold) continue;
 #endif
 
@@ -2814,7 +2868,10 @@ finish_generation:
 				}
 			}
 
-			// Apply thinningThreshold parameter - additional control over final tree count
+			// Apply thinningThreshold parameter
+			// Logic here is correct:
+			// Higher thinningThreshold -> larger maskval * thinningThreshold
+			// -> easier to satisfy <= condition -> more trees pass through
 			if ((static_cast<double>(rand()) / RAND_MAX) <= maskval * thinningThreshold) {
 				trees.push_back(tree);
 			}
