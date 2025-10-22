@@ -8,7 +8,12 @@ g_trigger_others = False
 
 g_debug_generation = True
 
-g_file_name_of_trigger_others = 'need_to_trigger_other_workflow.txt'
+g_file_name_of_trigger_others = 'need_to_trigger_other_workflow.ini'
+section_workflow = 'Workflow'
+next_workflow_key = 'Next_Workflow'
+
+info_ini_name = 'lambda_info.ini'
+section_entity = 'Entity'
 
 road_input_scale_width = 300
 road_input_scale_height = 300
@@ -21,13 +26,27 @@ tree_lod =  8
 forest_age = 15000
 tree_iteration = 300
 grid_delta = 30
-initial_density = 0.1
-seed_density = 0.001
-competition_factor = 0.9
-growth_factor = 0.7
+initial_density = 0.3
+seed_density = 0.005
+competition_factor = 0.7
+growth_factor = 0.5
 thinning_threshold = 1.0
 
 pangea_next_project_id = '1D4CBBD1D957477E8CC3FF376FB87470'
+
+g_available_workflows = ['WORKFLOW_TREE_GENERATION',
+                         'TEST_WORKFLOW_TREE_GENERATION',
+                         'WORKFLOW_BASEMESHES_GENERATION',
+                         'WORKFLOW_CAVES_GENERATION',
+                         'WORKFLOW_SMOOTH_LAYER_GENERATION',
+                         'WORKFLOW_ONLY_SMOOTH_LAYER_GENERATION',
+                         'WORKFLOW_ONLY_TREE_GENERATION'
+                         'TEST_WORKFLOW_ONLY_TREE_GENERATION',
+                         'WORKFLOW_ROAD_INPUT_GENERATION',
+                         'WORKFLOW_ROAD_CHANGED_TREE_GENERATION',
+                         'WORKFLOW_WHOLE_RESULT_GENERATION', 
+                         'TEST_WORKFLOW_WHOLE_RESULT_GENERATION'
+                         ]
 
 def has_trigger_other_workflow_file(vf : voxelfarmclient.rest,
         request : workflow_lambda.request,
@@ -49,6 +68,39 @@ def has_trigger_other_workflow_file(vf : voxelfarmclient.rest,
         lambda_host.log(f'No file {g_file_name_of_trigger_others} in the folder {folder_path} of entity {data_entity_id}')
         
     return has_file
+
+def get_next_workflow_from_file(vf : voxelfarmclient.rest,
+        request : workflow_lambda.request,
+        lambda_host : workflow_lambda.workflow_lambda_host):
+    
+    data_entity_id = request.raw_entity_id
+    file_list = []
+    folder_path = lambda_host.download_entity_files(data_entity_id)
+    lambda_host.log(f'folder_path of data_entity_id {data_entity_id} attach files is {folder_path}')
+    for filename in os.listdir(folder_path):
+        lambda_host.log(f'{filename} is in the folder {folder_path} of entity {data_entity_id}')
+        file_list.append(filename)
+    
+    if g_file_name_of_trigger_others in file_list:
+        ini_file_path =  os.path.join(folder_path, g_file_name_of_trigger_others)
+        lambda_host.log(f'Found file {g_file_name_of_trigger_others} in the folder {folder_path} of entity {data_entity_id}, the full path is {ini_file_path}')
+        config = configparser.ConfigParser()
+        config.read(ini_file_path)
+        if section_workflow in config:
+            if next_workflow_key in config[section_workflow]:
+                next_workflow = config[section_workflow][next_workflow_key]
+                lambda_host.log(f'Get next workflow {next_workflow} from file {g_file_name_of_trigger_others}')
+                if next_workflow in g_available_workflows:
+                    return next_workflow
+                else:
+                    lambda_host.log(f'Next workflow {next_workflow} is not in available workflows list')
+                    return None
+            else:
+                lambda_host.log(f'No {next_workflow_key} in section {section_workflow} of file {g_file_name_of_trigger_others}')
+                return None
+        else:
+            lambda_host.log(f'No section {section_workflow} in file {g_file_name_of_trigger_others}')
+            return None
     
 def trigger_other_project_workflow(
         vf : voxelfarmclient.rest,
@@ -437,9 +489,6 @@ def create_view_for_basemesh_entity(vf : voxelfarmclient.rest,
     
     entity_id = request.raw_entity_id
     
-    info_ini_name = 'lambda_info.ini'
-    section_entity = 'Entity'
-    
     ini_file = lambda_host.download_entity_file(info_ini_name, entity_id)
     lambda_host.log(f'down load file {ini_file} with file name {info_ini_name} from entity {entity_id}')
     if not os.path.isfile(ini_file):
@@ -533,6 +582,10 @@ def tile_info_on_receive_data(
         if g_debug_generation:
             trigged_product_id = 'TEST_WORKFLOW_WHOLE_RESULT_GENERATION'
             lambda_host.log(f'g_debug_generation is {g_debug_generation}, use {trigged_product_id} to trigger')
+        next_workflow = get_next_workflow_from_file(vf, request, lambda_host)
+        if next_workflow is not None:
+            trigged_product_id = next_workflow
+            lambda_host.log(f'next_workflow from file is {next_workflow}, use {trigged_product_id} to trigger')
         ret = trigger_other_project_workflow(vf, request, lambda_host, trigged_product_id)
         return ret
 
@@ -570,6 +623,10 @@ def tree_list_on_receive_data(
         if g_debug_generation:
             trigged_product_id = 'TEST_WORKFLOW_ONLY_TREE_GENERATION'
             lambda_host.log(f'g_debug_generation is {g_debug_generation}, use {trigged_product_id} to trigger')
+        next_workflow = get_next_workflow_from_file(vf, request, lambda_host)
+        if next_workflow is not None:
+            trigged_product_id = next_workflow
+            lambda_host.log(f'next_workflow from file is {next_workflow}, use {trigged_product_id} to trigger')
         ret = trigger_other_project_workflow(vf, request, lambda_host, trigged_product_id)
         return ret
 
@@ -604,6 +661,10 @@ def road_data_on_receive_data(
     if triggerOthers:
         lambda_host.log('Triggering others')
         trigged_product_id = 'WORKFLOW_ROAD_CHANGED_TREE_GENERATION'
+        next_workflow = get_next_workflow_from_file(vf, request, lambda_host)
+        if next_workflow is not None:
+            trigged_product_id = next_workflow
+            lambda_host.log(f'next_workflow from file is {next_workflow}, use {trigged_product_id} to trigger')
         ret = trigger_other_project_workflow(vf, request, lambda_host, trigged_product_id)
         return ret
 
@@ -639,6 +700,10 @@ def base_meshes_on_receive_data(
     if triggerOthers:
         lambda_host.log('Triggering others')
         trigged_product_id = 'WORKFLOW_BASEMESHES_GENERATION'
+        next_workflow = get_next_workflow_from_file(vf, request, lambda_host)
+        if next_workflow is not None:
+            trigged_product_id = next_workflow
+            lambda_host.log(f'next_workflow from file is {next_workflow}, use {trigged_product_id} to trigger')
         ret = trigger_other_project_workflow(vf, request, lambda_host, trigged_product_id)
         return ret
     
@@ -673,6 +738,10 @@ def caves_dungeons_asset_on_receive_data(
     if triggerOthers:
         lambda_host.log('Triggering others')
         trigged_product_id = 'WORKFLOW_CAVES_GENERATION'
+        next_workflow = get_next_workflow_from_file(vf, request, lambda_host)
+        if next_workflow is not None:
+            trigged_product_id = next_workflow
+            lambda_host.log(f'next_workflow from file is {next_workflow}, use {trigged_product_id} to trigger')
         ret = trigger_other_project_workflow(vf, request, lambda_host, trigged_product_id)
         return ret
     
@@ -707,6 +776,10 @@ def displacement_maps_on_receive_data(
     if triggerOthers:
         lambda_host.log('Triggering others')
         trigged_product_id = 'WORKFLOW_ONLY_SMOOTH_LAYER_GENERATION' # WORKFLOW_SMOOTH_LAYER_GENERATION
+        next_workflow = get_next_workflow_from_file(vf, request, lambda_host)
+        if next_workflow is not None:
+            trigged_product_id = next_workflow
+            lambda_host.log(f'next_workflow from file is {next_workflow}, use {trigged_product_id} to trigger')
         ret = trigger_other_project_workflow(vf, request, lambda_host, trigged_product_id)
         return ret
         
@@ -744,6 +817,10 @@ def quadtree_on_receive_data(
         if g_debug_generation:
             trigged_product_id = 'TEST_WORKFLOW_WHOLE_RESULT_GENERATION'
             lambda_host.log(f'g_debug_generation is {g_debug_generation}, use {trigged_product_id} to trigger')
+            next_workflow = get_next_workflow_from_file(vf, request, lambda_host)
+        if next_workflow is not None:
+            trigged_product_id = next_workflow
+            lambda_host.log(f'next_workflow from file is {next_workflow}, use {trigged_product_id} to trigger')
         ret = trigger_other_project_workflow(vf, request, lambda_host, trigged_product_id)
         return ret
     
@@ -808,6 +885,10 @@ def smooth_layer_generated_input_on_receive_data(
         if g_debug_generation:
             trigged_product_id = 'TEST_WORKFLOW_ONLY_TREE_GENERATION'
             lambda_host.log(f'g_debug_generation is {g_debug_generation}, use {trigged_product_id} to trigger')
+        next_workflow = get_next_workflow_from_file(vf, request, lambda_host)
+        if next_workflow is not None:
+            trigged_product_id = next_workflow
+            lambda_host.log(f'next_workflow from file is {next_workflow}, use {trigged_product_id} to trigger')
         ret = trigger_other_project_workflow(vf, request, lambda_host, trigged_product_id)
         return ret
     
@@ -869,6 +950,10 @@ def caves_generated_input_on_receive_data(
     if triggerOthers:
         lambda_host.log('Triggering others')
         trigged_product_id = 'WORKFLOW_ROAD_CHANGED_TREE_GENERATION'
+        next_workflow = get_next_workflow_from_file(vf, request, lambda_host)
+        if next_workflow is not None:
+            trigged_product_id = next_workflow
+            lambda_host.log(f'next_workflow from file is {next_workflow}, use {trigged_product_id} to trigger')
         ret = trigger_other_project_workflow(vf, request, lambda_host, trigged_product_id)
         return ret
     
@@ -906,6 +991,10 @@ def dungeons_generated_input_on_receive_data(
         if g_debug_generation:
             trigged_product_id = 'TEST_WORKFLOW_ONLY_TREE_GENERATION'
             lambda_host.log(f'g_debug_generation is {g_debug_generation}, use {trigged_product_id} to trigger')
+        next_workflow = get_next_workflow_from_file(vf, request, lambda_host)
+        if next_workflow is not None:
+            trigged_product_id = next_workflow
+            lambda_host.log(f'next_workflow from file is {next_workflow}, use {trigged_product_id} to trigger')
         ret = trigger_other_project_workflow(vf, request, lambda_host, trigged_product_id)
         return ret
     
@@ -1665,7 +1754,7 @@ lambda_host.set_workflow_definition(
                 ]
             },
             {
-                'id': 'WORKFLOW_TREE_GENERATION',
+                'id': 'WORKFLOW_TREE_GENERATION', 
                 'name': 'Workflow Tree Generation',
                 'description': 'The generation of the tree',
                 'icon': 'mesh',
@@ -1681,7 +1770,7 @@ lambda_host.set_workflow_definition(
                 'on_stage_done': test_tree_generation_on_stage_complete,
             },
             {
-                'id': 'WORKFLOW_BASEMESHES_GENERATION',
+                'id': 'WORKFLOW_BASEMESHES_GENERATION', 
                 'name': 'Workflow Base Meshes Generation',
                 'description': 'The generation of the base meshes',
                 'icon': 'mesh',
@@ -1689,7 +1778,7 @@ lambda_host.set_workflow_definition(
                 'on_stage_done': basemeshes_generation_on_stage_complete,
             },
             {
-                'id': 'WORKFLOW_CAVES_GENERATION',
+                'id': 'WORKFLOW_CAVES_GENERATION', 
                 'name': 'Workflow Caves and Dungeons Meshes Generation',
                 'description': 'The generation of the Caves and Dungeons meshes',
                 'icon': 'mesh',
@@ -1713,7 +1802,7 @@ lambda_host.set_workflow_definition(
                 'on_stage_done': only_smooth_layer_generation_on_stage_complete,
             },
             {
-                'id': 'WORKFLOW_ONLY_TREE_GENERATION',
+                'id': 'WORKFLOW_ONLY_TREE_GENERATION', 
                 'name': 'Workflow Only Tree Generation',
                 'description': 'The generation of the only tree',
                 'icon': 'mesh',
