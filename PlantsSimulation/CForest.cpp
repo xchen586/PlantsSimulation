@@ -2414,3 +2414,423 @@ finish_generation:
 	free(grid);
 	free(classArray);
 }
+
+/**
+ * @brief Generate forest with adjustable tree density parameters
+ *
+ * @param forestAge Total age of the forest simulation
+ * @param iterations Number of growth iterations
+ * @param gridDelta Grid cell size - HIGHEST IMPACT on tree count
+ *                  Smaller values = more sampling points = more trees
+ *                  Impact: O(1/gridDelta²) - reducing by half increases trees ~4x
+ *                  Range: 10-50, Default: 30
+ *                  Example: 30->20 = 2.25x trees, 30->15 = 4x trees
+ *
+ * @param initialDensity Probability of tree spawn in empty grid cells - HIGH IMPACT
+ *                       Higher values = more initial trees
+ *                       Impact: Linear - doubling increases initial trees ~2x
+ *                       Range: 0.05-0.5, Default: 0.1 (10%)
+ *                       Example: 0.1->0.2 = 2x initial trees
+ *
+ * @param seedDensity Probability of seed generation from mature trees - MEDIUM-HIGH IMPACT
+ *                    Higher values = more seeds = more trees over iterations
+ *                    Impact: Linear but multiplied by mature tree count
+ *                    Range: 0.0005-0.02, Default: 0.001 (0.1%)
+ *                    Example: 0.001->0.005 = 5x seeds per mature tree
+ *
+ * @param competitionFactor Tree crown size multiplier - MEDIUM IMPACT
+ *                          Lower values = smaller crowns = less competition = more trees survive
+ *                          Impact: Affects survival rate, O(1/competitionFactor²) area
+ *                          Range: 0.5-1.0, Default: 0.9
+ *                          Example: 0.9->0.7 = ~1.6x more trees survive
+ *
+ * @param growthFactor Additional crown size reduction factor - MEDIUM IMPACT
+ *                     Lower values = even smaller effective crowns
+ *                     Impact: Multiplicative with competitionFactor
+ *                     Range: 0.4-0.8, Default: 0.7
+ *                     Example: 0.7->0.5 = ~1.4x more trees survive
+ *
+ * @param thinningThreshold Final filtering threshold - LOW-MEDIUM IMPACT
+ *                          Lower values = more trees pass final filter
+ *                          Impact: Affects final count directly but after competition
+ *                          Range: 0.3-1.0, Default: 1.0 (no additional thinning)
+ *                          Example: 1.0->0.5 = potentially 2x trees (if not limited by space)
+ *
+ * Performance notes:
+ * - Reducing gridDelta has O(n²) impact on computation time
+ * - Increasing densities has linear impact on computation time
+ * - Memory usage scales with total tree instances generated
+ *
+ * Recommended presets:
+ * - Sparse forest:  (30, 0.05, 0.0005, 0.9, 0.7, 1.0) -> baseline × 0.5
+ * - Normal forest:  (30, 0.10, 0.0010, 0.9, 0.7, 1.0) -> baseline × 1.0
+ * - Dense forest:   (25, 0.15, 0.0020, 0.8, 0.6, 0.8) -> baseline × 3-4
+ * - Very dense:     (20, 0.20, 0.0050, 0.7, 0.5, 0.7) -> baseline × 6-8
+ * - Ultra dense:    (15, 0.30, 0.0100, 0.6, 0.4, 0.5) -> baseline × 15-20
+ */
+void CForest::generateFastAdjustAmount(
+	float forestAge,
+	int iterations,
+	int gridDelta/* = 30 */,                      // [1] HIGHEST IMPACT - Grid sampling density
+	double initialDensity/* = 0.1*/,             // [2] HIGH IMPACT - Initial tree spawn rate
+	double seedDensity/* = 0.001 */ ,              // [3] MEDIUM-HIGH IMPACT - Seed generation rate
+	double competitionFactor/* = 0.9*/,          // [4] MEDIUM IMPACT - Tree crown size (competition)
+	double growthFactor/* = 0.7*/,               // [5] MEDIUM IMPACT - Crown size reduction
+	double thinningThreshold/* = 1.0*/           // [6] LOW-MEDIUM IMPACT - Final filter strength
+) 
+{
+	string title = "CForest::generateFastAdjustAmount - generate whole tree instances : ";
+	CTimeCounter timeCounter(title);
+
+	// Validate and clamp parameters to safe ranges
+	gridDelta = max(10, min(gridDelta, 50));
+	initialDensity = max(0.01, min(initialDensity, 0.9));
+	seedDensity = max(0.0001, min(seedDensity, 0.05));
+	competitionFactor = max(0.3, min(competitionFactor, 1.0));
+	growthFactor = max(0.3, min(growthFactor, 0.9));
+	thinningThreshold = max(0.1, min(thinningThreshold, 1.0));
+
+	// Grid setup
+	const int gridXSize = xSize / gridDelta;
+	const int gridZSize = zSize / gridDelta;
+	const int totalGridCells = (gridXSize + 1) * (gridZSize + 1);
+
+	cout << "=== Forest Generation Parameters ===" << endl;
+	cout << "gridDelta: " << gridDelta
+		<< " (gridXSize: " << gridXSize << ", gridZSize: " << gridZSize
+		<< ", totalCells: " << totalGridCells << ")" << endl;
+	cout << "initialDensity: " << initialDensity
+		<< " (" << (initialDensity * 100) << "% spawn probability)" << endl;
+	cout << "seedDensity: " << seedDensity
+		<< " (" << (seedDensity * 100) << "% seed probability)" << endl;
+	cout << "competitionFactor: " << competitionFactor
+		<< " (crown size multiplier)" << endl;
+	cout << "growthFactor: " << growthFactor
+		<< " (additional crown reduction)" << endl;
+	cout << "thinningThreshold: " << thinningThreshold
+		<< " (final filter: " << (thinningThreshold * 100) << "%)" << endl;
+	cout << "====================================" << endl;
+
+	// Calculate initial capacity with safety margins
+	int initialCapacity = static_cast<int>(totalGridCells * 0.5 * iterations);
+	const int ABSOLUTE_MIN = 100000;
+	const int ABSOLUTE_MAX = 64 * 1024 * 1024;  // Increased for very dense forests
+	initialCapacity = max(ABSOLUTE_MIN, min(initialCapacity, ABSOLUTE_MAX));
+
+	// Use vector instead of raw pointer
+	std::vector<CTreeInstance> instances;
+	instances.reserve(initialCapacity);
+
+	cout << "Initial capacity reserved: " << initialCapacity
+		<< " (" << (initialCapacity * sizeof(CTreeInstance) / (1024.0 * 1024.0))
+		<< " MB)" << endl;
+
+	int instanceIndex = 0;
+
+	// Grid allocation
+	const int gridSize = (gridXSize + 1) * (gridZSize + 1) * sizeof(int);
+	int* grid = (int*)malloc(gridSize);
+	if (!grid) {
+		cerr << "Failed to allocate grid memory!" << endl;
+		return;
+	}
+	memset(grid, 0, gridSize);
+
+	// Pre-allocate class array
+	ClassStrength* classArray = (ClassStrength*)malloc(classes.size() * sizeof(ClassStrength));
+	if (!classArray) {
+		cerr << "Failed to allocate class array!" << endl;
+		free(grid);
+		return;
+	}
+
+	// Build cache once
+	std::vector<TreeClassCache> treeClassCache;
+	buildTreeClassCache(treeClassCache);
+
+	// Pre-compute constants and thresholds from parameters
+	const int xLimit = xo + xSize;
+	const int zLimit = zo + zSize;
+	const double timeSlice = forestAge / iterations;
+	const double sizeFactor = competitionFactor;  // Use competition factor as size factor
+
+	// Convert density probabilities to RAND_MAX thresholds
+	const int randThreshold = static_cast<int>(RAND_MAX * (1.0 - initialDensity));
+
+#if USE_RANDOM_SEED
+	const int seedRandThreshold = static_cast<int>(RAND_MAX * (1.0 - seedDensity));
+#endif
+
+	cout << "Computed thresholds:" << endl;
+	cout << "  randThreshold: " << randThreshold
+		<< " (1 in " << static_cast<int>(1.0 / initialDensity) << " chance)" << endl;
+#if USE_RANDOM_SEED
+	cout << "  seedRandThreshold: " << seedRandThreshold
+		<< " (1 in " << static_cast<int>(1.0 / seedDensity) << " chance)" << endl;
+#endif
+	cout << endl;
+
+	// Main iteration loop
+	for (int iteration = 0; iteration < iterations; iteration++) {
+		const bool lastIteration = (iteration == iterations - 1);
+		const double time = timeSlice * iteration;
+
+		// Phase 1: Generate initial instances in empty areas
+		for (int x = xo; x < xLimit; x += gridDelta) {
+			for (int z = zo; z < zLimit; z += gridDelta) {
+				// Use initialDensity parameter for spawn probability
+				if (rand() > randThreshold) continue;
+
+				const int gridX = (x - xo) / gridDelta;
+				const int gridZ = (z - zo) / gridDelta;
+				int& gridP = getGridValue(grid, gridXSize, gridX, gridZ);
+
+				// Check if cell is empty
+				bool empty = (gridP == 0) || instances[gridP - 1].dead;
+				if (!empty) continue;
+
+				// Select tree class
+				double maskSpan;
+				TreeClass* chosen = selectTreeClassOptimized(treeClassCache, classArray, x, z, maskSpan);
+
+				if (chosen) {
+					// Auto-expansion check
+					if (instanceIndex >= static_cast<int>(instances.size())) {
+						size_t newSize = instances.size() + max(10000, static_cast<int>(instances.size() * 0.2));
+						if (newSize > ABSOLUTE_MAX) {
+							cout << "Warning: Reached absolute maximum instance limit (" << ABSOLUTE_MAX
+								<< "). Stopping generation at iteration " << iteration << endl;
+							goto finish_generation;
+						}
+						cout << "Auto-expanding instances buffer from " << instances.size()
+							<< " to " << newSize << endl;
+						instances.resize(newSize);
+					}
+
+					CTreeInstance& t = instances[instanceIndex];
+					t.treeClass = chosen;
+					t.bday = time - min(timeSlice, static_cast<float>(rand()) * chosen->matureAge / RAND_MAX);
+
+					// Position with boundary clamping
+					t.x = x + GenerateRandomDouble(-gridDelta, gridDelta);
+					t.x = (t.x >= xLimit) ? (x - GenerateRandomDouble(0, gridDelta)) :
+						(t.x <= xo) ? (x + GenerateRandomDouble(0, gridDelta)) : t.x;
+
+					t.z = z + GenerateRandomDouble(-gridDelta, gridDelta);
+					t.z = (t.z >= zLimit) ? (z - GenerateRandomDouble(0, gridDelta)) :
+						(t.z <= zo) ? (z + GenerateRandomDouble(0, gridDelta)) : t.z;
+
+					t.dead = false;
+					t.mature = false;
+
+					instanceIndex++;
+					gridP = instanceIndex;
+				}
+			}
+		}
+
+		const int currentCount = instanceIndex;
+		const int progressPct = static_cast<int>(100.0 * iteration / iterations);
+		cout << "Iteration " << iteration << ": " << currentCount << " instances ("
+			<< progressPct << "%, capacity: " << instances.size() << ")" << endl;
+
+		// Phase 2: Process competition and seed generation
+		for (int iTree = 0; iTree < currentCount; ++iTree) {
+			CTreeInstance& tree = instances[iTree];
+
+			if (tree.dead) continue;
+
+			const double age = time - tree.bday;
+			tree.age = age;
+
+			if (age > tree.treeClass->maxAge) {
+				tree.dead = true;
+				continue;
+			}
+
+			const double growth = 1.0 - max(0.0, (tree.treeClass->matureAge - age) / tree.treeClass->matureAge);
+
+			// Use adjustable competition and growth factors
+			const double minRx = growthFactor * sizeFactor * growth *
+				tree.treeClass->xRadius.getValue(tree.x, 0, tree.z) *
+				tree.treeClass->radius.getValue(tree.x, 0, tree.z);
+			const double minRz = growthFactor * sizeFactor * growth *
+				tree.treeClass->zRadius.getValue(tree.x, 0, tree.z) *
+				tree.treeClass->radius.getValue(tree.x, 0, tree.z);
+
+			// Competition check for immature trees
+			if (!tree.mature) {
+				tree.mature = (abs(growth - 1.0) < 0.00001) || lastIteration;
+
+				for (double x = tree.x - minRx; x <= tree.x + minRx && !tree.dead; x += gridDelta) {
+					for (double z = tree.z - minRz; z <= tree.z + minRz && !tree.dead; z += gridDelta) {
+						const int gridX = (static_cast<int>(x) - xo) / gridDelta;
+						const int gridZ = (static_cast<int>(z) - zo) / gridDelta;
+
+						if (gridX < 0 || gridX >= gridXSize || gridZ < 0 || gridZ >= gridZSize)
+							continue;
+
+						int& gridP = getGridValue(grid, gridXSize, gridX, gridZ);
+
+						if (gridP > 0) {
+							CTreeInstance& neighbor = instances[gridP - 1];
+
+							if (&neighbor != &tree && !neighbor.dead) {
+								const double neighborAge = time - neighbor.bday;
+								const double neighborGrowth = 1.0 - max(0.0,
+									(neighbor.treeClass->matureAge - neighborAge) / neighbor.treeClass->matureAge);
+
+								const double minNeighborRx = sizeFactor * neighborGrowth *
+									neighbor.treeClass->xRadius.getValue(neighbor.x, 0, neighbor.z) *
+									neighbor.treeClass->radius.getValue(neighbor.x, 0, neighbor.z);
+								const double minNeighborRz = sizeFactor * neighborGrowth *
+									neighbor.treeClass->zRadius.getValue(neighbor.x, 0, neighbor.z) *
+									neighbor.treeClass->radius.getValue(neighbor.x, 0, neighbor.z);
+
+								const double neighborSize = max(minNeighborRx, minNeighborRz);
+								const double size = max(minRx, minRz);
+
+								tree.dead = (neighborSize > size) ||
+									(time - neighbor.bday > neighbor.treeClass->matureAge);
+							}
+						}
+
+						if (!tree.dead) gridP = iTree + 1;
+					}
+				}
+			}
+
+			// Seed generation for mature trees
+			if (!tree.dead && tree.mature) {
+				const double seedRx = tree.treeClass->seedRange;
+				const double seedRz = tree.treeClass->seedRange;
+
+				for (double x = tree.x - seedRx; x <= tree.x + seedRx; x += gridDelta) {
+					for (double z = tree.z - seedRz; z <= tree.z + seedRz; z += gridDelta) {
+						// Skip area within tree crown
+						if (x >= tree.x - minRx && x <= tree.x + minRx &&
+							z >= tree.z - minRz && z <= tree.z + minRz)
+							continue;
+
+#if USE_RANDOM_SEED
+						// Use seedDensity parameter for seed probability
+						if (rand() > seedRandThreshold) continue;
+#endif
+
+						const int gridX = (static_cast<int>(x) - xo) / gridDelta;
+						const int gridZ = (static_cast<int>(z) - zo) / gridDelta;
+
+						if (gridX < 0 || gridX >= gridXSize || gridZ < 0 || gridZ >= gridZSize)
+							continue;
+
+						int& gridP = getGridValue(grid, gridXSize, gridX, gridZ);
+
+						// Check if location is empty
+						bool empty = (gridP == 0) ||
+							(instances[gridP - 1].dead && &instances[gridP - 1] != &tree);
+
+						if (empty) {
+							// Calculate mask value using cached data
+							double maskval = 1.0;
+
+							// Find correct cache for this tree class
+							auto it = std::find_if(treeClassCache.begin(), treeClassCache.end(),
+								[&tree](const TreeClassCache& tc) { return tc.treeClass == tree.treeClass; });
+
+							if (it != treeClassCache.end()) {
+								for (const auto& cmd : it->maskData) {
+									double value = cmd.mask->get2DMaskValue(x, z, cmd.density->blur);
+									maskval *= cmd.density->GetDensityValue(value);
+									if (maskval <= 0.0) break;
+								}
+							}
+
+							if ((static_cast<double>(rand()) / RAND_MAX) < maskval) {
+								// Auto-expansion check
+								if (instanceIndex >= static_cast<int>(instances.size())) {
+									size_t newSize = instances.size() + max(10000, static_cast<int>(instances.size() * 0.2));
+									if (newSize > ABSOLUTE_MAX) {
+										cout << "Warning: Reached absolute maximum instance limit during seed generation. "
+											<< "Stopping at iteration " << iteration << endl;
+										goto finish_generation;
+									}
+									cout << "Auto-expanding instances buffer (seed phase) from " << instances.size()
+										<< " to " << newSize << endl;
+									instances.resize(newSize);
+								}
+
+								CTreeInstance& t = instances[instanceIndex];
+								t.treeClass = tree.treeClass;
+								t.bday = time - min(timeSlice, static_cast<float>(rand()) * tree.treeClass->matureAge / RAND_MAX);
+								t.x = x;
+								t.z = z;
+								t.dead = false;
+								t.mature = false;
+
+								instanceIndex++;
+								gridP = instanceIndex;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+finish_generation:
+	cout << "Tree Instances Count: " << instanceIndex << endl;
+	cout << "Final buffer capacity: " << instances.size()
+		<< " (utilization: " << (100.0 * instanceIndex / instances.size()) << "%)" << endl;
+
+	// Phase 3: Filter mature trees and apply thinning
+	trees.clear();
+	trees.reserve(instanceIndex / 2);
+
+	for (int i = 0; i < instanceIndex; i++) {
+		CTreeInstance& tree = instances[i];
+
+		if (!tree.dead && tree.mature) {
+			double maskval = 1.0;
+
+			// Apply thinning masks
+			for (const auto& imap : tree.treeClass->masks) {
+				auto imask = masks.find(imap.first);
+				if (imask != masks.end() && imap.second->useForThinning) {
+					double value = imask->second->get2DMaskValue(tree.x, tree.z, imap.second->blur);
+					maskval *= imap.second->GetDensityValue(value);
+					if (maskval <= 0.0) break;
+				}
+			}
+
+			// Apply global masks
+			if (maskval > 0.0) {
+				for (const auto& imap : globalMasks) {
+					auto imask = masks.find(imap.first);
+					if (imask != masks.end()) {
+						double value = imask->second->get2DMaskValue(tree.x, tree.z, imap.second->blur);
+						maskval *= imap.second->GetDensityValue(value);
+						if (maskval <= 0.0) break;
+					}
+				}
+			}
+
+			// Apply thinningThreshold parameter - additional control over final tree count
+			if ((static_cast<double>(rand()) / RAND_MAX) <= maskval * thinningThreshold) {
+				trees.push_back(tree);
+			}
+		}
+	}
+
+	removeTreesNearPOIs();
+	if (!m_isLevel1Instances) {
+		removeTreesNearCaves();
+	}
+
+	cout << "Final Trees Size: " << trees.size() << endl;
+	cout << "Estimated density multiplier vs default: "
+		<< (trees.size() / max(1.0, totalGridCells * 0.05)) << "x" << endl;
+
+	// Cleanup - vector auto-releases, only need to free other allocated memory
+	free(grid);
+	free(classArray);
+}

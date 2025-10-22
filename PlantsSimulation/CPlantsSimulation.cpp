@@ -2341,7 +2341,17 @@ bool CPlantsSimulation::BuildForest()
 	{
 		std::cout << "Forest Age is : " << m_forestAge << std::endl;
 		std::cout << "Toatal iteration count is : " << m_iteration << std::endl;
-		m_pForest->generateFast(m_forestAge, m_iteration);
+		//m_pForest->generateFast(m_forestAge, m_iteration);
+		m_pForest->generateFastAdjustAmount(
+			m_forestAge, 
+			m_iteration,
+			m_gridDelta,
+			m_initialDensity,
+			m_seedDensity,
+			m_competitionFactor,
+			m_growthFactor,
+			m_thinningThreshold
+		);
 	}
 	else
 	{

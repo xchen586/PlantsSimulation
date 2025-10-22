@@ -139,6 +139,16 @@ public:
 	CForest(void);
 	~CForest(void);
 public:
+	void generateFastAdjustAmount(
+		float forestAge,
+		int iterations,
+		int gridDelta = 30,                      // [1] HIGHEST IMPACT - Grid sampling density
+		double initialDensity = 0.1,             // [2] HIGH IMPACT - Initial tree spawn rate
+		double seedDensity = 0.001,              // [3] MEDIUM-HIGH IMPACT - Seed generation rate
+		double competitionFactor = 0.9,          // [4] MEDIUM IMPACT - Tree crown size (competition)
+		double growthFactor = 0.7,               // [5] MEDIUM IMPACT - Crown size reduction
+		double thinningThreshold = 1.0          // [6] LOW-MEDIUM IMPACT - Final filter strength
+	);
 	void generateFast(float forestAge, int iterations);
 	void generateOptimized(float forestAge, int iterations);
 	void generate2(float forestAge, int iterations);
@@ -241,5 +251,6 @@ protected:
 	std::vector<std::pair<std::vector<Point>, int>>* m_p2dCaveLevel1Nodes;
 	std::vector<Point>* m_pPoisLocations;
 	bool m_isLevel1Instances;
+
 };
 

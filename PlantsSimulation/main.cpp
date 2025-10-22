@@ -143,9 +143,16 @@ int iniAbsolutePathMain(int argc, const char* argv[])
     const char* regions_info_name = GetIniValue(iniParser, Input_Section, "Regions_Info");
     const char* tree_list_csv_name = GetIniValue(iniParser, Input_Section, "Tree_List");
     const char* level1_tree_list_csv_name = GetIniValue(iniParser, Input_Section, "Level1_Tree_List");
+
     const char* lod_str = GetIniValue(iniParser, Others_Section, "Lod");
     const char* forest_age_str = GetIniValue(iniParser, Others_Section, "Forest_Age");
     const char* tree_iteration_str = GetIniValue(iniParser, Others_Section, "Tree_Iteration");
+	const char* grid_delta_str = GetIniValue(iniParser, Others_Section, "Grid_Delta");
+	const char* initial_density_str = GetIniValue(iniParser, Others_Section, "Initial_Density");
+	const char* seed_density_str = GetIniValue(iniParser, Others_Section, "Seed_Density");
+	const char* competition_factor_str = GetIniValue(iniParser, Others_Section, "Competition_Factor");
+	const char* growth_factor_str = GetIniValue(iniParser, Others_Section, "Growth_Factor");
+	const char* thinning_threshold_str = GetIniValue(iniParser, Others_Section, "Thinning_Threshold");
 
     const char* only_road_data_str = GetIniValue(iniParser, Options_Section, "Only_Road_Data");
     const char* use_with_basemeshes_level1_str = GetIniValue(iniParser, Options_Section, "Use_With_BaseMeshes_Level1");
@@ -166,6 +173,67 @@ int iniAbsolutePathMain(int argc, const char* argv[])
     const int lod = atoi(lod_str);
     const float forestAge = (float)atof(forest_age_str);
     const int iteration = atoi(tree_iteration_str);
+    int gridDelta = 30;                      // [1] HIGHEST IMPACT - Grid sampling density
+    double initialDensity = 0.1;             // [2] HIGH IMPACT - Initial tree spawn rate
+    double seedDensity = 0.001;              // [3] MEDIUM-HIGH IMPACT - Seed generation rate
+    double competitionFactor = 0.9;          // [4] MEDIUM IMPACT - Tree crown size (competition)
+    double growthFactor = 0.7;               // [5] MEDIUM IMPACT - Crown size reduction
+    double thinningThreshold = 1.0;          // [6] LOW-MEDIUM IMPACT - Final filter strength
+
+    if (grid_delta_str)
+    {
+        int gridDeltaValue = atoi(grid_delta_str);
+        if (gridDeltaValue > 0)
+        {
+            gridDelta = gridDeltaValue;
+        }
+    }
+    if (initial_density_str)
+    {
+        double initialDensityValue;
+        bool convertSuccess = safe_strtod(initial_density_str, initialDensityValue);
+        if (convertSuccess)
+        {
+            initialDensity = initialDensityValue;
+        }
+    }
+	if (seed_density_str)
+	{
+		double seedDensityValue;
+		bool convertSuccess = safe_strtod(seed_density_str, seedDensityValue);
+		if (convertSuccess)
+		{
+			seedDensity = seedDensityValue;
+		}
+	}
+    if (competition_factor_str)
+    {
+        double competitionFactorValue;
+        bool convertSuccess = safe_strtod(competition_factor_str, competitionFactorValue);
+        if (convertSuccess)
+        {
+            competitionFactor = competitionFactorValue;
+        }
+    }
+	if (growth_factor_str)
+	{
+		double growthFactorValue;
+		bool convertSuccess = safe_strtod(growth_factor_str, growthFactorValue);
+		if (convertSuccess)
+		{
+			growthFactor = growthFactorValue;
+		}
+	}
+	if (thinning_threshold_str)
+	{
+		double thinningThresholdValue;
+		bool convertSuccess = safe_strtod(thinning_threshold_str, thinningThresholdValue); 
+		if (convertSuccess)
+		{
+			thinningThreshold = thinningThresholdValue;
+		}
+	}
+
     bool isOnlyRoadData = false;
     if (only_road_data_str)
     {
@@ -261,6 +329,12 @@ int iniAbsolutePathMain(int argc, const char* argv[])
     std::cout << "Los is  : " << (lod_str ? lod_str : "") << std::endl;
     std::cout << "Forest Age is : " << (forest_age_str ? forest_age_str : "") << std::endl;
     std::cout << "Tree iteration count is : " << (tree_iteration_str ? tree_iteration_str : "") << std::endl;
+	std::cout << "Grid Delta is : " << (grid_delta_str ? grid_delta_str : "") << std::endl;
+	std::cout << "Initial Density is : " << (initial_density_str ? initial_density_str : "") << std::endl;
+	std::cout << "Seed Density is : " << (seed_density_str ? seed_density_str : "") << std::endl;
+	std::cout << "Competition Factor is : " << (competition_factor_str ? competition_factor_str : "") << std::endl;
+	std::cout << "Growth Factor is : " << (growth_factor_str ? growth_factor_str : "") << std::endl;
+	std::cout << "Thinning Threshold is : " << (thinning_threshold_str ? thinning_threshold_str : "") << std::endl; 
     std::cout << "Only generate road data : " << (only_road_data_str ? only_road_data_str : "") << std::endl;
     std::cout << "Use with base meshes level1  : " << (use_with_basemeshes_level1_str ? use_with_basemeshes_level1_str : "") << std::endl;
     std::cout << "Level 0 instances  : " << (level0_instances_str ? level0_instances_str : "") << std::endl;
@@ -328,7 +402,8 @@ int iniAbsolutePathMain(int argc, const char* argv[])
 		, mesh_heightmap_masks_name, mesh2_heightmap_masks_name, pc_heightmap_masks_name, l1_heightmap_masks_name, bedrock_heightmap_masks_name, lakes_heightmap_masks_name, level1_lakes_heightmap_masks_name
         , point_most_travelled_name, point_most_distant_name, point_level1_POI_name, point_centroid_name, caves_point_cloud_level_0_name, caves_point_cloud_level_1_name, dungeons_poi_csv_level_0_name, dungeons_poi_csv_level_1_name, regions_raw_name, regions_info_name
         , output_file_level0, fullOutput_file_level0, pcFullOutput_file_level0, output_file_level1, fullOutput_file_level1, pcFullOutput_file_level1
-        , lod, forestAge, iteration, tiles, tileX, tileY, tileScale, roadHeightMapScaleWidth, roadHeightMapScaleHeight);
+		, lod, forestAge, iteration, gridDelta, initialDensity, seedDensity, competitionFactor, growthFactor, thinningThreshold
+        , tiles, tileX, tileY, tileScale, roadHeightMapScaleWidth, roadHeightMapScaleHeight);
 
 	ps.setOnlyPOIs(isOnlyPOIs);
 	ps.setKeepOldTreeFiles(keepOldTreeFiles);

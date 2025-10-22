@@ -21,7 +21,9 @@ public:
 	CPlantsSimulation(const string& outputDir, const string& inputTreeList, const string& inputLevel1TreeList, const string& inputImageFile, const string& inputImageMataFile, const string& mesh_HeightMapFile, const string& mesh2_HeightMapFile, const string& pc_HeightMapFile, const string& l1_HeightMapFile, const string& bedrock_HeightMapFile,
 		const string& mesh_HeightMasksFile, const string& mesh2_HeightMasksFile, const string& pc_HeightMasksFile, const string& l1_HeightMasksFile, const string& bedrock_HeightMaskFile, const string& lakes_HeightMasksFile, const string& level1Lakes_HeightMasksFile, const string& mostTravelledPointFile, const string& mostDistantPointFile, const string& level1PoiPointFile, const string& centroidPointFile,
 		const string& cavesPointCloudLevel0File, const string& cavesPointCloudLevel1File, const string& dungeonsPOILevel0File, const string& dungeonsPOILevel1File,
-		const string& regionsRawFile, const string& regionsInfoFile, const string& outputFile_level0, const string& fullOutputFile_level0, const string& pcFullOutputFile_level0, const string& outputFile_level1, const string& fullOutputFile_level1, const string& pcFullOutputFile_level1, int32_t lod, float forestAge, int iteration, int tiles, int tileX, int tileY, int tileScale, int roadHeightMapScaleWidth, int roadHeightMapScaleHeight)
+		const string& regionsRawFile, const string& regionsInfoFile, const string& outputFile_level0, const string& fullOutputFile_level0, const string& pcFullOutputFile_level0, const string& outputFile_level1, const string& fullOutputFile_level1, const string& pcFullOutputFile_level1, int32_t lod, 
+		float forestAge, int iteration, int gridDelta, double initialDensity, double seedDensity, double competitionFactor, double growthFactor, double thinningThreshold,
+		int tiles, int tileX, int tileY, int tileScale, int roadHeightMapScaleWidth, int roadHeightMapScaleHeight)
 		: m_outputDir(outputDir)
 		, m_inputTreeListCsv(inputTreeList)
 		, m_inputLevel1TreeListCsv(inputLevel1TreeList)
@@ -62,6 +64,12 @@ public:
 		, m_currentLod(lod)
 		, m_forestAge(forestAge)
 		, m_iteration(iteration)
+		, m_gridDelta(gridDelta)
+		, m_initialDensity(initialDensity)
+		, m_seedDensity(seedDensity)
+		, m_competitionFactor(competitionFactor)
+		, m_growthFactor(growthFactor)
+		, m_thinningThreshold(thinningThreshold)
 		, m_tiles(tiles)
 		, m_tileX(tileX)
 		, m_tileY(tileY)
@@ -126,6 +134,12 @@ private:
 
 	float m_forestAge = 300;
 	int m_iteration = 100;
+	int m_gridDelta = 30;                      // [1] HIGHEST IMPACT - Grid sampling density
+	double m_initialDensity = 0.1;             // [2] HIGH IMPACT - Initial tree spawn rate
+	double m_seedDensity = 0.001;              // [3] MEDIUM-HIGH IMPACT - Seed generation rate
+	double m_competitionFactor = 0.9;          // [4] MEDIUM IMPACT - Tree crown size (competition)
+	double m_growthFactor = 0.7;               // [5] MEDIUM IMPACT - Crown size reduction
+	double m_thinningThreshold = 1.0;          // [6] LOW-MEDIUM IMPACT - Final filter strength
 
 	bool m_isLevel1Instances = false;
 	bool m_onlyPOIs = false;

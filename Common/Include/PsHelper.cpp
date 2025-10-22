@@ -1099,6 +1099,48 @@ bool stringToBool(const std::string& str) {
     return false;
 }
 
+/**
+ * Safely converts a string to a double
+ * @param str The string to convert
+ * @param result Pointer to store the conversion result
+ * @return true if conversion succeeds, false otherwise
+ */
+bool safe_strtod(const char* str, double& result) {
+    // Handle null pointer case
+    if (str == nullptr) {
+        return false;
+    }
+
+    // Skip leading whitespace characters (spaces, tabs, newlines, etc.)
+    const char* start = str;
+    while (*start != '\0' && isspace(static_cast<unsigned char>(*start))) {
+        ++start;
+    }
+
+    // Handle empty string or string with only whitespace
+    if (*start == '\0') {
+        return false;
+    }
+
+    char* endptr;
+    // Perform the conversion
+    result = std::strtod(start, &endptr);
+
+    // Check if any valid characters were converted and all characters were processed
+    if (endptr == start) {
+        // No valid conversion occurred
+        return false;
+    }
+
+    // Skip any trailing whitespace after the converted value
+    while (*endptr != '\0' && isspace(static_cast<unsigned char>(*endptr))) {
+        ++endptr;
+    }
+
+    // Conversion is considered fully successful only if all characters were processed
+    return *endptr == '\0';
+}
+
 // Helper function to trim whitespace
 std::string trim(const std::string& str) {
     size_t start = str.find_first_not_of(" \t");

@@ -21,6 +21,9 @@
 #include <thread>
 #include <future>
 
+#include <cstdlib>  // Contains strtod function
+#include <cctype>   // Contains isspace function
+
 #ifndef _USE_MATH_DEFINES
 #define _USE_MATH_DEFINES
 #endif
@@ -183,6 +186,7 @@ std::vector<std::vector<unsigned short>> ConvertShortMatrixToUShort(const std::v
 double GenerateRandomDouble(double min, double max);
 
 bool stringToBool(const std::string& str);
+bool safe_strtod(const char* str, double& result);
 
 std::vector<std::vector<short>> resampl2DShortMask(const std::vector<std::vector<short>>& originalMask, int newWidth, int newHeight);
 std::vector<std::vector<unsigned char>> resample2DShortMaskToByte(const std::vector<std::vector<short>>& originalMask, int newWidth, int newHeight);
