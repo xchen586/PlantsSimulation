@@ -2248,6 +2248,7 @@ bool CPlantsSimulation::LoadForest()
 		return false;
 	}
 
+	m_pForest->setIsEnhanced(m_isEnhanced);
 	m_pForest->setIsLevel1Instances(m_isLevel1Instances);
 	m_pForest->setCellTable(m_pCellTable);
 	m_pForest->setMetaInfo(m_topLayerMeta);

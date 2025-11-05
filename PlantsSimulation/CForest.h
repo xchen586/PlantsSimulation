@@ -196,6 +196,11 @@ public:
 		m_isLevel1Instances = isLevel1Instances;
 		std::cout << "Set CForest isLevel1Instances to " << m_isLevel1Instances << std::endl;
 	}
+	void setIsEnhanced(bool isEnhanced)
+	{
+		m_isEnhanced = isEnhanced;
+		std::cout << "Set CForest isEnhanced to " << m_isEnhanced << std::endl;
+	}
 	TreeInstanceOutput GetTreeOutputFromInstance(const CTreeInstance& instance);
 	bool exportTreeInstanceOutput(const std::vector<TreeInstanceOutput>& data, const std::string& filename, bool hasHeader);
 	bool exportTreeInstanceFullOutput(const std::vector<TreeInstanceFullOutput>& data, const std::string& filename, bool hasHeader, bool withRatio = false);
@@ -251,6 +256,7 @@ protected:
 	std::vector<std::pair<std::vector<Point>, int>>* m_p2dCaveLevel1Nodes;
 	std::vector<Point>* m_pPoisLocations;
 	bool m_isLevel1Instances;
+	bool m_isEnhanced;
 
 };
 

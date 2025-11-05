@@ -144,6 +144,7 @@ private:
 	bool m_isLevel1Instances = false;
 	bool m_onlyPOIs = false;
 	bool m_keepOldTreeFiles = false;
+	bool m_isEnhanced = false;
 
 	InputImageDataInfo* m_topLayerImage;
 	InputImageMetaInfo* m_topLayerMeta;
@@ -196,6 +197,12 @@ public:
 	{ 
 		m_isLevel1Instances = isLevel1Instances; 
 		std::cout << "Set CPlantsSimulation isLevel1Instances to " << m_isLevel1Instances << std::endl;
+	}
+
+	void setIsEnhanced(bool isEnhanced)
+	{
+		m_isEnhanced = isEnhanced;
+		std::cout << "Set CPlantsSimulation isEnhanced to " << m_isEnhanced << std::endl;
 	}
 
 	void setOnlyPOIs(bool onlyPOIs)

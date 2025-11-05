@@ -27,6 +27,7 @@ CForest::CForest(void)
 	, m_p2dCaveLevel0Nodes(nullptr)
 	, m_p2dCaveLevel1Nodes(nullptr)
 	, m_isLevel1Instances(false)
+	, m_isEnhanced(false)
 
 {
 	grid = NULL;
@@ -369,19 +370,19 @@ TreeClass* CForest::getTreeClassFromStringVector(const std::vector<std::string>&
 	pair<string, DensityMap*> slopeDensityPair = GetDensityKeyPairFromTreeClassWithDensityMapType(tree, slopeDensity->type, slopeDensity);
 	tree->masks.insert(slopeDensityPair);
 	
-#if 1
-	DensityMap* roadDensity = new CRoadAttributeDensityMap();
-	roadDensity->minval = roadCloseMin;
-	roadDensity->maxval = roadCloseMax;
-	pair<string, DensityMap*> roadDensityPair = GetDensityKeyPairFromTreeClassWithDensityMapType(tree, roadDensity->type, roadDensity);
-	tree->masks.insert(roadDensityPair);
+	if (m_isEnhanced) {
+		DensityMap* roadDensity = new CRoadAttributeDensityMap();
+		roadDensity->minval = roadCloseMin;
+		roadDensity->maxval = roadCloseMax;
+		pair<string, DensityMap*> roadDensityPair = GetDensityKeyPairFromTreeClassWithDensityMapType(tree, roadDensity->type, roadDensity);
+		tree->masks.insert(roadDensityPair);
 
-	DensityMap* roughnessDensity = new CRoughnessDensityMap();
-	roughnessDensity->minval = roughnessMin;
-	roughnessDensity->maxval = roughnessMax;
-	pair<string, DensityMap*> roughnessDensityPair = GetDensityKeyPairFromTreeClassWithDensityMapType(tree, roughnessDensity->type, roughnessDensity);
-	tree->masks.insert(roughnessDensityPair);
-#endif
+		DensityMap* roughnessDensity = new CRoughnessDensityMap();
+		roughnessDensity->minval = roughnessMin;
+		roughnessDensity->maxval = roughnessMax;
+		pair<string, DensityMap*> roughnessDensityPair = GetDensityKeyPairFromTreeClassWithDensityMapType(tree, roughnessDensity->type, roughnessDensity);
+		tree->masks.insert(roughnessDensityPair);
+	}
 
 	if (columnCount > static_cast<int>(TreeList_CSV_Columns::TL_SunLightAffinityMax)) {
 		DensityMap* sunLightDensity = new CSunLightAffinityDensityMap();
