@@ -7,7 +7,7 @@ from pathlib import Path
 
 
 def visualize_region_map(raw_file_path, row, column, dtype='int32', output_path='region_map.png', 
-                         transposed=False, hasAlpha=False, output_width=None, output_height=None,
+                         transposed=False, hasAlpha=False, alphaTransparent=False,  output_width=None, output_height=None,
                          rotation=0):
     """
     Read a raw binary file containing region IDs and create a colored visualization.
@@ -79,6 +79,8 @@ def visualize_region_map(raw_file_path, row, column, dtype='int32', output_path=
     if hasAlpha:
         alpha = np.ones((region_array.shape[0], region_array.shape[1]), dtype=np.uint8) * 255
         alpha[region_array == 0] = 0  # Set region 0 to transparent
+        if not alphaTransparent:
+            alpha[region_array == 0] = 255  # Set region 0 to 255 (opaque) if not transparent
         img_array = np.dstack((img_array, alpha))
         mode = 'RGBA'
     else:
@@ -249,6 +251,7 @@ if __name__ == "__main__":
     isAlpha = True
     transposed_flag = True
     rotate_angle = 0  # 0, 90, 180, 270
+    alphaHasTransparent = False
     
     region_array = visualize_region_map(
         raw_file_path=inputPath,
@@ -259,6 +262,7 @@ if __name__ == "__main__":
         transposed=transposed_flag,
         rotation=rotate_angle,
         hasAlpha=isAlpha,
+        alphaTransparent=alphaHasTransparent,
         output_width=image_width,
         output_height=image_height
     )
