@@ -2731,6 +2731,7 @@ def tree_instances_generation(config_path):
         create_or_update_ini_file(tree_ini_path, section_options,'Level1_Instances', run_level_1_instances)
         create_or_update_ini_file(tree_ini_path, section_options,'Only_POIs', only_run_POIs)
         create_or_update_ini_file(tree_ini_path, section_options,'Keep_Old_Tree_Files', keep_old_tree_files)
+        create_or_update_ini_file(tree_ini_path, section_options,'Is_Enhanced', is_enhanced)
         
         print(f'End to write tree instance ini files : {tree_ini_path}')
         tree_ini_string = ini_file_to_string(tree_ini_path)
@@ -3290,6 +3291,7 @@ only_run_POIs = False
 only_load_Road = False
 
 keep_old_tree_files = False
+is_enhanced = False
 
 
 #smooth_layer_generation_without_road = True
