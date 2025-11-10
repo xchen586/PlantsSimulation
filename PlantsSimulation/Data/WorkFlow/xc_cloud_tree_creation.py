@@ -2246,24 +2246,34 @@ def tree_instances_generation(config_path):
     
     cave_meshvoxelizer0_command = f'{basemeshes_origin_exe_path} {tiles_count} {tiles_x} {tiles_y} {basemeshes_level0} {basemeshes_assets_folder} {basemeshes_db_base_folder} {basemeshes_caves_db_base_folder} {basemeshes_dungeons_db_base_folder} {basemeshes_cache_base_folder} {basemeshes_caves_dungeons_output_folder} {smoothlayer_output_folder}'
     
-    if use_basemesh_ini:
-        lambda_host.log(f'Start to write standard basemeshes ini files : {basemeshes_ini_path}')
+    def CreateBasicBaseMeshINIFile():
+        """Nested function: Create and configure the standard INI file for base meshes"""
+        # Start logging
+        lambda_host.log(f'Start to write basic standard basemeshes ini files : {basemeshes_ini_path}')
+        # Create an empty file (overwrite existing file if any)
         create_or_overwrite_empty_file(basemeshes_ini_path)
         
+        # Configure [tiles] section
         create_or_update_ini_file(basemeshes_ini_path, section_tiles, 'Tiles_Count', tiles_count)
         create_or_update_ini_file(basemeshes_ini_path, section_tiles, 'Tiles_X_Index', tiles_x)
         create_or_update_ini_file(basemeshes_ini_path, section_tiles, 'Tiles_Y_Index', tiles_y)
         
+        # Configure [input] section
         create_or_update_ini_file(basemeshes_ini_path, section_input, 'Assets_Folder', basemeshes_assets_folder)
         create_or_update_ini_file(basemeshes_ini_path, section_input, 'BaseMeshesCSV_Name', basemeshes_csv_name)
         
+        # Configure [output] section
         create_or_update_ini_file(basemeshes_ini_path, section_output, 'DB_Base_Folder', basemeshes_db_base_folder)
         create_or_update_ini_file(basemeshes_ini_path, section_output, 'Caves_DB_Base_Folder', basemeshes_caves_db_base_folder)
+        create_or_update_ini_file(basemeshes_ini_path, section_output, 'Dungeons_DB_Base_Folder', basemeshes_dungeons_db_base_folder)
         create_or_update_ini_file(basemeshes_ini_path, section_output, 'Cache_Base_Folder', basemeshes_cache_base_folder)
         create_or_update_ini_file(basemeshes_ini_path, section_output, 'Heightmap_Folder', basemeshes_heightmap_folder)
+        create_or_update_ini_file(basemeshes_ini_path, section_output, 'Caves_Dungeons_Output_Folder', basemeshes_caves_dungeons_output_folder)
+        create_or_update_ini_file(basemeshes_ini_path, section_output, 'Smooth_Layer_Output_Folder', smoothlayer_output_folder)
         create_or_update_ini_file(basemeshes_ini_path, section_output, 'Whole_WC_Cache_Folder', basemeshes_whole_cache_folder)
         create_or_update_ini_file(basemeshes_ini_path, section_output, 'QTree_PointCloud_Folder', basemeshes_qtree_pointcloud_folder)
         
+        # Configure [options] section (a series of key-value pairs)
         create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_APPLY_COASTLINE', True)
         create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_APPLY_TOP_MIDDLE_NAIL_COASTLINE', False)
         create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_REPLACE_COASTLINE_WITH_CUBE', False)
@@ -2295,22 +2305,31 @@ def tree_instances_generation(config_path):
         
         create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_APPLY_RANDOM_SCALE', True)
         create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_APPLY_RANDOM_ROTATION', True)
-        create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_APPLY_RANDOM_NOISE_BASEMESH_SELECTION', False)
+        create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_APPLY_RANDOM_NOISE_BASEMESH_SELECTION', True)
         
         create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_APPLY_SIZE_LIMIT_FOR_VOXELIZE_NODE', True)
         create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_APPLY_NO_TOP_DELTA_FOR_BASEMESH_MASK', False)
 
+        create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_APPLY_BASEMESH_VOXELIZATION', True)
+        create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_APPLY_CAVE_VOXELIZATION', False)
+        create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_APPLY_DUNGEON_VOXELIZATION', False)
+        
         create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_APPLY_QUICK_VOXELIZE_MESH_DEBUG', False)
+        create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_ONLY_GENERATE_DUNGEON_POIS', False)
         create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_APPLY_IGNORE_LOWER_MINHEIGHT_MESHES', True)
 
         create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_OUTPUT_WHOLE_MESH_POINT_CLOUD', False)
         create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_OUTPUT_WHOLE_MESH_HEIGHT_DIFFERENT', False)
         create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_OUTPUT_WHOLE_MESH_DIFF_CELLS', False)
         
-        lambda_host.log(f'End to write standard basemeshes ini files : {basemeshes_ini_path}')
+        # End logging and record INI file content
+        lambda_host.log(f'End to write basic standard basemeshes ini files : {basemeshes_ini_path}')
         basemeshes_ini_string = ini_file_to_string(basemeshes_ini_path)
         lambda_host.log(f'Basemeshes standard ini file content is :')
         lambda_host.log(f'{basemeshes_ini_string}')
+
+    if use_basemesh_ini:
+        CreateBasicBaseMeshINIFile()
         
     if run_road_exe:    
         lambda_host.log(f'road_exe_command : {road_exe_command}')
