@@ -1546,7 +1546,7 @@ bool CPlantsSimulation::ExportShortHeightMap(std::vector<std::vector<short>>& he
 	return true;
 }
 
-bool CPlantsSimulation::ExportShortHeightMapWithMask(std::vector<std::vector<short>>& heightMap, std::vector<std::vector<short>>& masks, const string& outputPath, int rgbColor, bool hasHeader, bool withRatio)
+bool CPlantsSimulation::ExportShortHeightMapWithMask(std::vector<std::vector<short>>& heightMap, std::vector<std::vector<short>>& masks, const string& outputPath, int rgbColor, bool hasHeader, bool withRatio, bool useCenterPoint/*= true*/)
 {
 	if (!m_topLayerMeta)
 	{
@@ -1564,6 +1564,9 @@ bool CPlantsSimulation::ExportShortHeightMapWithMask(std::vector<std::vector<sho
 		outputFile << "X,Y,Z,Red,Green,Blue" << std::endl;
 	}
 
+	const int worldTileWidth = m_tilePixelMeterWidth * m_tileScale;
+	const int worldTileHeight = m_tilePixelMeterHeight * m_tileScale;
+
 	// Write data rows
 	int redColor = (rgbColor >> 16) & 0xFF;
 	int greenColor = (rgbColor >> 8) & 0xFF;
@@ -1575,10 +1578,17 @@ bool CPlantsSimulation::ExportShortHeightMapWithMask(std::vector<std::vector<sho
 	double batch_min_y = m_topLayerMeta->batch_min_y;
 	double x0 = m_topLayerMeta->x0;
 	double y0 = m_topLayerMeta->y0;
-	int mapWidth = heightMap.size();
-	int mapHeight = heightMap[0].size();
+	//int mapWidth = heightMap.size();
+	//int mapHeight = heightMap[0].size();
 	int width = heightMap.size();
 	int height = heightMap[0].size();
+
+	double cellSizeX = static_cast<double>(worldTileWidth) / static_cast<double>(width);
+	double cellSizeY = static_cast<double>(worldTileHeight) / static_cast<double>(height);
+
+	double centerOffsetX = useCenterPoint ? (cellSizeX / 2.0) : 0.0;
+	double centerOffsetY = useCenterPoint ? (cellSizeY / 2.0) : 0.0;
+
 	if (withRatio) {
 		//width = static_cast<int>(mapWidth * xRatio);
 		//height = static_cast<int>(mapHeight * yRatio);
@@ -1605,8 +1615,8 @@ bool CPlantsSimulation::ExportShortHeightMapWithMask(std::vector<std::vector<sho
 #endif
 							double posX = static_cast<double>(i * xRatio);
 							double posY = static_cast<double>(j * yRatio);
-							double fullPosX = batch_min_x + x0 + posX;
-							double fullPoxY = batch_min_y + y0 + posY;
+							double fullPosX = batch_min_x + x0 + posX + centerOffsetX;
+							double fullPoxY = batch_min_y + y0 + posY + centerOffsetY;
 							outputFile
 								<< fullPosX << ","
 								<< fullPoxY << ","
