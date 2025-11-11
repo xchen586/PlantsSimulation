@@ -1177,3 +1177,202 @@ int countColumnsInCSV(const std::string& filePath, char delimiter = ',') {
     std::cerr << "Error: File is empty or only contains whitespace." << std::endl;
     return -1;
 }
+
+// ============================================================================
+// Traditional Gaussian Blur (Convolution-based)
+// ============================================================================
+
+// Generate 1D Gaussian kernel
+std::vector<double> generateGaussianKernel(int radius, double sigma) {
+    int size = 2 * radius + 1;
+    std::vector<double> kernel(size);
+    double sum = 0.0;
+
+    for (int i = 0; i < size; ++i) {
+        int x = i - radius;
+        kernel[i] = std::exp(-(x * x) / (2.0 * sigma * sigma));
+        sum += kernel[i];
+    }
+
+    // Normalize the kernel
+    for (int i = 0; i < size; ++i) {
+        kernel[i] /= sum;
+    }
+
+    return kernel;
+}
+
+// Apply traditional Gaussian blur using separable convolution
+// Best for small blur radii (radius < 10)
+// Default values tuned for 4096x4096 heightmap with range [-10000, 10000]
+std::vector<std::vector<short>> NormalGaussianBlurHeightmap(
+    const std::vector<std::vector<short>>& heightmap,
+    int radius/* = 5*/,      // Default: 5 pixels for 4096x4096
+    double sigma/* = 2.0*/   // Default: moderate smoothing
+) {
+    if (heightmap.empty() || heightmap[0].empty()) {
+        return heightmap;
+    }
+
+    int height = heightmap.size();
+    int width = heightmap[0].size();
+
+    // Generate Gaussian kernel
+    std::vector<double> kernel = generateGaussianKernel(radius, sigma);
+
+    // Temporary buffer for horizontal pass
+    std::vector<std::vector<double>> temp(height, std::vector<double>(width));
+
+    // Horizontal pass
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            double sum = 0.0;
+            for (int k = -radius; k <= radius; ++k) {
+                int nx = x + k;
+                // Clamp to edges
+                if (nx < 0) nx = 0;
+                if (nx >= width) nx = width - 1;
+
+                sum += heightmap[y][nx] * kernel[k + radius];
+            }
+            temp[y][x] = sum;
+        }
+    }
+
+    // Vertical pass
+    std::vector<std::vector<short>> result(height, std::vector<short>(width));
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            double sum = 0.0;
+            for (int k = -radius; k <= radius; ++k) {
+                int ny = y + k;
+                // Clamp to edges
+                if (ny < 0) ny = 0;
+                if (ny >= height) ny = height - 1;
+
+                sum += temp[ny][x] * kernel[k + radius];
+            }
+            // Clamp result to valid range [-10000, 10000]
+            double val = std::round(sum);
+            if (val < -10000) val = -10000;
+            if (val > 10000) val = 10000;
+            result[y][x] = static_cast<short>(val);
+        }
+    }
+
+    return result;
+}
+
+// ============================================================================
+// IIR Gaussian Blur (Recursive filter approximation)
+// ============================================================================
+
+// Apply IIR Gaussian blur using recursive filters
+// Much faster for large blur radii, O(n*m) complexity regardless of sigma
+// Best for large blur radii (sigma > 5)
+// Default values tuned for 4096x4096 heightmap with range [-10000, 10000]
+std::vector<std::vector<short>> IIRGaussianBlurHeightmap(
+    const std::vector<std::vector<short>>& heightmap,
+    int radius/* = 0*/,      // Unused in IIR version (kept for interface compatibility)
+    double sigma/* = 3.0*/   // Default: larger smoothing for efficiency
+) 
+{
+    if (heightmap.empty() || heightmap[0].empty()) {
+        return heightmap;
+    }
+
+    int height = heightmap.size();
+    int width = heightmap[0].size();
+
+    // Calculate filter parameters for specified sigma
+    // Use Equation 11b to determine q
+    float q;
+    if (sigma >= 2.5)
+        q = 0.98711f * sigma - 0.96330f;
+    else if (sigma >= 0.5)
+        q = 3.97156f - 4.14554f * std::sqrt(1.0f - 0.26891f * sigma);
+    else
+        return heightmap; // Sigma too small, return original
+
+    // Use equation 8c to determine b0, b1, b2 and b3
+    float b0 = 1.57825f + 2.44413f * q + 1.4281f * q * q + 0.422205f * q * q * q;
+    float b1 = 2.44413f * q + 2.85619f * q * q + 1.26661f * q * q * q;
+    float b2 = -(1.4281f * q * q + 1.26661f * q * q * q);
+    float b3 = 0.422205f * q * q * q;
+
+    // Use equation 10 to determine B
+    float B = 1.0f - (b1 + b2 + b3) / b0;
+
+    // Allocate float buffer for intermediate calculations
+    std::vector<std::vector<float>> buffer(height, std::vector<float>(width));
+
+    // Horizontal forward pass
+    for (int y = 0; y < height; y++) {
+        float prev1 = heightmap[y][0];
+        float prev2 = prev1;
+        float prev3 = prev2;
+
+        for (int x = 0; x < width; x++) {
+            float val = B * heightmap[y][x] + (b1 * prev1 + b2 * prev2 + b3 * prev3) / b0;
+            buffer[y][x] = val;
+            prev3 = prev2;
+            prev2 = prev1;
+            prev1 = val;
+        }
+    }
+
+    // Horizontal backward pass
+    for (int y = 0; y < height; y++) {
+        float prev1 = buffer[y][width - 1];
+        float prev2 = prev1;
+        float prev3 = prev2;
+
+        for (int x = width - 1; x >= 0; x--) {
+            float val = B * buffer[y][x] + (b1 * prev1 + b2 * prev2 + b3 * prev3) / b0;
+            buffer[y][x] = val;
+            prev3 = prev2;
+            prev2 = prev1;
+            prev1 = val;
+        }
+    }
+
+    // Vertical forward pass
+    for (int x = 0; x < width; x++) {
+        float prev1 = buffer[0][x];
+        float prev2 = prev1;
+        float prev3 = prev2;
+
+        for (int y = 0; y < height; y++) {
+            float val = B * buffer[y][x] + (b1 * prev1 + b2 * prev2 + b3 * prev3) / b0;
+            buffer[y][x] = val;
+            prev3 = prev2;
+            prev2 = prev1;
+            prev1 = val;
+        }
+    }
+
+    // Vertical backward pass and convert back to short
+    std::vector<std::vector<short>> result(height, std::vector<short>(width));
+
+    for (int x = 0; x < width; x++) {
+        float prev1 = buffer[height - 1][x];
+        float prev2 = prev1;
+        float prev3 = prev2;
+
+        for (int y = height - 1; y >= 0; y--) {
+            float val = B * buffer[y][x] + (b1 * prev1 + b2 * prev2 + b3 * prev3) / b0;
+
+            // Clamp result to valid range [-10000, 10000]
+            if (val < -10000.0f) val = -10000.0f;
+            if (val > 10000.0f) val = 10000.0f;
+
+            result[y][x] = static_cast<short>(std::round(val));
+            prev3 = prev2;
+            prev2 = prev1;
+            prev1 = val;
+        }
+    }
+
+    return result;
+}
+
