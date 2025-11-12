@@ -186,13 +186,13 @@ std::vector<std::vector<unsigned short>> ConvertShortMatrixToUShort(const std::v
 std::vector<double> generateGaussianKernel(int radius, double sigma);
 std::vector<std::vector<short>> NormalGaussianBlurHeightmap(
 	const std::vector<std::vector<short>>& heightmap,
-	int radius = 5,      // Default: 5 pixels for 4096x4096
-	double sigma = 2.0   // Default: moderate smoothing
+	int radius = 8,      // Default: 5 pixels for 4096x4096
+	double sigma = 3.0   // Default: moderate smoothing
 );
 std::vector<std::vector<short>> IIRGaussianBlurHeightmap(
 	const std::vector<std::vector<short>>& heightmap,
 	int radius = 0,      // Unused in IIR version (kept for interface compatibility)
-	double sigma = 3.0   // Default: larger smoothing for efficiency
+	double sigma = 5.0   // Default: larger smoothing for efficiency
 );
 
 double GenerateRandomDouble(double min, double max);

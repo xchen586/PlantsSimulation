@@ -1207,8 +1207,8 @@ std::vector<double> generateGaussianKernel(int radius, double sigma) {
 // Default values tuned for 4096x4096 heightmap with range [-10000, 10000]
 std::vector<std::vector<short>> NormalGaussianBlurHeightmap(
     const std::vector<std::vector<short>>& heightmap,
-    int radius/* = 5*/,      // Default: 5 pixels for 4096x4096
-    double sigma/* = 2.0*/   // Default: moderate smoothing
+    int radius/* = 8*/,      // Default: 8 pixels - balanced smoothing
+    double sigma/* = 3.0*/   // Default: moderate sigma for visible but not extreme smoothing
 ) {
     if (heightmap.empty() || heightmap[0].empty()) {
         return heightmap;
@@ -1217,8 +1217,14 @@ std::vector<std::vector<short>> NormalGaussianBlurHeightmap(
     int height = heightmap.size();
     int width = heightmap[0].size();
 
+    // If sigma is too small relative to radius, auto-calculate it
+    double effective_sigma = sigma;
+    if (sigma < radius / 3.0) {
+        effective_sigma = radius / 2.5;  // Good rule of thumb
+    }
+
     // Generate Gaussian kernel
-    std::vector<double> kernel = generateGaussianKernel(radius, sigma);
+    std::vector<double> kernel = generateGaussianKernel(radius, effective_sigma);
 
     // Temporary buffer for horizontal pass
     std::vector<std::vector<double>> temp(height, std::vector<double>(width));
@@ -1227,15 +1233,20 @@ std::vector<std::vector<short>> NormalGaussianBlurHeightmap(
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
             double sum = 0.0;
+            double weightSum = 0.0;  // Track actual weights used for normalization
+
             for (int k = -radius; k <= radius; ++k) {
                 int nx = x + k;
                 // Clamp to edges
                 if (nx < 0) nx = 0;
                 if (nx >= width) nx = width - 1;
 
-                sum += heightmap[y][nx] * kernel[k + radius];
+                double weight = kernel[k + radius];
+                sum += heightmap[y][nx] * weight;
+                weightSum += weight;
             }
-            temp[y][x] = sum;
+            // Renormalize in case of edge effects
+            temp[y][x] = sum / weightSum;
         }
     }
 
@@ -1244,19 +1255,25 @@ std::vector<std::vector<short>> NormalGaussianBlurHeightmap(
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
             double sum = 0.0;
+            double weightSum = 0.0;  // Track actual weights used for normalization
+
             for (int k = -radius; k <= radius; ++k) {
                 int ny = y + k;
                 // Clamp to edges
                 if (ny < 0) ny = 0;
                 if (ny >= height) ny = height - 1;
 
-                sum += temp[ny][x] * kernel[k + radius];
+                double weight = kernel[k + radius];
+                sum += temp[ny][x] * weight;
+                weightSum += weight;
             }
+            // Renormalize in case of edge effects
+            double val = sum / weightSum;
+
             // Clamp result to valid range [-10000, 10000]
-            double val = std::round(sum);
-            if (val < -10000) val = -10000;
-            if (val > 10000) val = 10000;
-            result[y][x] = static_cast<short>(val);
+            if (val < -10000.0) val = -10000.0;
+            if (val > 10000.0) val = 10000.0;
+            result[y][x] = static_cast<short>(std::round(val));
         }
     }
 
@@ -1274,9 +1291,8 @@ std::vector<std::vector<short>> NormalGaussianBlurHeightmap(
 std::vector<std::vector<short>> IIRGaussianBlurHeightmap(
     const std::vector<std::vector<short>>& heightmap,
     int radius/* = 0*/,      // Unused in IIR version (kept for interface compatibility)
-    double sigma/* = 3.0*/   // Default: larger smoothing for efficiency
-) 
-{
+    double sigma/* = 5.0*/   // Default: moderate smoothing, adjust as needed
+) {
     if (heightmap.empty() || heightmap[0].empty()) {
         return heightmap;
     }
