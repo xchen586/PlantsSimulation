@@ -1364,7 +1364,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	sprintf_s(bedrock_heightmap_raw_export, MAX_PATH, "%s\\%d_%d_%d_bedrock_heightmap_raw_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 	sprintf_s(short_height_map_export, MAX_PATH, "%s\\%d_%d_%d_short_height_map_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 	sprintf_s(short_normal_blur_height_map_export, MAX_PATH, "%s\\%d_%d_%d_short_normal_blur_height_map_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
-	sprintf_s(short_iir_blur_height_map_export, MAX_PATH, "%s\\%d_%d_%d_shor_iir_blur_height_map_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	sprintf_s(short_iir_blur_height_map_export, MAX_PATH, "%s\\%d_%d_%d_short_iir_blur_height_map_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 #endif
 	sprintf_s(double_height_map_exportout, MAX_PATH, "%s\\%d_%d_%d_double_height_map_exportout.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 	sprintf_s(height_slope_map_exportout, MAX_PATH, "%s\\%d_%d_%d_height_slope_map_exportout.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
