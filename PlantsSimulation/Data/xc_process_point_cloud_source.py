@@ -81,14 +81,22 @@ x = 4
 y = 2
 
 processed_entity_type = api.entity_type.VoxelTerrain
-#src_file_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\{tiles}_{x}_{y}\\{tiles}_{x}_{y}_double_height_map_exportout.xyz'
-#entity_base_name = f'{tiles}_{x}_{y}_double_height_map_surface_export'
-src_file_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\{tiles}_{x}_{y}\\{tiles}_{x}_{y}_short_height_map_export.xyz'
-entity_base_name = f'{tiles}_{x}_{y}_short_height_map_surface_export'
 
 project_entity = api.get_entity(project_id)
 version = 0
 version = int(project_entity['version']) + 1 if 'version' in project_entity else 1
 api.update_entity(project=project_id, id=project_id, fields={'version': version})
 
+#src_file_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\{tiles}_{x}_{y}\\{tiles}_{x}_{y}_double_height_map_exportout.xyz'
+#entity_base_name = f'{tiles}_{x}_{y}_double_height_map_surface_export'
+#src_file_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\{tiles}_{x}_{y}\\{tiles}_{x}_{y}_short_height_map_export.xyz'
+#entity_base_name = f'{tiles}_{x}_{y}_short_height_map_surface_export'
+
+src_file_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\{tiles}_{x}_{y}\\{tiles}_{x}_{y}_short_normal_blur_height_map_export.xyz'
+entity_base_name = f'{tiles}_{x}_{y}_short_normal_blur_height_map_surface_export'
+
+process_point_cloud(api, txt2las_exe_path, project_id, folder_id, src_file_path, processed_entity_type, entity_base_name, version, color=True)
+
+src_file_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\{tiles}_{x}_{y}\\{tiles}_{x}_{y}_short_iir_blur_height_map_export.xyz'
+entity_base_name = f'{tiles}_{x}_{y}_short_iir_blur_height_map_surface_export'
 process_point_cloud(api, txt2las_exe_path, project_id, folder_id, src_file_path, processed_entity_type, entity_base_name, version, color=True)
