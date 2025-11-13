@@ -182,18 +182,38 @@ std::vector<std::vector<double>> ConvertUnsignedShortToDouble(const std::vector<
 std::vector<std::vector<double>> ConvertShortMatrixToDouble1(const std::vector<std::vector<short>>& shortMatrix);
 std::vector<std::vector<double>> ConvertShortMatrixToDouble2(const std::vector<std::vector<short>>& shortMatrix);
 std::vector<std::vector<unsigned short>> ConvertShortMatrixToUShort(const std::vector<std::vector<short>>& shortMatrix);
+std::vector<std::vector<short>> iir_gauss_blur_with_mask(
+	const std::vector<std::vector<short>>& image,
+	const std::vector<std::vector<short>>& masks,  // Mask: 1 = valid, 0 = invalid
+	float sigma);
+std::vector<std::vector<short>> NormalGaussianBlurHeightmapEx(
+	const std::vector<std::vector<short>>& heightmap,
+	int radius = 15,
+	double sigma = 5.0,
+	short min_val = -10000,  // Configurable range
+	short max_val = 10000
+);
+std::vector<std::vector<short>> MaskedGaussianBlurHeightmap(
+	const std::vector<std::vector<short>>& heightmap,
+	const std::vector<std::vector<short>>& masks,
+	int radius = 15,
+	double sigma = 5.0,
+	short min_val = -10000,
+	short max_val = 10000
+);
 
 std::vector<double> generateGaussianKernel(int radius, double sigma);
 std::vector<std::vector<short>> NormalGaussianBlurHeightmap(
 	const std::vector<std::vector<short>>& heightmap,
-	int radius = 8,      // Default: 5 pixels for 4096x4096
-	double sigma = 3.0   // Default: moderate smoothing
+	int radius = 15,      // Default: 5 pixels for 4096x4096
+	double sigma = 5.0   // Default: moderate smoothing
 );
 std::vector<std::vector<short>> IIRGaussianBlurHeightmap(
 	const std::vector<std::vector<short>>& heightmap,
 	int radius = 0,      // Unused in IIR version (kept for interface compatibility)
-	double sigma = 5.0   // Default: larger smoothing for efficiency
+	double sigma = 8.0   // Default: larger smoothing for efficiency
 );
+std::vector<std::vector<short>> iir_gauss_blur(const std::vector<std::vector<short>>& image, float sigma);
 
 double GenerateRandomDouble(double min, double max);
 

@@ -1,4 +1,4 @@
-#include "PsHelper.h"
+﻿#include "PsHelper.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -1207,8 +1207,8 @@ std::vector<double> generateGaussianKernel(int radius, double sigma) {
 // Default values tuned for 4096x4096 heightmap with range [-10000, 10000]
 std::vector<std::vector<short>> NormalGaussianBlurHeightmap(
     const std::vector<std::vector<short>>& heightmap,
-    int radius/* = 8*/,      // Default: 8 pixels - balanced smoothing
-    double sigma/* = 3.0*/   // Default: moderate sigma for visible but not extreme smoothing
+    int radius/* = 15*/,     // Default: 15 pixels for smoother result
+    double sigma/* = 5.0*/   // Default: larger sigma for smooth blending
 ) {
     if (heightmap.empty() || heightmap[0].empty()) {
         return heightmap;
@@ -1291,7 +1291,7 @@ std::vector<std::vector<short>> NormalGaussianBlurHeightmap(
 std::vector<std::vector<short>> IIRGaussianBlurHeightmap(
     const std::vector<std::vector<short>>& heightmap,
     int radius/* = 0*/,      // Unused in IIR version (kept for interface compatibility)
-    double sigma/* = 5.0*/   // Default: moderate smoothing, adjust as needed
+    double sigma/* = 8.0*/   // Default: larger sigma for smooth terrain blending
 ) {
     if (heightmap.empty() || heightmap[0].empty()) {
         return heightmap;
@@ -1392,3 +1392,460 @@ std::vector<std::vector<short>> IIRGaussianBlurHeightmap(
     return result;
 }
 
+std::vector<std::vector<short>> iir_gauss_blur(const std::vector<std::vector<short>>& image, float sigma) {
+    // Return empty array if input image is empty or has empty rows
+    if (image.empty()) {
+        return {};
+    }
+    const int height = static_cast<int>(image.size());
+    const int width = static_cast<int>(image[0].size());
+
+    // Check for jagged array (rows with inconsistent lengths)
+    for (int y = 0; y < height; ++y) {
+        if (image[y].size() != static_cast<size_t>(width)) {
+            return {}; // Or handle error appropriately
+        }
+    }
+
+    // Calculate filter parameters
+    float q;
+    if (sigma >= 2.5f) {
+        q = 0.98711f * sigma - 0.96330f;
+    }
+    else if (sigma >= 0.5f) {
+        q = 3.97156f - 4.14554f * std::sqrt(1.0f - 0.26891f * sigma);
+    }
+    else {
+        return image; // Return original for small sigma
+    }
+
+    // Filter coefficients
+    const float b0 = 1.57825f + 2.44413f * q + 1.4281f * q * q + 0.422205f * q * q * q;
+    const float b1 = 2.44413f * q + 2.85619f * q * q + 1.26661f * q * q * q;
+    const float b2 = -(1.4281f * q * q + 1.26661f * q * q * q);
+    const float b3 = 0.422205f * q * q * q;
+    const float B = 1.0f - (b1 + b2 + b3) / b0;
+
+    // Temporary buffer
+    std::vector<std::vector<float>> buffer(height, std::vector<float>(width));
+
+    // Horizontal forward filtering
+    for (int y = 0; y < height; ++y) {
+        float prev1 = static_cast<float>(image[y][0]);
+        float prev2 = prev1;
+        float prev3 = prev2;
+
+        for (int x = 0; x < width; ++x) {
+            const float val = B * static_cast<float>(image[y][x]) + (b1 * prev1 + b2 * prev2 + b3 * prev3) / b0;
+            buffer[y][x] = val;
+
+            prev3 = prev2;
+            prev2 = prev1;
+            prev1 = val;
+        }
+    }
+
+    // Horizontal backward filtering
+    for (int y = height - 1; y >= 0; --y) {
+        float prev1 = buffer[y][width - 1];
+        float prev2 = prev1;
+        float prev3 = prev2;
+
+        for (int x = width - 1; x >= 0; --x) {
+            const float val = B * buffer[y][x] + (b1 * prev1 + b2 * prev2 + b3 * prev3) / b0;
+            buffer[y][x] = val;
+
+            prev3 = prev2;
+            prev2 = prev1;
+            prev1 = val;
+        }
+    }
+
+    // Vertical forward filtering
+    for (int x = 0; x < width; ++x) {
+        float prev1 = buffer[0][x];
+        float prev2 = prev1;
+        float prev3 = prev2;
+
+        for (int y = 0; y < height; ++y) {
+            const float val = B * buffer[y][x] + (b1 * prev1 + b2 * prev2 + b3 * prev3) / b0;
+            buffer[y][x] = val;
+
+            prev3 = prev2;
+            prev2 = prev1;
+            prev1 = val;
+        }
+    }
+
+    // Vertical backward filtering and result creation
+    std::vector<std::vector<short>> result(height, std::vector<short>(width));
+    for (int x = width - 1; x >= 0; --x) {
+        float prev1 = buffer[height - 1][x];
+        float prev2 = prev1;
+        float prev3 = prev2;
+
+        for (int y = height - 1; y >= 0; --y) {
+            const float val = B * buffer[y][x] + (b1 * prev1 + b2 * prev2 + b3 * prev3) / b0;
+            result[y][x] = static_cast<short>(std::max(-32768.0f, std::min(32767.0f, val)));
+
+            prev3 = prev2;
+            prev2 = prev1;
+            prev1 = val;
+        }
+    }
+
+    return result;
+}
+
+std::vector<std::vector<short>> iir_gauss_blur_with_mask(
+    const std::vector<std::vector<short>>& image,
+    const std::vector<std::vector<short>>& masks,  // Mask: 1 = valid, 0 = invalid
+    float sigma) {
+
+    // Validate input
+    if (image.empty() || masks.empty() || image[0].empty() || masks[0].empty()) {
+        return {};
+    }
+    const int height = static_cast<int>(image.size());
+    const int width = static_cast<int>(image[0].size());
+
+    // Check dimension consistency
+    if (static_cast<int>(masks.size()) != height || static_cast<int>(masks[0].size()) != width) {
+        return {};
+    }
+    for (int y = 0; y < height; ++y) {
+        if (image[y].size() != static_cast<size_t>(width) || masks[y].size() != static_cast<size_t>(width)) {
+            return {}; // Jagged array
+        }
+    }
+
+    // Return original if sigma is too small (no blur)
+    if (sigma < 0.5f) {
+        return image;
+    }
+
+    // Calculate filter parameters (same as original)
+    float q;
+    if (sigma >= 2.5f) {
+        q = 0.98711f * sigma - 0.96330f;
+    }
+    else {
+        q = 3.97156f - 4.14554f * std::sqrt(1.0f - 0.26891f * sigma);
+    }
+    const float b0 = 1.57825f + 2.44413f * q + 1.4281f * q * q + 0.422205f * q * q * q;
+    const float b1 = 2.44413f * q + 2.85619f * q * q + 1.26661f * q * q * q;
+    const float b2 = -(1.4281f * q * q + 1.26661f * q * q * q);
+    const float b3 = 0.422205f * q * q * q;
+    const float B = 1.0f - (b1 + b2 + b3) / b0;
+
+    // Initialize buffer with original values (invalid pixels stay unchanged)
+    std::vector<std::vector<float>> buffer(height, std::vector<float>(width));
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            buffer[y][x] = static_cast<float>(image[y][x]);
+        }
+    }
+
+    // Horizontal forward pass
+    for (int y = 0; y < height; ++y) {
+        // Find first valid pixel to initialize history
+        float prev1 = 0.0f, prev2 = 0.0f, prev3 = 0.0f;
+        bool has_valid = false;
+        for (int x = 0; x < width; ++x) {
+            if (masks[y][x] > 0) {
+                prev1 = static_cast<float>(image[y][x]);
+                prev2 = prev1;
+                prev3 = prev2;
+                has_valid = true;
+                break;
+            }
+        }
+        if (!has_valid) continue; // Skip rows with no valid pixels
+
+        // Process each pixel (update history only for valid pixels)
+        for (int x = 0; x < width; ++x) {
+            if (masks[y][x] > 0) {
+                const float val = B * static_cast<float>(image[y][x]) + (b1 * prev1 + b2 * prev2 + b3 * prev3) / b0;
+                buffer[y][x] = val;
+                // Update history with current valid value
+                prev3 = prev2;
+                prev2 = prev1;
+                prev1 = val;
+            }
+            // For invalid pixels: history remains unchanged (uses last valid state)
+        }
+    }
+
+    // Horizontal backward pass
+    for (int y = height - 1; y >= 0; --y) {
+        float prev1 = 0.0f, prev2 = 0.0f, prev3 = 0.0f;
+        bool has_valid = false;
+        for (int x = width - 1; x >= 0; --x) {
+            if (masks[y][x] > 0) {
+                prev1 = buffer[y][x];
+                prev2 = prev1;
+                prev3 = prev2;
+                has_valid = true;
+                break;
+            }
+        }
+        if (!has_valid) continue;
+
+        for (int x = width - 1; x >= 0; --x) {
+            if (masks[y][x] > 0) {
+                const float val = B * buffer[y][x] + (b1 * prev1 + b2 * prev2 + b3 * prev3) / b0;
+                buffer[y][x] = val;
+                prev3 = prev2;
+                prev2 = prev1;
+                prev1 = val;
+            }
+            // History preserved for invalid pixels
+        }
+    }
+
+    // Vertical forward pass
+    for (int x = 0; x < width; ++x) {
+        float prev1 = 0.0f, prev2 = 0.0f, prev3 = 0.0f;
+        bool has_valid = false;
+        for (int y = 0; y < height; ++y) {
+            if (masks[y][x] > 0) {
+                prev1 = buffer[y][x];
+                prev2 = prev1;
+                prev3 = prev2;
+                has_valid = true;
+                break;
+            }
+        }
+        if (!has_valid) continue;
+
+        for (int y = 0; y < height; ++y) {
+            if (masks[y][x] > 0) {
+                const float val = B * buffer[y][x] + (b1 * prev1 + b2 * prev2 + b3 * prev3) / b0;
+                buffer[y][x] = val;
+                prev3 = prev2;
+                prev2 = prev1;
+                prev1 = val;
+            }
+        }
+    }
+
+    // Vertical backward pass and result creation
+    std::vector<std::vector<short>> result(height, std::vector<short>(width));
+    for (int x = width - 1; x >= 0; --x) {
+        float prev1 = 0.0f, prev2 = 0.0f, prev3 = 0.0f;
+        bool has_valid = false;
+        for (int y = height - 1; y >= 0; --y) {
+            if (masks[y][x] > 0) {
+                prev1 = buffer[y][x];
+                prev2 = prev1;
+                prev3 = prev2;
+                has_valid = true;
+                break;
+            }
+        }
+        if (!has_valid) {
+            // Copy original values for columns with no valid pixels
+            for (int y = 0; y < height; ++y) {
+                result[y][x] = image[y][x];
+            }
+            continue;
+        }
+
+        for (int y = height - 1; y >= 0; --y) {
+            if (masks[y][x] > 0) {
+                const float val = B * buffer[y][x] + (b1 * prev1 + b2 * prev2 + b3 * prev3) / b0;
+                result[y][x] = static_cast<short>(std::clamp(val, -32768.0f, 32767.0f));
+                prev3 = prev2;
+                prev2 = prev1;
+                prev1 = val;
+            }
+            else {
+                // Invalid pixels retain original value
+                result[y][x] = image[y][x];
+            }
+        }
+    }
+
+    return result;
+}
+
+
+// Generate 1D Gaussian kernel
+std::vector<double> generateGaussianKernelEx(int radius, double sigma) {
+    size_t size = 2 * static_cast<size_t>(radius) + 1;  // Avoid overflow
+    std::vector<double> kernel(size);
+    double sum = 0.0;
+
+    for (size_t i = 0; i < size; ++i) {
+        int x = static_cast<int>(i) - radius;
+        kernel[i] = std::exp(-(x * x) / (2.0 * sigma * sigma));
+        sum += kernel[i];
+    }
+
+    // Normalize the kernel
+    for (double& w : kernel) {
+        w /= sum;
+    }
+
+    return kernel;
+}
+
+// Apply traditional Gaussian blur using separable convolution
+std::vector<std::vector<short>> NormalGaussianBlurHeightmapEx(
+    const std::vector<std::vector<short>>& heightmap,
+    int radius/* = 15*/,
+    double sigma/* = 5.0*/,
+    short min_val/* = -10000*/,  // Configurable range
+    short max_val/* = 10000*/
+) {
+    if (heightmap.empty() || heightmap[0].empty()) {
+        return heightmap;
+    }
+
+    int height = static_cast<int>(heightmap.size());
+    int width = static_cast<int>(heightmap[0].size());
+
+    // Auto-calculate sigma using 3σ rule if too small
+    double effective_sigma = sigma;
+    if (sigma < radius / 3.0) {
+        effective_sigma = radius / 3.0;  // Standard 3σ coverage
+    }
+
+    // Generate Gaussian kernel
+    std::vector<double> kernel = generateGaussianKernelEx(radius, effective_sigma);
+
+    // Temporary buffer for horizontal pass
+    std::vector<std::vector<double>> temp(height, std::vector<double>(width));
+
+    // Horizontal pass
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            double sum = 0.0;
+            double weightSum = 0.0;
+
+            for (int k = -radius; k <= radius; ++k) {
+                const int nx = std::clamp(x + k, 0, width - 1);  // Clamp with std::clamp
+                const double weight = kernel[k + radius];
+                sum += heightmap[y][nx] * weight;
+                weightSum += weight;
+            }
+            temp[y][x] = sum / weightSum;  // Renormalize
+        }
+    }
+
+    // Vertical pass
+    std::vector<std::vector<short>> result(height, std::vector<short>(width));
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            double sum = 0.0;
+            double weightSum = 0.0;
+
+            for (int k = -radius; k <= radius; ++k) {
+                const int ny = std::clamp(y + k, 0, height - 1);  // Clamp with std::clamp
+                const double weight = kernel[k + radius];
+                sum += temp[ny][x] * weight;
+                weightSum += weight;
+            }
+            double val = sum / weightSum;  // Renormalize
+
+            // Clamp and round
+            val = std::clamp(val, static_cast<double>(min_val), static_cast<double>(max_val));
+            result[y][x] = static_cast<short>(std::round(val));
+        }
+    }
+
+    return result;
+}
+
+std::vector<std::vector<short>> MaskedGaussianBlurHeightmap(
+    const std::vector<std::vector<short>>& heightmap,
+    const std::vector<std::vector<short>>& masks,
+    int radius/* = 15*/,
+    double sigma/* = 5.0*/,
+    short min_val/* = -10000*/,
+    short max_val/* = 10000*/
+) {
+    if (heightmap.empty() || masks.empty() ||
+        heightmap[0].empty() || masks[0].empty() ||
+        heightmap.size() != masks.size() ||
+        heightmap[0].size() != masks[0].size()) {
+        return {};  // Return empty on invalid input
+    }
+
+    int height = static_cast<int>(heightmap.size());
+    int width = static_cast<int>(heightmap[0].size());
+
+    // Reject jagged arrays explicitly
+    for (int y = 0; y < height; ++y) {
+        if (heightmap[y].size() != static_cast<size_t>(width) ||
+            masks[y].size() != static_cast<size_t>(width)) {
+            return {};
+        }
+    }
+
+    double effective_sigma = sigma;
+    if (sigma < radius / 3.0) {
+        effective_sigma = radius / 3.0;
+    }
+
+    std::vector<double> kernel = generateGaussianKernelEx(radius, effective_sigma);
+    std::vector<std::vector<double>> temp(height, std::vector<double>(width));
+
+    // Horizontal pass
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            if (masks[y][x] <= 0) {
+                temp[y][x] = static_cast<double>(heightmap[y][x]);
+                continue;
+            }
+
+            double sum = 0.0;
+            double weightSum = 0.0;
+            for (int k = -radius; k <= radius; ++k) {
+                const int nx = std::clamp(x + k, 0, width - 1);
+                if (masks[y][nx] > 0) {
+                    const double weight = kernel[k + radius];
+                    sum += heightmap[y][nx] * weight;
+                    weightSum += weight;
+                }
+            }
+
+            temp[y][x] = (weightSum < 1e-9) ?
+                static_cast<double>(heightmap[y][x]) :
+                sum / weightSum;
+        }
+    }
+
+    // Vertical pass
+    std::vector<std::vector<short>> result(height, std::vector<short>(width));
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            if (masks[y][x] <= 0) {
+                result[y][x] = heightmap[y][x];
+                continue;
+            }
+
+            double sum = 0.0;
+            double weightSum = 0.0;
+            for (int k = -radius; k <= radius; ++k) {
+                const int ny = std::clamp(y + k, 0, height - 1);
+                if (masks[ny][x] > 0) {
+                    const double weight = kernel[k + radius];
+                    sum += temp[ny][x] * weight;
+                    weightSum += weight;
+                }
+            }
+
+            if (weightSum < 1e-9) {
+                result[y][x] = heightmap[y][x];
+            }
+            else {
+                double val = sum / weightSum;
+                val = std::clamp(val, static_cast<double>(min_val), static_cast<double>(max_val));
+                result[y][x] = static_cast<short>(std::round(val));
+            }
+        }
+    }
+
+    return result;
+}

@@ -1200,8 +1200,12 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	}
 	std::cout << "Final Short Height Map minHeight = " << minHeight << " , maxHeight = " << maxHeight << std::endl;
 
-	std::vector<std::vector<short>> heightmapNormalBlurShort4096 = NormalGaussianBlurHeightmap(heightMapShort4096, 8, 3.0);
-	std::vector<std::vector<short>> heightmapIIRBlurShort4096 = IIRGaussianBlurHeightmap(heightMapShort4096, 0, 5.0);
+	//std::vector<std::vector<short>> heightmapNormalBlurShort4096 = NormalGaussianBlurHeightmap(heightMapShort4096, 15, 5.0);
+	//std::vector<std::vector<short>> heightmapIIRBlurShort4096 = IIRGaussianBlurHeightmap(heightMapShort4096, 0, 8.0);
+
+	std::vector<std::vector<short>> heightmapNormalBlurShort4096 = MaskedGaussianBlurHeightmap(heightMapShort4096, heightMasksShort4096, 15, 5.0);
+	std::vector<std::vector<short>> heightmapIIRBlurShort4096 = iir_gauss_blur_with_mask(heightMapShort4096, heightMasksShort4096, 15);
+
 	//std::vector<std::vector<short>> slopeShort4096 = ComputeAbsMaxHeightSlopeMap(heightMapShort4096);
 	std::vector<std::vector<short>> slopeShort4096 = ComputeSlopeMap(heightMapShort4096);
 	std::vector<std::vector<double>> heightMapDouble4096 = ConvertShortMatrixToDouble1(heightMapShort4096);
