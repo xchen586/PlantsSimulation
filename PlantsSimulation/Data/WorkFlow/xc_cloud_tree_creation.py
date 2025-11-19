@@ -2307,7 +2307,7 @@ def tree_instances_generation(config_path):
         create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_APPLY_RANDOM_ROTATION', True)
         create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_APPLY_RANDOM_NOISE_BASEMESH_SELECTION', True)
         
-        create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_APPLY_SIZE_LIMIT_FOR_VOXELIZE_NODE', True)
+        create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_APPLY_SIZE_LIMIT_FOR_VOXELIZE_NODE', False)
         create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_APPLY_NO_TOP_DELTA_FOR_BASEMESH_MASK', False)
 
         create_or_update_ini_file(basemeshes_ini_path, section_options, 'USE_APPLY_BASEMESH_VOXELIZATION', True)
