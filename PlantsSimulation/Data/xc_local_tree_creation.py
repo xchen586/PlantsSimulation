@@ -2848,11 +2848,12 @@ def tree_instances_generation(config_path):
         print(f'step for to run_upload_smooth_layer : {worldgen_command}')
         process_file_image(api, Project_id, Workflow_Output_Result_Folder_id, toplayer_image_jpg_path, toplayer_image_jpg_meta_path, toplevel_image_jpg_entity_base_name, project_output_version)
         process_file_image(api, Project_id, Workflow_Output_Result_Folder_id, toplayer_image_png_path, toplayer_image_png_meta_path, toplevel_image_png_entity_base_name, project_output_version)
+        
         process_file_image(api, Project_id, Workflow_Output_Result_Folder_id, toplayer_region_image_path, toplayer_region_image_meta_path, toplevel_region_image_entity_base_name, project_output_version)
         process_file_image(api, Project_id, Workflow_Output_Result_Folder_id, toplayer_slope_image_path, toplayer_slope_image_meta_path, toplevel_slope_image_entity_base_name, project_output_version)
         process_file_image(api, Project_id, Workflow_Output_Result_Folder_id, toplayer_slope_invert_image_path, toplayer_slope_invert_image_meta_path, toplevel_slope_invert_image_entity_base_name, project_output_version)
         process_file_image(api, Project_id, Workflow_Output_Result_Folder_id, toplayer_road_image_path, toplayer_road_image_meta_path, toplevel_road_image_entity_base_name, project_output_version)
-        
+        '''
         process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, toplevel_file_path, api.entity_type.VoxelTerrain, toplevel_layer_entity_base_name, project_output_version, color=True)
         process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, level1_file_path, api.entity_type.VoxelTerrain, level1_layer_entity_base_name, project_output_version, color=True)
         process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, bedrock_file_path, api.entity_type.VoxelTerrain, bedrock_layer_entity_base_name, project_output_version, color=True)
@@ -2863,7 +2864,7 @@ def tree_instances_generation(config_path):
         process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, lakes_level1_file_path, api.entity_type.VoxelTerrain, lakes_level1_layer_entity_base_name, project_output_version, color=True)
         process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, ocean_top_file_path, api.entity_type.VoxelTerrain, ocean_top_layer_entity_base_name, project_output_version, color=True)
         process_point_cloud(api, txt2las_exe_path, Project_id, Workflow_Output_Result_Folder_id, ocean_bottom_file_path, api.entity_type.VoxelTerrain, ocean_bottom_layer_entity_base_name, project_output_version, color=True)
-        
+        '''
     tree_instance_output_folder_name = 'instanceoutput'
     tree_instance_level0_output_folder_name = 'instanceoutput_level0'
     tree_instance_level1_output_folder_name = 'instanceoutput_level1'
@@ -3239,8 +3240,8 @@ print('dungeons_generated_input_version_property: ' + dungeons_generated_input_v
 tree_program_generated_input_version_property = f'D:\\Downloads\\XCTreeWorkFlow\\TreeProgramGeneratedInput'
 print('tree_program_generated_input_version_property: ' + tree_program_generated_input_version_property)
 
-need_update_road_generated_input_version_property = False
-need_update_smooth_layer_generated_input_version_property = False
+need_update_road_generated_input_version_property = True
+need_update_smooth_layer_generated_input_version_property = True
 need_update_basemeshes_generated_input_version_property = False
 need_update_caves_generated_input_version_property = False
 need_update_dungeons_generated_input_version_property = False
@@ -3287,6 +3288,7 @@ road_input_generation = False
 whole_result_generation = False
 test_tree_generation = False
 test_whole_result_generation = False
+basemeshes_only_generation = False
 basemeshes_upload_generation = False
 
 test_only_pois_generation = False
@@ -3312,20 +3314,21 @@ only_load_Road = False
 keep_old_tree_files = False
 is_enhanced = False
 
-
-#smooth_layer_generation_without_road = True
+#only_upload_smooth_layer_generation = True
+smooth_layer_generation_without_road = True
+#test_only_pois_generation = True
 #road_only_pois_generation = True
 #test_only_tree_generation = True
 #test_only_dungeon_poi_generation = True
-#test_only_pois_generation = True
 
-#only_run_level_0_instances = True
+only_run_level_0_instances = True
 #only_run_level_1_instances = True
 
 #keep_old_tree_files = True
 
 #caves_voxelization_generation = True
-smooth_layer_generation = True
+#smooth_layer_generation = True
+#basemeshes_generation = True
 
 if only_road_generation:
     print("Choose only_road_generat ion to Run")
@@ -3453,6 +3456,22 @@ if test_whole_result_generation:
     is_run_make_tree_instances = True
     is_run_upload_tree_instances = True
     is_run_create_geochem_entity = True
+    is_run_generate_road_input = False
+    
+if basemeshes_only_generation:
+    print("Choose basemeshes_only_generation to Run")
+    Game_Tree_Entity_id = Instances_Game_Entity_id  #game entity 
+    Workflow_Output_Result_Folder_id = '68396F90F7CE48B4BA1412EA020ED92A'  #Pangea Next > Workflow Output > Workflow BaseMeshes Output
+    is_run_road_exe = False
+    is_run_worldgen_road = False
+    is_run_upload_smooth_layer = False
+    is_run_make_basemeshes = True
+    is_run_upload_basemeshes = False
+    is_run_make_caves = False
+    is_run_upload_caves = False
+    is_run_make_tree_instances = False
+    is_run_upload_tree_instances = False
+    is_run_create_geochem_entity = False
     is_run_generate_road_input = False
     
 if basemeshes_upload_generation:
@@ -3638,7 +3657,7 @@ if smooth_layer_generation_reload_road:
     only_load_Road = True
     
 if caves_voxelization_generation:
-    print("Choose only_upload_smooth_layer_generation to Run")
+    print("Choose caves_voxelization_generation to Run")
     Game_Tree_Entity_id = Instances_Game_Entity_id  #game entity 
     Workflow_Output_Result_Folder_id = '68396F90F7CE48B4BA1412EA020ED92A'  #Pangea Next > Workflow Output > Workflow BaseMeshes Output
     is_run_road_exe = False
@@ -3654,7 +3673,7 @@ if caves_voxelization_generation:
     is_run_generate_road_input = False
     
 if caves_upload_generation:
-    print("Choose only_upload_smooth_layer_generation to Run")
+    print("Choose caves_upload_generation to Run")
     Game_Tree_Entity_id = Instances_Game_Entity_id  #game entity 
     Workflow_Output_Result_Folder_id = '68396F90F7CE48B4BA1412EA020ED92A'  #Pangea Next > Workflow Output > Workflow BaseMeshes Output
     is_run_road_exe = False
@@ -3734,7 +3753,7 @@ if not os.path.exists(Tools_folder):
     os.makedirs(Tools_folder)
     
 road_input_folder = f'{Data_folder}'
-road_exe_name = f'NPCTest2.exe'
+road_exe_name = f'NPCTest3.exe'
 road_exe_path = os.path.join(Tools_folder, road_exe_name)
 
 basemeshes_origin_exe_name = f'BaseMeshVoxelizerOrigin.exe'
