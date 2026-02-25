@@ -793,12 +793,14 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	{
 		for (int y = 0; y < height; y++)
 		{
+			short mesh0Value = mesh0HeightMapShort4096[x][y];
 			short pcValue = pcHeightMapShort4096[x][y];
 			short mesh1Value = mesh1HeightMapShort4096[x][y];
 			short l1SmoothValue = l1SmoothHeightMapShort4096[x][y];
 			short bedrockValue = bedrockHeightMapShort4096[x][y];
 			short level1Value = std::max(mesh1Value, l1SmoothValue);
 
+			bool hasMesh0Value = mesh0HeightMasksShort4096[x][y] ? true : false;
 			bool hasPCValue = pcHeightMasksShort4096[x][y] ? true : false;
 			bool hasl1SmoothValue = l1SmoothHeightMasksShort4096[x][y] ? true : false;
 			bool hasBedRockValue = bedrockHeightMasksShort4096[x][y] ? true : false;
@@ -998,6 +1000,8 @@ bool CPlantsSimulation::LoadInputHeightMap()
 			bool hasSmoothValue = (hasPcValue || hasl1SmoothValue || hasBedRockValue);
 			bool hasBaseMeshValue = hasMeshValue;
 
+			short roadtopValue = hasPcValue ? pcValue : (hasMesh0Value ? mesh0Value : 0);
+			bool hasroadtopValue = hasPcValue || hasMesh0Value;
 
 			bool hasHeight = false;
 
@@ -1177,7 +1181,8 @@ bool CPlantsSimulation::LoadInputHeightMap()
 			}
 			heightMapShort4096[x][y] = value;
 
-			heightMapRoadDataShort4096[x][y] = value > 0 ? value : 0;
+			//heightMapRoadDataShort4096[x][y] = value > 0 ? value : 0;
+			heightMapRoadDataShort4096[x][y] = roadtopValue;
 
 			if (heightMasksShort4096[x][y] > 0)
 			{
