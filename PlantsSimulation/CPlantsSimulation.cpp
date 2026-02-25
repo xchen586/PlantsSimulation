@@ -1181,8 +1181,12 @@ bool CPlantsSimulation::LoadInputHeightMap()
 			}
 			heightMapShort4096[x][y] = value;
 
-			//heightMapRoadDataShort4096[x][y] = value > 0 ? value : 0;
+#if USE_ONLY_TOPLAYER_FOR_ROAD_DATA
 			heightMapRoadDataShort4096[x][y] = roadtopValue;
+#else
+			heightMapRoadDataShort4096[x][y] = value > 0 ? value : 0;
+#endif
+			
 
 			if (heightMasksShort4096[x][y] > 0)
 			{

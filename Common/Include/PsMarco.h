@@ -59,6 +59,10 @@
 #define USE_OUTPUT_HIGH_ROAD_DATA 0
 #endif
 
+#ifndef USE_ONLY_TOPLAYER_FOR_ROAD_DATA
+#define USE_ONLY_TOPLAYER_FOR_ROAD_DATA 1
+#endif
+
 #ifndef PI
 #define PI       3.14159265358979323846   // pi
 #endif // !PI
