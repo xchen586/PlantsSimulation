@@ -3258,7 +3258,7 @@ if not os.path.exists(Tools_folder):
     os.makedirs(Tools_folder)
     
 road_input_folder = f'{Data_folder}'
-road_exe_name = f'NPCTest2.exe'
+road_exe_name = f'NPCTest3.exe'
 road_exe_path = os.path.join(Tools_folder, road_exe_name)
 
 basemeshes_origin_exe_name = f'BaseMeshVoxelizerOrigin.exe'
