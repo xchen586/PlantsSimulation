@@ -1000,8 +1000,14 @@ bool CPlantsSimulation::LoadInputHeightMap()
 			bool hasSmoothValue = (hasPcValue || hasl1SmoothValue || hasBedRockValue);
 			bool hasBaseMeshValue = hasMeshValue;
 
-			short roadtopValue = hasPcValue ? pcValue : (hasMesh0Value ? mesh0Value : 0);
-			bool hasroadtopValue = hasPcValue || hasMesh0Value;
+			//short roadtopValue = hasPcValue ? pcValue : (hasMesh0Value ? mesh0Value : 0);
+			//bool hasroadtopValue = hasPcValue || hasMesh0Value;
+
+			short roadtopValue = hasPcValue ? std::max(pcValue, mesh0Value) : (hasMesh0Value ? mesh0Value : 0);
+			bool hasroadtopValue = hasPcValue ? hasPcValue : (hasMesh0Value ? hasMesh0Value : 0);
+
+			//short roadtopValue = hasPcValue ? std::max(pcValue, mesh0Value) : 0;
+			//bool hasroadtopValue = hasPcValue ? hasPcValue : 0;
 
 			bool hasHeight = false;
 
@@ -1484,7 +1490,7 @@ bool CPlantsSimulation::ExportShortHeightMap(std::vector<std::vector<short>>& he
 	std::ofstream outputFile(outputPath);
 	if (!outputFile.is_open()) {
 		std::cerr << "Error: Unable to open export short height map file " << outputPath << std::endl;
-		return false;
+		return false;		 
 	}
 
 	// Write header row
