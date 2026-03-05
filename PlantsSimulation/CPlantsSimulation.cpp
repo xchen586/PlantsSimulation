@@ -1000,14 +1000,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 			bool hasSmoothValue = (hasPcValue || hasl1SmoothValue || hasBedRockValue);
 			bool hasBaseMeshValue = hasMeshValue;
 
-			//short roadtopValue = hasPcValue ? pcValue : (hasMesh0Value ? mesh0Value : 0);
-			//bool hasroadtopValue = hasPcValue || hasMesh0Value;
-
-			short roadtopValue = hasPcValue ? std::max(pcValue, mesh0Value) : (hasMesh0Value ? mesh0Value : 0);
-			bool hasroadtopValue = hasPcValue ? hasPcValue : (hasMesh0Value ? hasMesh0Value : 0);
-
-			//short roadtopValue = hasPcValue ? std::max(pcValue, mesh0Value) : 0;
-			//bool hasroadtopValue = hasPcValue ? hasPcValue : 0;
+			
 
 			bool hasHeight = false;
 
@@ -1016,6 +1009,18 @@ bool CPlantsSimulation::LoadInputHeightMap()
 			short baseMeshValue = UNAVAILBLE_NEG_HEIGHT;
 
 			short heightMaskValue = HEIGHTMAP_MASK_NO_DATA;
+
+			//short roadtopValue = hasPcValue ? pcValue : (hasMesh0Value ? mesh0Value : 0);
+			//bool hasroadtopValue = hasPcValue || hasMesh0Value;
+
+			//short roadtopValue = hasPcValue ? std::max(pcValue, mesh0Value) : (hasMesh0Value ? mesh0Value : 0);
+			//bool hasroadtopValue = hasPcValue ? hasPcValue : (hasMesh0Value ? hasMesh0Value : 0);
+
+			//short roadtopValue = hasPcValue ? std::max(pcValue, mesh0Value) : 0;
+			//bool hasroadtopValue = hasPcValue && hasCoverValue && (!hasLakes0Value) ? 1 : 0;
+
+			short roadtopValue = 0;
+			bool hasroadtopValue = false;
 
 			if (m_isLevel1Instances) {
 				bool level1Validate = false;
@@ -1041,15 +1046,29 @@ bool CPlantsSimulation::LoadInputHeightMap()
 
 					if (hasPcValue && hasl1SmoothValue && hasBedRockValue) {
 						smoothValue = (bedrockValue > pcValue) ? l1SmoothValue : pcValue;
+						if ((pcValue > l1SmoothValue) && (pcValue > bedrockValue)) {
+							roadtopValue = pcValue;
+							hasroadtopValue = true;
+						}
 					}
 					else if (hasPcValue && hasl1SmoothValue) {
 						smoothValue = pcValue;
+						if (pcValue > l1SmoothValue) {
+							roadtopValue = pcValue;
+							hasroadtopValue = true;
+						}
 					}
 					else if (hasPcValue && hasBedRockValue) {
 						smoothValue = pcValue;
+						if (pcValue > bedrockValue) {
+							roadtopValue = pcValue;
+							hasroadtopValue = true;
+						}
 					}
 					else if (hasPcValue) {
 						smoothValue = pcValue;
+						roadtopValue = pcValue;
+						hasroadtopValue = true;
 					}
 					else if (hasl1SmoothValue) {
 						smoothValue = l1SmoothValue;
@@ -1057,7 +1076,6 @@ bool CPlantsSimulation::LoadInputHeightMap()
 					else if (hasBedRockValue) {
 						smoothValue = bedrockValue;
 					}
-
 
 					if (hasBaseMeshValue) {
 						baseMeshValue = meshValue;
@@ -1071,6 +1089,13 @@ bool CPlantsSimulation::LoadInputHeightMap()
 					}
 					else if (hasSmoothValue) {
 						value = smoothValue;
+					}
+
+					if (hasPcValue && hasMeshValue) {
+						if (pcValue > meshValue) {
+							roadtopValue = pcValue;
+							hasroadtopValue = true;
+						}
 					}
 				}
 
@@ -1181,11 +1206,13 @@ bool CPlantsSimulation::LoadInputHeightMap()
 			}*/
 
 			heightMasksShort4096[x][y] = heightMaskValue;
-			if (needHeightPositive && (value < 0) && (value != UNAVAILBLE_NEG_HEIGHT))
+			if (!needHeightPositive && (value < 0) && (value != UNAVAILBLE_NEG_HEIGHT))
 			{
 				value = 0;
 			}
 			heightMapShort4096[x][y] = value;
+
+			roadtopValue = hasroadtopValue ? roadtopValue : 0;	
 
 #if USE_ONLY_TOPLAYER_FOR_ROAD_DATA
 			heightMapRoadDataShort4096[x][y] = roadtopValue;
@@ -1223,6 +1250,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 
 	//std::vector<std::vector<short>> slopeShort4096 = ComputeAbsMaxHeightSlopeMap(heightMapShort4096);
 	std::vector<std::vector<short>> slopeShort4096 = ComputeSlopeMap(heightMapShort4096);
+	std::vector<std::vector<short>> slopeRoadShort4096 = ComputeSlopeMap(heightMapRoadDataShort4096);
 	std::vector<std::vector<double>> heightMapDouble4096 = ConvertShortMatrixToDouble1(heightMapShort4096);
 	std::vector<std::vector<unsigned short>> heightMapUShort4096 = ConvertShortMatrixToUShort(heightMapShort4096);
 
@@ -1437,7 +1465,11 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	ExportShortHeightMapWithMask(heightmapIIRBlurShort4096, heightMasksShort4096, short_iir_blur_height_map_export, 0x00FF0000, false, true);
 #endif
 	ExportDoubleHeightMap(heightMapDouble4096, double_height_map_exportout, 0x00FFFF00, false);
+#if USE_ONLY_TOPLAYER_FOR_ROAD_DATA
+	ExportShortHeightSlopeMap(slopeRoadShort4096, height_slope_map_exportout, 0x0000FF00, false);
+#else
 	ExportShortHeightSlopeMap(slopeShort4096, height_slope_map_exportout, 0x0000FF00, false);
+#endif
 	ExportAngleSlopeMap(slopeDouble4096, angle_slope_map_exportout, 0x00FF0000, false);
 #endif
 	bool outputHeightMapLow = Output2DVectorToRawFile(heightMapExportLowRawUShort, ushort_height_map_low_raw);
