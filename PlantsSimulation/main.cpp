@@ -126,6 +126,7 @@ int iniAbsolutePathMain(int argc, const char* argv[])
     const char* bedrock_heightmap_raw_name = GetIniValue(iniParser, Input_Section, "BedrokLayer_heightMap");
     const char* lakes_heightmap_masks_name = GetIniValue(iniParser, Input_Section, "Lakes_HeightMap_Mask");
     const char* level1_lakes_heightmap_masks_name = GetIniValue(iniParser, Input_Section, "Level1_Lakes_HeightMap_Mask");
+	const char* ocean_heightmap_masks_name = GetIniValue(iniParser, Input_Section, "Ocean_HeightMap_Mask");
     const char* mesh_heightmap_masks_name = GetIniValue(iniParser, Input_Section, "BaseMeshes_Level_0_HeightMap_Mask");
     const char* mesh2_heightmap_masks_name = GetIniValue(iniParser, Input_Section, "BaseMeshes_Level_1_HeightMap_Mask");
     const char* pc_heightmap_masks_name = GetIniValue(iniParser, Input_Section, "TopLayer_HeightMap_Mask");
@@ -320,6 +321,7 @@ int iniAbsolutePathMain(int argc, const char* argv[])
     std::cout << "Point cloud bedrock height map file name is : " << (bedrock_heightmap_raw_name ? bedrock_heightmap_raw_name : "") << std::endl;
     std::cout << "Lakes height map mask file name is : " << (lakes_heightmap_masks_name ? lakes_heightmap_masks_name : "") << std::endl;
     std::cout << "Lakes level 1 height map mask file name is : " << (level1_lakes_heightmap_masks_name ? level1_lakes_heightmap_masks_name : "") << std::endl;
+	std::cout << "Ocean height map mask file name is : " << (ocean_heightmap_masks_name ? ocean_heightmap_masks_name : "") << std::endl;
     std::cout << "Mesh 0 height map mask file name is : " << (mesh_heightmap_masks_name ? mesh_heightmap_masks_name : "") << std::endl;
     std::cout << "Mesh 1 height map mask file name is : " << (mesh2_heightmap_masks_name ? mesh2_heightmap_masks_name : "") << std::endl;
     std::cout << "Point cloud top level height mask map file name is : " << (pc_heightmap_masks_name ? pc_heightmap_masks_name : "") << std::endl;
@@ -411,8 +413,8 @@ int iniAbsolutePathMain(int argc, const char* argv[])
     }
 
     CPlantsSimulation ps(output_final_path, tree_list_csv_name, level1_tree_list_csv_name, input_image_name, input_meta_name, mesh_heightmap_raw_name, mesh2_heightmap_raw_name, pc_heightmap_raw_name, l1_heightmap_raw_name, bedrock_heightmap_raw_name
-		, mesh_heightmap_masks_name, mesh2_heightmap_masks_name, pc_heightmap_masks_name, l1_heightmap_masks_name, bedrock_heightmap_masks_name, lakes_heightmap_masks_name, level1_lakes_heightmap_masks_name
-        , point_most_travelled_name, point_most_distant_name, point_level1_POI_name, point_centroid_name, caves_point_cloud_level_0_name, caves_point_cloud_level_1_name, dungeons_poi_csv_level_0_name, dungeons_poi_csv_level_1_name, regions_raw_name, regions_info_name
+		, mesh_heightmap_masks_name, mesh2_heightmap_masks_name, pc_heightmap_masks_name, l1_heightmap_masks_name, bedrock_heightmap_masks_name, lakes_heightmap_masks_name, level1_lakes_heightmap_masks_name, ocean_heightmap_masks_name,
+        point_most_travelled_name, point_most_distant_name, point_level1_POI_name, point_centroid_name, caves_point_cloud_level_0_name, caves_point_cloud_level_1_name, dungeons_poi_csv_level_0_name, dungeons_poi_csv_level_1_name, regions_raw_name, regions_info_name
         , output_file_level0, fullOutput_file_level0, pcFullOutput_file_level0, output_file_level1, fullOutput_file_level1, pcFullOutput_file_level1
 		, lod, forestAge, iteration, gridDelta, initialDensity, seedDensity, competitionFactor, growthFactor, thinningThreshold
         , tiles, tileX, tileY, tileScale, roadHeightMapScaleWidth, roadHeightMapScaleHeight);
@@ -464,6 +466,7 @@ mainEnd:
     if (bedrock_heightmap_raw_name) delete bedrock_heightmap_raw_name;
 	if (lakes_heightmap_masks_name) delete lakes_heightmap_masks_name;
     if (level1_lakes_heightmap_masks_name) delete level1_lakes_heightmap_masks_name;
+	if (ocean_heightmap_masks_name) delete ocean_heightmap_masks_name;
     if (mesh_heightmap_masks_name) delete mesh_heightmap_masks_name;
     if (mesh2_heightmap_masks_name) delete mesh2_heightmap_masks_name;
     if (pc_heightmap_masks_name) delete pc_heightmap_masks_name;

@@ -19,7 +19,7 @@ class CPlantsSimulation
 {
 public:
 	CPlantsSimulation(const string& outputDir, const string& inputTreeList, const string& inputLevel1TreeList, const string& inputImageFile, const string& inputImageMataFile, const string& mesh_HeightMapFile, const string& mesh2_HeightMapFile, const string& pc_HeightMapFile, const string& l1_HeightMapFile, const string& bedrock_HeightMapFile,
-		const string& mesh_HeightMasksFile, const string& mesh2_HeightMasksFile, const string& pc_HeightMasksFile, const string& l1_HeightMasksFile, const string& bedrock_HeightMaskFile, const string& lakes_HeightMasksFile, const string& level1Lakes_HeightMasksFile, const string& mostTravelledPointFile, const string& mostDistantPointFile, const string& level1PoiPointFile, const string& centroidPointFile,
+		const string& mesh_HeightMasksFile, const string& mesh2_HeightMasksFile, const string& pc_HeightMasksFile, const string& l1_HeightMasksFile, const string& bedrock_HeightMaskFile, const string& lakes_HeightMasksFile, const string& level1Lakes_HeightMasksFile, const string& ocean_HeightMasksFile, const string& mostTravelledPointFile, const string& mostDistantPointFile, const string& level1PoiPointFile, const string& centroidPointFile,
 		const string& cavesPointCloudLevel0File, const string& cavesPointCloudLevel1File, const string& dungeonsPOILevel0File, const string& dungeonsPOILevel1File,
 		const string& regionsRawFile, const string& regionsInfoFile, const string& outputFile_level0, const string& fullOutputFile_level0, const string& pcFullOutputFile_level0, const string& outputFile_level1, const string& fullOutputFile_level1, const string& pcFullOutputFile_level1, int32_t lod, 
 		float forestAge, int iteration, int gridDelta, double initialDensity, double seedDensity, double competitionFactor, double growthFactor, double thinningThreshold,
@@ -36,6 +36,7 @@ public:
 		, m_bedrockHeightMapFile(bedrock_HeightMapFile)
 		, m_lakesHeightMasksFile(lakes_HeightMasksFile)
 		, m_level1LakesHeightMasksFile(level1Lakes_HeightMasksFile)
+		, m_oceanHeightMasksFile(ocean_HeightMasksFile)
 		, m_meshHeightMasksFile(mesh_HeightMasksFile)
 		, m_mesh2HeightMasksFile(mesh2_HeightMasksFile)
 		, m_pcHeightMasksFile(pc_HeightMasksFile)
@@ -97,6 +98,7 @@ private:
 	string m_bedrockHeightMapFile;
 	string m_lakesHeightMasksFile;
 	string m_level1LakesHeightMasksFile;
+	string m_oceanHeightMasksFile;
 	string m_meshHeightMasksFile;
 	string m_mesh2HeightMasksFile;
 	string m_pcHeightMasksFile;

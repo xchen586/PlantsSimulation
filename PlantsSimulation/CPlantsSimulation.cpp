@@ -638,40 +638,9 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	std::vector<std::vector<short>> lakes0HeightMasksShort4096 = Read2DShortArray(m_lakesHeightMasksFile, width, height);
 	std::vector<std::vector<short>> lakes1HeightMasksShort4096 = Read2DShortArray(m_level1LakesHeightMasksFile, width, height);
 	std::vector<std::vector<short>> lakesHeightMasksShort4096 = Read2DShortArray(lakesHeightMasksFile, width, height);
+	std::vector<std::vector<short>> oceanHeightMasksShort4096 = Read2DShortArray(m_oceanHeightMasksFile, width, height);
 
 	std::vector<std::vector<short>> heightMasksShort4096(width, std::vector<short>(height));
-	/*for (int x = 0; x < width; x++)
-	{
-		for (int y = 0; y < height; y++)
-		{
-			short mesh0Value = mesh0HeightMasksShort4096[x][y];
-			short mesh1Value = mesh1HeightMasksShort4096[x][y];
-			short meshValue = meshHeightMasksShort4096[x][y];
-			short pcValue = pcHeightMasksShort4096[x][y];
-			short l1SmoothValue = l1SmoothHeightMasksShort4096[x][y];
-			short bedrockValue = bedrockHeightMasksShort4096[x][y];
-			
-			short value = 0;
-
-			if (m_isLevel1Instances)
-			{
-				value = FindMaxIn3(mesh1Value, l1SmoothValue, bedrockValue);
-			}
-			else
-			{
-				value = FindMaxIn5(mesh0Value, mesh1Value,l1SmoothValue, pcValue, bedrockValue);
-			}
-
-			heightMasksShort4096[x][y] = value;
-			if (needMaskPositive)
-			{
-				if (value < 0)
-				{
-					heightMasksShort4096[x][y] = 0;
-				}
-			}
-		}
-	}*/
 
 #if USE_DISPLAY_HEIGHTMAP_MASK_RESULT
 	unsigned int noHeightCountMesh0 = 0;
@@ -759,19 +728,6 @@ bool CPlantsSimulation::LoadInputHeightMap()
 		}
 	}
 	std::cout << "Point cloud bedrock height map mask no data count is : " << noHeightCountBedrock << std::endl;
-
-	/*unsigned int noHeightCountFinal = 0;
-	for (int x = 0; x < width; x++)
-	{
-		for (int y = 0; y < height; y++)
-		{
-			if (heightMasksShort4096[x][y] == 0)
-			{
-				noHeightCountFinal++;
-			}
-		}
-	}
-	std::cout << "Final height map mask no data count is : " << noHeightCountFinal << std::endl;*/
 #endif
 	
 	const string meshHeightMapFile = m_isLevel1Instances ? m_mesh2HeightMapFile : m_meshHeightMapFile;
@@ -985,6 +941,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 			bool hasLakes0Value = lakes0HeightMasksShort4096[x][y] ? true : false;
 			bool hasLakes1Value = lakes1HeightMasksShort4096[x][y] ? true : false;
 			bool hasLakesValue = lakesHeightMasksShort4096[x][y] ? true : false;
+			bool hasOceanValue = oceanHeightMasksShort4096[x][y] ? true : false;
 
 			bool hasLevel1Value = hasMesh1Value || hasl1SmoothValue;
 			bool hasToplayerValue = hasMeshValue || hasPcValue;
@@ -1024,7 +981,8 @@ bool CPlantsSimulation::LoadInputHeightMap()
 
 			if (m_isLevel1Instances) {
 				bool level1Validate = false;
-				if (!hasLakesValue &&
+				if (!hasOceanValue &&
+					!hasLakesValue &&
 					hasCoverValue && 
 					hasOnlyLevel1Instances
 					) {
@@ -1040,7 +998,8 @@ bool CPlantsSimulation::LoadInputHeightMap()
 				}
 			}
 			else {
-				if (!hasLakesValue
+				if (!hasOceanValue
+					&& !hasLakesValue
 					//&& !hasOnlyLevel1Instances
 					) {
 
@@ -1052,21 +1011,24 @@ bool CPlantsSimulation::LoadInputHeightMap()
 						}
 					}
 					else if (hasPcValue && hasl1SmoothValue) {
-						smoothValue = pcValue;
+						smoothValue = std::max(pcValue, l1SmoothValue);
 						if (pcValue > l1SmoothValue) {
 							roadtopValue = pcValue;
 							hasroadtopValue = true;
 						}
+
 					}
 					else if (hasPcValue && hasBedRockValue) {
-						smoothValue = pcValue;
 						if (pcValue > bedrockValue) {
+							smoothValue = pcValue;
+
 							roadtopValue = pcValue;
 							hasroadtopValue = true;
 						}
 					}
 					else if (hasPcValue) {
 						smoothValue = pcValue;
+
 						roadtopValue = pcValue;
 						hasroadtopValue = true;
 					}
@@ -1074,7 +1036,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 						smoothValue = l1SmoothValue;
 					}
 					else if (hasBedRockValue) {
-						smoothValue = bedrockValue;
+						//smoothValue = bedrockValue;
 					}
 
 					if (hasBaseMeshValue) {
@@ -1369,6 +1331,10 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	memset(byte_exposure_low_map_export, 0, sizeof(char) * MAX_PATH);
 	memset(byte_exposure_mask_low_map_export, 0, sizeof(char) * MAX_PATH);
 
+
+	if (!m_isLevel1Instances) 
+	{
+	
 #if __APPLE__
 #if USE_OUTPUT_HEIGHT_MAP_CSV
 	snprintf(mesh_heightmap_raw_export, MAX_PATH, "%s/%d_%d_%d_mesh_heightmap_raw_export.csv", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
@@ -1476,7 +1442,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 
 #if USE_OUTPUT_HIGH_ROAD_DATA
 	bool outputHeightMapHigh = Output2DVectorToRawFile(heightMapExportHighRawUShort, ushort_height_map_high_raw);
-#endif
+#endif								
 
 #if USE_EXPORT_EXPOSURE_MAP
 	char exposure_mask_map_raw_export[MAX_PATH];
@@ -1508,6 +1474,8 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	bool outputBedrockHeightMapLow = Output2DVectorToRawFile(bedrockHeightMapExportLowRawShort, short_bedrock_heightmap_export_low_raw);
 	bool outputExposureByteLowMap = Output2DVectorToRawFile(exposure_byte_low_map, byte_exposure_low_map_export);
 	bool outputExposureMaskByteLowMap = Output2DVectorToRawFile(exposure_mask_byte_low_map, byte_exposure_mask_low_map_export);
+	
+	}
 
 	return true;
 }
@@ -1911,27 +1879,34 @@ bool CPlantsSimulation::OutputLakeRawData()
 	memset(top_lake_map_raw_path, 0, sizeof(char) * MAX_PATH);
 	char level1_lake_map_raw_path[MAX_PATH];
 	memset(level1_lake_map_raw_path, 0, sizeof(char) * MAX_PATH);
+	char ocean_map_raw_path[MAX_PATH];
+	memset(ocean_map_raw_path, 0, sizeof(char) * MAX_PATH);
 #if __APPLE__
 	snprintf(lake_map_raw_path, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_byte_lake_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
 	snprintf(top_lake_map_raw_path, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_byte_top_lake_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
 	snprintf(level1_lake_map_raw_path, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_byte_level1_lake_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
+	snprintf(ocean_map_raw_path, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_byte_ocean_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
 #else
 	sprintf_s(lake_map_raw_path, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_byte_lake_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
 	sprintf_s(top_lake_map_raw_path, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_byte_top_lake_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
 	sprintf_s(level1_lake_map_raw_path, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_byte_level1_lake_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
+	sprintf_s(ocean_map_raw_path, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_byte_ocean_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
 #endif
 	std::cout << "lake map raw file is " << lake_map_raw_path << std::endl;
 	std::cout << "top lake map raw file is " << top_lake_map_raw_path << std::endl;
 	std::cout << "level1 lake map raw file is " << level1_lake_map_raw_path << std::endl;
+	std::cout << "ocean map raw file is " << ocean_map_raw_path << std::endl;
 
 	std::vector<std::vector<short>> lakes0HeightMasksShort4096 = Read2DShortArray(m_lakesHeightMasksFile, width, height);
 	std::vector<std::vector<short>> lakes1HeightMasksShort4096 = Read2DShortArray(m_level1LakesHeightMasksFile, width, height);
+	std::vector<std::vector<short>> oceanHeightMasksShort4096 = Read2DShortArray(m_oceanHeightMasksFile, width, height);
 	
 	const int outputWidth = m_roadInputHeightMapWidth * m_tileScale;
 	const int outputHeight = m_roadInputHeightMapHeight * m_tileScale;
 	std::vector<std::vector<unsigned char>> lakes0HeightMapByteInvert = resample2DShortMaskToByte(lakes0HeightMasksShort4096, outputWidth, outputHeight);
 	std::vector<std::vector<unsigned char>> lakes1HeightMapByteInvert = resample2DShortMaskToByte(lakes1HeightMasksShort4096, outputWidth, outputHeight);
 	std::vector<std::vector<unsigned char>> lakesHeightMapByteInvert(outputWidth, std::vector<unsigned char>(outputHeight, 0));
+	std::vector<std::vector<unsigned char>> oceanHeightMapByteInvert = resample2DShortMaskToByte(oceanHeightMasksShort4096, outputWidth, outputHeight);
 
 	for (int i = 0; i < outputHeight; i++)
 	{
@@ -1944,10 +1919,12 @@ bool CPlantsSimulation::OutputLakeRawData()
 	std::vector<std::vector<unsigned char>> lakes0HeightMapByte = invert2DArray(lakes0HeightMapByteInvert);
 	std::vector<std::vector<unsigned char>> lakes1HeightMapByte = invert2DArray(lakes1HeightMapByteInvert);
 	std::vector<std::vector<unsigned char>> lakesHeightMapByte = invert2DArray(lakesHeightMapByteInvert);
+	std::vector<std::vector<unsigned char>> oceanHeightMapByte = invert2DArray(oceanHeightMapByteInvert);
 
 	bool outputLakes = Output2DVectorToRawFile(lakesHeightMapByte, lake_map_raw_path);
 	bool outputTopLakes = Output2DVectorToRawFile(lakes0HeightMapByte, top_lake_map_raw_path);
 	bool outputLevel1Lakes = Output2DVectorToRawFile(lakes1HeightMapByte, level1_lake_map_raw_path);
+	bool outputOcean = Output2DVectorToRawFile(oceanHeightMapByte, ocean_map_raw_path);
 
 	return  outputLakes && outputTopLakes && outputLevel1Lakes;
 }

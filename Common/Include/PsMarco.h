@@ -60,7 +60,7 @@
 #endif
 
 #ifndef USE_ONLY_TOPLAYER_FOR_ROAD_DATA
-#define USE_ONLY_TOPLAYER_FOR_ROAD_DATA 1
+#define USE_ONLY_TOPLAYER_FOR_ROAD_DATA 0
 #endif
 
 #ifndef PI
