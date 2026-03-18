@@ -912,6 +912,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	std::vector<std::vector<short>> heightMapShort4096(width, std::vector<short>(height));
 
 	std::vector<std::vector<short>> heightMapRoadDataShort4096(width, std::vector<short>(height)); 
+	std::vector<std::vector<short>> heightMapRoadDataMaskShort4096(width, std::vector<short>(height));
 	bool needHeightPositive = false;
 
 	short minHeight = std::numeric_limits<short>::max();
@@ -1050,7 +1051,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 						value = std::max(baseMeshValue, smoothValue);
 
 						roadtopValue = baseMeshValue;
-						hasroadtopValue = false;
+						hasroadtopValue = true;
 					}
 					else if (hasBaseMeshValue) {
 						value = baseMeshValue;
@@ -1184,8 +1185,10 @@ bool CPlantsSimulation::LoadInputHeightMap()
 
 #if USE_ONLY_TOPLAYER_FOR_ROAD_DATA
 			heightMapRoadDataShort4096[x][y] = roadtopValue;
+			heightMapRoadDataMaskShort4096[x][y] = hasroadtopValue ? HEIGHTMAP_MASK_HAS_DATA : HEIGHTMAP_MASK_NO_DATA;
 #else
 			heightMapRoadDataShort4096[x][y] = value > 0 ? value : 0;
+			heightMapRoadDataMaskShort4096[x][y] = (value > 0) ? HEIGHTMAP_MASK_HAS_DATA : HEIGHTMAP_MASK_NO_DATA;
 #endif
 			
 
@@ -1231,9 +1234,13 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	int exportHeightMapLowRawY = m_roadInputHeightMapHeight * m_tileScale;
 	//std::vector<std::vector<short>> heightMapExportLowRawShort = ScaleArray(heightMapAdjust3Short4096, exportHeightMapLowRawX, exportHeightMapLowRawY);
 	//std::vector<std::vector<short>> heightMapExportLowRawShort = resample2DArrayByFunc(heightMapRoadDataShort4096, exportHeightMapLowRawX, exportHeightMapLowRawY, findAverageInBlock<short>);
-	std::vector<std::vector<short>> heightMapExportLowRawShort = resample2DShortWithAverage(heightMapRoadDataShort4096, exportHeightMapLowRawX, exportHeightMapLowRawY);
+	std::vector<std::vector<short>> heightMapExportLowRawShort = resample2DShortWithAverageWithMinFallback(heightMapRoadDataShort4096, exportHeightMapLowRawX, exportHeightMapLowRawY);
 	std::vector<std::vector<unsigned short>> heightMapExportLowRawUShortInvert = ConvertShortMatrixToUShort(heightMapExportLowRawShort);
 	std::vector<std::vector<unsigned short>> heightMapExportLowRawUShort = invert2DArray(heightMapExportLowRawUShortInvert);
+
+	std::vector<std::vector<short>> insideCellSlopeMapExportLowRawShort = ComputeSlopeMapForHeightDifferenceInsideEachCell(heightMapRoadDataShort4096, exportHeightMapLowRawX, exportHeightMapLowRawX);
+	std::vector<std::vector<unsigned short>> insideCellSlopeMapExportLowRawUShortInvert = ConvertShortMatrixToUShort(insideCellSlopeMapExportLowRawShort);
+	std::vector<std::vector<unsigned short>> insideCellSlopeMapExportLowRawUShort = invert2DArray(insideCellSlopeMapExportLowRawUShortInvert);
 
 	std::vector<std::vector<short>> l1HeightMapExportLowRawShortInvert = resample2DShortWithAverage(l1SmoothHeightMapShort4096, exportHeightMapLowRawX, exportHeightMapLowRawY);
 	std::vector<std::vector<short>> l1HeightMapExportLowRawShort = invert2DArray(l1HeightMapExportLowRawShortInvert);
@@ -1255,6 +1262,10 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	std::vector<std::vector<short>> heightMapExportHighRawShort = resample2DShortWithAverageWithMinFallback(heightMapRoadDataShort4096, exportHeightMapHighRawX, exportHeightMapHighRawY);
 	std::vector<std::vector<unsigned short>> heightMapExportHighRawUShortInvert = ConvertShortMatrixToUShort(heightMapExportHighRawShort);
 	std::vector<std::vector<unsigned short>> heightMapExportHighRawUShort = invert2DArray(heightMapExportHighRawUShortInvert);
+
+	std::vector<std::vector<short>> insideCellSlopeMapExportHighRawShort = ComputeSlopeMapForHeightDifferenceInsideEachCell(heightMapRoadDataShort4096, exportHeightMapHighRawX, exportHeightMapHighRawY);
+	std::vector<std::vector<unsigned short>> insideCellSlopeMapExportHighRawUShortInvert = ConvertShortMatrixToUShort(insideCellSlopeMapExportHighRawShort);
+	std::vector<std::vector<unsigned short>> insideCellSlopeMapExportHighRawUShort = invert2DArray(insideCellSlopeMapExportHighRawUShortInvert);
 
 	double ratio = 7.32673;
 #if USE_MAX_SLOPE_ANGLE
@@ -1311,6 +1322,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	char height_slope_map_exportout[MAX_PATH];
 	char angle_slope_map_exportout[MAX_PATH];
 	char ushort_height_map_low_raw[MAX_PATH];
+	char ushort_slope_map_inside_cell_low_raw[MAX_PATH];
 
 	char ushort_height_map_high_raw[MAX_PATH];
 
@@ -1331,6 +1343,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	memset(height_slope_map_exportout, 0, sizeof(char) * MAX_PATH);
 	memset(angle_slope_map_exportout, 0, sizeof(char) * MAX_PATH);
 	memset(ushort_height_map_low_raw, 0, sizeof(char) * MAX_PATH);
+	memset(ushort_slope_map_inside_cell_low_raw, 0, sizeof(char) * MAX_PATH);
 	memset(ushort_height_map_high_raw, 0, sizeof(char) * MAX_PATH);
 
 	memset(short_l1_heightmap_export_low_raw, 0, sizeof(char) * MAX_PATH);
@@ -1393,11 +1406,16 @@ bool CPlantsSimulation::LoadInputHeightMap()
 
 #if __APPLE__
 	snprintf(ushort_height_map_low_raw, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_ushort_height_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
+	snprintf(ushort_slope_map_inside_cell_low_raw, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_ushort_slope_map_inside_cell_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
+
+	
 #if USE_OUTPUT_HIGH_ROAD_DATA
 	snprintf(ushort_height_map_high_raw, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_ushort_height_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth * exportHeightMapHighRatio, m_roadInputHeightMapHeight * exportHeightMapHighRatio);
 #endif
 #else
 	sprintf_s(ushort_height_map_low_raw, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_ushort_height_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
+	sprintf_s(ushort_slope_map_inside_cell_low_raw, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_ushort_slope_map_inside_cell_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
+
 #if USE_OUTPUT_HIGH_ROAD_DATA
 	sprintf_s(ushort_height_map_high_raw, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_ushort_height_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth * exportHeightMapHighRatio, m_roadInputHeightMapHeight * exportHeightMapHighRatio);
 #endif
@@ -1446,6 +1464,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	ExportAngleSlopeMap(slopeDouble4096, angle_slope_map_exportout, 0x00FF0000, false);
 #endif
 	bool outputHeightMapLow = Output2DVectorToRawFile(heightMapExportLowRawUShort, ushort_height_map_low_raw);
+	bool outputSlopeMapInsideCellLow = Output2DVectorToRawFile(insideCellSlopeMapExportLowRawUShort, ushort_slope_map_inside_cell_low_raw);
 
 #if USE_OUTPUT_HIGH_ROAD_DATA
 	bool outputHeightMapHigh = Output2DVectorToRawFile(heightMapExportHighRawUShort, ushort_height_map_high_raw);

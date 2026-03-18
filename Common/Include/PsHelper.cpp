@@ -528,6 +528,130 @@ std::vector<std::vector<unsigned short>> ConvertShortMatrixToUShort(const std::v
     return ushortMatrix;
 }
 
+// Default slope value used when a downsampled cell contains no valid height data.
+constexpr short kDefaultSlopeWhenNoValidPixel = 1000;
+
+std::vector<std::vector<short>> ComputeSlopeMapForHeightDifferenceInsideEachCell(
+    const std::vector<std::vector<short>>& original,
+    int new_rows,
+    int new_cols)
+{
+    if (original.empty() || new_rows <= 0 || new_cols <= 0) {
+        return {};
+    }
+
+    const int original_rows = static_cast<int>(original.size());
+    const int original_cols = static_cast<int>(original[0].size());
+
+    // Verify that 'original' is a rectangular matrix.
+    for (const auto& row : original) {
+        if (static_cast<int>(row.size()) != original_cols) {
+            return {};
+        }
+    }
+
+    std::vector<std::vector<short>> slope_map(new_rows, std::vector<short>(new_cols));
+
+    for (int i = 0; i < new_rows; ++i) {
+        const int r0 = (i * original_rows) / new_rows;
+        const int r1 = ((i + 1) * original_rows) / new_rows;
+
+        for (int j = 0; j < new_cols; ++j) {
+            const int c0 = (j * original_cols) / new_cols;
+            const int c1 = ((j + 1) * original_cols) / new_cols;
+
+            short minHeight = std::numeric_limits<short>::max();
+            short maxHeight = std::numeric_limits<short>::min();
+            bool hasData = false;
+
+            for (int r = r0; r < r1; ++r) {
+                for (int c = c0; c < c1; ++c) {
+                    const short h = original[r][c];
+                    if (h < minHeight) minHeight = h;
+                    if (h > maxHeight) maxHeight = h;
+                    hasData = true;
+                }
+            }
+
+            if (hasData) {
+                slope_map[i][j] = maxHeight - minHeight;
+            }
+            else {
+                slope_map[i][j] = kDefaultSlopeWhenNoValidPixel;
+            }
+        }
+    }
+
+    return slope_map;
+}
+
+std::vector<std::vector<short>> ComputeSlopeMapForHeightDifferenceInsideEachCell(
+    const std::vector<std::vector<short>>& original,
+    const std::vector<std::vector<short>>& mask,
+    int new_rows,
+    int new_cols)
+{
+    if (original.empty() || new_rows <= 0 || new_cols <= 0) {
+        return {};
+    }
+
+    const int original_rows = static_cast<int>(original.size());
+    const int original_cols = static_cast<int>(original[0].size());
+
+    // Verify that 'original' is a rectangular matrix.
+    for (const auto& row : original) {
+        if (static_cast<int>(row.size()) != original_cols) {
+            return {};
+        }
+    }
+
+    // Check that 'mask' has the same dimensions as 'original'.
+    if (static_cast<int>(mask.size()) != original_rows) {
+        return {};
+    }
+    for (int r = 0; r < original_rows; ++r) {
+        if (static_cast<int>(mask[r].size()) != original_cols) {
+            return {};
+        }
+    }
+
+    std::vector<std::vector<short>> slope_map(new_rows, std::vector<short>(new_cols));
+
+    for (int i = 0; i < new_rows; ++i) {
+        const int r0 = (i * original_rows) / new_rows;
+        const int r1 = ((i + 1) * original_rows) / new_rows;
+
+        for (int j = 0; j < new_cols; ++j) {
+            const int c0 = (j * original_cols) / new_cols;
+            const int c1 = ((j + 1) * original_cols) / new_cols;
+
+            short minHeight = std::numeric_limits<short>::max();
+            short maxHeight = std::numeric_limits<short>::min();
+            bool hasValidPixel = false;
+
+            for (int r = r0; r < r1; ++r) {
+                for (int c = c0; c < c1; ++c) {
+                    if (mask[r][c] > 0) {
+                        const short h = original[r][c];
+                        if (h < minHeight) minHeight = h;
+                        if (h > maxHeight) maxHeight = h;
+                        hasValidPixel = true;
+                    }
+                }
+            }
+
+            if (hasValidPixel) {
+                slope_map[i][j] = maxHeight - minHeight;
+            }
+            else {
+                slope_map[i][j] = kDefaultSlopeWhenNoValidPixel;
+            }
+        }
+    }
+
+    return slope_map;
+}
+
 std::vector<std::vector<short>> ComputeSlopeMap(const std::vector<std::vector<short>>& heightmap)
 {
     int width = heightmap.size();

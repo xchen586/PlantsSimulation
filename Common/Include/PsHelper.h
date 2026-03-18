@@ -169,6 +169,15 @@ double GetValueFromNormalized(double normalized, double min, double max);
 double GetValueFromInvertedNormalized(double invertedNormalized, double min, double max);
 
 
+std::vector<std::vector<short>> ComputeSlopeMapForHeightDifferenceInsideEachCell(
+	const std::vector<std::vector<short>>& original,
+	int new_rows,
+	int new_cols);
+std::vector<std::vector<short>> ComputeSlopeMapForHeightDifferenceInsideEachCell(
+	const std::vector<std::vector<short>>& original,
+	const std::vector<std::vector<short>>& mask,
+	int new_rows,
+	int new_cols);
 
 std::vector<std::vector<short>> ComputeSlopeMap(const std::vector<std::vector<short>>& heightmap);
 std::vector<std::vector<short>> ComputeAbsMaxHeightSlopeMap(const std::vector<std::vector<short>>& heightmap);
