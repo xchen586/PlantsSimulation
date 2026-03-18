@@ -14,6 +14,7 @@
 #include <type_traits>
 #include <limits>
 #include <random>
+#include <climits>
 
 #include <queue>
 #include <mutex>
@@ -225,6 +226,11 @@ std::vector<std::vector<unsigned char>> resample2DShortMaskToByte(const std::vec
 
 std::vector<std::vector<short>> resample2DShortWithAverage(const std::vector<std::vector<short>>& original, int new_rows, int new_cols);
 std::vector<std::vector<unsigned char>> resample2DUCharWithAverage(const std::vector<std::vector<unsigned char>>& original, int new_rows, int new_cols);
+std::vector<std::vector<short>> resample2DShortWithAverageWithMinFallback(
+	const std::vector<std::vector<short>>& original,
+	int new_rows,
+	int new_cols,
+	short height_diff_threshold = 150);
 
 std::string trim(const std::string& str);
 int countColumnsInCSV(const std::string& filePath, char delimiter/* = ','*/);

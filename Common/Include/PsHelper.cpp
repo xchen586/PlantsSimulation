@@ -1030,6 +1030,105 @@ std::vector<std::vector<short>> resample2DShortWithAverage(const std::vector<std
     return resampled;
 }
 
+/**
+ * Resamples a high-resolution 2D heightmap (stored as short integers) to a lower resolution.
+ * For each output cell:
+ *   - If the height difference (max - min) in the corresponding source region exceeds
+ *     `height_diff_threshold`, the output height is set to the minimum height in that region.
+ *   - Otherwise, the output height is the average of all heights in the region.
+ *
+ * This function preserves sharp low features (e.g., trenches or valleys) when terrain variation
+ * is large, while using averaging for smoother areas.
+ *
+ * @param original                Input heightmap as a 2D vector of shorts.
+ * @param new_rows                Desired number of rows in the output.
+ * @param new_cols                Desired number of columns in the output.
+ * @param height_diff_threshold   Threshold for height variation (must be >= 0).
+ *                                If (maxH - minH) > threshold, use minH; else use average.
+ * @return                        Resampled heightmap with dimensions [new_rows x new_cols].
+ */
+std::vector<std::vector<short>> resample2DShortWithAverageWithMinFallback(
+    const std::vector<std::vector<short>>& original,
+    int new_rows,
+    int new_cols,
+    short height_diff_threshold) {
+
+    // Validate input grid dimensions
+    int original_rows = static_cast<int>(original.size());
+    if (original_rows == 0) {
+        throw std::invalid_argument("Original grid has no rows");
+    }
+    int original_cols = static_cast<int>(original[0].size());
+    if (original_cols == 0) {
+        throw std::invalid_argument("Original grid has no columns");
+    }
+
+    // Optional: enforce non-negative threshold (defensive programming)
+    if (height_diff_threshold < 0) {
+        throw std::invalid_argument("height_diff_threshold must be non-negative");
+    }
+
+    // Initialize output grid
+    std::vector<std::vector<short>> resampled(new_rows, std::vector<short>(new_cols, 0));
+
+    // Compute scaling factors (as floating-point to handle non-integer ratios)
+    double row_scale = static_cast<double>(original_rows) / new_rows;
+    double col_scale = static_cast<double>(original_cols) / new_cols;
+
+    // Iterate over each cell in the output grid
+    for (int i = 0; i < new_rows; ++i) {
+        for (int j = 0; j < new_cols; ++j) {
+            long long sum = 0;
+            int count = 0;
+            short minH = SHRT_MAX;
+            short maxH = SHRT_MIN;
+
+            // Determine the corresponding region in the original grid
+            int row_start = static_cast<int>(i * row_scale);
+            int row_end = static_cast<int>((i + 1) * row_scale);
+            int col_start = static_cast<int>(j * col_scale);
+            int col_end = static_cast<int>((j + 1) * col_scale);
+
+            // Clamp to valid bounds
+            row_end = std::min(row_end, original_rows);
+            col_end = std::min(col_end, original_cols);
+
+            // Skip if region is empty (should not occur under normal usage)
+            if (row_start >= row_end || col_start >= col_end) {
+                resampled[i][j] = 0;
+                continue;
+            }
+
+            // Traverse the source region to collect statistics
+            for (int x = row_start; x < row_end; ++x) {
+                for (int y = col_start; y < col_end; ++y) {
+                    short val = original[x][y];
+                    sum += val;
+                    ++count;
+                    if (val < minH) minH = val;
+                    if (val > maxH) maxH = val;
+                }
+            }
+
+            // Assign output value based on height variation
+            if (count == 0) {
+                resampled[i][j] = 0; // fallback (should not happen)
+            }
+            else {
+                short avg = static_cast<short>(sum / count);
+                if (static_cast<int>(maxH) - static_cast<int>(minH) > height_diff_threshold) {
+                    resampled[i][j] = minH;
+                }
+                else {
+                    resampled[i][j] = avg;
+                }
+            }
+        }
+    }
+
+    return resampled;
+}
+
 std::vector<std::vector<unsigned char>> resample2DUCharWithAverage(const std::vector<std::vector<unsigned char>>& original,
     int new_rows, int new_cols) {
 

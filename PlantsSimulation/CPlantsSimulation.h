@@ -130,6 +130,7 @@ private:
 	int m_tileScale;
 	int m_roadInputHeightMapWidth;
 	int m_roadInputHeightMapHeight;
+	int m_exportHighRatio = 2;
 
 	const int m_tilePixelMeterWidth = 30000;
 	const int m_tilePixelMeterHeight = 30000;
@@ -192,7 +193,7 @@ private:
 	bool loadPoisLocationsFromCSV(const string& filePath, std::vector<Point>& poisLocations);
 	bool loadAllSurfacePoisLocationsFromCSV();
 	bool SaveCavesAsRoadMap(std::vector<std::pair<std::vector<Point>, int>>* p2dCaveLevel0Nodes, bool invert/* = false*/);
-	bool SaveCavesAsObj(std::vector<std::pair<std::vector<Point>, int>>* p2dCaveLevel0Nodes);
+	bool SaveCavesAsObj(std::vector<std::pair<std::vector<Point>, int>>* p2dCaveLevel0Nodes, bool highResolution = false);
 	
 public:
 	void setIsLevel1Instances(bool isLevel1Instances) 

@@ -197,9 +197,8 @@ bool CPlantsSimulation::LoadInputImage()
 	bool outputHumidityMapLow = Output2DVectorToRawFile(humidityExportLow, byte_humidity_map_low_raw);
 
 #if USE_OUTPUT_HIGH_ROAD_DATA
-	int exportHighRatio = 2;
-	int exportXHigh = exportXLow * exportHighRatio;
-	int exportYHigh = exportYLow * exportHighRatio;
+	int exportXHigh = exportXLow * m_exportHighRatio;
+	int exportYHigh = exportYLow * m_exportHighRatio;
 	//std::vector<std::vector<byte>> humidityExportHigh = ScaleArray(humidity4K, exportXHigh, exportYHigh);
 	std::vector<std::vector<unsigned char>> humidityExportHighInvert = resample2DUCharWithAverage(humidity4K, exportXHigh, exportYHigh);
 	std::vector<std::vector<unsigned char>> humidityExportHigh = invert2DArray(humidityExportHighInvert);
@@ -207,9 +206,9 @@ bool CPlantsSimulation::LoadInputImage()
 	char byte_humidity_map_high_raw[MAX_PATH];
 	memset(byte_humidity_map_high_raw, 0, sizeof(char) * MAX_PATH);
 #if __APPLE__
-	snprintf(byte_humidity_map_high_raw, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_byte_humidity_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth * exportHighRatio, m_roadInputHeightMapHeight * exportHighRatio);
+	snprintf(byte_humidity_map_high_raw, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_byte_humidity_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth * m_exportHighRatio, m_roadInputHeightMapHeight * exportHighRatio);
 #else
-	sprintf_s(byte_humidity_map_high_raw, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_byte_humidity_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth * exportHighRatio, m_roadInputHeightMapHeight * exportHighRatio);
+	sprintf_s(byte_humidity_map_high_raw, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_byte_humidity_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth * m_exportHighRatio, m_roadInputHeightMapHeight * m_exportHighRatio);
 #endif
 	bool outputHumidityMapHigh = Output2DVectorToRawFile(humidityExportHigh, byte_humidity_map_high_raw);
 #endif
@@ -1050,6 +1049,8 @@ bool CPlantsSimulation::LoadInputHeightMap()
 					if (hasBaseMeshValue && hasSmoothValue) {
 						value = std::max(baseMeshValue, smoothValue);
 
+						roadtopValue = baseMeshValue;
+						hasroadtopValue = false;
 					}
 					else if (hasBaseMeshValue) {
 						value = baseMeshValue;
@@ -1251,7 +1252,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	int exportHeightMapHighRawY = exportHeightMapLowRawY * exportHeightMapHighRatio;
 	//std::vector<std::vector<short>> heightMapExportHighRawShort = ScaleArray(heightMapAdjust3Short4096, exportHeightMapHighRawX, exportHeightMapHighRawY);
 	//std::vector<std::vector<short>> heightMapExportHighRawShort = resample2DArrayByFunc(heightMapRoadDataShort4096, exportHeightMapHighRawX, exportHeightMapHighRawY, findAverageInBlock<short>);
-	std::vector<std::vector<short>> heightMapExportHighRawShort = resample2DShortWithAverage(heightMapRoadDataShort4096, exportHeightMapHighRawX, exportHeightMapHighRawY);
+	std::vector<std::vector<short>> heightMapExportHighRawShort = resample2DShortWithAverageWithMinFallback(heightMapRoadDataShort4096, exportHeightMapHighRawX, exportHeightMapHighRawY);
 	std::vector<std::vector<unsigned short>> heightMapExportHighRawUShortInvert = ConvertShortMatrixToUShort(heightMapExportHighRawShort);
 	std::vector<std::vector<unsigned short>> heightMapExportHighRawUShort = invert2DArray(heightMapExportHighRawUShortInvert);
 
@@ -1310,6 +1311,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	char height_slope_map_exportout[MAX_PATH];
 	char angle_slope_map_exportout[MAX_PATH];
 	char ushort_height_map_low_raw[MAX_PATH];
+
 	char ushort_height_map_high_raw[MAX_PATH];
 
 	char short_l1_heightmap_export_low_raw[MAX_PATH];
@@ -2092,7 +2094,7 @@ std::vector<std::pair<std::vector<Point>, int>>* CPlantsSimulation::LoadCaveNode
 	return pRet;
 }
 
-bool CPlantsSimulation::SaveCavesAsObj(std::vector<std::pair<std::vector<Point>, int>>* p2dCaveLevel0Nodes)
+bool CPlantsSimulation::SaveCavesAsObj(std::vector<std::pair<std::vector<Point>, int>>* p2dCaveLevel0Nodes, bool highResolution)
 {
 	if (!p2dCaveLevel0Nodes)
 	{
