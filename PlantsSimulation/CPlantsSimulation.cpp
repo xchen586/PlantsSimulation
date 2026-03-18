@@ -1034,6 +1034,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 					}
 					else if (hasl1SmoothValue) {
 						smoothValue = l1SmoothValue;
+
 					}
 					else if (hasBedRockValue) {
 						//smoothValue = bedrockValue;
@@ -1041,10 +1042,14 @@ bool CPlantsSimulation::LoadInputHeightMap()
 
 					if (hasBaseMeshValue) {
 						baseMeshValue = meshValue;
+
+						roadtopValue = 0;
+						hasroadtopValue = false;
 					}
 
 					if (hasBaseMeshValue && hasSmoothValue) {
 						value = std::max(baseMeshValue, smoothValue);
+
 					}
 					else if (hasBaseMeshValue) {
 						value = baseMeshValue;
