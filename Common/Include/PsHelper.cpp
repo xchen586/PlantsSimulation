@@ -529,7 +529,7 @@ std::vector<std::vector<unsigned short>> ConvertShortMatrixToUShort(const std::v
 }
 
 // Default slope value used when a downsampled cell contains no valid height data.
-constexpr short kDefaultSlopeWhenNoValidPixel = 1000;
+constexpr short kDefaultSlopeWhenNoValidPixel = 0;
 
 std::vector<std::vector<short>> ComputeSlopeMapForHeightDifferenceInsideEachCell(
     const std::vector<std::vector<short>>& original,
@@ -574,7 +574,7 @@ std::vector<std::vector<short>> ComputeSlopeMapForHeightDifferenceInsideEachCell
             }
 
             if (hasData) {
-                slope_map[i][j] = maxHeight - minHeight;
+                slope_map[i][j] = std::abs(maxHeight - minHeight);
             }
             else {
                 slope_map[i][j] = kDefaultSlopeWhenNoValidPixel;

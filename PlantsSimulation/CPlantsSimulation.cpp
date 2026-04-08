@@ -1050,18 +1050,29 @@ bool CPlantsSimulation::LoadInputHeightMap()
 					if (hasBaseMeshValue && hasSmoothValue) {
 						value = std::max(baseMeshValue, smoothValue);
 
-						roadtopValue = baseMeshValue;
-						hasroadtopValue = true;
+						//roadtopValue = baseMeshValue;
+						//roadtopValue = value;
+						//hasroadtopValue = true;
 					}
 					else if (hasBaseMeshValue) {
 						value = baseMeshValue;
+
+						roadtopValue = baseMeshValue;
+						hasroadtopValue = true;
 					}
 					else if (hasSmoothValue) {
 						value = smoothValue;
 					}
 
 					if (hasPcValue && hasMeshValue) {
-						if (pcValue > meshValue) {
+						//roadtopValue = std::max(pcValue, meshValue);
+						//hasroadtopValue = true;
+						if (meshValue > pcValue) {
+							roadtopValue = 0;
+							hasroadtopValue = false;
+						}
+						else
+						{
 							roadtopValue = pcValue;
 							hasroadtopValue = true;
 						}
