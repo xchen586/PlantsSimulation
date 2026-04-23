@@ -699,6 +699,130 @@ std::vector<std::vector<short>> ComputeSlopeMap(const std::vector<std::vector<sh
 
 }
 
+std::vector<std::vector<short>> ComputeSlopeMapEx(const std::vector<std::vector<short>>& heightmap)
+{
+    int width = heightmap.size();
+    int height = heightmap[0].size();
+
+    short minSlopeHeight = numeric_limits<short>::max();
+    short maxSlopeHeight = numeric_limits<short>::min();
+
+    std::vector<std::vector<short>> slopeMap(width, std::vector<short>(height, 0));
+
+    int dx[] = { -1, -1, -1, 0, 1, 1, 1, 0 };
+    int dy[] = { -1, 0, 1, 1, 1, 0, -1, -1 };
+
+    for (int x = 0; x < width; x++)
+    {
+        for (int y = 0; y < height; y++)
+        {
+            short maxHeightDifference = numeric_limits<short>::min();
+            for (int i = 0; i < 8; i++)
+            {
+                int newX = x + dx[i];
+                int newY = y + dy[i];
+
+                if (newX >= 0 && newX < width && newY >= 0 && newY < height)
+                {
+                    short heightDifference = static_cast<short>(std::abs(heightmap[x][y] - heightmap[newX][newY]));
+                    if (heightDifference != 0) {
+                        //std::cout << "heightDifference is : " << heightDifference << ", old is : " << heightmap[x][y] << ", new is : " << heightmap[newX][newY] << std::endl;
+                    }
+                    if (heightDifference > maxHeightDifference)
+                    {
+                        maxHeightDifference = static_cast<unsigned short>(heightDifference);;
+                    }
+                }
+            }
+            short value = std::min(maxHeightDifference, static_cast<short>(SHRT_MAX));
+            //short value = maxHeightDifference;
+            slopeMap[x][y] = value;
+            minSlopeHeight = std::min(minSlopeHeight, value);
+            maxSlopeHeight = std::max(maxSlopeHeight, value);
+        }
+    }
+    std::cout << "ComputeSlopeMap minSlopeHeight is : " << minSlopeHeight << ", maxSlopeHeight is : " << maxSlopeHeight << std::endl;
+    return slopeMap;
+
+}
+
+#include <vector>
+#include <algorithm>
+#include <cmath>
+#include <limits>
+
+std::vector<std::vector<short>> ComputeSlopeMapForHeightDifferenceInNeigbourCell(
+    const std::vector<std::vector<short>>& originalHeightmap,
+    int new_rows,
+    int new_cols)
+{
+    // Validate input
+    if (originalHeightmap.empty() || originalHeightmap[0].empty() ||
+        new_rows <= 0 || new_cols <= 0) {
+        return {};
+    }
+
+    const int origH = static_cast<int>(originalHeightmap.size());      // number of rows
+    const int origW = static_cast<int>(originalHeightmap[0].size());   // number of columns
+
+    // Initialize output slope map
+    std::vector<std::vector<short>> result(new_rows, std::vector<short>(new_cols, 0));
+
+    // 8-directional neighbor offsets (Moore neighborhood)
+    const int dx[8] = { -1, -1, -1, 0, 1, 1, 1, 0 };
+    const int dy[8] = { -1, 0, 1, 1, 1, 0, -1, -1 };
+
+    // Iterate over each cell in the output (downscaled) grid
+    for (int i = 0; i < new_rows; ++i) {
+        for (int j = 0; j < new_cols; ++j) {
+            // Map output cell (i, j) to a block in the original heightmap
+            int r0 = static_cast<int>(std::floor(i * static_cast<double>(origH) / new_rows));
+            int r1 = static_cast<int>(std::floor((i + 1) * static_cast<double>(origH) / new_rows));
+            int c0 = static_cast<int>(std::floor(j * static_cast<double>(origW) / new_cols));
+            int c1 = static_cast<int>(std::floor((j + 1) * static_cast<double>(origW) / new_cols));
+
+            // Ensure the block contains at least one pixel
+            r1 = std::max(r1, r0 + 1);
+            c1 = std::max(c1, c0 + 1);
+            r1 = std::min(r1, origH);
+            c1 = std::min(c1, origW);
+
+            short maxSlopeInBlock = 0;
+
+            // Traverse every pixel in the current block
+            for (int r = r0; r < r1; ++r) {
+                for (int c = c0; c < c1; ++c) {
+                    // Compute the maximum height difference between (r,c) and its 8 neighbors
+                    short localMaxDiff = 0;
+                    for (int k = 0; k < 8; ++k) {
+                        int nr = r + dx[k];
+                        int nc = c + dy[k];
+                        // Check neighbor bounds
+                        if (nr >= 0 && nr < origH && nc >= 0 && nc < origW) {
+                            int diff = std::abs(static_cast<int>(originalHeightmap[r][c]) - originalHeightmap[nr][nc]);
+                            // Clamp to short range to avoid overflow
+                            if (diff > std::numeric_limits<short>::max()) {
+                                diff = std::numeric_limits<short>::max();
+                            }
+                            if (static_cast<short>(diff) > localMaxDiff) {
+                                localMaxDiff = static_cast<short>(diff);
+                            }
+                        }
+                    }
+                    // Update the maximum slope found in this block
+                    if (localMaxDiff > maxSlopeInBlock) {
+                        maxSlopeInBlock = localMaxDiff;
+                    }
+                }
+            }
+
+            result[i][j] = maxSlopeInBlock;
+        }
+    }
+
+    return result;
+}
+
 std::vector<std::vector<short>> ComputeAbsMaxHeightSlopeMap(const std::vector<std::vector<short>>& heightmap)
 {
     int width = heightmap.size();

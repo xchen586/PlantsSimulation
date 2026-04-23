@@ -184,6 +184,12 @@ std::vector<std::vector<short>> ComputeAbsMaxHeightSlopeMap(const std::vector<st
 vector<vector<double>> ComputeAbsMaxSlopeAngle(const vector<vector<double>>& heightMap, double dx);
 vector<vector<double>> ComputeAbsAverageNeighborSlopeAngle(const vector<vector<double>>& heightMap, double dx);
 
+std::vector<std::vector<short>> ComputeSlopeMapEx(const std::vector<std::vector<short>>& heightmap);
+std::vector<std::vector<short>> ComputeSlopeMapForHeightDifferenceInNeigbourCell(
+	const std::vector<std::vector<short>>& originalHeightmap,
+	int new_rows,
+	int new_cols);
+
 std::vector<std::vector<PixelRGB>>* ConvertRGBArrayTo2DVector(const unsigned char* rgbData, int width, int height);
 
 std::string GetFileExtension(const std::string& filePath);

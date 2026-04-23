@@ -639,6 +639,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	std::vector<std::vector<short>> lakesHeightMasksShort4096 = Read2DShortArray(lakesHeightMasksFile, width, height);
 	std::vector<std::vector<short>> oceanHeightMasksShort4096 = Read2DShortArray(m_oceanHeightMasksFile, width, height);
 
+	std::vector<std::vector<short>> level1SurfaceHeightMasksShort4096(width, std::vector<short>(height));
 	std::vector<std::vector<short>> heightMasksShort4096(width, std::vector<short>(height));
 
 #if USE_DISPLAY_HEIGHTMAP_MASK_RESULT
@@ -802,89 +803,6 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	std::cout << "Count of No Smooth and bedrock value : " << countNoSmoothBedrock << std::endl;
 	std::cout << "Count of No Smooth and No bedrock value : " << countNoSmoothNoBedrock << std::endl;
 
-#if 0 //First version of exposure map
-	int countLevel1AndNoBedrock = 0;
-	int countBedrockAndNoLevel1 = 0;
-	int countNoLevel1AndNoBedrock = 0;
-	for (int x = 0; x < width; x++)
-	{
-		for (int y = 0; y < height; y++)
-		{
-			short pcValue = pcHeightMapShort4096[x][y];
-			short mesh1Value = mesh1HeightMapShort4096[x][y];
-			short l1SmoothValue = l1SmoothHeightMapShort4096[x][y];
-			short bedrockValue = bedrockHeightMapShort4096[x][y];
-			short level1Value = std::max(mesh1Value, l1SmoothValue);
-
-			bool hasPCValue = pcHeightMasksShort4096[x][y] ? true : false;
-			bool hasl1SmoothValue = l1SmoothHeightMasksShort4096[x][y] ? true : false;
-			bool hasBedRockValue = bedrockHeightMasksShort4096[x][y] ? true : false;
-			bool hasMesh1Value = mesh1HeightMapShort4096[x][y] ? true : false;
-			bool hasLevel1Value = hasMesh1Value || hasl1SmoothValue;
-
-			if (hasLevel1Value && hasBedRockValue) {
-#if USE_INCLUDE_PCVALUE_FOR_EXPOSURE_MAP
-				if (hasPCValue)
-				{
-					if (bedrockValue > pcValue)
-					{
-						exposure_init_map[x][y] = 1.0f; //expose to the sun
-					}
-					else
-					{
-						if (bedrockValue < level1Value) {
-							exposure_init_map[x][y] = 1.0f; //expose to the sun
-						}
-						else {
-							exposure_init_map[x][y] = 0.0f; //not expose to the sun
-						}
-					}
-				}
-				else
-				{
-					if (bedrockValue < level1Value) {
-						exposure_init_map[x][y] = 1.0f; //expose to the sun
-					}
-					else {
-						exposure_init_map[x][y] = 0.0f; //not expose to the sun
-					}
-				}
-#else
-				if (bedrockValue < level1Value) {
-					exposure_init_map[x][y] = 1.0f; //expose to the sun
-				}
-				else {
-					exposure_init_map[x][y] = 0.0f; //not expose to the sun
-				}
-#endif
-				exposure_mask_map[x][y] = true; //expose to the sun
-			}
-			else if (hasLevel1Value && !hasBedRockValue) {
-				// If there is no bedrock, we assume it is exposed to the sun
-				exposure_init_map[x][y] = 1.0f; //expose to the sun
-				exposure_mask_map[x][y] = true; //expose to the sun
-				countLevel1AndNoBedrock++;
-				std::cout << "-------- Warning: Level 1 value exists but no bedrock at cell (" << x << ", " << y << ") for exposure map. Assuming exposure to the sun." << std::endl;
-			}
-			else if (hasBedRockValue && !hasLevel1Value) {
-				// If there is bedrock but no level 1, we assume it is not exposed to the sun
-				exposure_init_map[x][y] = 0.0f; //not expose to the sun
-				exposure_mask_map[x][y] = false; //not expose to the sun
-				countBedrockAndNoLevel1++;
-				std::cout << "-------- Warning: Level 1 value exists but no level 1 at cell (" << x << ", " << y << ") for exposure map. Assuming exposure to the sun." << std::endl;
-			}
-			else {
-				exposure_init_map[x][y] = 0.0f;
-				exposure_mask_map[x][y] = false; //not expose to the sun
-				countNoLevel1AndNoBedrock++;
-			}
-		}
-	}
-	std::cout << "Count of Level 1 and no bedrock: " << countLevel1AndNoBedrock << std::endl;
-	std::cout << "Count of Bedrock and no Level 1: " << countBedrockAndNoLevel1 << std::endl;
-	std::cout << "Count of No Level 1 and no bedrock: " << countNoLevel1AndNoBedrock << std::endl;
-#endif
-
 	const double PROPAGATION_FACTOR = 1.0; // This factor can be adjusted based on the desired propagation effect
 	const double MIN_THRESHOLD = 0.001; // Minimum value to continue propagation
 	int max_iterations = 5000; // Maximum iterations to prevent infinite loops
@@ -967,6 +885,8 @@ bool CPlantsSimulation::LoadInputHeightMap()
 
 			short heightMaskValue = HEIGHTMAP_MASK_NO_DATA;
 
+			short hasLevelSurfaceValue = 0;
+
 			//short roadtopValue = hasPcValue ? pcValue : (hasMesh0Value ? mesh0Value : 0);
 			//bool hasroadtopValue = hasPcValue || hasMesh0Value;
 
@@ -1005,6 +925,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 
 					if (hasPcValue && hasl1SmoothValue && hasBedRockValue) {
 						smoothValue = (bedrockValue > pcValue) ? l1SmoothValue : pcValue;
+						hasLevelSurfaceValue = (bedrockValue > pcValue) ? 1 : 0;
 						if ((pcValue > l1SmoothValue) && (pcValue > bedrockValue)) {
 							roadtopValue = pcValue;
 							hasroadtopValue = true;
@@ -1085,106 +1006,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 				}
 			}
 
-			/*if (hasSmoothValue) {
-				if (hasPcValue && hasl1Value && hasBedRockValue) {
-					if (bedrockValue > pcValue){
-						smoothValue = l1Value;
-					}
-					else {
-						smoothValue = pcValue;
-					}
-				}
-				else {
-					if (hasPcValue && hasl1SValue) {
-						smoothValue = pcValue;
-					}
-					else if (hasPcValue && bedrockValue) {
-						smoothValue = pcValue;
-					}
-					else if (hasBedRockValue && hasl1Value) {
-						smoothValue = l1Value;
-					}
-					else {
-						if (hasPcValue) {
-							smoothValue = pcValue;
-						}
-						else if (hasl1Value) {
-							smoothValue = l1Value;
-						}
-						else if (hasBedRockValue) {
-							smoothValue = bedrockValue;
-						}
-					}
-				}
-			}
-
-			if (hasBaseMeshValue) {
-				baseMeshValue = meshValue;
-			}
-			
-			if (hasBaseMeshValue && hasSmoothValue) {
-				value = std::max(baseMeshValue, smoothValue);
-			}
-			else if (hasBaseMeshValue) {
-				value = baseMeshValue;
-			}
-			else if (hasSmoothValue) {
-				value = smoothValue;
-			}*/
-			
-			/*if (hasSmoothValue) {
-				if (hasPcValue && hasl1SmoothValue && hasBedRockValue) {
-					smoothValue = (bedrockValue > pcValue) ? l1SmoothValue : pcValue;
-				}
-				else if (hasPcValue && hasl1SmoothValue) {
-					smoothValue = pcValue;
-				}
-				else if (hasPcValue && hasBedRockValue) {
-					smoothValue = pcValue;
-				}
-				else if (hasBedRockValue && hasl1SmoothValue) {
-					smoothValue = l1SmoothValue;
-					if (m_isLevel1Instances) {
-						bool level1Validate = false;
-						if ((bedrockValue > l1SmoothValue)
-							&& ((bedrockValue - l1SmoothValue) > 50)) { //also let's not plant any trees if the height gap between level1 ground and bedrock is smaller than 50m
-							level1Validate = true;
-						}
-						if (level1Validate) {
-							smoothValue = l1SmoothValue;
-						}
-						else {
-							smoothValue = UNAVAILBLE_NEG_HEIGHT;
-							hasSmoothValue = false;
-						}
-					}
-					
-				}
-				else if (hasPcValue) {
-					smoothValue = pcValue;
-				}
-				else if (hasl1SmoothValue) {
-					smoothValue = l1SmoothValue;
-				}
-				else if (hasBedRockValue) {
-					smoothValue = bedrockValue;
-				}
-			}
-
-			if (hasBaseMeshValue) {
-				baseMeshValue = meshValue;
-			}
-
-			if (hasBaseMeshValue && hasSmoothValue) {
-				value = std::max(baseMeshValue, smoothValue);
-			}
-			else if (hasBaseMeshValue) {
-				value = baseMeshValue;
-			}
-			else if (hasSmoothValue) {
-				value = smoothValue;
-			}*/
-
+			level1SurfaceHeightMasksShort4096[x][y] = hasLevelSurfaceValue ? HEIGHTMAP_MASK_HAS_DATA : HEIGHTMAP_MASK_NO_DATA;
 			heightMasksShort4096[x][y] = heightMaskValue;
 			if (!needHeightPositive && (value < 0) && (value != UNAVAILBLE_NEG_HEIGHT))
 			{
@@ -1232,7 +1054,6 @@ bool CPlantsSimulation::LoadInputHeightMap()
 
 	//std::vector<std::vector<short>> slopeShort4096 = ComputeAbsMaxHeightSlopeMap(heightMapShort4096);
 	std::vector<std::vector<short>> slopeShort4096 = ComputeSlopeMap(heightMapShort4096);
-	std::vector<std::vector<short>> slopeRoadShort4096 = ComputeSlopeMap(heightMapRoadDataShort4096);
 	std::vector<std::vector<double>> heightMapDouble4096 = ConvertShortMatrixToDouble1(heightMapShort4096);
 	std::vector<std::vector<unsigned short>> heightMapUShort4096 = ConvertShortMatrixToUShort(heightMapShort4096);
 
@@ -1249,9 +1070,15 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	std::vector<std::vector<unsigned short>> heightMapExportLowRawUShortInvert = ConvertShortMatrixToUShort(heightMapExportLowRawShort);
 	std::vector<std::vector<unsigned short>> heightMapExportLowRawUShort = invert2DArray(heightMapExportLowRawUShortInvert);
 
+	std::vector<std::vector<short>> neigbourCellSlopeRoadShort4096 = ComputeSlopeMapForHeightDifferenceInNeigbourCell(heightMapRoadDataShort4096, exportHeightMapLowRawX, exportHeightMapLowRawX);
+	std::vector<std::vector<unsigned short>> neigbourCellSlopeMapExportLowRawUShortInvert = ConvertShortMatrixToUShort(neigbourCellSlopeRoadShort4096);
+	std::vector<std::vector<unsigned short>> neigbourCellSlopeMapExportLowRawUShort = invert2DArray(neigbourCellSlopeMapExportLowRawUShortInvert);
+
 	std::vector<std::vector<short>> insideCellSlopeMapExportLowRawShort = ComputeSlopeMapForHeightDifferenceInsideEachCell(heightMapRoadDataShort4096, exportHeightMapLowRawX, exportHeightMapLowRawX);
 	std::vector<std::vector<unsigned short>> insideCellSlopeMapExportLowRawUShortInvert = ConvertShortMatrixToUShort(insideCellSlopeMapExportLowRawShort);
 	std::vector<std::vector<unsigned short>> insideCellSlopeMapExportLowRawUShort = invert2DArray(insideCellSlopeMapExportLowRawUShortInvert);
+
+	std::vector<std::vector<short>> slopeMapExportLowRawShort = ComputeSlopeMap(heightMapRoadDataShort4096);
 
 	std::vector<std::vector<short>> l1HeightMapExportLowRawShortInvert = resample2DShortWithAverage(l1SmoothHeightMapShort4096, exportHeightMapLowRawX, exportHeightMapLowRawY);
 	std::vector<std::vector<short>> l1HeightMapExportLowRawShort = invert2DArray(l1HeightMapExportLowRawShortInvert);
@@ -1277,6 +1104,9 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	std::vector<std::vector<short>> insideCellSlopeMapExportHighRawShort = ComputeSlopeMapForHeightDifferenceInsideEachCell(heightMapRoadDataShort4096, exportHeightMapHighRawX, exportHeightMapHighRawY);
 	std::vector<std::vector<unsigned short>> insideCellSlopeMapExportHighRawUShortInvert = ConvertShortMatrixToUShort(insideCellSlopeMapExportHighRawShort);
 	std::vector<std::vector<unsigned short>> insideCellSlopeMapExportHighRawUShort = invert2DArray(insideCellSlopeMapExportHighRawUShortInvert);
+
+	std::vector<std::vector<unsigned char>> level1SurfaceMapExportRawByteInvert = resample2DShortMaskToByte(level1SurfaceHeightMasksShort4096, exportHeightMapLowRawX, exportHeightMapLowRawY);
+	std::vector<std::vector<unsigned char>> level1SurfaceMapExportRawByte = invert2DArray(level1SurfaceMapExportRawByteInvert);
 
 	double ratio = 7.32673;
 #if USE_MAX_SLOPE_ANGLE
@@ -1333,6 +1163,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	char height_slope_map_exportout[MAX_PATH];
 	char angle_slope_map_exportout[MAX_PATH];
 	char ushort_height_map_low_raw[MAX_PATH];
+	char ushort_slope_map_neighbour_cell_low_raw[MAX_PATH];
 	char ushort_slope_map_inside_cell_low_raw[MAX_PATH];
 
 	char ushort_height_map_high_raw[MAX_PATH];
@@ -1354,6 +1185,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	memset(height_slope_map_exportout, 0, sizeof(char) * MAX_PATH);
 	memset(angle_slope_map_exportout, 0, sizeof(char) * MAX_PATH);
 	memset(ushort_height_map_low_raw, 0, sizeof(char) * MAX_PATH);
+	memset(ushort_slope_map_neighbour_cell_low_raw, 0, sizeof(char) * MAX_PATH);
 	memset(ushort_slope_map_inside_cell_low_raw, 0, sizeof(char) * MAX_PATH);
 	memset(ushort_height_map_high_raw, 0, sizeof(char) * MAX_PATH);
 
@@ -1362,6 +1194,12 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	memset(byte_exposure_low_map_export, 0, sizeof(char) * MAX_PATH);
 	memset(byte_exposure_mask_low_map_export, 0, sizeof(char) * MAX_PATH);
 
+
+	const int outputWidth = m_roadInputHeightMapWidth * m_tileScale;
+	const int outputHeight = m_roadInputHeightMapHeight * m_tileScale;
+	
+	char byte_level1_surface_map_raw[MAX_PATH];
+	memset(byte_level1_surface_map_raw, 0, sizeof(char) * MAX_PATH);
 
 	if (!m_isLevel1Instances) 
 	{
@@ -1417,14 +1255,15 @@ bool CPlantsSimulation::LoadInputHeightMap()
 
 #if __APPLE__
 	snprintf(ushort_height_map_low_raw, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_ushort_height_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
+	snprintf(ushort_slope_map_neighbour_cell_low_raw, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_ushort_slope_map_neighbour_cell_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
 	snprintf(ushort_slope_map_inside_cell_low_raw, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_ushort_slope_map_inside_cell_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
-
 	
 #if USE_OUTPUT_HIGH_ROAD_DATA
 	snprintf(ushort_height_map_high_raw, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_ushort_height_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth * exportHeightMapHighRatio, m_roadInputHeightMapHeight * exportHeightMapHighRatio);
 #endif
 #else
 	sprintf_s(ushort_height_map_low_raw, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_ushort_height_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
+	sprintf_s(ushort_slope_map_neighbour_cell_low_raw, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_ushort_slope_map_neighbour_cell_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
 	sprintf_s(ushort_slope_map_inside_cell_low_raw, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_ushort_slope_map_inside_cell_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
 
 #if USE_OUTPUT_HIGH_ROAD_DATA
@@ -1443,6 +1282,14 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	sprintf_s(byte_exposure_low_map_export, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_byte_exposure_low_map_export.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
 	sprintf_s(byte_exposure_mask_low_map_export, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_byte_exposure_mask_low_map_export.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
 #endif
+
+#if __APPLE__
+	snprintf(level1_surface_map_raw_path, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_byte_level1_surface_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
+#else
+	sprintf_s(byte_level1_surface_map_raw, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_byte_level1_surface_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
+#endif
+	//std::cout << "level1 surface map raw file is " << level1_surface_map_raw_path << std::endl;
+
 
 #if USE_EXPORT_HEIGHT_MAP
 	string title = "EXPORT HEIGHT MAP INFO";
@@ -1475,7 +1322,10 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	ExportAngleSlopeMap(slopeDouble4096, angle_slope_map_exportout, 0x00FF0000, false);
 #endif
 	bool outputHeightMapLow = Output2DVectorToRawFile(heightMapExportLowRawUShort, ushort_height_map_low_raw);
+	bool outputSlopeMapNeighbourCellLow = Output2DVectorToRawFile(neigbourCellSlopeMapExportLowRawUShort, ushort_slope_map_neighbour_cell_low_raw);
 	bool outputSlopeMapInsideCellLow = Output2DVectorToRawFile(insideCellSlopeMapExportLowRawUShort, ushort_slope_map_inside_cell_low_raw);
+
+	bool outputLevel1Surface = Output2DVectorToRawFile(level1SurfaceMapExportRawByte, byte_level1_surface_map_raw);
 
 #if USE_OUTPUT_HIGH_ROAD_DATA
 	bool outputHeightMapHigh = Output2DVectorToRawFile(heightMapExportHighRawUShort, ushort_height_map_high_raw);
@@ -1918,6 +1768,7 @@ bool CPlantsSimulation::OutputLakeRawData()
 	memset(level1_lake_map_raw_path, 0, sizeof(char) * MAX_PATH);
 	char ocean_map_raw_path[MAX_PATH];
 	memset(ocean_map_raw_path, 0, sizeof(char) * MAX_PATH);
+
 #if __APPLE__
 	snprintf(lake_map_raw_path, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_byte_lake_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
 	snprintf(top_lake_map_raw_path, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_byte_top_lake_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
@@ -1933,7 +1784,7 @@ bool CPlantsSimulation::OutputLakeRawData()
 	std::cout << "top lake map raw file is " << top_lake_map_raw_path << std::endl;
 	std::cout << "level1 lake map raw file is " << level1_lake_map_raw_path << std::endl;
 	std::cout << "ocean map raw file is " << ocean_map_raw_path << std::endl;
-
+	
 	std::vector<std::vector<short>> lakes0HeightMasksShort4096 = Read2DShortArray(m_lakesHeightMasksFile, width, height);
 	std::vector<std::vector<short>> lakes1HeightMasksShort4096 = Read2DShortArray(m_level1LakesHeightMasksFile, width, height);
 	std::vector<std::vector<short>> oceanHeightMasksShort4096 = Read2DShortArray(m_oceanHeightMasksFile, width, height);
