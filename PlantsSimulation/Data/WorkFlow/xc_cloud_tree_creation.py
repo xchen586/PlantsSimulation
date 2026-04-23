@@ -2142,6 +2142,7 @@ def tree_instances_generation(config_path):
     bedrock_heightmap_mask_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_bedrock.xyz.height.masks.raw'
     lakes_heightmap_make_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_lakes.xyz.height.masks.raw'
     level1_lakes_heightmap_make_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_lakes_level1.xyz.height.masks.raw'
+    ocean_heightmap_make_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_ocean_top.xyz.height.masks.raw'
     
     toplayer_heightmap_path = os.path.join(smoothlayer_output_folder, toplayer_heightmap_name)
     toplayer_heightmap_mask_path = os.path.join(smoothlayer_output_folder, toplayer_heightmap_mask_name)
@@ -2149,8 +2150,9 @@ def tree_instances_generation(config_path):
     level1_heightmap_mask_path = os.path.join(smoothlayer_output_folder, level1_heightmap_mask_name)
     bedrock_heightmap_path = os.path.join(smoothlayer_output_folder, bedrock_heightmap_name)
     bedrock_heightmap_mask_path = os.path.join(smoothlayer_output_folder, bedrock_heightmap_mask_name)
-    lakes_heightmap_make_path = os.path.join(smoothlayer_output_folder, lakes_heightmap_make_name)
-    level1_lakes_heightmap_make_path = os.path.join(smoothlayer_output_folder, level1_lakes_heightmap_make_name) 
+    lakes_heightmap_mask_path = os.path.join(smoothlayer_output_folder, lakes_heightmap_make_name)
+    level1_lakes_heightmap_mask_path = os.path.join(smoothlayer_output_folder, level1_lakes_heightmap_make_name) 
+    ocean_heightmap_mask_path = os.path.join(smoothlayer_output_folder, ocean_heightmap_make_name)
     
     toplayer_image_jpg_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.jpg'
     toplayer_image_png_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.png'
@@ -2425,7 +2427,7 @@ def tree_instances_generation(config_path):
                     if result.success:
                         lambda_host.log(f'end to create Lambda_Smooth_Layer_Generated_Input entity : {project_output_version}_src')
                         smooth_layer_generated_input_entity_id = result.id
-                        smooth_layer_generated_input_file_list = [toplayer_image_png_path, toplayer_image_png_meta_path, toplayer_heightmap_path, toplayer_heightmap_mask_path, level1_heightmap_path, level1_heightmap_mask_path, bedrock_heightmap_path, bedrock_heightmap_mask_path, lakes_heightmap_make_path, level1_lakes_heightmap_make_path]
+                        smooth_layer_generated_input_file_list = [toplayer_image_png_path, toplayer_image_png_meta_path, toplayer_heightmap_path, toplayer_heightmap_mask_path, level1_heightmap_path, level1_heightmap_mask_path, bedrock_heightmap_path, bedrock_heightmap_mask_path, lakes_heightmap_mask_path, level1_lakes_heightmap_mask_path, ocean_heightmap_mask_path]
                         lambda_host.log(f'update_attach_file_list_for_entity for entity : {smooth_layer_generated_input_entity_id} with files)')
                         update_attach_file_list_for_entity(api, project_id, smooth_layer_generated_input_entity_id, smooth_layer_generated_input_file_list)
                         lambda_host.set_property('smooth_layer_generated_input_entity_id', smooth_layer_generated_input_entity_id)
@@ -2592,8 +2594,9 @@ def tree_instances_generation(config_path):
         create_or_update_ini_file(tree_ini_path, section_input, 'TopLayer_HeightMap_Mask', toplayer_heightmap_mask_path)
         create_or_update_ini_file(tree_ini_path, section_input, 'Level1Layer_heightMap_Mask', level1_heightmap_mask_path)
         create_or_update_ini_file(tree_ini_path, section_input, 'Bedrock_heightMap_Mask', bedrock_heightmap_mask_path)
-        create_or_update_ini_file(tree_ini_path, section_input, 'Lakes_HeightMap_Mask', lakes_heightmap_make_path)
-        create_or_update_ini_file(tree_ini_path, section_input, 'Level1_Lakes_HeightMap_Mask', level1_lakes_heightmap_make_path)
+        create_or_update_ini_file(tree_ini_path, section_input, 'Lakes_HeightMap_Mask', lakes_heightmap_mask_path)
+        create_or_update_ini_file(tree_ini_path, section_input, 'Level1_Lakes_HeightMap_Mask', level1_lakes_heightmap_mask_path)
+        create_or_update_ini_file(tree_ini_path, section_input, 'Ocean_HeightMap_Mask', ocean_heightmap_mask_path)
         create_or_update_ini_file(tree_ini_path, section_input, 'Most_Travelled_Points', most_travelled_points_path)
         create_or_update_ini_file(tree_ini_path, section_input, 'Most_Distant_Points', most_distant_points_path)
         create_or_update_ini_file(tree_ini_path, section_input, 'Level1_POI_Points', level1_poi_points_path)

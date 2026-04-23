@@ -16,9 +16,20 @@ height = 600
 vmin = 0    # 你可以根据数据实际情况修
 vmax = 200  # 你可以根据数据实际情况修改
 
+g_useIncellSlope = True
+g_useNeighbourCellSlope = False
+
 filename = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_slopes.raw'
+if g_useIncellSlope:
+    filename = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\12_4_2_2_300_300_ushort_slope_map_inside_cell_raw.raw'
+if g_useNeighbourCellSlope:
+    filename = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\12_4_2_2_300_300_ushort_slope_map_neighbour_cell_raw.raw'
 
 dtype = np.int32  # or np.float32, np.int16, etc.
+if g_useIncellSlope:
+    dtype = np.uint16
+if g_useNeighbourCellSlope:
+    dtype = np.uint16
 
 # === 步骤 1: 读取原始 2D 数据 ===
 data = np.fromfile(filename, dtype=dtype)
@@ -32,10 +43,19 @@ array_2d = data.reshape((height, width))  # (rows, cols)
 output_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\sommothlayer_output\\12_4_2\\12_4_2_slopes_new.png'
 output_original_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\sommothlayer_output\\12_4_2\\12_4_2_slopes_new_red.png'
 
+if g_useIncellSlope:
+    output_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\sommothlayer_output\\12_4_2\\12_4_2_slopes_inside_cell_new.png'
+    output_original_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\sommothlayer_output\\12_4_2\\12_4_2_slopes_inside_cell_new_red.png'  
+    
+if g_useNeighbourCellSlope:
+    output_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\sommothlayer_output\\12_4_2\\12_4_2_slopes_neighbour_cell_new.png'
+    output_original_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\sommothlayer_output\\12_4_2\\12_4_2_slopes_neighbour_cell_new_red.png'
 
 # === 步骤 2: 归一化到 [0, 255] 作为红色通道 ===
 min_val = array_2d.min()
 max_val = array_2d.max()
+
+print(f"Data range: min={min_val}, max={max_val}")
 
 normalized = ((array_2d - min_val) / (max_val - min_val) * 255).astype(np.uint8)
 

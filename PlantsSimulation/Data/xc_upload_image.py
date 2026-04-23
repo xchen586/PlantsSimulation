@@ -92,6 +92,7 @@ folder_id = 'B24E708E13C5473FA3BFDBCBA0E68B42' #Pangea Next > Workflow Output > 
 project_entity = api.get_entity(project_id)
 version = int(project_entity['version']) + 1 if 'version' in project_entity else 1
 api.update_entity(project=project_id, id=project_id, fields={'version': version})
+
 '''
 version = 3
     
@@ -107,11 +108,67 @@ image_file_path = f'D:\\Downloads\\raster\\mockraster.png'
 image_meta_path = f'D:\\Downloads\\raster\\mockraster.pgw'
 process_file_image(api, project_id, folder_id, image_file_path, image_meta_path, f'Voxel_Space_Mock_Raster_Image', version)
 '''
+
+
 #process_file_image(api, project_id, folder_id, image_file_path, image_meta_path, f'Slope_blur_600_600_{tiles}_{x}_{y}_vmin_{min}_vmax_{max}')
+
+image_file_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\{tiles}_{x}_{y}_exposure_map_new_red.png'
+image_meta_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\{tiles}_{x}_{y}_exposure_map_new_red.pgw'
+image_entity_name = f'Exposure_map_600_600_{tiles}_{x}_{y}'
+process_file_image(api, project_id, folder_id, image_file_path, image_meta_path, image_entity_name, version)
+
+image_file_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\{tiles}_{x}_{y}_roads_map_new_red.png'
+image_meta_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\{tiles}_{x}_{y}_roads_map_new_red.pgw'
+image_entity_name = f'Roads_map_600_600_{tiles}_{x}_{y}'
+process_file_image(api, project_id, folder_id, image_file_path, image_meta_path, image_entity_name, version)
+
+image_file_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\{tiles}_{x}_{y}_roads_mask_new_red.png'
+image_meta_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\{tiles}_{x}_{y}_roads_mask_new_red.pgw'
+image_entity_name = f'Roads_mask_600_600_{tiles}_{x}_{y}'
+process_file_image(api, project_id, folder_id, image_file_path, image_meta_path, image_entity_name, version)
+
+image_file_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\{tiles}_{x}_{y}_ocean_map_new_red.png'
+image_meta_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\{tiles}_{x}_{y}_ocean_map_new_red.pgw'
+image_entity_name = f'Ocean_map_600_600_{tiles}_{x}_{y}'
+process_file_image(api, project_id, folder_id, image_file_path, image_meta_path, image_entity_name, version)
+
+image_file_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\{tiles}_{x}_{y}_height_map_new_red.png'
+image_meta_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\{tiles}_{x}_{y}_height_map_new_red.pgw'
+image_entity_name = f'Height_map_600_600_{tiles}_{x}_{y}'
+process_file_image(api, project_id, folder_id, image_file_path, image_meta_path, image_entity_name, version)
+
 image_file_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\{tiles}_{x}_{y}_regions_visualized.png'
 image_meta_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\{tiles}_{x}_{y}_regions_visualized.pgw'
-process_file_image(api, project_id, folder_id, image_file_path, image_meta_path, f'Regions_visualized_600_600_{tiles}_{x}_{y}', version)
-'''
+image_entity_name = f'Regions_visualized_600_600_{tiles}_{x}_{y}'
+process_file_image(api, project_id, folder_id, image_file_path, image_meta_path, image_entity_name, version)
+
+image_file_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_slopes_new_red.png'
+image_meta_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_slopes_new_red.pgw'
+image_entity_name = f'Slopes_600_600_{tiles}_{x}_{y}'
+process_file_image(api, project_id, folder_id, image_file_path, image_meta_path, image_entity_name, version)
+
+image_file_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_slopes_neighbour_cell_new_red.png'
+image_meta_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_slopes_neighbour_cell_new_red.pgw'
+image_entity_name = f'NeighbourCell_slopes_600_600_{tiles}_{x}_{y}'
+process_file_image(api, project_id, folder_id, image_file_path, image_meta_path, image_entity_name, version)
+
+image_file_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_slopes_inside_cell_new_red.png'
+image_meta_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_slopes_inside_cell_new_red.pgw'
+image_entity_name = f'Incell_slopes_600_600_{tiles}_{x}_{y}'
+process_file_image(api, project_id, folder_id, image_file_path, image_meta_path, image_entity_name, version)
+
+image_file_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_level1_surface_map_new_red.png'
+image_meta_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_level1_surface_map_new_red.pgw'
+image_entity_name = f'Level1_surface_map_600_600_{tiles}_{x}_{y}'
+process_file_image(api, project_id, folder_id, image_file_path, image_meta_path, image_entity_name, version)
+
+image_file_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\sommothlayer_output\\{tiles}_{x}_{y}\\{tiles}_{x}_{y}_world_road_distance.png'
+image_meta_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\sommothlayer_output\\{tiles}_{x}_{y}\\{tiles}_{x}_{y}_world_road_distance.pgw'
+image_entity_name = f'World_road_distance_600_600_{tiles}_{x}_{y}'
+process_file_image(api, project_id, folder_id, image_file_path, image_meta_path, image_entity_name, version)
+
+
+''' 
 Exposure_map_red_image_file_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\{tiles}_{x}_{y}\\{tiles}_{x}_{y}_exposure_map_red.png'
 Exposure_map_red_image_meta_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\tree_output\\{tiles}_{x}_{y}\\{tiles}_{x}_{y}_exposure_map_red.pgw'
 process_file_image(api, project_id, folder_id, Exposure_map_red_image_file_path, Exposure_map_red_image_meta_path, f'{tiles}_{x}_{y}_exposure_map_red', version)

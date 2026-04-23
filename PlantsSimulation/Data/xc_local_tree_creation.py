@@ -2307,6 +2307,7 @@ def tree_instances_generation(config_path):
     bedrock_heightmap_mask_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_bedrock.xyz.height.masks.raw'
     lakes_heightmap_make_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_lakes.xyz.height.masks.raw'
     level1_lakes_heightmap_make_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_lakes_level1.xyz.height.masks.raw'
+    ocean_heightmap_make_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_ocean_top.xyz.height.masks.raw'
     
     toplayer_heightmap_path = os.path.join(smoothlayer_output_folder, toplayer_heightmap_name)
     toplayer_heightmap_mask_path = os.path.join(smoothlayer_output_folder, toplayer_heightmap_mask_name)
@@ -2314,8 +2315,9 @@ def tree_instances_generation(config_path):
     level1_heightmap_mask_path = os.path.join(smoothlayer_output_folder, level1_heightmap_mask_name)
     bedrock_heightmap_path = os.path.join(smoothlayer_output_folder, bedrock_heightmap_name)
     bedrock_heightmap_mask_path = os.path.join(smoothlayer_output_folder, bedrock_heightmap_mask_name)
-    lakes_heightmap_make_path = os.path.join(smoothlayer_output_folder, lakes_heightmap_make_name)
-    level1_lakes_heightmap_make_path = os.path.join(smoothlayer_output_folder, level1_lakes_heightmap_make_name)        
+    lakes_heightmap_mask_path = os.path.join(smoothlayer_output_folder, lakes_heightmap_make_name)
+    level1_lakes_heightmap_mask_path = os.path.join(smoothlayer_output_folder, level1_lakes_heightmap_make_name)
+    ocean_heightmap_mask_path = os.path.join(smoothlayer_output_folder, ocean_heightmap_make_name)
     
     toplayer_image_jpg_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.jpg'
     toplayer_image_png_name = f'points_{tiles_count}_{tiles_x}_{tiles_y}_toplevel.xyz.png'
@@ -2521,7 +2523,7 @@ def tree_instances_generation(config_path):
             print(f'Start to post process region info csv file : {regions_info_path}')
             post_process_regions_info_csv(regions_info_path, regions_info_path, road_regions_namedb_file_path)
             print(f'End to post process region info csv file : {regions_info_path}')
-            
+            '''
             if need_update_road_generated_input_version_property:
                 
                 shutil.copy2(most_travelled_points_path, road_generated_input_version_property)
@@ -2543,7 +2545,7 @@ def tree_instances_generation(config_path):
                 print(f'Update road generated input version property file : {road_roads_obj_path}')
                 shutil.copy2(road_slope_raw_path, road_generated_input_version_property)
                 print(f'Update road generated input version property file : {road_slope_raw_path}')
-                
+            '''
         else:
             print(f'Error: The process ({road_exe_command}) returned a non-zero exit code ({run_road_exe}).')
             return -1
@@ -2590,10 +2592,12 @@ def tree_instances_generation(config_path):
                 print(f'Update smooth layer generated input version property file : {bedrock_heightmap_path}')
                 shutil.copy2(bedrock_heightmap_mask_path, smooth_layer_generated_input_version_property)
                 print(f'Update smooth layer generated input version property file : {bedrock_heightmap_mask_path}')
-                shutil.copy2(lakes_heightmap_make_path, smooth_layer_generated_input_version_property)
-                print(f'Update smooth layer generated input version property file : {lakes_heightmap_make_path}')
-                shutil.copy2(level1_lakes_heightmap_make_path, smooth_layer_generated_input_version_property)
-                print(f'Update smooth layer generated input version property file : {level1_lakes_heightmap_make_path}')
+                shutil.copy2(lakes_heightmap_mask_path, smooth_layer_generated_input_version_property)
+                print(f'Update smooth layer generated input version property file : {lakes_heightmap_mask_path}')
+                shutil.copy2(level1_lakes_heightmap_mask_path, smooth_layer_generated_input_version_property)
+                print(f'Update smooth layer generated input version property file : {level1_lakes_heightmap_mask_path}')
+                shutil.copy2(ocean_heightmap_mask_path, smooth_layer_generated_input_version_property)
+                print(f'Update smooth layer generated input version property file : {ocean_heightmap_mask_path}')
                 
         else:
             print(f'Error: The process ({worldgen_command}) returned a non-zero exit code ({return_code_worldgen_road}).')
@@ -2718,8 +2722,9 @@ def tree_instances_generation(config_path):
         create_or_update_ini_file(tree_ini_path, section_input, 'TopLayer_HeightMap_Mask', toplayer_heightmap_mask_path)
         create_or_update_ini_file(tree_ini_path, section_input, 'Level1Layer_heightMap_Mask', level1_heightmap_mask_path)
         create_or_update_ini_file(tree_ini_path, section_input, 'Bedrock_heightMap_Mask', bedrock_heightmap_mask_path)
-        create_or_update_ini_file(tree_ini_path, section_input, 'Lakes_HeightMap_Mask', lakes_heightmap_make_path)
-        create_or_update_ini_file(tree_ini_path, section_input, 'Level1_Lakes_HeightMap_Mask', level1_lakes_heightmap_make_path)
+        create_or_update_ini_file(tree_ini_path, section_input, 'Lakes_HeightMap_Mask', lakes_heightmap_mask_path)
+        create_or_update_ini_file(tree_ini_path, section_input, 'Level1_Lakes_HeightMap_Mask', level1_lakes_heightmap_mask_path)
+        create_or_update_ini_file(tree_ini_path, section_input, 'Ocean_HeightMap_Mask', ocean_heightmap_mask_path)
         create_or_update_ini_file(tree_ini_path, section_input, 'Most_Travelled_Points', most_travelled_points_path)
         create_or_update_ini_file(tree_ini_path, section_input, 'Most_Distant_Points', most_distant_points_path)
         create_or_update_ini_file(tree_ini_path, section_input, 'Level1_POI_Points', level1_poi_points_path)
@@ -3202,9 +3207,11 @@ print(f'Growth_Factor: {Growth_Factor}')
 Thinning_Threshold = 1.0
 print(f'Thinning_Threshold: {Thinning_Threshold}')
 
-Road_Input_Scale_Width = 300
+Road_Input_High_Resolution_Scale = 1
+
+Road_Input_Scale_Width = 300 * Road_Input_High_Resolution_Scale
 print(f'Road_Input_Scale_Width: {Road_Input_Scale_Width}')
-Road_Input_Scale_Height = 300
+Road_Input_Scale_Height = 300 * Road_Input_High_Resolution_Scale
 print(f'Road_Input_Scale_Height: {Road_Input_Scale_Height}')
 
 pythoncode_active_version_property = f'D:\\Downloads\\XCTreeWorkFlow\\PythonCode' 
@@ -3315,17 +3322,18 @@ keep_old_tree_files = False
 is_enhanced = False
 
 #only_upload_smooth_layer_generation = True
-smooth_layer_generation_without_road = True
+#smooth_layer_generation_without_road = True
+#smooth_layer_generation_reload_road = True
 #test_only_pois_generation = True
 #road_only_pois_generation = True
-#test_only_tree_generation = True
+test_only_tree_generation = True
 #test_only_dungeon_poi_generation = True
 
 only_run_level_0_instances = True
 #only_run_level_1_instances = True
 
 #keep_old_tree_files = True
-
+    
 #caves_voxelization_generation = True
 #smooth_layer_generation = True
 #basemeshes_generation = True
@@ -3884,13 +3892,13 @@ if not os.path.exists(basemeshes_cache_db_output_level_1_folder):
 print('Start to copy generated input files')
 
 print(f'start to copy from {road_generated_input_folder} to {road_output_folder}')
-if os.path.exists(road_generated_input_folder):
-    copy_files_in_folder(road_generated_input_folder, road_output_folder)
-    print(f'end to copy from {road_generated_input_folder} to {road_output_folder}')
-print(f'start to copy from {smooth_layer_generated_input_folder} to {smoothlayer_output_folder}')
-if os.path.exists(smooth_layer_generated_input_folder):
-    copy_files_in_folder(smooth_layer_generated_input_folder, smoothlayer_output_folder)
-    print(f'end to copy from {smooth_layer_generated_input_folder} to {smoothlayer_output_folder}')
+#if os.path.exists(road_generated_input_folder):
+#    copy_files_in_folder(road_generated_input_folder, road_output_folder)
+#    print(f'end to copy from {road_generated_input_folder} to {road_output_folder}')
+#print(f'start to copy from {smooth_layer_generated_input_folder} to {smoothlayer_output_folder}')
+#if os.path.exists(smooth_layer_generated_input_folder):
+#    copy_files_in_folder(smooth_layer_generated_input_folder, smoothlayer_output_folder)
+#    print(f'end to copy from {smooth_layer_generated_input_folder} to {smoothlayer_output_folder}')
 print(f'start to copy from {basemeshes_generated_input_folder} to {basemeshes_heightmap_folder}')
 if os.path.exists(basemeshes_generated_input_folder):
     copy_files_in_folder(basemeshes_generated_input_folder, basemeshes_heightmap_folder)

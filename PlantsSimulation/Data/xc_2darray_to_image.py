@@ -9,6 +9,8 @@ import matplotlib.cm as cm
 #height = 512                   # Height of the 2D array/image
 #dtype = np.uint8              # Data type (e.g. np.uint8, np.float32)
 
+g_useIncellSlope = False
+
 width = 600
 height = 600
 
@@ -16,22 +18,69 @@ height = 600
 vmin = 0    # 你可以根据数据实际情况修
 vmax = 200  # 你可以根据数据实际情况修改
 
-filename = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_slopes.raw'
+filename = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\12_4_2_2_300_300_byte_exposure_low_map_export.raw'
+output_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_exposure_map_new.png'
+output_original_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_exposure_map_new_red.png'
+dtype = np.uint8  # or np.float32, np.int16, etc.
 
-dtype = np.int32  # or np.float32, np.int16, etc.
+#filename = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\12_4_2_2_300_300_byte_top_lake_map.raw'
+#output_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_top_lake_map_new.png'
+#output_original_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_top_lake_map_new_red.png'
+#dtype = np.uint8  # or np.float32, np.int16, etc.
+
+
+filename = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_roads_mask.raw'
+output_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_roads_mask_new.png'
+output_original_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_roads_mask_new_red.png'
+dtype = np.uint8  # or np.float32, np.int16, etc.
+
+filename = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_roads.raw'
+output_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_roads_map_new.png'
+output_original_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_roads_map_new_red.png'
+dtype = np.uint8  # or np.float32, np.int16, etc.
+
+#filename = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\12_4_2_2_300_300_byte_ocean_map.raw'
+#output_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_ocean_map_new.png'
+#output_original_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_ocean_map_new_red.png'
+#dtype = np.uint8  # or np.float32, np.int16, etc.
+
+#filename = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\12_4_2_2_300_300_ushort_height_map_raw.raw'
+#output_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_height_map_new.png'
+#output_original_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_height_map_new_red.png'
+#dtype = np.uint16  # or np.float32, np.int16, etc.
+
+#filename = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_regions.raw'
+#output_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_regions_new.png'
+#output_original_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_regions_new_red.png'
+#dtype = np.int  # or np.float32, np.int16, etc.
+
+#filename = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_slopes.raw'
+#output_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_slopes_new.png'
+#output_original_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_slopes_new_red.png'
+#dtype = np.uint16  # or np.float32, np.int16, etc.
+
+#filename = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\12_4_2_2_300_300_ushort_slope_map_neighbour_cell_raw.raw'
+#output_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_slopes_neighbour_cell_new.png'
+#output_original_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_slopes_neighbour_cell_new_red.png'  
+#dtype = np.uint16
+
+#filename = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\12_4_2_2_300_300_ushort_slope_map_inside_cell_raw.raw'
+#output_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_slopes_inside_cell_new.png'
+#output_original_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_slopes_inside_cell_new_red.png'  
+#dtype = np.uint16
+
+#filename = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\12_4_2_2_300_300_byte_level1_surface_map.raw'
+#output_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_level1_surface_map_new.png'
+#output_original_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\RoadObjInfo\\12_4_2_level1_surface_map_new_red.png'  
+#dtype = np.uint8
+
+
 
 # === 步骤 1: 读取原始 2D 数据 ===
 data = np.fromfile(filename, dtype=dtype)
 array_2d = data.reshape((height, width))  # (rows, cols)
 
 #vmax = array_2d.max()
-
-#output_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\sommothlayer_output\\12_4_2\\12_4_2_slopes_gradient_{vmin}_{vmax}.png'
-#output_original_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\sommothlayer_output\\12_4_2\\12_4_2_slopes_gradient_{vmin}_{vmax}_red.png'
-
-output_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\sommothlayer_output\\12_4_2\\12_4_2_slopes_new.png'
-output_original_path = f'D:\\Downloads\\XCTreeCreation\\Tree_Big_Creation\\sommothlayer_output\\12_4_2\\12_4_2_slopes_new_red.png'
-
 
 # === 步骤 2: 归一化到 [0, 255] 作为红色通道 ===
 min_val = array_2d.min()
