@@ -238,6 +238,43 @@ bool safe_strtod(const char* str, double& result);
 
 std::vector<std::vector<short>> resampl2DShortMask(const std::vector<std::vector<short>>& originalMask, int newWidth, int newHeight);
 std::vector<std::vector<unsigned char>> resample2DShortMaskToByte(const std::vector<std::vector<short>>& originalMask, int newWidth, int newHeight);
+std::vector<std::vector<unsigned char>> resample2DShortMaskToByteForLake(
+	const std::vector<std::vector<short>>& originalMask,
+	int newWidth,
+	int newHeight,
+	double minTargetArea = 0.098  // 小于此面积的湖泊在目标分辨率下丢弃
+);
+std::vector<std::vector<unsigned char>> resample2DShortMaskToByteByStep(
+	const std::vector<std::vector<short>>& originalMask,
+	int newWidth, int newHeight,
+	double threshold = 0.9,   // 每步占比阈值
+	double maxStepRatio = 1.1);  // 每步最大缩放比
+std::vector<std::vector<unsigned char>> resample2DShortMaskToByteWithDensityThreshold(
+	const std::vector<std::vector<short>>& originalMask,
+	int targetWidth, int targetHeight,
+	double densityThreshold = 0.107);
+std::vector<std::vector<uint8_t>> resample2DShortMaskToByteByCenterSampling(
+	const std::vector<std::vector<short>>& originalMask,
+	int targetWidth, int targetHeight);
+std::vector<std::vector<uint8_t>> resample2DShortMaskToByteWithComponentFiltering(
+	const std::vector<std::vector<short>>& originalMask,
+	int targetWidth, int targetHeight,
+	int minOriginalArea = 4);
+std::vector<std::vector<uint8_t>> resample2DShortMaskToByteWithLocalValidation(
+	const std::vector<std::vector<short>>& originalMask,
+	int targetWidth, int targetHeight);
+std::vector<std::vector<uint8_t>> resample2DShortMaskToByteForSmallClusters(
+	const std::vector<std::vector<short>>& originalMask,
+	int targetWidth = 600,
+	int targetHeight = 600);
+std::vector<std::vector<uint8_t>> resampleLakes(
+	const std::vector<std::vector<short>>& originalMask,
+	int targetWidth = 600,
+	int targetHeight = 600);
+std::vector<std::vector<uint8_t>> resampleLakesNoExpansion(
+	const std::vector<std::vector<short>>& originalMask,
+	int targetWidth = 600,
+	int targetHeight = 600);
 
 std::vector<std::vector<short>> resample2DShortWithAverage(const std::vector<std::vector<short>>& original, int new_rows, int new_cols);
 std::vector<std::vector<unsigned char>> resample2DUCharWithAverage(const std::vector<std::vector<unsigned char>>& original, int new_rows, int new_cols);

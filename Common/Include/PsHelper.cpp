@@ -1183,53 +1183,968 @@ std::vector<std::vector<short>> resampl2DShortMask(const std::vector<std::vector
     return resizedMask;
 }
 
-std::vector<std::vector<unsigned char>> resample2DShortMaskToByte(const std::vector<std::vector<short>>& originalMask,
-    int newWidth, int newHeight) {
-    int originalWidth = originalMask.size();
-    int originalHeight = originalMask[0].size();
+std::vector<std::vector<unsigned char>> resample2DShortMaskToByte(
+    const std::vector<std::vector<short>>& originalMask,
+    int newWidth, int newHeight)
+{
+    if (originalMask.empty() || originalMask[0].empty()) return {};
 
-    // Create the new resized mask using bytes (uint8_t)
-    std::vector<std::vector<unsigned char>> resizedMask(newWidth, std::vector<unsigned char>(newHeight, 0));
+    int originalWidth = static_cast<int>(originalMask.size());
+    int originalHeight = static_cast<int>(originalMask[0].size());
 
-    // Calculate scaling factors
-    double scaleX = static_cast<double>(originalWidth) / newWidth;
-    double scaleY = static_cast<double>(originalHeight) / newHeight;
+    std::vector<std::vector<unsigned char>> resizedMask(
+        newWidth, std::vector<unsigned char>(newHeight, 0));
 
-    // For each cell in the new mask
     for (int newX = 0; newX < newWidth; ++newX) {
         for (int newY = 0; newY < newHeight; ++newY) {
-            // Calculate the corresponding region in the original mask
-            int startX = static_cast<int>(newX * scaleX);
-            int startY = static_cast<int>(newY * scaleY);
-            int endX = static_cast<int>((newX + 1) * scaleX);
-            int endY = static_cast<int>((newY + 1) * scaleY);
+            // 用 round 避免浮点截断造成的像素遗漏
+            int startX = static_cast<int>(std::round((double)newX * originalWidth / newWidth));
+            int startY = static_cast<int>(std::round((double)newY * originalHeight / newHeight));
+            int endX = static_cast<int>(std::round((double)(newX + 1) * originalWidth / newWidth));
+            int endY = static_cast<int>(std::round((double)(newY + 1) * originalHeight / newHeight));
 
-            // Make sure we don't exceed boundaries
             endX = std::min(endX, originalWidth);
             endY = std::min(endY, originalHeight);
 
-            // Count how many lake cells we have in this region
-            int lakeCount = 0;
-            int totalCells = 0;
+            // 空区域：直接映射最近邻
+            if (startX >= endX || startY >= endY) {
+                int srcX = std::min(startX, originalWidth - 1);
+                int srcY = std::min(startY, originalHeight - 1);
+                resizedMask[newX][newY] = (originalMask[srcX][srcY] != 0) ? 1 : 0;
+                continue;
+            }
 
+            bool hasLake = false;
+            for (int x = startX; x < endX && !hasLake; ++x)
+                for (int y = startY; y < endY && !hasLake; ++y)
+                    if (originalMask[x][y] != 0) hasLake = true;
+
+            resizedMask[newX][newY] = hasLake ? 1 : 0;
+        }
+    }
+    return resizedMask;
+}
+
+#include <vector>
+#include <cmath>
+#include <algorithm>
+#include <stdexcept>
+#include <cstdio>
+
+// 中间层：用浮点密度图做降采样（保留精度）
+static std::vector<std::vector<float>> resampleDensityOneStep(
+    const std::vector<std::vector<float>>& src,
+    int newWidth, int newHeight)
+{
+    int srcWidth = static_cast<int>(src.size());
+    int srcHeight = static_cast<int>(src[0].size());
+
+    std::vector<std::vector<float>> dst(
+        newWidth, std::vector<float>(newHeight, 0.0f));
+
+    for (int nx = 0; nx < newWidth; ++nx) {
+        for (int ny = 0; ny < newHeight; ++ny) {
+
+            int startX = static_cast<int>(std::round((double)nx * srcWidth / newWidth));
+            int startY = static_cast<int>(std::round((double)ny * srcHeight / newHeight));
+            int endX = static_cast<int>(std::round((double)(nx + 1) * srcWidth / newWidth));
+            int endY = static_cast<int>(std::round((double)(ny + 1) * srcHeight / newHeight));
+
+            endX = std::min(endX, srcWidth);
+            endY = std::min(endY, srcHeight);
+
+            // 退化为最近邻
+            if (startX >= endX || startY >= endY) {
+                int sx = std::clamp(startX, 0, srcWidth - 1);
+                int sy = std::clamp(startY, 0, srcHeight - 1);
+                dst[nx][ny] = src[sx][sy];
+                continue;
+            }
+
+            // 计算区域内平均密度（浮点，不做二值化）
+            float sum = 0.0f;
+            int totalCells = 0;
             for (int x = startX; x < endX; ++x) {
                 for (int y = startY; y < endY; ++y) {
-                    if (originalMask[x][y] != 0) {
-                        lakeCount++;
-                    }
+                    sum += src[x][y];
                     totalCells++;
                 }
             }
+            dst[nx][ny] = sum / totalCells;  // 保留密度，不截断
+        }
+    }
+    return dst;
+}
 
-            // If there are lake cells in the region, mark this cell in the resized mask
-            if (totalCells > 0 && lakeCount > 0) {
-                // Convert to byte, ensuring we don't exceed byte range (0-255)
-                resizedMask[newX][newY] = static_cast<uint8_t>(lakeCount > 0 ? 1 : 0);
+// 生成降采样阶梯
+static std::vector<std::pair<int, int>> buildPyramidSteps(
+    int srcWidth, int srcHeight,
+    int dstWidth, int dstHeight,
+    double maxStepRatio = 1.5)
+{
+    std::vector<std::pair<int, int>> steps;
+    double curW = srcWidth;
+    double curH = srcHeight;
+
+    while (true) {
+        double ratioW = curW / dstWidth;
+        double ratioH = curH / dstHeight;
+
+        if (ratioW <= maxStepRatio && ratioH <= maxStepRatio) {
+            steps.push_back({ dstWidth, dstHeight });
+            break;
+        }
+
+        int nextW = std::max((int)std::round(curW / maxStepRatio), dstWidth);
+        int nextH = std::max((int)std::round(curH / maxStepRatio), dstHeight);
+
+        steps.push_back({ nextW, nextH });
+        curW = nextW;
+        curH = nextH;
+    }
+
+    return steps;
+}
+
+struct Lake {
+    int id;
+    std::vector<std::pair<int, int>> pixels; // 所有像素坐标
+    int minX, maxX, minY, maxY;             // 边界框
+    double centerX, centerY;               // 重心
+
+    Lake() : id(0), minX(INT_MAX), maxX(0),
+        minY(INT_MAX), maxY(0),
+        centerX(0), centerY(0) {}
+
+    void addPixel(int x, int y) {
+        pixels.push_back({ x, y });
+        minX = std::min(minX, x); maxX = std::max(maxX, x);
+        minY = std::min(minY, y); maxY = std::max(maxY, y);
+        centerX += x;
+        centerY += y;
+    }
+
+    void finalize() {
+        if (!pixels.empty()) {
+            centerX /= pixels.size();
+            centerY /= pixels.size();
+        }
+    }
+
+    int area() const { return static_cast<int>(pixels.size()); }
+};
+
+// BFS 找出所有连通湖泊
+static std::vector<Lake> findConnectedLakes(
+    const std::vector<std::vector<short>>& mask)
+{
+    int w = static_cast<int>(mask.size());
+    int h = static_cast<int>(mask[0].size());
+
+    std::vector<std::vector<bool>> visited(w, std::vector<bool>(h, false));
+    std::vector<Lake> lakes;
+
+    const int dx[] = { 1,-1,0,0 };
+    const int dy[] = { 0,0,1,-1 };
+
+    for (int x = 0; x < w; ++x) {
+        for (int y = 0; y < h; ++y) {
+            if (mask[x][y] == 0 || visited[x][y]) continue;
+
+            // BFS 扩展整个连通区域
+            Lake lake;
+            lake.id = static_cast<int>(lakes.size());
+            std::queue<std::pair<int, int>> q;
+            q.push({ x, y });
+            visited[x][y] = true;
+
+            while (!q.empty()) {
+                auto [cx, cy] = q.front(); q.pop();
+                lake.addPixel(cx, cy);
+
+                for (int d = 0; d < 4; ++d) {
+                    int nx = cx + dx[d];
+                    int ny = cy + dy[d];
+                    if (nx < 0 || nx >= w || ny < 0 || ny >= h) continue;
+                    if (visited[nx][ny] || mask[nx][ny] == 0)   continue;
+                    visited[nx][ny] = true;
+                    q.push({ nx, ny });
+                }
+            }
+
+            lake.finalize();
+            lakes.push_back(std::move(lake));
+        }
+    }
+    return lakes;
+}
+
+// ============================================================
+// 在目标图上绘制缩放后的湖泊
+// ============================================================
+static void drawLakeOnTarget(
+    std::vector<std::vector<unsigned char>>& target,
+    const Lake& lake,
+    double scaleX, double scaleY)
+{
+    int tw = static_cast<int>(target.size());
+    int th = static_cast<int>(target[0].size());
+
+    for (auto& [px, py] : lake.pixels) {
+        // 每个原始像素映射到目标坐标
+        int tx = static_cast<int>(std::floor(px * scaleX));
+        int ty = static_cast<int>(std::floor(py * scaleY));
+        tx = std::clamp(tx, 0, tw - 1);
+        ty = std::clamp(ty, 0, th - 1);
+        target[tx][ty] = 1;
+    }
+}
+
+// ============================================================
+// 面积过滤：原始湖泊太小，缩放后不足1像素则丢弃
+// ============================================================
+static bool shouldKeepLake(
+    const Lake& lake,
+    double scaleX, double scaleY,
+    double minTargetArea = 0.5)  // 目标图中至少占0.5个像素
+{
+    double targetArea = lake.area() * scaleX * scaleY;
+    return targetArea >= minTargetArea;
+}
+
+// ============================================================
+// 主函数
+// ============================================================
+std::vector<std::vector<unsigned char>> resample2DShortMaskToByteForLake(
+    const std::vector<std::vector<short>>& originalMask,
+    int newWidth,
+    int newHeight,
+    double minTargetArea  // 小于此面积的湖泊在目标分辨率下丢弃
+)
+{
+    if (originalMask.empty() || originalMask[0].empty())
+        throw std::invalid_argument("originalMask is empty");
+
+    int srcW = static_cast<int>(originalMask.size());
+    int srcH = static_cast<int>(originalMask[0].size());
+
+    double scaleX = static_cast<double>(newWidth) / srcW;
+    double scaleY = static_cast<double>(newHeight) / srcH;
+
+    // Step 1: 找出所有独立湖泊
+    auto lakes = findConnectedLakes(originalMask);
+
+    // Step 2: 初始化目标图
+    std::vector<std::vector<unsigned char>> result(
+        newWidth, std::vector<unsigned char>(newHeight, 0));
+
+    // Step 3: 每个湖泊独立映射到目标图
+    for (auto& lake : lakes) {
+        if (!shouldKeepLake(lake, scaleX, scaleY, minTargetArea))
+            continue;
+
+        drawLakeOnTarget(result, lake, scaleX, scaleY);
+    }
+
+    return result;
+}
+
+// 主函数
+std::vector<std::vector<unsigned char>> resample2DShortMaskToByteByStep(
+    const std::vector<std::vector<short>>& originalMask,
+    int newWidth, int newHeight,
+    double finalThreshold,  // 只在最后一步二值化
+    double maxStepRatio)
+{
+    if (originalMask.empty() || originalMask[0].empty())
+        throw std::invalid_argument("originalMask is empty");
+
+    int srcWidth = static_cast<int>(originalMask.size());
+    int srcHeight = static_cast<int>(originalMask[0].size());
+
+    // Step1: short → 浮点密度图（非零即1.0）
+    std::vector<std::vector<float>> current(
+        srcWidth, std::vector<float>(srcHeight, 0.0f));
+    for (int x = 0; x < srcWidth; ++x)
+        for (int y = 0; y < srcHeight; ++y)
+            current[x][y] = (originalMask[x][y] != 0) ? 1.0f : 0.0f;
+
+    // Step2: 生成降采样阶梯并逐步缩放（全程浮点）
+    auto steps = buildPyramidSteps(srcWidth, srcHeight, newWidth, newHeight, maxStepRatio);
+
+    printf("Pyramid steps: %dx%d", srcWidth, srcHeight);
+    for (auto& [w, h] : steps)
+        printf(" → %dx%d", w, h);
+    printf("\n");
+
+    for (auto& [w, h] : steps)
+        current = resampleDensityOneStep(current, w, h);
+
+    // Step3: 最后一步统一二值化
+    std::vector<std::vector<unsigned char>> result(
+        newWidth, std::vector<unsigned char>(newHeight, 0));
+    for (int x = 0; x < newWidth; ++x)
+        for (int y = 0; y < newHeight; ++y)
+            result[x][y] = (current[x][y] >= (float)finalThreshold) ? 1 : 0;
+
+    return result;
+}
+
+static std::vector<std::vector<float>> computeDensityMap(
+    const std::vector<std::vector<short>>& originalMask,
+    int newWidth, int newHeight)
+{
+    int srcW = static_cast<int>(originalMask.size());
+    int srcH = static_cast<int>(originalMask[0].size());
+
+    double scaleX = static_cast<double>(srcW) / newWidth;
+    double scaleY = static_cast<double>(srcH) / newHeight;
+
+    std::vector<std::vector<float>> density(
+        newWidth, std::vector<float>(newHeight, 0.0f));
+
+    // 预计算每列的水平重叠区间（优化内层循环）
+    struct Span { int start, end; double x0, x1; };
+    std::vector<Span> xSpans(newWidth);
+    for (int nx = 0; nx < newWidth; ++nx) {
+        double sx0 = nx * scaleX;
+        double sx1 = (nx + 1) * scaleX;
+        xSpans[nx] = {
+            static_cast<int>(std::floor(sx0)),
+            std::min(static_cast<int>(std::ceil(sx1)), srcW),
+            sx0, sx1
+        };
+    }
+
+    for (int nx = 0; nx < newWidth; ++nx) {
+        auto& xs = xSpans[nx];
+        for (int ny = 0; ny < newHeight; ++ny) {
+            double sy0 = ny * scaleY;
+            double sy1 = (ny + 1) * scaleY;
+            int startY = static_cast<int>(std::floor(sy0));
+            int endY = std::min(static_cast<int>(std::ceil(sy1)), srcH);
+
+            double lakeArea = 0.0;
+            double totalArea = (xs.x1 - xs.x0) * (sy1 - sy0); // 理论总面积
+
+            for (int x = xs.start; x < xs.end; ++x) {
+                double ox = std::min((double)(x + 1), xs.x1)
+                    - std::max((double)x, xs.x0);
+                for (int y = startY; y < endY; ++y) {
+                    double oy = std::min((double)(y + 1), sy1)
+                        - std::max((double)y, sy0);
+                    if (originalMask[x][y] != 0)
+                        lakeArea += ox * oy;
+                }
+            }
+
+            density[nx][ny] = (totalArea > 0)
+                ? static_cast<float>(lakeArea / totalArea)
+                : 0.0f;
+        }
+    }
+    return density;
+}
+
+// ============================================================
+// 形态学操作（纯手写，无外部库）
+// ============================================================
+
+// 膨胀：有邻居是湖泊就扩展
+static std::vector<std::vector<unsigned char>> dilate(
+    const std::vector<std::vector<unsigned char>>& src, int radius = 1)
+{
+    int w = static_cast<int>(src.size());
+    int h = static_cast<int>(src[0].size());
+    auto dst = src;
+    for (int x = 0; x < w; ++x)
+        for (int y = 0; y < h; ++y) {
+            if (src[x][y]) continue;
+            bool found = false;
+            for (int dx = -radius; dx <= radius && !found; ++dx)
+                for (int dy = -radius; dy <= radius && !found; ++dy) {
+                    int nx = std::clamp(x + dx, 0, w - 1);
+                    int ny = std::clamp(y + dy, 0, h - 1);
+                    if (src[nx][ny]) found = true;
+                }
+            dst[x][y] = found ? 1 : 0;
+        }
+    return dst;
+}
+
+// 腐蚀：邻居全是湖泊才保留
+static std::vector<std::vector<unsigned char>> erode(
+    const std::vector<std::vector<unsigned char>>& src, int radius = 1)
+{
+    int w = static_cast<int>(src.size());
+    int h = static_cast<int>(src[0].size());
+    auto dst = src;
+    for (int x = 0; x < w; ++x)
+        for (int y = 0; y < h; ++y) {
+            if (!src[x][y]) continue;
+            bool allLake = true;
+            for (int dx = -radius; dx <= radius && allLake; ++dx)
+                for (int dy = -radius; dy <= radius && allLake; ++dy) {
+                    int nx = std::clamp(x + dx, 0, w - 1);
+                    int ny = std::clamp(y + dy, 0, h - 1);
+                    if (!src[nx][ny]) allLake = false;
+                }
+            dst[x][y] = allLake ? 1 : 0;
+        }
+    return dst;
+}
+
+// 开运算（先腐蚀再膨胀）：去除噪点小湖泊
+static std::vector<std::vector<unsigned char>> morphOpen(
+    const std::vector<std::vector<unsigned char>>& src, int radius = 1)
+{
+    return dilate(erode(src, radius), radius);
+}
+
+// 闭运算（先膨胀再腐蚀）：填补湖泊内部小洞
+static std::vector<std::vector<unsigned char>> morphClose(
+    const std::vector<std::vector<unsigned char>>& src, int radius = 1)
+{
+    return erode(dilate(src, radius), radius);
+}
+
+// ============================================================
+// 主函数
+// ============================================================
+std::vector<std::vector<unsigned char>> resample2DShortMaskToByteWithDensityThreshold(
+    const std::vector<std::vector<short>>& originalMask,
+    int newWidth,
+    int newHeight,
+    double threshold   // 0.3~0.5，越小保留越多小湖泊
+)
+{
+    if (originalMask.empty() || originalMask[0].empty())
+        throw std::invalid_argument("originalMask is empty");
+    if (newWidth <= 0 || newHeight <= 0)
+        throw std::invalid_argument("invalid target size");
+
+    // Step 1: 精确面积重叠 → 浮点密度图
+    auto density = computeDensityMap(originalMask, newWidth, newHeight);
+
+    // Step 2: 二值化
+    std::vector<std::vector<unsigned char>> result(
+        newWidth, std::vector<unsigned char>(newHeight, 0));
+    for (int x = 0; x < newWidth; ++x)
+        for (int y = 0; y < newHeight; ++y)
+            result[x][y] = (density[x][y] >= threshold) ? 1 : 0;
+
+    // Step 3: 形态学闭运算，填补缩放后湖泊内部出现的小空洞
+    result = morphClose(result, 1);
+
+    // Step 4: 形态学开运算，去除孤立噪点（非常小的假湖泊）
+    result = morphOpen(result, 1);
+
+    return result;
+}
+
+std::vector<std::vector<uint8_t>> resample2DShortMaskToByteByCenterSampling(
+    const std::vector<std::vector<short>>& originalMask,
+    int targetWidth, int targetHeight)
+{
+    if (originalMask.empty() || originalMask[0].empty()) {
+        return std::vector<std::vector<uint8_t>>(targetHeight, std::vector<uint8_t>(targetWidth, 0));
+    }
+
+    const int origH = static_cast<int>(originalMask.size());
+    const int origW = static_cast<int>(originalMask[0].size());
+
+    std::vector<std::vector<uint8_t>> out(targetHeight, std::vector<uint8_t>(targetWidth, 0));
+
+    const double scaleY = static_cast<double>(origH) / targetHeight;
+    const double scaleX = static_cast<double>(origW) / targetWidth;
+
+    for (int y = 0; y < targetHeight; ++y) {
+        for (int x = 0; x < targetWidth; ++x) {
+            // 计算中心点在原图中的坐标（浮点）
+            double centerX = (x + 0.5) * scaleX;
+            double centerY = (y + 0.5) * scaleY;
+
+            // 取整（四舍五入或 floor，这里用 floor + clamp）
+            int srcX = std::min(static_cast<int>(centerX), origW - 1);
+            int srcY = std::min(static_cast<int>(centerY), origH - 1);
+
+            out[y][x] = (originalMask[srcY][srcX] != 0) ? uint8_t(1) : uint8_t(0);
+        }
+    }
+
+    return out;
+}
+
+// 辅助函数：连通域分析并过滤小区域
+std::vector<std::vector<short>> filterSmallComponents(
+    const std::vector<std::vector<short>>& mask,
+    int minArea)
+{
+    if (mask.empty() || mask[0].empty()) return mask;
+
+    int H = static_cast<int>(mask.size());
+    int W = static_cast<int>(mask[0].size());
+    std::vector<std::vector<short>> filtered = mask;
+    std::vector<std::vector<bool>> visited(H, std::vector<bool>(W, false));
+
+    // 方向：上下左右
+    const int dx[4] = { 0, 0, -1, 1 };
+    const int dy[4] = { -1, 1, 0, 0 };
+
+    for (int y = 0; y < H; ++y) {
+        for (int x = 0; x < W; ++x) {
+            if (mask[y][x] != 0 && !visited[y][x]) {
+                // BFS 找连通域
+                std::queue<std::pair<int, int>> q;
+                std::vector<std::pair<int, int>> component;
+                q.emplace(x, y);
+                visited[y][x] = true;
+
+                while (!q.empty()) {
+                    auto [cx, cy] = q.front(); q.pop();
+                    component.emplace_back(cx, cy);
+
+                    for (int d = 0; d < 4; ++d) {
+                        int nx = cx + dx[d];
+                        int ny = cy + dy[d];
+                        if (nx >= 0 && nx < W && ny >= 0 && ny < H &&
+                            !visited[ny][nx] && mask[ny][nx] != 0) {
+                            visited[ny][nx] = true;
+                            q.emplace(nx, ny);
+                        }
+                    }
+                }
+
+                // 如果面积太小，清除该连通域
+                if (static_cast<int>(component.size()) < minArea) {
+                    for (auto [px, py] : component) {
+                        filtered[py][px] = 0;
+                    }
+                }
             }
         }
     }
 
-    return resizedMask;
+    return filtered;
+}
+
+// 主函数：基于连通域过滤的重采样
+std::vector<std::vector<uint8_t>> resample2DShortMaskToByteWithComponentFiltering(
+    const std::vector<std::vector<short>>& originalMask,
+    int targetWidth, int targetHeight,
+    int minOriginalArea)  // 默认：至少4像素才保留
+{
+    if (originalMask.empty() || originalMask[0].empty()) {
+        return std::vector<std::vector<uint8_t>>(targetHeight, std::vector<uint8_t>(targetWidth, 0));
+    }
+
+    // 第一步：过滤掉太小的连通域（噪声）
+    auto cleanedMask = filterSmallComponents(originalMask, minOriginalArea);
+
+    // 第二步：对干净的 mask 使用“存在即激活”下采样
+    const int origH = static_cast<int>(cleanedMask.size());
+    const int origW = static_cast<int>(cleanedMask[0].size());
+
+    std::vector<std::vector<uint8_t>> out(targetHeight, std::vector<uint8_t>(targetWidth, 0));
+
+    const double scaleY = static_cast<double>(origH) / targetHeight;
+    const double scaleX = static_cast<double>(origW) / targetWidth;
+
+    for (int outY = 0; outY < targetHeight; ++outY) {
+        int startY = static_cast<int>(outY * scaleY);
+        int endY = std::min(static_cast<int>((outY + 1) * scaleY), origH);
+
+        for (int outX = 0; outX < targetWidth; ++outX) {
+            int startX = static_cast<int>(outX * scaleX);
+            int endX = std::min(static_cast<int>((outX + 1) * scaleX), origW);
+
+            bool hasNonZero = false;
+            for (int y = startY; y < endY && !hasNonZero; ++y) {
+                for (int x = startX; x < endX && !hasNonZero; ++x) {
+                    if (cleanedMask[y][x] != 0) {
+                        hasNonZero = true;
+                    }
+                }
+            }
+            out[outY][outX] = hasNonZero ? uint8_t(1) : uint8_t(0);
+        }
+    }
+
+    return out;
+}
+
+std::vector<std::vector<uint8_t>> resample2DShortMaskToByteWithLocalValidation(
+    const std::vector<std::vector<short>>& originalMask,
+    int targetWidth, int targetHeight)
+{
+    if (originalMask.empty() || originalMask[0].empty()) {
+        return std::vector<std::vector<uint8_t>>(targetHeight, std::vector<uint8_t>(targetWidth, 0));
+    }
+
+    const int origH = static_cast<int>(originalMask.size());
+    const int origW = static_cast<int>(originalMask[0].size());
+
+    std::vector<std::vector<uint8_t>> out(targetHeight, std::vector<uint8_t>(targetWidth, 0));
+
+    const double scaleY = static_cast<double>(origH) / targetHeight;
+    const double scaleX = static_cast<double>(origW) / targetWidth;
+
+    for (int outY = 0; outY < targetHeight; ++outY) {
+        int startY = static_cast<int>(outY * scaleY);
+        int endY = std::min(static_cast<int>((outY + 1) * scaleY), origH);
+
+        for (int outX = 0; outX < targetWidth; ++outX) {
+            int startX = static_cast<int>(outX * scaleX);
+            int endX = std::min(static_cast<int>((outX + 1) * scaleX), origW);
+
+            std::vector<std::pair<int, int>> points;
+            for (int y = startY; y < endY; ++y) {
+                for (int x = startX; x < endX; ++x) {
+                    if (originalMask[y][x] != 0) {
+                        points.emplace_back(x, y);
+                        if (points.size() >= 4) break; // 足够了
+                    }
+                }
+                if (points.size() >= 4) break;
+            }
+
+            bool activate = false;
+            if (points.size() == 0) {
+                activate = false;
+            }
+            else if (points.size() >= 3) {
+                activate = true; // ≥3 个点大概率是真实目标
+            }
+            else if (points.size() == 1) {
+                activate = false; // 单点视为噪声
+            }
+            else { // exactly 2 points
+                int dx = std::abs(points[0].first - points[1].first);
+                int dy = std::abs(points[0].second - points[1].second);
+                // 如果两点是8邻域相连（包括对角），则保留
+                if (dx <= 1 && dy <= 1) {
+                    activate = true;
+                }
+                else {
+                    activate = false; // 两点相距太远，可能是随机噪声
+                }
+            }
+
+            out[outY][outX] = activate ? uint8_t(1) : uint8_t(0);
+        }
+    }
+
+    return out;
+}
+
+std::vector<std::vector<short>> filterComponentsByMinArea8Connect(
+    const std::vector<std::vector<short>>& mask,
+    int minArea)
+{
+    if (mask.empty() || mask[0].empty()) return mask;
+
+    int H = static_cast<int>(mask.size());
+    int W = static_cast<int>(mask[0].size());
+    std::vector<std::vector<short>> filtered = mask;
+    std::vector<std::vector<bool>> visited(H, std::vector<bool>(W, false));
+
+    // 8-邻域方向
+    const int dx[8] = { -1, -1, -1, 0, 0, 1, 1, 1 };
+    const int dy[8] = { -1, 0, 1, -1, 1, -1, 0, 1 };
+
+    for (int y = 0; y < H; ++y) {
+        for (int x = 0; x < W; ++x) {
+            if (mask[y][x] != 0 && !visited[y][x]) {
+                std::queue<std::pair<int, int>> q;
+                std::vector<std::pair<int, int>> component;
+                q.emplace(x, y);
+                visited[y][x] = true;
+
+                while (!q.empty()) {
+                    auto [cx, cy] = q.front(); q.pop();
+                    component.emplace_back(cx, cy);
+
+                    for (int d = 0; d < 8; ++d) {
+                        int nx = cx + dx[d];
+                        int ny = cy + dy[d];
+                        if (nx >= 0 && nx < W && ny >= 0 && ny < H &&
+                            !visited[ny][nx] && mask[ny][nx] != 0) {
+                            visited[ny][nx] = true;
+                            q.emplace(nx, ny);
+                        }
+                    }
+                }
+
+                // 仅当面积 >= minArea (12) 时保留
+                if (static_cast<int>(component.size()) < minArea) {
+                    for (auto [px, py] : component) {
+                        filtered[py][px] = 0;
+                    }
+                }
+            }
+        }
+    }
+
+    return filtered;
+}
+
+// Helper: 4-connected erosion (remove isolated pixels)
+std::vector<std::vector<short>> removeIsolatedPixels(
+    const std::vector<std::vector<short>>& mask)
+{
+    int H = static_cast<int>(mask.size());
+    int W = static_cast<int>(mask[0].size());
+    std::vector<std::vector<short>> cleaned(H, std::vector<short>(W, 0));
+
+    const int dx[4] = { 0, 1, 0, -1 };
+    const int dy[4] = { -1, 0, 1, 0 };
+
+    for (int y = 0; y < H; ++y) {
+        for (int x = 0; x < W; ++x) {
+            if (mask[y][x] != 0) {
+                bool hasNeighbor = false;
+                for (int d = 0; d < 4; ++d) {
+                    int nx = x + dx[d], ny = y + dy[d];
+                    if (nx >= 0 && nx < W && ny >= 0 && ny < H && mask[ny][nx] != 0) {
+                        hasNeighbor = true;
+                        break;
+                    }
+                }
+                cleaned[y][x] = hasNeighbor ? 1 : 0;
+            }
+        }
+    }
+    return cleaned;
+}
+
+// Main resampling: density-weighted center voting
+std::vector<std::vector<uint8_t>> resample2DShortMaskToByteForSmallClusters(
+    const std::vector<std::vector<short>>& originalMask,
+    int targetWidth,
+    int targetHeight)
+{
+    // Step 1: Clean isolated pixels in original high-res mask
+    auto cleanMask = removeIsolatedPixels(originalMask);
+
+    int origH = static_cast<int>(cleanMask.size());
+    int origW = static_cast<int>(cleanMask[0].size());
+
+    std::vector<std::vector<uint8_t>> result(targetHeight, std::vector<uint8_t>(targetWidth, 0));
+
+    double scaleX = static_cast<double>(origW) / targetWidth;
+    double scaleY = static_cast<double>(origH) / targetHeight;
+
+    // For each target pixel (tx, ty), compute weighted contribution from source
+    for (int ty = 0; ty < targetHeight; ++ty) {
+        for (int tx = 0; tx < targetWidth; ++tx) {
+            // Center of target pixel in source coordinates
+            double srcX = (tx + 0.5) * scaleX;
+            double srcY = (ty + 0.5) * scaleY;
+
+            // Search in a small neighborhood around (srcX, srcY) — e.g., ±2 pixels
+            int startX = static_cast<int>(std::max(0.0, srcX - 2.0));
+            int endX = static_cast<int>(std::min(static_cast<double>(origW), srcX + 2.0));
+            int startY = static_cast<int>(std::max(0.0, srcY - 2.0));
+            int endY = static_cast<int>(std::min(static_cast<double>(origH), srcY + 2.0));
+
+            int count = 0;
+            for (int y = startY; y < endY; ++y) {
+                for (int x = startX; x < endX; ++x) {
+                    if (cleanMask[y][x] != 0) {
+                        // Weight by proximity to center (Gaussian-like)
+                        double dx = x - srcX;
+                        double dy = y - srcY;
+                        double distSq = dx * dx + dy * dy;
+                        // Only count if within radius ~1.5 (i.e., very close)
+                        if (distSq < 2.25) {  // radius = 1.5 → covers 3x3 centered area
+                            count++;
+                        }
+                    }
+                }
+            }
+
+            // Critical: require at least 2 nearby foreground pixels to activate
+            // This suppresses single-pixel noise that survived cleaning
+            if (count >= 2) {
+                result[ty][tx] = 1;
+            }
+        }
+    }
+
+    return result;
+}
+
+// Step 1: Extract all connected lake components (4-connectivity)
+std::vector<Lake> extractLakes(const std::vector<std::vector<short>>& mask) {
+    if (mask.empty() || mask[0].empty()) return {};
+
+    int H = static_cast<int>(mask.size());
+    int W = static_cast<int>(mask[0].size());
+    std::vector<std::vector<bool>> visited(H, std::vector<bool>(W, false));
+    std::vector<Lake> lakes;
+
+    // 4-connectivity directions: up, right, down, left
+    const int dx[4] = { 0, 1, 0, -1 };
+    const int dy[4] = { -1, 0, 1, 0 };
+
+    for (int y = 0; y < H; ++y) {
+        for (int x = 0; x < W; ++x) {
+            if (mask[y][x] != 0 && !visited[y][x]) {
+                Lake lake;
+                std::queue<std::pair<int, int>> q;
+                q.push({ x, y });
+                visited[y][x] = true;
+
+                int minx = x, maxx = x, miny = y, maxy = y;
+
+                while (!q.empty()) {
+                    auto [cx, cy] = q.front(); q.pop();
+                    lake.pixels.emplace_back(cx, cy);
+                    minx = std::min(minx, cx);
+                    maxx = std::max(maxx, cx);
+                    miny = std::min(miny, cy);
+                    maxy = std::max(maxy, cy);
+
+                    for (int d = 0; d < 4; ++d) {
+                        int nx = cx + dx[d], ny = cy + dy[d];
+                        if (nx >= 0 && nx < W && ny >= 0 && ny < H &&
+                            mask[ny][nx] != 0 && !visited[ny][nx]) {
+                            visited[ny][nx] = true;
+                            q.push({ nx, ny });
+                        }
+                    }
+                }
+
+                lake.minX = minx; lake.minY = miny;
+                lake.maxX = maxx; lake.maxY = maxy;
+
+                // Filter out tiny "puddles" (adjustable threshold)
+                if (lake.pixels.size() >= 4) {
+                    lakes.push_back(lake);
+                }
+            }
+        }
+    }
+    return lakes;
+}
+
+// Step 2: Rasterize a single lake precisely into the target resolution
+void rasterizeLake(
+    const Lake& lake,
+    std::vector<std::vector<uint8_t>>& targetMask,
+    int targetW, int targetH,
+    int origW, int origH)
+{
+    double sx = static_cast<double>(targetW) / origW;
+    double sy = static_cast<double>(targetH) / origH;
+
+    // Compute conservative bounding box in target coordinates
+    int tx0 = static_cast<int>(std::floor(lake.minX * sx));
+    int ty0 = static_cast<int>(std::floor(lake.minY * sy));
+    int tx1 = static_cast<int>(std::ceil((lake.maxX + 1) * sx)); // +1 because pixels are points
+    int ty1 = static_cast<int>(std::ceil((lake.maxY + 1) * sy));
+
+    // Clamp to image boundaries
+    tx0 = std::max(0, tx0); ty0 = std::max(0, ty0);
+    tx1 = std::min(targetW, tx1); ty1 = std::min(targetH, ty1);
+
+    // For each pixel in the target region, check if covered by original lake
+    for (int ty = ty0; ty < ty1; ++ty) {
+        for (int tx = tx0; tx < tx1; ++tx) {
+            // Compute the corresponding source coordinate range for this target pixel
+            double srcX0 = tx / sx;
+            double srcX1 = (tx + 1) / sx;
+            double srcY0 = ty / sy;
+            double srcY1 = (ty + 1) / sy;
+
+            // Check if any original lake pixel falls within this range
+            bool covered = false;
+            for (const auto& [x, y] : lake.pixels) {
+                if (x >= srcX0 && x < srcX1 && y >= srcY0 && y < srcY1) {
+                    covered = true;
+                    break;
+                }
+            }
+            if (covered) {
+                targetMask[ty][tx] = 1;
+            }
+        }
+    }
+}
+
+// Main function: Entry point for lake mask downsampling
+std::vector<std::vector<uint8_t>> resampleLakes(
+    const std::vector<std::vector<short>>& originalMask,
+    int targetWidth,
+    int targetHeight)
+{
+    // Input validation
+    if (originalMask.empty() || originalMask[0].empty()) {
+        return std::vector<std::vector<uint8_t>>(targetHeight, std::vector<uint8_t>(targetWidth, 0));
+    }
+
+    // Extract lakes from high-resolution mask
+    auto lakes = extractLakes(originalMask);
+
+    // Initialize output mask
+    std::vector<std::vector<uint8_t>> result(targetHeight, std::vector<uint8_t>(targetWidth, 0));
+
+    int origW = static_cast<int>(originalMask[0].size());
+    int origH = static_cast<int>(originalMask.size());
+
+    // Rasterize each lake into the target mask
+    for (const auto& lake : lakes) {
+        rasterizeLake(lake, result, targetWidth, targetHeight, origW, origH);
+    }
+
+    return result;
+}
+
+std::vector<std::vector<uint8_t>> resampleLakesNoExpansion(
+    const std::vector<std::vector<short>>& originalMask,
+    int targetWidth,
+    int targetHeight)
+{
+    if (originalMask.empty() || originalMask[0].empty()) {
+        return std::vector<std::vector<uint8_t>>(targetHeight, std::vector<uint8_t>(targetWidth, 0));
+    }
+
+    int origH = static_cast<int>(originalMask.size());
+    int origW = static_cast<int>(originalMask[0].size());
+
+    // Initialize output
+    std::vector<std::vector<uint8_t>> result(targetHeight, std::vector<uint8_t>(targetWidth, 0));
+
+    // Compute scale factors (source -> target)
+    double scaleX = static_cast<double>(targetWidth) / origW;
+    double scaleY = static_cast<double>(targetHeight) / origH;
+
+    // Traverse ONLY foreground pixels in original mask
+    for (int y = 0; y < origH; ++y) {
+        for (int x = 0; x < origW; ++x) {
+            if (originalMask[y][x] != 0) {
+                // Map source pixel (x,y) to target coordinate
+                // Treat pixel as occupying [x, x+1) × [y, y+1)
+                // Its center is at (x+0.5, y+0.5), but for downsampling,
+                // we map the top-left corner and use floor to avoid expansion.
+
+                // Option 1: Use top-left corner (conservative, no expansion)
+                int tx = static_cast<int>(x * scaleX);
+                int ty = static_cast<int>(y * scaleY);
+
+                // Option 2 (more accurate): map center and round, but clamp
+                // int tx = static_cast<int>((x + 0.5) * scaleX);
+                // int ty = static_cast<int>((y + 0.5) * scaleY);
+
+                // Clamp to valid range (shouldn't be needed if scales are exact)
+                if (tx >= 0 && tx < targetWidth && ty >= 0 && ty < targetHeight) {
+                    result[ty][tx] = 1;
+                }
+            }
+        }
+    }
+
+    return result;
 }
 
 std::vector<std::vector<short>> resample2DShortWithAverage(const std::vector<std::vector<short>>& original,
