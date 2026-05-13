@@ -242,13 +242,13 @@ std::vector<std::vector<unsigned char>> resample2DShortMaskToByteForLake(
 	const std::vector<std::vector<short>>& originalMask,
 	int newWidth,
 	int newHeight,
-	double minTargetArea = 0.098  // 小于此面积的湖泊在目标分辨率下丢弃
+	double minTargetArea = 0.098  // Lakes smaller than this area are discarded at target resolution
 );
 std::vector<std::vector<unsigned char>> resample2DShortMaskToByteByStep(
 	const std::vector<std::vector<short>>& originalMask,
 	int newWidth, int newHeight,
-	double threshold = 0.9,   // 每步占比阈值
-	double maxStepRatio = 1.1);  // 每步最大缩放比
+	double threshold = 0.9,   // Proportion threshold per step
+	double maxStepRatio = 1.1);  // Maximum scale ratio per step
 std::vector<std::vector<unsigned char>> resample2DShortMaskToByteWithDensityThreshold(
 	const std::vector<std::vector<short>>& originalMask,
 	int targetWidth, int targetHeight,

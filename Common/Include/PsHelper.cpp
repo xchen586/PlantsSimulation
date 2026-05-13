@@ -1197,7 +1197,7 @@ std::vector<std::vector<unsigned char>> resample2DShortMaskToByte(
 
     for (int newX = 0; newX < newWidth; ++newX) {
         for (int newY = 0; newY < newHeight; ++newY) {
-            // 用 round 避免浮点截断造成的像素遗漏
+            // Use round to avoid pixel omission caused by floating-point truncation
             int startX = static_cast<int>(std::round((double)newX * originalWidth / newWidth));
             int startY = static_cast<int>(std::round((double)newY * originalHeight / newHeight));
             int endX = static_cast<int>(std::round((double)(newX + 1) * originalWidth / newWidth));
@@ -1206,7 +1206,7 @@ std::vector<std::vector<unsigned char>> resample2DShortMaskToByte(
             endX = std::min(endX, originalWidth);
             endY = std::min(endY, originalHeight);
 
-            // 空区域：直接映射最近邻
+            // Empty region: fall back to nearest-neighbor mapping directly
             if (startX >= endX || startY >= endY) {
                 int srcX = std::min(startX, originalWidth - 1);
                 int srcY = std::min(startY, originalHeight - 1);
@@ -1231,7 +1231,7 @@ std::vector<std::vector<unsigned char>> resample2DShortMaskToByte(
 #include <stdexcept>
 #include <cstdio>
 
-// 中间层：用浮点密度图做降采样（保留精度）
+// Intermediate layer: downsample using a floating-point density map (preserves precision)
 static std::vector<std::vector<float>> resampleDensityOneStep(
     const std::vector<std::vector<float>>& src,
     int newWidth, int newHeight)
@@ -1253,7 +1253,7 @@ static std::vector<std::vector<float>> resampleDensityOneStep(
             endX = std::min(endX, srcWidth);
             endY = std::min(endY, srcHeight);
 
-            // 退化为最近邻
+            // Degenerate case: fall back to nearest neighbor
             if (startX >= endX || startY >= endY) {
                 int sx = std::clamp(startX, 0, srcWidth - 1);
                 int sy = std::clamp(startY, 0, srcHeight - 1);
@@ -1261,7 +1261,7 @@ static std::vector<std::vector<float>> resampleDensityOneStep(
                 continue;
             }
 
-            // 计算区域内平均密度（浮点，不做二值化）
+            // Compute average density within the region (floating-point, no binarization)
             float sum = 0.0f;
             int totalCells = 0;
             for (int x = startX; x < endX; ++x) {
@@ -1270,13 +1270,13 @@ static std::vector<std::vector<float>> resampleDensityOneStep(
                     totalCells++;
                 }
             }
-            dst[nx][ny] = sum / totalCells;  // 保留密度，不截断
+            dst[nx][ny] = sum / totalCells;  // Retain density value, no truncation
         }
     }
     return dst;
 }
 
-// 生成降采样阶梯
+// Build the pyramid downsampling steps
 static std::vector<std::pair<int, int>> buildPyramidSteps(
     int srcWidth, int srcHeight,
     int dstWidth, int dstHeight,
@@ -1308,9 +1308,9 @@ static std::vector<std::pair<int, int>> buildPyramidSteps(
 
 struct Lake {
     int id;
-    std::vector<std::pair<int, int>> pixels; // 所有像素坐标
-    int minX, maxX, minY, maxY;             // 边界框
-    double centerX, centerY;               // 重心
+    std::vector<std::pair<int, int>> pixels; // All pixel coordinates
+    int minX, maxX, minY, maxY;             // Bounding box
+    double centerX, centerY;               // Centroid
 
     Lake() : id(0), minX(INT_MAX), maxX(0),
         minY(INT_MAX), maxY(0),
@@ -1334,7 +1334,7 @@ struct Lake {
     int area() const { return static_cast<int>(pixels.size()); }
 };
 
-// BFS 找出所有连通湖泊
+// BFS to find all connected lake regions
 static std::vector<Lake> findConnectedLakes(
     const std::vector<std::vector<short>>& mask)
 {
@@ -1351,7 +1351,7 @@ static std::vector<Lake> findConnectedLakes(
         for (int y = 0; y < h; ++y) {
             if (mask[x][y] == 0 || visited[x][y]) continue;
 
-            // BFS 扩展整个连通区域
+            // BFS to expand the entire connected region
             Lake lake;
             lake.id = static_cast<int>(lakes.size());
             std::queue<std::pair<int, int>> q;
@@ -1380,7 +1380,7 @@ static std::vector<Lake> findConnectedLakes(
 }
 
 // ============================================================
-// 在目标图上绘制缩放后的湖泊
+// Draw the scaled lake onto the target image
 // ============================================================
 static void drawLakeOnTarget(
     std::vector<std::vector<unsigned char>>& target,
@@ -1391,7 +1391,7 @@ static void drawLakeOnTarget(
     int th = static_cast<int>(target[0].size());
 
     for (auto& [px, py] : lake.pixels) {
-        // 每个原始像素映射到目标坐标
+        // Map each original pixel to target coordinates
         int tx = static_cast<int>(std::floor(px * scaleX));
         int ty = static_cast<int>(std::floor(py * scaleY));
         tx = std::clamp(tx, 0, tw - 1);
@@ -1401,25 +1401,25 @@ static void drawLakeOnTarget(
 }
 
 // ============================================================
-// 面积过滤：原始湖泊太小，缩放后不足1像素则丢弃
+// Area filter: discard lakes that are too small in the original and map to less than 1 pixel after scaling
 // ============================================================
 static bool shouldKeepLake(
     const Lake& lake,
     double scaleX, double scaleY,
-    double minTargetArea = 0.5)  // 目标图中至少占0.5个像素
+    double minTargetArea = 0.5)  // Minimum 0.5 pixels in the target image
 {
     double targetArea = lake.area() * scaleX * scaleY;
     return targetArea >= minTargetArea;
 }
 
 // ============================================================
-// 主函数
+// Main function
 // ============================================================
 std::vector<std::vector<unsigned char>> resample2DShortMaskToByteForLake(
     const std::vector<std::vector<short>>& originalMask,
     int newWidth,
     int newHeight,
-    double minTargetArea  // 小于此面积的湖泊在目标分辨率下丢弃
+    double minTargetArea  // Lakes smaller than this area are discarded at target resolution
 )
 {
     if (originalMask.empty() || originalMask[0].empty())
@@ -1431,14 +1431,14 @@ std::vector<std::vector<unsigned char>> resample2DShortMaskToByteForLake(
     double scaleX = static_cast<double>(newWidth) / srcW;
     double scaleY = static_cast<double>(newHeight) / srcH;
 
-    // Step 1: 找出所有独立湖泊
+    // Step 1: Find all independent lakes
     auto lakes = findConnectedLakes(originalMask);
 
-    // Step 2: 初始化目标图
+    // Step 2: Initialize the target image
     std::vector<std::vector<unsigned char>> result(
         newWidth, std::vector<unsigned char>(newHeight, 0));
 
-    // Step 3: 每个湖泊独立映射到目标图
+    // Step 3: Map each lake independently onto the target image
     for (auto& lake : lakes) {
         if (!shouldKeepLake(lake, scaleX, scaleY, minTargetArea))
             continue;
@@ -1449,11 +1449,11 @@ std::vector<std::vector<unsigned char>> resample2DShortMaskToByteForLake(
     return result;
 }
 
-// 主函数
+// Main function
 std::vector<std::vector<unsigned char>> resample2DShortMaskToByteByStep(
     const std::vector<std::vector<short>>& originalMask,
     int newWidth, int newHeight,
-    double finalThreshold,  // 只在最后一步二值化
+    double finalThreshold,  // Binarization is applied only at the final step
     double maxStepRatio)
 {
     if (originalMask.empty() || originalMask[0].empty())
@@ -1462,14 +1462,14 @@ std::vector<std::vector<unsigned char>> resample2DShortMaskToByteByStep(
     int srcWidth = static_cast<int>(originalMask.size());
     int srcHeight = static_cast<int>(originalMask[0].size());
 
-    // Step1: short → 浮点密度图（非零即1.0）
+    // Step1: Convert short mask to floating-point density map (non-zero becomes 1.0)
     std::vector<std::vector<float>> current(
         srcWidth, std::vector<float>(srcHeight, 0.0f));
     for (int x = 0; x < srcWidth; ++x)
         for (int y = 0; y < srcHeight; ++y)
             current[x][y] = (originalMask[x][y] != 0) ? 1.0f : 0.0f;
 
-    // Step2: 生成降采样阶梯并逐步缩放（全程浮点）
+    // Step2: Build pyramid downsampling steps and scale progressively (all floating-point)
     auto steps = buildPyramidSteps(srcWidth, srcHeight, newWidth, newHeight, maxStepRatio);
 
     printf("Pyramid steps: %dx%d", srcWidth, srcHeight);
@@ -1480,7 +1480,7 @@ std::vector<std::vector<unsigned char>> resample2DShortMaskToByteByStep(
     for (auto& [w, h] : steps)
         current = resampleDensityOneStep(current, w, h);
 
-    // Step3: 最后一步统一二值化
+    // Step3: Binarize uniformly at the final step
     std::vector<std::vector<unsigned char>> result(
         newWidth, std::vector<unsigned char>(newHeight, 0));
     for (int x = 0; x < newWidth; ++x)
@@ -1503,7 +1503,7 @@ static std::vector<std::vector<float>> computeDensityMap(
     std::vector<std::vector<float>> density(
         newWidth, std::vector<float>(newHeight, 0.0f));
 
-    // 预计算每列的水平重叠区间（优化内层循环）
+    // Pre-compute horizontal overlap spans for each column (optimizes the inner loop)
     struct Span { int start, end; double x0, x1; };
     std::vector<Span> xSpans(newWidth);
     for (int nx = 0; nx < newWidth; ++nx) {
@@ -1525,7 +1525,7 @@ static std::vector<std::vector<float>> computeDensityMap(
             int endY = std::min(static_cast<int>(std::ceil(sy1)), srcH);
 
             double lakeArea = 0.0;
-            double totalArea = (xs.x1 - xs.x0) * (sy1 - sy0); // 理论总面积
+            double totalArea = (xs.x1 - xs.x0) * (sy1 - sy0); // Theoretical total area
 
             for (int x = xs.start; x < xs.end; ++x) {
                 double ox = std::min((double)(x + 1), xs.x1)
@@ -1547,10 +1547,10 @@ static std::vector<std::vector<float>> computeDensityMap(
 }
 
 // ============================================================
-// 形态学操作（纯手写，无外部库）
+// Morphological operations (hand-written, no external libraries)
 // ============================================================
 
-// 膨胀：有邻居是湖泊就扩展
+// Dilation: expand if any neighbor is a lake pixel
 static std::vector<std::vector<unsigned char>> dilate(
     const std::vector<std::vector<unsigned char>>& src, int radius = 1)
 {
@@ -1572,7 +1572,7 @@ static std::vector<std::vector<unsigned char>> dilate(
     return dst;
 }
 
-// 腐蚀：邻居全是湖泊才保留
+// Erosion: keep only if all neighbors are lake pixels
 static std::vector<std::vector<unsigned char>> erode(
     const std::vector<std::vector<unsigned char>>& src, int radius = 1)
 {
@@ -1594,14 +1594,14 @@ static std::vector<std::vector<unsigned char>> erode(
     return dst;
 }
 
-// 开运算（先腐蚀再膨胀）：去除噪点小湖泊
+// Morphological opening (erosion then dilation): removes small noisy lake regions
 static std::vector<std::vector<unsigned char>> morphOpen(
     const std::vector<std::vector<unsigned char>>& src, int radius = 1)
 {
     return dilate(erode(src, radius), radius);
 }
 
-// 闭运算（先膨胀再腐蚀）：填补湖泊内部小洞
+// Morphological closing (dilation then erosion): fills small holes inside lake regions
 static std::vector<std::vector<unsigned char>> morphClose(
     const std::vector<std::vector<unsigned char>>& src, int radius = 1)
 {
@@ -1609,13 +1609,13 @@ static std::vector<std::vector<unsigned char>> morphClose(
 }
 
 // ============================================================
-// 主函数
+// Main function
 // ============================================================
 std::vector<std::vector<unsigned char>> resample2DShortMaskToByteWithDensityThreshold(
     const std::vector<std::vector<short>>& originalMask,
     int newWidth,
     int newHeight,
-    double threshold   // 0.3~0.5，越小保留越多小湖泊
+    double threshold   // 0.3~0.5; smaller values preserve more small lakes
 )
 {
     if (originalMask.empty() || originalMask[0].empty())
@@ -1623,20 +1623,20 @@ std::vector<std::vector<unsigned char>> resample2DShortMaskToByteWithDensityThre
     if (newWidth <= 0 || newHeight <= 0)
         throw std::invalid_argument("invalid target size");
 
-    // Step 1: 精确面积重叠 → 浮点密度图
+    // Step 1: Precise area-overlap sampling -> floating-point density map
     auto density = computeDensityMap(originalMask, newWidth, newHeight);
 
-    // Step 2: 二值化
+    // Step 2: Binarize
     std::vector<std::vector<unsigned char>> result(
         newWidth, std::vector<unsigned char>(newHeight, 0));
     for (int x = 0; x < newWidth; ++x)
         for (int y = 0; y < newHeight; ++y)
             result[x][y] = (density[x][y] >= threshold) ? 1 : 0;
 
-    // Step 3: 形态学闭运算，填补缩放后湖泊内部出现的小空洞
+    // Step 3: Morphological closing to fill small holes that appear inside lakes after scaling
     result = morphClose(result, 1);
 
-    // Step 4: 形态学开运算，去除孤立噪点（非常小的假湖泊）
+    // Step 4: Morphological opening to remove isolated noise pixels (very small spurious lakes)
     result = morphOpen(result, 1);
 
     return result;
@@ -1660,11 +1660,11 @@ std::vector<std::vector<uint8_t>> resample2DShortMaskToByteByCenterSampling(
 
     for (int y = 0; y < targetHeight; ++y) {
         for (int x = 0; x < targetWidth; ++x) {
-            // 计算中心点在原图中的坐标（浮点）
+            // Compute the center point coordinates in the original image (floating-point)
             double centerX = (x + 0.5) * scaleX;
             double centerY = (y + 0.5) * scaleY;
 
-            // 取整（四舍五入或 floor，这里用 floor + clamp）
+            // Round to integer (round or floor; using floor + clamp here)
             int srcX = std::min(static_cast<int>(centerX), origW - 1);
             int srcY = std::min(static_cast<int>(centerY), origH - 1);
 
@@ -1675,7 +1675,7 @@ std::vector<std::vector<uint8_t>> resample2DShortMaskToByteByCenterSampling(
     return out;
 }
 
-// 辅助函数：连通域分析并过滤小区域
+// Helper function: connected-component analysis and small-region filtering
 std::vector<std::vector<short>> filterSmallComponents(
     const std::vector<std::vector<short>>& mask,
     int minArea)
@@ -1687,14 +1687,14 @@ std::vector<std::vector<short>> filterSmallComponents(
     std::vector<std::vector<short>> filtered = mask;
     std::vector<std::vector<bool>> visited(H, std::vector<bool>(W, false));
 
-    // 方向：上下左右
+    // Directions: up, down, left, right
     const int dx[4] = { 0, 0, -1, 1 };
     const int dy[4] = { -1, 1, 0, 0 };
 
     for (int y = 0; y < H; ++y) {
         for (int x = 0; x < W; ++x) {
             if (mask[y][x] != 0 && !visited[y][x]) {
-                // BFS 找连通域
+                // BFS to find the connected component
                 std::queue<std::pair<int, int>> q;
                 std::vector<std::pair<int, int>> component;
                 q.emplace(x, y);
@@ -1715,7 +1715,7 @@ std::vector<std::vector<short>> filterSmallComponents(
                     }
                 }
 
-                // 如果面积太小，清除该连通域
+                // If the component area is too small, clear it
                 if (static_cast<int>(component.size()) < minArea) {
                     for (auto [px, py] : component) {
                         filtered[py][px] = 0;
@@ -1728,20 +1728,20 @@ std::vector<std::vector<short>> filterSmallComponents(
     return filtered;
 }
 
-// 主函数：基于连通域过滤的重采样
+// Main function: resampling with connected-component filtering
 std::vector<std::vector<uint8_t>> resample2DShortMaskToByteWithComponentFiltering(
     const std::vector<std::vector<short>>& originalMask,
     int targetWidth, int targetHeight,
-    int minOriginalArea)  // 默认：至少4像素才保留
+    int minOriginalArea)  // Default: keep components with at least 4 pixels
 {
     if (originalMask.empty() || originalMask[0].empty()) {
         return std::vector<std::vector<uint8_t>>(targetHeight, std::vector<uint8_t>(targetWidth, 0));
     }
 
-    // 第一步：过滤掉太小的连通域（噪声）
+    // Step 1: Filter out connected components that are too small (noise)
     auto cleanedMask = filterSmallComponents(originalMask, minOriginalArea);
 
-    // 第二步：对干净的 mask 使用“存在即激活”下采样
+    // Step 2: Apply "presence-activates" downsampling on the cleaned mask
     const int origH = static_cast<int>(cleanedMask.size());
     const int origW = static_cast<int>(cleanedMask[0].size());
 
@@ -1802,7 +1802,7 @@ std::vector<std::vector<uint8_t>> resample2DShortMaskToByteWithLocalValidation(
                 for (int x = startX; x < endX; ++x) {
                     if (originalMask[y][x] != 0) {
                         points.emplace_back(x, y);
-                        if (points.size() >= 4) break; // 足够了
+                        if (points.size() >= 4) break; // Enough samples collected
                     }
                 }
                 if (points.size() >= 4) break;
@@ -1813,20 +1813,20 @@ std::vector<std::vector<uint8_t>> resample2DShortMaskToByteWithLocalValidation(
                 activate = false;
             }
             else if (points.size() >= 3) {
-                activate = true; // ≥3 个点大概率是真实目标
+                activate = true; // >=3 points most likely represent a real feature
             }
             else if (points.size() == 1) {
-                activate = false; // 单点视为噪声
+                activate = false; // Single point treated as noise
             }
             else { // exactly 2 points
                 int dx = std::abs(points[0].first - points[1].first);
                 int dy = std::abs(points[0].second - points[1].second);
-                // 如果两点是8邻域相连（包括对角），则保留
+                // Keep if the two points are 8-connected (including diagonals)
                 if (dx <= 1 && dy <= 1) {
                     activate = true;
                 }
                 else {
-                    activate = false; // 两点相距太远，可能是随机噪声
+                    activate = false; // Two points are too far apart, likely random noise
                 }
             }
 
@@ -1848,7 +1848,7 @@ std::vector<std::vector<short>> filterComponentsByMinArea8Connect(
     std::vector<std::vector<short>> filtered = mask;
     std::vector<std::vector<bool>> visited(H, std::vector<bool>(W, false));
 
-    // 8-邻域方向
+    // 8-neighborhood directions
     const int dx[8] = { -1, -1, -1, 0, 0, 1, 1, 1 };
     const int dy[8] = { -1, 0, 1, -1, 1, -1, 0, 1 };
 
@@ -1875,7 +1875,7 @@ std::vector<std::vector<short>> filterComponentsByMinArea8Connect(
                     }
                 }
 
-                // 仅当面积 >= minArea (12) 时保留
+                // Keep component only when area >= minArea (12)
                 if (static_cast<int>(component.size()) < minArea) {
                     for (auto [px, py] : component) {
                         filtered[py][px] = 0;
