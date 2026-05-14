@@ -1,4 +1,4 @@
-﻿#include "CForest.h"
+#include "CForest.h"
 
 #include <iostream>
 #include <fstream>
@@ -1503,6 +1503,49 @@ void CForest::removeTreesNearCaves() {
 	cout << "After Cave removal the rest of tree has percentage of " << percentageCount << " before tree count!" << endl;
 }
 
+void CForest::removeTreesInOcean()
+{
+
+	string title = "Remove the tree instances in the ocean : ";
+	CTimeCounter timeCounter(title);
+	int sizeBefore = trees.size();
+	cout << "Before remove tree in the ocean, Trees Size is : " << sizeBefore << endl;
+
+	// Diagnostic: sample first few trees to verify coordinate mapping
+	if (m_pOceanMask && !trees.empty()) {
+		cout << "Ocean mask diagnostic (first 5 trees):" << endl;
+		int sampleCount = std::min((int)trees.size(), 5);
+		for (int i = 0; i < sampleCount; i++) {
+			const auto& t = trees[i];
+			int ix = static_cast<int>(t.x / m_oceanMaskXRatio);
+			int iz = static_cast<int>(t.z / m_oceanMaskYRatio);
+			bool inBounds = (iz >= 0 && iz < m_oceanMaskWidth && ix >= 0 && ix < m_oceanMaskHeight);
+			short maskVal = inBounds ? (*m_pOceanMask)[iz][ix] : -1;
+			cout << "  tree[" << i << "] x=" << t.x << " z=" << t.z
+				<< " -> ix=" << ix << " iz=" << iz
+				<< " inBounds=" << inBounds << " maskVal=" << maskVal << endl;
+		}
+		cout << "  xRatio=" << m_oceanMaskXRatio << " yRatio=" << m_oceanMaskYRatio
+			<< " maskDims=[" << m_oceanMaskWidth << "][" << m_oceanMaskHeight << "]" << endl;
+		cout << "  Expected ix range: 0.." << (int)(xSize / m_oceanMaskXRatio)
+			<< "  Expected iz range: 0.." << (int)(zSize / m_oceanMaskYRatio) << endl;
+	}
+
+	trees.erase(
+		std::remove_if(trees.begin(), trees.end(),
+			[this](const auto& tree) {
+				return this->isOceanPosition(tree.x, tree.z);
+			}
+		),
+		trees.end()
+	);
+	int sizeAfter = trees.size();
+	cout << "After remove tree in the ocean, Trees Size is : " << sizeAfter << endl;
+	sizeBefore = sizeBefore ? sizeBefore : 1;
+	double percentageCount = static_cast<double>(100 * sizeAfter / sizeBefore);
+	cout << "After ocean removal the rest of tree has percentage of " << percentageCount << " before tree count!" << endl;
+}
+
 // Main generate function - refactored
 void CForest::generate2(float forestAge, int iterations) {
 	string title = "CForest::generate generate whole tree instances : ";
@@ -1550,6 +1593,7 @@ void CForest::generate2(float forestAge, int iterations) {
 
 	// Filter and finalize trees
 	filterMatureTrees(instances, ctx.instanceIndex);
+	removeTreesInOcean();
 	removeTreesNearPOIs();
 	if (!m_isLevel1Instances)
 	{
@@ -2632,6 +2676,9 @@ void CForest::generateFastAdjustAmount(
 				//       -> about 10% of rand() values <= 3276 -> 10% spawn probability
 				if (rand() > randThreshold) continue;
 
+				// Skip positions that fall on ocean surface
+				//if (isOceanPosition(x, z)) continue;
+
 				const int gridX = (x - xo) / gridDelta;
 				const int gridZ = (z - zo) / gridDelta;
 				int& gridP = getGridValue(grid, gridXSize, gridX, gridZ);
@@ -2763,6 +2810,9 @@ void CForest::generateFastAdjustAmount(
 							z >= tree.z - minRz && z <= tree.z + minRz)
 							continue;
 
+						// Skip positions that fall on ocean surface
+						//if (isOceanPosition(x, z)) continue;
+
 #if USE_RANDOM_SEED
 						// FIXED logic:
 						// Skip when rand() > seedRandThreshold (don't spawn seed)
@@ -2845,6 +2895,8 @@ finish_generation:
 		CTreeInstance& tree = instances[i];
 
 		if (!tree.dead && tree.mature) {
+			// Skip trees that ended up on ocean surface (e.g. from seeding across boundary)
+			//if (isOceanPosition(tree.x, tree.z)) continue;
 			double maskval = 1.0;
 
 			// Apply thinning masks
@@ -2879,6 +2931,7 @@ finish_generation:
 		}
 	}
 
+	removeTreesInOcean();
 	removeTreesNearPOIs();
 	if (!m_isLevel1Instances) {
 		removeTreesNearCaves();

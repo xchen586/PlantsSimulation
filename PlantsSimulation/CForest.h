@@ -196,6 +196,46 @@ public:
 		m_isLevel1Instances = isLevel1Instances;
 		std::cout << "Set CForest isLevel1Instances to " << m_isLevel1Instances << std::endl;
 	}
+
+	// Set the ocean height mask data for excluding tree generation on ocean surfaces
+	void setOceanMask(const std::vector<std::vector<short>>* pOceanMask,
+		int maskWidth, int maskHeight,
+		double xRatio, double yRatio)
+	{
+		m_pOceanMask = pOceanMask;
+		m_oceanMaskWidth = maskWidth;
+		m_oceanMaskHeight = maskHeight;
+		m_oceanMaskXRatio = xRatio;
+		m_oceanMaskYRatio = yRatio;
+		std::cout << "Set CForest ocean mask: " << maskWidth << "x" << maskHeight
+			<< " (xRatio=" << xRatio << ", yRatio=" << yRatio << ")" << std::endl;
+
+		// Count non-zero pixels to verify mask coverage
+		int nonZeroCount = 0;
+		for (int i = 0; i < maskWidth && pOceanMask; i++) {
+			for (int j = 0; j < maskHeight; j++) {
+				if ((*pOceanMask)[i][j] > 0) nonZeroCount++;
+			}
+		}
+		int totalPixels = maskWidth * maskHeight;
+		double oceanPct = totalPixels > 0 ? 100.0 * nonZeroCount / totalPixels : 0.0;
+		std::cout << "Ocean mask non-zero pixels: " << nonZeroCount << " / " << totalPixels
+			<< " (" << oceanPct << "% ocean coverage)" << std::endl;
+	}
+
+	// Check if a world coordinate position falls on an ocean surface.
+	// Read2DShortArray(invert=true) stores data as array[z_pixel][x_pixel] = file_value(x_pixel, z_pixel),
+	// so the correct lookup is [iz][ix] matching the outer-z, inner-x storage layout.
+	inline bool isOceanPosition(double worldX, double worldZ) const {
+		if (!m_pOceanMask) return false;
+		int ix = static_cast<int>(worldX / m_oceanMaskXRatio);
+		int iz = static_cast<int>(worldZ / m_oceanMaskYRatio);
+		// iz indexes the outer dim (size = m_oceanMaskWidth), ix indexes the inner dim (size = m_oceanMaskHeight)
+		if (iz < 0 || iz >= m_oceanMaskWidth || ix < 0 || ix >= m_oceanMaskHeight)
+			return false;
+		return (*m_pOceanMask)[iz][ix] != 0;
+	}
+
 	void setIsEnhanced(bool isEnhanced)
 	{
 		m_isEnhanced = isEnhanced;
@@ -217,6 +257,7 @@ public:
 
 	void removeTreesNearPOIs();
 	void removeTreesNearCaves();
+	void removeTreesInOcean();
 	double calculateMaskValue(TreeClass* treeClass, int x, int z);
 	TreeClass* selectTreeClass(ClassStrength* classArray, int x, int z);
 	double clampPosition(double pos, double gridPos, double offset, int limit, int origin, bool isAtLimit);
@@ -257,6 +298,13 @@ protected:
 	std::vector<Point>* m_pPoisLocations;
 	bool m_isLevel1Instances;
 	bool m_isEnhanced;
+
+	// Ocean mask data for excluding tree generation on ocean surfaces
+	const std::vector<std::vector<short>>* m_pOceanMask = nullptr;
+	int m_oceanMaskWidth = 0;
+	int m_oceanMaskHeight = 0;
+	double m_oceanMaskXRatio = 1.0;
+	double m_oceanMaskYRatio = 1.0;
 
 };
 

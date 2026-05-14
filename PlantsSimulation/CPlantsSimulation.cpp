@@ -9,6 +9,62 @@
     #include "..\Common\include\PsMarco.h"
 #endif
 
+#include <queue>
+#include <climits>
+
+// Expand sparse ocean pixels outward by 'radius' pixels using BFS (Manhattan distance).
+// This connects isolated ocean points into a continuous filled region.
+static void DilateOceanMask(std::vector<std::vector<short>>& mask, int radius)
+{
+	if (mask.empty() || radius <= 0) return;
+	const int outerSize = (int)mask.size();
+	const int innerSize = (int)mask[0].size();
+	if (innerSize == 0) return;
+
+	std::vector<std::vector<int>> dist(outerSize, std::vector<int>(innerSize, INT_MAX));
+	std::queue<std::pair<int, int>> q;
+
+	int seedCount = 0;
+	for (int i = 0; i < outerSize; i++) {
+		for (int j = 0; j < innerSize; j++) {
+			if (mask[i][j] != 0) {
+				dist[i][j] = 0;
+				q.emplace(i, j);
+				seedCount++;
+			}
+		}
+	}
+	std::cout << "Ocean mask dilation: " << seedCount << " seed pixels, radius=" << radius << std::endl;
+
+	const int di[] = { -1, 1, 0, 0 };
+	const int dj[] = { 0, 0, -1, 1 };
+	while (!q.empty()) {
+		auto [ci, cj] = q.front(); q.pop();
+		int nextDist = dist[ci][cj] + 1;
+		if (nextDist > radius) continue;
+		for (int d = 0; d < 4; d++) {
+			int ni = ci + di[d];
+			int nj = cj + dj[d];
+			if (ni >= 0 && ni < outerSize && nj >= 0 && nj < innerSize && dist[ni][nj] == INT_MAX) {
+				dist[ni][nj] = nextDist;
+				q.emplace(ni, nj);
+			}
+		}
+	}
+
+	int dilated = 0;
+	for (int i = 0; i < outerSize; i++) {
+		for (int j = 0; j < innerSize; j++) {
+			if (mask[i][j] == 0 && dist[i][j] <= radius) {
+				mask[i][j] = 1;
+				dilated++;
+			}
+		}
+	}
+	std::cout << "Ocean mask dilation: filled " << dilated << " additional pixels (total ocean now "
+		<< (seedCount + dilated) << " / " << (outerSize * innerSize) << ")" << std::endl;
+}
+
 /*bool CPlantsSimulation::loadInputImageFile(const string& inputImageFile)
 {
 	this->input_image_data = stbi_load(inputImageFile.c_str(), &this->input_image_width, &this->input_image_height, &this->input_image_comp, 1);
@@ -638,6 +694,7 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	std::vector<std::vector<short>> lakes1HeightMasksShort4096 = Read2DShortArray(m_level1LakesHeightMasksFile, width, height);
 	std::vector<std::vector<short>> lakesHeightMasksShort4096 = Read2DShortArray(lakesHeightMasksFile, width, height);
 	std::vector<std::vector<short>> oceanHeightMasksShort4096 = Read2DShortArray(m_oceanHeightMasksFile, width, height);
+	
 
 	std::vector<std::vector<short>> level1SurfaceHeightMasksShort4096(width, std::vector<short>(height));
 	std::vector<std::vector<short>> heightMasksShort4096(width, std::vector<short>(height));
@@ -1363,6 +1420,12 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	bool outputExposureMaskByteLowMap = Output2DVectorToRawFile(exposure_mask_byte_low_map, byte_exposure_mask_low_map_export);
 	
 	}
+
+	// Persist the ocean mask so LoadForest() can pass it to CForest for excluding tree generation on ocean surfaces.
+	// Dilate sparse ocean pixels so isolated points connect into a solid ocean region.
+	m_oceanHeightMask = std::move(oceanHeightMasksShort4096);
+	const int oceanDilationRadius = 50;
+	DilateOceanMask(m_oceanHeightMask, oceanDilationRadius);
 
 	return true;
 }
@@ -2222,6 +2285,31 @@ bool CPlantsSimulation::LoadForest()
 	m_pForest->maxHeight = m_maxHeight;
 	std::cout << "Forest xSize is : " << m_pForest->xSize << std::endl;
 	std::cout << "Forest zSize is : " << m_pForest->zSize << std::endl;
+
+	// Pass ocean mask so CForest can exclude tree generation on ocean surfaces
+	if (!m_oceanHeightMask.empty())
+	{
+		const int oceanMaskWidth = static_cast<int>(m_oceanHeightMask.size());
+		const int oceanMaskHeight = (oceanMaskWidth > 0) ? static_cast<int>(m_oceanHeightMask[0].size()) : 0;
+		// Compute the ratio that maps tree world coordinates [0, xSize] -> pixel indices [0, maskWidth].
+		// Using m_topLayerMeta->xRatio (pixels-to-meters) is wrong when xSize != 4096*xRatio
+		// (e.g., tileScale doubles the world coordinate range while the mask stays 4096x4096).
+		const double xMaskRatio = (oceanMaskWidth > 0) ? (double)m_pForest->xSize / oceanMaskWidth : 1.0;
+		const double yMaskRatio = (oceanMaskHeight > 0) ? (double)m_pForest->zSize / oceanMaskHeight : 1.0;
+		std::cout << "Ocean mask ratios: xMaskRatio=" << xMaskRatio << " yMaskRatio=" << yMaskRatio
+			<< " (forestXSize=" << m_pForest->xSize << " forestZSize=" << m_pForest->zSize << ")" << std::endl;
+		m_pForest->setOceanMask(
+			&m_oceanHeightMask,
+			oceanMaskWidth,
+			oceanMaskHeight,
+			xMaskRatio,
+			yMaskRatio
+		);
+	}
+	else
+	{
+		std::cout << "Warning: Ocean mask is empty, trees may be generated on ocean surfaces!" << std::endl;
+	}
 
 	std::string inputTreeListCsv = m_isLevel1Instances ? m_inputLevel1TreeListCsv : m_inputTreeListCsv;
 	bool loadTreeList = m_pForest->parseTreeListCsv(inputTreeListCsv);

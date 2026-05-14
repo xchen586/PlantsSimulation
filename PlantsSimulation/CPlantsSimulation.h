@@ -165,6 +165,7 @@ private:
 	std::vector<std::pair<std::vector<Point>, int>>* m_p2dCaveLevel1Nodes;
 	std::vector<Point> m_PoisLocations;
 	int m_maxHeight;
+	std::vector<std::vector<short>> m_oceanHeightMask; // Ocean mask for excluding tree generation on ocean
 public:
 	~CPlantsSimulation()
 	{
