@@ -1423,9 +1423,10 @@ bool CPlantsSimulation::LoadInputHeightMap()
 
 	// Persist the ocean mask so LoadForest() can pass it to CForest for excluding tree generation on ocean surfaces.
 	// Dilate sparse ocean pixels so isolated points connect into a solid ocean region.
-	m_oceanHeightMask = std::move(oceanHeightMasksShort4096);
+	std::vector<std::vector<short>> tempOceanMask = std::move(oceanHeightMasksShort4096);
 	const int oceanDilationRadius = 50;
-	DilateOceanMask(m_oceanHeightMask, oceanDilationRadius);
+	DilateOceanMask(tempOceanMask, oceanDilationRadius);
+	m_oceanHeightMask = invert2DArray(tempOceanMask);
 
 	return true;
 }
