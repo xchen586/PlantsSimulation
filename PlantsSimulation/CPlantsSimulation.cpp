@@ -1428,6 +1428,24 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	DilateOceanMask(tempOceanMask, oceanDilationRadius);
 	m_oceanHeightMask = invert2DArray(tempOceanMask);
 
+	// Persist the exposure mask so LoadForest() can pass it to CForest for excluding tree generation on exposed surfaces.
+	// exposure_mask_map[x][y] is computed inline above in the normal [x][y] convention (outer=x, inner=y).
+	// Apply invert2DArray so the stored layout matches the ocean mask ([iz][ix] lookup convention).
+	
+	std::vector<std::vector<short>> tempExposureMask(width, std::vector<short>(height));
+	for (int x = 0; x < width; x++) {
+		for (int y = 0; y < height; y++) {
+			tempExposureMask[x][y] = exposure_init_map[x][y] ? 1 : 0;
+		}
+	}
+	m_exposureHeightMask = invert2DArray(tempExposureMask);
+	int nonZeroCount = 0;
+	for (const auto& row : m_exposureHeightMask)
+		for (short v : row)
+			if (v != 0) nonZeroCount++;
+	std::cout << "Exposure mask persisted: " << nonZeroCount << " / "
+		<< (width * height) << " pixels marked as exposed" << std::endl;
+	
 	return true;
 }
 
@@ -2310,6 +2328,28 @@ bool CPlantsSimulation::LoadForest()
 	else
 	{
 		std::cout << "Warning: Ocean mask is empty, trees may be generated on ocean surfaces!" << std::endl;
+	}
+
+	// Pass exposure mask so CForest can exclude tree generation on exposed surfaces
+	if (!m_exposureHeightMask.empty())
+	{
+		const int expMaskWidth = static_cast<int>(m_exposureHeightMask.size());
+		const int expMaskHeight = (expMaskWidth > 0) ? static_cast<int>(m_exposureHeightMask[0].size()) : 0;
+		const double xExpRatio = (expMaskWidth > 0) ? (double)m_pForest->xSize / expMaskWidth : 1.0;
+		const double yExpRatio = (expMaskHeight > 0) ? (double)m_pForest->zSize / expMaskHeight : 1.0;
+		std::cout << "Exposure mask ratios: xExpRatio=" << xExpRatio << " yExpRatio=" << yExpRatio
+			<< " maskDims=" << expMaskWidth << "x" << expMaskHeight << std::endl;
+		m_pForest->setExposureMask(
+			&m_exposureHeightMask,
+			expMaskWidth,
+			expMaskHeight,
+			xExpRatio,
+			yExpRatio
+		);
+	}
+	else
+	{
+		std::cout << "Warning: Exposure mask is empty, trees may be generated on exposed surfaces!" << std::endl;
 	}
 
 	std::string inputTreeListCsv = m_isLevel1Instances ? m_inputLevel1TreeListCsv : m_inputTreeListCsv;

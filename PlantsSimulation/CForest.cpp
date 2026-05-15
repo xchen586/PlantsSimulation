@@ -1546,6 +1546,27 @@ void CForest::removeTreesInOcean()
 	cout << "After ocean removal the rest of tree has percentage of " << percentageCount << " before tree count!" << endl;
 }
 
+void CForest::removeTreesInExpose()
+{
+	string title = "Remove the tree instances in the exposure area : ";
+	CTimeCounter timeCounter(title);
+	int sizeBefore = trees.size();
+	cout << "Before remove tree in exposure area, Trees Size is : " << sizeBefore << endl;
+	trees.erase(
+		std::remove_if(trees.begin(), trees.end(),
+			[this](const auto& tree) {
+				return this->isExposurePosition(tree.x, tree.z);
+			}
+		),
+		trees.end()
+	);
+	int sizeAfter = trees.size();
+	cout << "After remove tree in exposure area, Trees Size is : " << sizeAfter << endl;
+	sizeBefore = sizeBefore ? sizeBefore : 1;
+	double percentageCount = static_cast<double>(100 * sizeAfter / sizeBefore);
+	cout << "After exposure removal the rest of tree has percentage of " << percentageCount << " before tree count!" << endl;
+}
+
 // Main generate function - refactored
 void CForest::generate2(float forestAge, int iterations) {
 	string title = "CForest::generate generate whole tree instances : ";
@@ -1594,6 +1615,7 @@ void CForest::generate2(float forestAge, int iterations) {
 	// Filter and finalize trees
 	filterMatureTrees(instances, ctx.instanceIndex);
 	removeTreesInOcean();
+	removeTreesInExpose();
 	removeTreesNearPOIs();
 	if (!m_isLevel1Instances)
 	{
@@ -2932,6 +2954,7 @@ finish_generation:
 	}
 
 	removeTreesInOcean();
+	removeTreesInExpose();
 	removeTreesNearPOIs();
 	if (!m_isLevel1Instances) {
 		removeTreesNearCaves();

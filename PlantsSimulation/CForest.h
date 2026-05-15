@@ -197,6 +197,40 @@ public:
 		std::cout << "Set CForest isLevel1Instances to " << m_isLevel1Instances << std::endl;
 	}
 
+	// Set the exposure mask data for excluding tree generation on exposed surfaces
+	void setExposureMask(const std::vector<std::vector<short>>* pExposureMask,
+		int maskWidth, int maskHeight,
+		double xRatio, double yRatio)
+	{
+		m_pExposureMask = pExposureMask;
+		m_exposureMaskWidth = maskWidth;
+		m_exposureMaskHeight = maskHeight;
+		m_exposureMaskXRatio = xRatio;
+		m_exposureMaskYRatio = yRatio;
+		std::cout << "Set CForest exposure mask: " << maskWidth << "x" << maskHeight
+			<< " (xRatio=" << xRatio << ", yRatio=" << yRatio << ")" << std::endl;
+
+		int nonZeroCount = 0;
+		for (int i = 0; i < maskWidth && pExposureMask; i++) {
+			for (int j = 0; j < maskHeight; j++) {
+				if ((*pExposureMask)[i][j] > 0) nonZeroCount++;
+			}
+		}
+		int totalPixels = maskWidth * maskHeight;
+		double exposurePct = totalPixels > 0 ? 100.0 * nonZeroCount / totalPixels : 0.0;
+		std::cout << "Exposure mask non-zero pixels: " << nonZeroCount << " / " << totalPixels
+			<< " (" << exposurePct << "% exposure coverage)" << std::endl;
+	}
+
+	inline bool isExposurePosition(double worldX, double worldZ) const {
+		if (!m_pExposureMask) return false;
+		int ix = static_cast<int>(worldX / m_exposureMaskXRatio);
+		int iz = static_cast<int>(worldZ / m_exposureMaskYRatio);
+		if (iz < 0 || iz >= m_exposureMaskWidth || ix < 0 || ix >= m_exposureMaskHeight)
+			return false;
+		return (*m_pExposureMask)[iz][ix] != 0;
+	}
+
 	// Set the ocean height mask data for excluding tree generation on ocean surfaces
 	void setOceanMask(const std::vector<std::vector<short>>* pOceanMask,
 		int maskWidth, int maskHeight,
@@ -258,6 +292,7 @@ public:
 	void removeTreesNearPOIs();
 	void removeTreesNearCaves();
 	void removeTreesInOcean();
+	void removeTreesInExpose();
 	double calculateMaskValue(TreeClass* treeClass, int x, int z);
 	TreeClass* selectTreeClass(ClassStrength* classArray, int x, int z);
 	double clampPosition(double pos, double gridPos, double offset, int limit, int origin, bool isAtLimit);
@@ -305,6 +340,13 @@ protected:
 	int m_oceanMaskHeight = 0;
 	double m_oceanMaskXRatio = 1.0;
 	double m_oceanMaskYRatio = 1.0;
+
+	// Exposure mask data for excluding tree generation on exposed surfaces
+	const std::vector<std::vector<short>>* m_pExposureMask = nullptr;
+	int m_exposureMaskWidth = 0;
+	int m_exposureMaskHeight = 0;
+	double m_exposureMaskXRatio = 1.0;
+	double m_exposureMaskYRatio = 1.0;
 
 };
 
