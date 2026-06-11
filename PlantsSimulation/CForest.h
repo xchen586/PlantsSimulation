@@ -6,11 +6,8 @@
 
 #include "I2DMask.h"
 
-#if __APPLE__
-    #include "../Common/include/TreeInstance.h"
-#else
-    #include "..\Common\include\TreeInstance.h"
-#endif
+// Refactor (Phase 2.2): normalized to forward-slash includes; dropped #if __APPLE__ block.
+#include "../Common/include/TreeInstance.h"
 
 using namespace std;
 class CCellInfo;
@@ -27,29 +24,23 @@ struct ClassStrength
 	TreeClass* treeClass;
 };
 
-// Helper structure and initialization
+// Refactor (Phase 2.3): replaced manual malloc/free/memset with std::vector<int>.
+// Destructor and null-check are no longer needed; vector manages the lifetime.
 struct GridInfo {
 	int gridDelta;
 	int gridXSize;
 	int gridZSize;
-	int gridTotalSize;
-	int* girdData;
+	std::vector<int> data;
 
 	GridInfo(int forestXSize, int forestZSize, int gridDelta)
-		: gridDelta(gridDelta),
-		gridXSize(forestXSize / gridDelta),
-		gridZSize(forestZSize / gridDelta) {
-		gridTotalSize = (gridXSize + 1) * (gridZSize + 1) * sizeof(int);
-		girdData = (int*)malloc(gridTotalSize);
-		memset(girdData, 0, gridTotalSize);
-	}
-
-	~GridInfo() {
-		if (girdData) free(girdData);
-	}
+		: gridDelta(gridDelta)
+		, gridXSize(forestXSize / gridDelta)
+		, gridZSize(forestZSize / gridDelta)
+		, data((gridXSize + 1) * (gridZSize + 1), 0)
+	{}
 
 	int& at(int gridX, int gridZ) {
-		return girdData[gridXSize * gridZ + gridX];
+		return data[gridXSize * gridZ + gridX];
 	}
 };
 

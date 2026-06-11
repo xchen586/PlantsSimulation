@@ -1,21 +1,13 @@
 #pragma once
 
-#if __APPLE__
+// Refactor (Phase 2.2): normalized to forward-slash includes; dropped #if __APPLE__ blocks.
+// Note: bare "#include" (no path) on the Apple branch was a pre-existing typo — dropped.
 #include "../Common/include/PsMarco.h"
 #include "../Common/include/PsHelper.h"
 #include "../Common/include/CCellInfo.h"
 #include "../Common/include/RegionStruct.h"
 #include "../Common/include/Instance.h"
 #include "../Common/include/TreeInstance.h"
-#include
-#else
-#include "..\Common\include\PsMarco.h"
-#include "..\Common\include\PsHelper.h"
-#include "..\Common\include\CCellInfo.h"
-#include "..\Common\include\RegionStruct.h"
-#include "..\Common\include\Instance.h"
-#include "..\Common\include\TreeInstance.h"
-#endif
 
 std::string Get2DArrayFilePathForRegion(const string& outputDir, int lod, int intXIdx, int intYIdx, int intZIdx);
 std::string Get2DArrayRawCsvFilePathForRegion(const string& outputDir, int lod, int intXIdx, int intYIdx, int intZIdx);

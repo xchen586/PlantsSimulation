@@ -1,13 +1,14 @@
 #pragma once
 
+// --- Compile-time feature flags (will move to runtime config in Phase 3.2) ---
+
 #ifndef USE_SCOPE_ANGLE
 #define USE_SCOPE_ANGLE 1
 #endif
 
 #ifndef USE_RANDOM_SEED
 #define USE_RANDOM_SEED 1
-#endif 
-
+#endif
 
 #ifndef USE_EXPORT_EXPOSURE_MAP
 #define USE_EXPORT_EXPOSURE_MAP 1
@@ -19,11 +20,11 @@
 
 #ifndef USE_EXPORT_HEIGHT_MAP
 #define USE_EXPORT_HEIGHT_MAP 0
-#endif 
+#endif
 
 #ifndef USE_MAX_SLOPE_ANGLE
 #define USE_MAX_SLOPE_ANGLE 0
-#endif 
+#endif
 
 #ifndef USE_POS_RELATIVE
 #define USE_POS_RELATIVE 0
@@ -32,8 +33,6 @@
 #ifndef USE_SIMPLE_PC_OUTPUT
 #define USE_SIMPLE_PC_OUTPUT 0
 #endif
-
-#pragma once
 
 #ifndef USE_OUTPUT_HEIGHT_MAP_CSV
 #define USE_OUTPUT_HEIGHT_MAP_CSV 0
@@ -63,34 +62,19 @@
 #define USE_ONLY_TOPLAYER_FOR_ROAD_DATA 0
 #endif
 
-#ifndef PI
-#define PI       3.14159265358979323846   // pi
-#endif // !PI
+// --- Numeric constants ---
+// Refactor: converted from #define macros to constexpr to get type safety and
+// proper scoping. Removed duplicate #pragma once that was erroneously placed
+// mid-file. PI renamed PS_PI to avoid colliding with system-header definitions.
 
-#ifndef UNAVAILBLE_NEG_HEIGHT
-#define UNAVAILBLE_NEG_HEIGHT	-20000
-#endif // !UNAVAILBLE_NEG_HEIGHT
+constexpr double PS_PI = 3.14159265358979323846;
 
-#ifndef UNAVAILBLE_POS_HEIGHT
-#define UNAVAILBLE_POS_HEIGHT	20000
-#endif // !UNAVAILBLE_POS_HEIGHT
+constexpr double UNAVAILBLE_NEG_HEIGHT    = -20000.0;
+constexpr double UNAVAILBLE_POS_HEIGHT    =  20000.0;
 
-#ifndef HEIGHTMAP_MASK_NO_DATA
-#define HEIGHTMAP_MASK_NO_DATA		0
-#endif // !HEIGHTMAP_MASK_NO_DATA
+constexpr int    HEIGHTMAP_MASK_NO_DATA   = 0;
+constexpr int    HEIGHTMAP_MASK_HAS_DATA  = 1000;
 
-#ifndef HEIGHTMAP_MASK_HAS_DATA
-#define HEIGHTMAP_MASK_HAS_DATA	1000
-#endif // !HEIGHTMAP_MASK_HAS_DATA
-
-#ifndef CAVE_DISTANCE_LIMIT_TREE
-#define CAVE_DISTANCE_LIMIT_TREE	    150
-#endif // !CAVE_DISTANCE_LIMIT_TREE
-
-#ifndef CAVE_DISTANCE_LIMIT_POI
-#define CAVE_DISTANCE_LIMIT_POI	    100
-#endif // !CAVE_DISTANCE_LIMIT_POI
-
-#ifndef TREE_FROM_POI_DISTANCE_LIMIT
-#define TREE_FROM_POI_DISTANCE_LIMIT	    20
-#endif // !TREE_FROM_POI_DISTANCE_LIMIT
+constexpr double CAVE_DISTANCE_LIMIT_TREE = 150.0;
+constexpr double CAVE_DISTANCE_LIMIT_POI  = 100.0;
+constexpr double TREE_FROM_POI_DISTANCE_LIMIT = 20.0;

@@ -9,17 +9,11 @@
 #include "TreeClasses.h"
 #include "CCellI2DMask.h"
 
-#if __APPLE__
-	#include "../Common/include/PsMarco.h"
-	#include "../Common/include/PsHelper.h"
-	#include "../Common/Include/PointInstance.h"
-	#include "../Common/Include/CTimeCounter.h"
-#else
-	#include "..\Common\include\PsMarco.h"
-    #include "..\Common\include\PsHelper.h"
-	#include "..\Common\Include\PointInstance.h"
-	#include "..\Common\Include\CTimeCounter.h"
-#endif
+// Refactor (Phase 2.2): normalized to forward-slash includes; dropped #if __APPLE__ block.
+#include "../Common/include/PsMarco.h"
+#include "../Common/include/PsHelper.h"
+#include "../Common/Include/PointInstance.h"
+#include "../Common/Include/CTimeCounter.h"
 
 CForest::CForest(void)
 	: m_pCellTable(nullptr)
@@ -59,10 +53,11 @@ void CForest::loadDefaultTreeClasses()
 
 void CForest::doLoadDefaultTreeClasses()
 {
-	TreeClass* treeClassOak = new COakTreeClass();
-	TreeClass* treeClassMaple = new CMapleTreeClass();
-	TreeClass* treeClassBirch = new CBirchTreeClass();
-	TreeClass* treeClassFir = new CFirTreeClass();
+	// Refactor (Phase 1.2): 4 species subclasses replaced by CTreeSpeciesClass(PlantType).
+	TreeClass* treeClassOak   = new CTreeSpeciesClass(PlantType::TREE_OAK);
+	TreeClass* treeClassMaple = new CTreeSpeciesClass(PlantType::TREE_MAPLE);
+	TreeClass* treeClassBirch = new CTreeSpeciesClass(PlantType::TREE_BIRCH);
+	TreeClass* treeClassFir   = new CTreeSpeciesClass(PlantType::TREE_FIR);
 
 	classes.push_back(treeClassOak);
 	classes.push_back(treeClassMaple);
@@ -89,11 +84,12 @@ void CForest::doLoadDefaultMasks()
 	double xRatio = m_pMetaInfo->xRatio;
 	double yRatio = m_pMetaInfo->yRatio;
 
-	I2DMask* pHeightI2DMask = new CCellHeightI2DMask(m_pCellTable, xRatio, yRatio);
-	I2DMask* pSlopeI2DMask = new CCellSlopeI2DMask(m_pCellTable, xRatio, yRatio);
-	I2DMask* pMoistureI2DMask = new CCellMoistureI2DMask(m_pCellTable, xRatio, yRatio);
-	I2DMask* pRoughnessI2DMask = new CCellRoughnessI2DMask(m_pCellTable, xRatio, yRatio);
-	I2DMask* pRoadAttributeI2DMask = new CCellRoadAttributeI2DMask(m_pCellTable, xRatio, yRatio);
+	// Refactor (Phase 2.1): replaced 6 CCellXxxI2DMask subclasses with factory functions.
+	I2DMask* pHeightI2DMask        = MakeCellHeightMask(m_pCellTable, xRatio, yRatio);
+	I2DMask* pSlopeI2DMask         = MakeCellSlopeMask(m_pCellTable, xRatio, yRatio);
+	I2DMask* pMoistureI2DMask      = MakeCellMoistureMask(m_pCellTable, xRatio, yRatio);
+	I2DMask* pRoughnessI2DMask     = MakeCellRoughnessMask(m_pCellTable, xRatio, yRatio);
+	I2DMask* pRoadAttributeI2DMask = MakeCellRoadAttributeMask(m_pCellTable, xRatio, yRatio);
 
 	pair<string, I2DMask*> treeOakHeightPair = GetI2DMaskKeyPairFromPlantTypeWithDensityMapType(PlantType::TREE_OAK, DensityMapType::DensityMap_Height, pHeightI2DMask);
 	pair<string, I2DMask*> treeOakSlopePair = GetI2DMaskKeyPairFromPlantTypeWithDensityMapType(PlantType::TREE_OAK, DensityMapType::DensityMap_Slope, pSlopeI2DMask);
@@ -255,11 +251,12 @@ bool CForest::parseTreeListCsv(const string& inputTreeListCsv)
 	double xRatio = m_pMetaInfo->xRatio;
 	double yRatio = m_pMetaInfo->yRatio;
 
-	I2DMask* pHeightI2DMask = new CCellHeightI2DMask(m_pCellTable, xRatio, yRatio);
-	I2DMask* pSlopeI2DMask = new CCellSlopeI2DMask(m_pCellTable, xRatio, yRatio);
-	I2DMask* pMoistureI2DMask = new CCellMoistureI2DMask(m_pCellTable, xRatio, yRatio);
-	I2DMask* pRoughnessI2DMask = new CCellRoughnessI2DMask(m_pCellTable, xRatio, yRatio);
-	I2DMask* pRoadAttributeI2DMask = new CCellRoadAttributeI2DMask(m_pCellTable, xRatio, yRatio);
+	// Refactor (Phase 2.1): replaced 6 CCellXxxI2DMask subclasses with factory functions.
+	I2DMask* pHeightI2DMask        = MakeCellHeightMask(m_pCellTable, xRatio, yRatio);
+	I2DMask* pSlopeI2DMask         = MakeCellSlopeMask(m_pCellTable, xRatio, yRatio);
+	I2DMask* pMoistureI2DMask      = MakeCellMoistureMask(m_pCellTable, xRatio, yRatio);
+	I2DMask* pRoughnessI2DMask     = MakeCellRoughnessMask(m_pCellTable, xRatio, yRatio);
+	I2DMask* pRoadAttributeI2DMask = MakeCellRoadAttributeMask(m_pCellTable, xRatio, yRatio);
 
 	pair<DensityMapType, I2DMask*> heightPair(DensityMapType::DensityMap_Height, pHeightI2DMask);
 	rawI2DMasks.insert(heightPair);
@@ -272,7 +269,8 @@ bool CForest::parseTreeListCsv(const string& inputTreeListCsv)
 	pair<DensityMapType, I2DMask*> roadPair(DensityMapType::DensityMap_RoadAttribute, pRoadAttributeI2DMask);
 	rawI2DMasks.insert(roadPair);
 	if (columnCount > static_cast<int>(TreeList_CSV_Columns::TL_SunLightAffinityMax)) {
-		I2DMask* pSunLightAffinityI2DMask = new CCellSunLightAffinityID2Mask(m_pCellTable, xRatio, yRatio);
+		// Refactor (Phase 2.1): replaced CCellSunLightAffinityID2Mask with factory function.
+		I2DMask* pSunLightAffinityI2DMask = MakeCellSunLightAffinityMask(m_pCellTable, xRatio, yRatio);
 		pair<DensityMapType, I2DMask*> sunLightAffinityPair(DensityMapType::DensityMap_SunLightAffinity, pSunLightAffinityI2DMask);
 		rawI2DMasks.insert(sunLightAffinityPair);
 	}
@@ -364,9 +362,9 @@ TreeClass* CForest::getTreeClassFromStringVector(const std::vector<std::string>&
 	tree->masks.insert(moistureDensityPair);
 
 	DensityMap* slopeDensity = new CSlopeDensityMap();
-	slopeDensity->minval = 0 * (PI / 180.0);
-	slopeDensity->maxval = 63 * (PI / 180.0);
-	slopeDensity->ease = 5 * (PI / 180.0);
+	slopeDensity->minval = 0 * (PS_PI / 180.0);  // PI -> PS_PI (constexpr in PsMarco.h)
+	slopeDensity->maxval = 63 * (PS_PI / 180.0);
+	slopeDensity->ease = 5 * (PS_PI / 180.0);
 	pair<string, DensityMap*> slopeDensityPair = GetDensityKeyPairFromTreeClassWithDensityMapType(tree, slopeDensity->type, slopeDensity);
 	tree->masks.insert(slopeDensityPair);
 	
@@ -1579,13 +1577,13 @@ void CForest::generate2(float forestAge, int iterations) {
 	cout << "gridDelta is : " << gridDelta << endl;
 	cout << "gridXSize is : " << grid.gridXSize << endl;
 	cout << "gridZSize is : " << grid.gridZSize << endl;
-	cout << "gridSize is : " << grid.gridTotalSize << endl;
+	cout << "gridSize is : " << grid.data.size() << endl;  // gridTotalSize removed; use vector size
 
-	// Initialize instances and class array
-	CTreeInstance* instances = (CTreeInstance*)malloc(SEED_MAX * sizeof(CTreeInstance));
-	memset(instances, 0, SEED_MAX * sizeof(CTreeInstance));
-
-	ClassStrength* classArray = (ClassStrength*)malloc(classes.size() * sizeof(ClassStrength));
+	// Refactor (Phase 3.3): replaced malloc/memset with std::vector; fixed UB (was delete, should be free).
+	std::vector<CTreeInstance> instancesVec(SEED_MAX);
+	CTreeInstance* instances = instancesVec.data();
+	std::vector<ClassStrength> classArrayVec(classes.size());
+	ClassStrength* classArray = classArrayVec.data();
 
 	// Iterate through forest age
 	double timeSlice = forestAge / iterations;
@@ -1623,9 +1621,7 @@ void CForest::generate2(float forestAge, int iterations) {
 	}
 	cout << "Trees Size : " << trees.size() << endl;
 
-	// Cleanup
-	delete instances;
-	free(classArray);
+	// Refactor (Phase 3.3): vectors freed automatically at end of scope.
 }
 
 

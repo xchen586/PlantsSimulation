@@ -1,4 +1,5 @@
 #include "CAppFuncs.h"
+#include "PsPlatform.h"  // Refactor (Phase 2.2): ps_sprintf wrapper
 
 #include <cassert>
 
@@ -9,13 +10,9 @@ std::string Get2DArrayFilePathForRegion(const string& outputDir, int lod, int in
 	char subFilePath[MAX_PATH];
 	memset(subFileName, 0, sizeof(char) * MAX_PATH);
 	memset(subFilePath, 0, sizeof(char) * MAX_PATH);
-#if __APPLE__
-	snprintf(subFileName, MAX_PATH, "regions_%d_%d.raw", intXIdx, intZIdx);
-	snprintf(subFilePath, MAX_PATH, "%s/%s", outputDir.c_str(), subFileName);
-#else
-	sprintf_s(subFileName, MAX_PATH, "regions_%d_%d.raw", intXIdx, intZIdx);
-	sprintf_s(subFilePath, MAX_PATH, "%s\\%s", outputDir.c_str(), subFileName);
-#endif
+	// Refactor (Phase 2.2): replaced #if __APPLE__ snprintf/sprintf_s blocks with ps_sprintf.
+	ps_sprintf(subFileName, MAX_PATH, "regions_%d_%d.raw", intXIdx, intZIdx);
+	ps_sprintf(subFilePath, MAX_PATH, "%s/%s", outputDir.c_str(), subFileName);
 
 	string ret = subFilePath;
 	return ret;
@@ -301,13 +298,8 @@ std::string Get2DArrayRawCsvFilePathForRegion(const string& outputDir, int lod, 
 	char subFilePath[MAX_PATH];
 	memset(subFileName, 0, sizeof(char) * MAX_PATH);
 	memset(subFilePath, 0, sizeof(char) * MAX_PATH);
-#if __APPLE__
-	snprintf(subFileName, MAX_PATH, "regions_%d_%d_raw.csv", intXIdx, intZIdx);
-	snprintf(subFilePath, MAX_PATH, "%s/%s", outputDir.c_str(), subFileName);
-#else
-	sprintf_s(subFileName, MAX_PATH, "regions_%d_%d_raw.csv", intXIdx, intZIdx);
-	sprintf_s(subFilePath, MAX_PATH, "%s\\%s", outputDir.c_str(), subFileName);
-#endif
+	ps_sprintf(subFileName, MAX_PATH, "regions_%d_%d_raw.csv", intXIdx, intZIdx);
+	ps_sprintf(subFilePath, MAX_PATH, "%s/%s", outputDir.c_str(), subFileName);
 
 	string ret = subFilePath;
 	return ret;
@@ -320,13 +312,8 @@ std::string GetSubRegionInfoOutputCSVFilePathForRegion(const string& outputDir, 
 	char subFilePath[MAX_PATH];
 	memset(subFileName, 0, sizeof(char) * MAX_PATH);
 	memset(subFilePath, 0, sizeof(char) * MAX_PATH);
-#if __APPLE__
-	snprintf(subFileName, MAX_PATH, "regions_%d_%d.csv", intXIdx, intZIdx);
-	snprintf(subFilePath, MAX_PATH, "%s/%s", outputDir.c_str(), subFileName);
-#else
-	sprintf_s(subFileName, MAX_PATH, "regions_%d_%d.csv", intXIdx, intZIdx);
-	sprintf_s(subFilePath, MAX_PATH, "%s\\%s", outputDir.c_str(), subFileName);
-#endif
+	ps_sprintf(subFileName, MAX_PATH, "regions_%d_%d.csv", intXIdx, intZIdx);
+	ps_sprintf(subFilePath, MAX_PATH, "%s/%s", outputDir.c_str(), subFileName);
 
 	string ret = subFilePath;
 	return ret;
@@ -739,13 +726,8 @@ std::string GetKeyStringForInstance(const string& outputDir, int intXIdx, int in
 	char subFilePath[MAX_PATH];
 	memset(subFileName, 0, sizeof(char) * MAX_PATH);
 	memset(subFilePath, 0, sizeof(char) * MAX_PATH);
-#if __APPLE__
-	snprintf(subFileName, MAX_PATH, "instances_%d_%d.csv", intXIdx, intZIdx);
-	snprintf(subFilePath, MAX_PATH, "%s/%s", outputDir.c_str(), subFileName);
-#else
-	sprintf_s(subFileName, MAX_PATH, "instances_%d_%d.csv", intXIdx, intZIdx);
-	sprintf_s(subFilePath, MAX_PATH, "%s\\%s", outputDir.c_str(), subFileName);
-#endif
+	ps_sprintf(subFileName, MAX_PATH, "instances_%d_%d.csv", intXIdx, intZIdx);
+	ps_sprintf(subFilePath, MAX_PATH, "%s/%s", outputDir.c_str(), subFileName);
 	string ret = subFilePath;
 	return ret;
 }

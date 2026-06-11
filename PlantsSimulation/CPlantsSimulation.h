@@ -1,4 +1,5 @@
 #pragma once
+#include <memory>
 
 #include "CForest.h"
 #include "CPsInstanceExporter.h"
@@ -53,8 +54,6 @@ public:
 		, m_outputFile_level1(outputFile_level1)
 		, m_fullOutputFile_level1(fullOutputFile_level1)
 		, m_pcFullOutputFile_level1(pcFullOutputFile_level1)
-		, m_topLayerImage(nullptr)
-		, m_topLayerMeta(nullptr)
 		, m_pCellTable(nullptr)
 		, m_pForest(nullptr)
 		, m_currentLod(lod)
@@ -73,9 +72,7 @@ public:
 		, m_roadInputHeightMapWidth(roadHeightMapScaleWidth)
 		, m_roadInputHeightMapHeight(roadHeightMapScaleHeight)
 		, m_maxHeight(10000)
-		, m_p2dCaveLevel0Nodes(nullptr)
-		, m_p2dCaveLevel1Nodes(nullptr)
-		, m_pInstanceExporter(nullptr)
+
 	{
 		
 	}
@@ -144,20 +141,20 @@ private:
 	bool m_keepOldTreeFiles = false;
 	bool m_isEnhanced = false;
 
-	InputImageDataInfo* m_topLayerImage;
-	InputImageMetaInfo* m_topLayerMeta;
+	std::unique_ptr<InputImageDataInfo> m_topLayerImage;  // Phase 3.3: RAII ownership
+	std::unique_ptr<InputImageMetaInfo> m_topLayerMeta;  // Phase 3.3: RAII ownership
 
 	RegionSubOutputVector m_regionsVector;
 	RegionSubOutputMap m_regionMap;
 	RegionInfoMap m_regionInfoMap;
 
 	std::vector<std::vector<CCellInfo*>>* m_pCellTable;
-	CForest* m_pForest;
-	CPsInstanceExporter* m_pInstanceExporter;
+	std::unique_ptr<CForest> m_pForest;  // Phase 3.3: RAII ownership
+	std::unique_ptr<CPsInstanceExporter> m_pInstanceExporter;  // Phase 3.3: RAII ownership
 
 	std::vector<CavesPointInfo> m_cavePointInfoList;
-	std::vector<std::pair<std::vector<Point>, int>>* m_p2dCaveLevel0Nodes;
-	std::vector<std::pair<std::vector<Point>, int>>* m_p2dCaveLevel1Nodes;
+	std::unique_ptr<std::vector<std::pair<std::vector<Point>, int>>> m_p2dCaveLevel0Nodes;  // Phase 3.3
+	std::unique_ptr<std::vector<std::pair<std::vector<Point>, int>>> m_p2dCaveLevel1Nodes;  // Phase 3.3
 	std::vector<Point> m_PoisLocations;
 	int m_maxHeight;
 	std::vector<std::vector<short>> m_oceanHeightMask;    // Ocean mask for excluding tree generation on ocean

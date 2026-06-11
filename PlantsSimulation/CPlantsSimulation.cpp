@@ -85,15 +85,11 @@ static void DilateOceanMask(std::vector<std::vector<short>>& mask, int radius)
 
 void CPlantsSimulation::DeInitializeForMakeInstances()
 {
-	if (m_pInstanceExporter) {
-		delete m_pInstanceExporter;
-		m_pInstanceExporter = nullptr;
-	}
+	// Refactor (Phase 3.3): unique_ptr reset replaces manual delete+null.
+	m_pInstanceExporter.reset();
 
-	if (m_pForest) {
-		delete m_pForest;
-		m_pForest = nullptr;
-	}
+	// Refactor (Phase 3.3): unique_ptr reset replaces manual if/delete/null.
+	m_pForest.reset();
 
 	if (m_pCellTable) {
 		int rows = m_pCellTable->size();
@@ -111,16 +107,8 @@ void CPlantsSimulation::DeInitializeForMakeInstances()
 
 	m_PoisLocations.clear();
 
-	if (m_p2dCaveLevel0Nodes)
-	{
-		delete m_p2dCaveLevel0Nodes;
-		m_p2dCaveLevel0Nodes = nullptr;
-	}
-	if (m_p2dCaveLevel1Nodes)
-	{
-		delete m_p2dCaveLevel1Nodes;
-		m_p2dCaveLevel1Nodes = nullptr;
-	}
+	m_p2dCaveLevel0Nodes.reset();
+	m_p2dCaveLevel1Nodes.reset();
 	ClearCellTable();
 	ClearImage();
 	ClearImageMeta();
@@ -159,30 +147,22 @@ void CPlantsSimulation::ClearCellTable()
 
 void CPlantsSimulation::ClearImage()
 {
-	if (m_topLayerImage) {
-		if (m_topLayerImage->input_image_data)
-		{
-			delete m_topLayerImage->input_image_data;
-			m_topLayerImage->input_image_data = nullptr;
-		}
-		delete m_topLayerImage;
-		m_topLayerImage = nullptr;
-	}
+	// Refactor (Phase 3.3): reset() calls InputImageDataInfo::~InputImageDataInfo which frees input_image_data.
+	m_topLayerImage.reset();
 }
 
 void CPlantsSimulation::ClearImageMeta()
 {
-	if (m_topLayerMeta) {
-		delete m_topLayerMeta;
-		m_topLayerMeta = nullptr;
-	}
+	// Refactor (Phase 3.3): unique_ptr reset.
+	m_topLayerMeta.reset();
 }
 
 bool CPlantsSimulation::LoadInputImage()
 {
 	try
 	{
-		m_topLayerImage = LoadInputImageFile(m_inputImageFile);
+		// Refactor (Phase 3.3): wrap raw allocation in unique_ptr.
+		m_topLayerImage.reset(LoadInputImageFile(m_inputImageFile));
 		if (!m_topLayerImage)
 		{
 			std::cout << "Failed to load input image file: " << m_inputImageFile << std::endl;
@@ -275,7 +255,8 @@ bool CPlantsSimulation::LoadImageMetaFile()
 	}
 
 	ClearImageMeta();
-	m_topLayerMeta = new InputImageMetaInfo();
+	// Refactor (Phase 3.3): make_unique replaces new; throws on OOM so null check removed.
+	m_topLayerMeta = std::make_unique<InputImageMetaInfo>();
 	if (!m_topLayerMeta)
 	{
 		return false;
@@ -479,7 +460,7 @@ bool CPlantsSimulation::LoadAndOutputRegions()
 	RemoveAllFilesInFolder(subRegionOutput_Dir);
 	
 	std::vector<std::vector<int>> regionsIntInput = Read2DIntArray(m_regionsRawFile, regionsWidth, regionsHeight);
-	bool loadAllRegionInfo = LoadRegionInfoFromCSV(m_regionsInfoFile, m_regionInfoMap, m_pCellTable, m_topLayerMeta);
+	bool loadAllRegionInfo = LoadRegionInfoFromCSV(m_regionsInfoFile, m_regionInfoMap, m_pCellTable, m_topLayerMeta.get());
 
 	char inputRegionRawCSV[MAX_PATH];
 	memset(inputRegionRawCSV, 0, sizeof(char) * MAX_PATH);
@@ -1756,7 +1737,8 @@ bool CPlantsSimulation::MakeRoadData()
 		return ret;
 	}
 
-	m_p2dCaveLevel0Nodes = LoadCaveNodesFromPointCloud(m_cavesPointCloudLevel0File);
+	// Refactor (Phase 3.3): unique_ptr takes ownership of returned raw pointer.
+	m_p2dCaveLevel0Nodes.reset(LoadCaveNodesFromPointCloud(m_cavesPointCloudLevel0File));
 
 	bool outputLake = OutputLakeRawData();
 
@@ -1902,7 +1884,8 @@ bool CPlantsSimulation::LoadInputData()
 {
 	bool ret = false;
 
-	m_p2dCaveLevel0Nodes = LoadCaveNodesFromPointCloud(m_cavesPointCloudLevel0File);
+	// Refactor (Phase 3.3): unique_ptr takes ownership of returned raw pointer.
+	m_p2dCaveLevel0Nodes.reset(LoadCaveNodesFromPointCloud(m_cavesPointCloudLevel0File));
 
 	bool outputLake = OutputLakeRawData();
 
@@ -2188,22 +2171,16 @@ bool CPlantsSimulation::loadPoisLocationsFromCSV(const string& filePath, std::ve
 
 bool CPlantsSimulation::LoadForest()
 {
-	if (m_pForest) {
-		delete m_pForest;
-		m_pForest = nullptr;
-	}
-	m_pForest = new CForest();
-	if (!m_pForest) {
-		return false;
-	}
+	// Refactor (Phase 3.3): make_unique replaces delete+new.
+	m_pForest = std::make_unique<CForest>();
 
 	m_pForest->setIsEnhanced(m_isEnhanced);
 	m_pForest->setIsLevel1Instances(m_isLevel1Instances);
 	m_pForest->setCellTable(m_pCellTable);
-	m_pForest->setMetaInfo(m_topLayerMeta);
+	m_pForest->setMetaInfo(m_topLayerMeta.get());
 	
-	m_pForest->set2dCaveLevel0Nodes(m_p2dCaveLevel0Nodes);
-	m_pForest->set2dCaveLevel1Nodes(m_p2dCaveLevel1Nodes);
+	m_pForest->set2dCaveLevel0Nodes(m_p2dCaveLevel0Nodes.get());
+	m_pForest->set2dCaveLevel1Nodes(m_p2dCaveLevel1Nodes.get());
 
 	m_pForest->setPoisLocations(&m_PoisLocations);
 
@@ -2289,12 +2266,8 @@ bool CPlantsSimulation::LoadForest()
 
 bool CPlantsSimulation::LoadInstanceExporter()
 {
-	if (m_pInstanceExporter)
-	{
-		delete m_pInstanceExporter;
-		m_pInstanceExporter = nullptr;
-	}
-	m_pInstanceExporter = new CPsInstanceExporter();
+	// Refactor (Phase 3.3): make_unique replaces delete+new.
+	m_pInstanceExporter = std::make_unique<CPsInstanceExporter>();
 	if (!m_pInstanceExporter)
 	{
 		return false;
@@ -2304,7 +2277,7 @@ bool CPlantsSimulation::LoadInstanceExporter()
 	m_pInstanceExporter->setIsOnlyPoIs(m_onlyPOIs);
 	m_pInstanceExporter->setKeepOldTreeFiles(m_keepOldTreeFiles);	
 	m_pInstanceExporter->setCellTable(m_pCellTable);
-	m_pInstanceExporter->setMetaInfo(m_topLayerMeta);
+	m_pInstanceExporter->setMetaInfo(m_topLayerMeta.get());
 	m_pInstanceExporter->setMostTravelledPointFilePath(m_mostTravelledPointFile);
 	m_pInstanceExporter->setMostDistantPointFilePath(m_mostDistantPointFile);
 	m_pInstanceExporter->setLevel1PoiPointFilePath(m_level1PoiPointFile);
@@ -2312,8 +2285,8 @@ bool CPlantsSimulation::LoadInstanceExporter()
 	m_pInstanceExporter->setDungeonsPoiCsvLevel0Path(m_dungeonsPOILevel0File);
 	m_pInstanceExporter->setDungeonsPoiCsvLevel1Path(m_dungeonsPOILevel1File);
 
-	m_pInstanceExporter->set2dCaveLevel0Nodes(m_p2dCaveLevel0Nodes);
-	m_pInstanceExporter->set2dCaveLevel1Nodes(m_p2dCaveLevel1Nodes);
+	m_pInstanceExporter->set2dCaveLevel0Nodes(m_p2dCaveLevel0Nodes.get());
+	m_pInstanceExporter->set2dCaveLevel1Nodes(m_p2dCaveLevel1Nodes.get());
 
 	m_pInstanceExporter->setFullTreeOutputs(m_pForest->getTreeInstanceFullOutput());
 	m_pInstanceExporter->setTilesInfo(m_tiles, m_tileX, m_tileY);
