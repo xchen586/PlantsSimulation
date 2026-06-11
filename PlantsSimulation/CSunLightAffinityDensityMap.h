@@ -3,16 +3,15 @@
 // Refactor (Phase 2.2): normalized to forward-slash includes; dropped #if __APPLE__ block.
 #include "../Common/include/CColonizationTree.h"
 
-class CRoadAttributeDensityMap : public DensityMap
+class CSunLightAffinityDensityMap : public DensityMap
 {
 public:
-	CRoadAttributeDensityMap() : DensityMap()
+	CSunLightAffinityDensityMap() : DensityMap()
 	{
-		type = DensityMapType::DensityMap_RoadAttribute;
+		type = DensityMapType::DensityMap_SunLightAffinity;
 		invert = false;
 		ease = 0.1;
 		minval = 0.0;
-		//maxval = 0.78;
-		maxval = 0.5;
+		maxval = 1.0;
 	}
 };

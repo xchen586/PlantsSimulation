@@ -15,11 +15,9 @@
 
 #include "CPlantsSimulation.h"
 
-#if __APPLE__
+// Refactor (Phase 2.2): normalized to forward-slash includes; dropped #if __APPLE__ block.
 #include "../Common/include/PsIniParser.h"
-#else
-#include "..\Common\include\PsIniParser.h"
-#endif
+#include "PsPlatform.h"  // Refactor (Phase 2.2): ps_sprintf wrapper
 
 #ifdef _WIN32
 class MyStackWalker : public StackWalker {
@@ -381,23 +379,15 @@ int iniAbsolutePathMain(int argc, const char* argv[])
     memset(fullOutput_file_level1, 0, sizeof(char) * MY_MAX_PATH);
     memset(pcFullOutput_file_level1, 0, sizeof(char) * MY_MAX_PATH);
 
-#if __APPLE__
-    snprintf(output_final_path, MAX_PATH, "%s/%d_%d_%d", output_path, tiles, tileX, tileY);
-    snprintf(output_file_level0, MAX_PATH, "%s/%d_%d_%d_plants_level0.csv", output_final_path, tiles, tileX, tileY);
-    snprintf(fullOutput_file_level0, MAX_PATH, "%s/%d_%d_%d_plantsfulloutput_level0.csv", output_final_path, tiles, tileX, tileY);
-    snprintf(pcFullOutput_file_level0, MAX_PATH, "%s/points_%d_%d_%d_tree_level0.xyz", output_final_path, tiles, tileX, tileY);
-    snprintf(output_file_level1, MAX_PATH, "%s/%d_%d_%d_plants_level1", output_final_path, tiles, tileX, tileY);
-    snprintf(fullOutput_file_level1, MAX_PATH, "%s/%d_%d_%d_plantsfulloutput_level1.csv", output_final_path, tiles, tileX, tileY);
-    snprintf(pcFullOutput_file_level1, MAX_PATH, "%s/points_%d_%d_%d_tree_level1.xyz", output_final_path, tiles, tileX, tileY);
-#else
-    sprintf_s(output_final_path, MY_MAX_PATH, "%s\\%d_%d_%d", output_path, tiles, tileX, tileY);
-    sprintf_s(output_file_level0, MY_MAX_PATH, "%s\\%d_%d_%d_plants_level0.csv", output_final_path, tiles, tileX, tileY);
-    sprintf_s(fullOutput_file_level0, MY_MAX_PATH, "%s\\%d_%d_%d_plantsfulloutput_level0.csv", output_final_path, tiles, tileX, tileY);
-    sprintf_s(pcFullOutput_file_level0, MY_MAX_PATH, "%s\\points_%d_%d_%d_tree_level0.xyz", output_final_path, tiles, tileX, tileY);
-    sprintf_s(output_file_level1, MY_MAX_PATH, "%s\\%d_%d_%d_plants_level1.csv", output_final_path, tiles, tileX, tileY);
-    sprintf_s(fullOutput_file_level1, MY_MAX_PATH, "%s\\%d_%d_%d_plantsfulloutput_level1.csv", output_final_path, tiles, tileX, tileY);
-    sprintf_s(pcFullOutput_file_level1, MY_MAX_PATH, "%s\\points_%d_%d_%d_tree_level1.xyz", output_final_path, tiles, tileX, tileY);
-#endif
+	// Refactor (Phase 2.2): replaced #if __APPLE__ snprintf/sprintf_s blocks with ps_sprintf.
+	// Using MY_MAX_PATH (the locally defined buffer size) for both branches.
+    ps_sprintf(output_final_path,      MY_MAX_PATH, "%s/%d_%d_%d", output_path, tiles, tileX, tileY);
+    ps_sprintf(output_file_level0,     MY_MAX_PATH, "%s/%d_%d_%d_plants_level0.csv", output_final_path, tiles, tileX, tileY);
+    ps_sprintf(fullOutput_file_level0, MY_MAX_PATH, "%s/%d_%d_%d_plantsfulloutput_level0.csv", output_final_path, tiles, tileX, tileY);
+    ps_sprintf(pcFullOutput_file_level0, MY_MAX_PATH, "%s/points_%d_%d_%d_tree_level0.xyz", output_final_path, tiles, tileX, tileY);
+    ps_sprintf(output_file_level1,     MY_MAX_PATH, "%s/%d_%d_%d_plants_level1.csv", output_final_path, tiles, tileX, tileY);
+    ps_sprintf(fullOutput_file_level1, MY_MAX_PATH, "%s/%d_%d_%d_plantsfulloutput_level1.csv", output_final_path, tiles, tileX, tileY);
+    ps_sprintf(pcFullOutput_file_level1, MY_MAX_PATH, "%s/points_%d_%d_%d_tree_level1.xyz", output_final_path, tiles, tileX, tileY);
 
     if (!std::filesystem::exists(output_path)) {
         if (!std::filesystem::create_directory(output_path)) {

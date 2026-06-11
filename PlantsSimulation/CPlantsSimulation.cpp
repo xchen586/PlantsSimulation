@@ -1,13 +1,10 @@
 #include "CPlantsSimulation.h"
 #include "CAppFuncs.h"
 
-#if __APPLE__
-    #include "../Common/include/CTimeCounter.h"
-    #include "../Common/include/PsMarco.h"
-#else
-    #include "..\Common\include\CTimeCounter.h"
-    #include "..\Common\include\PsMarco.h"
-#endif
+// Refactor (Phase 2.2): normalized to forward-slash includes; dropped #if __APPLE__ block.
+#include "../Common/include/CTimeCounter.h"
+#include "../Common/include/PsMarco.h"
+#include "PsPlatform.h"
 
 #include <queue>
 #include <climits>
@@ -245,11 +242,8 @@ bool CPlantsSimulation::LoadInputImage()
 	std::vector<std::vector<unsigned char>> humidityExportLow = invert2DArray(humidityExportLowInvert);
 	char byte_humidity_map_low_raw[MAX_PATH];
 	memset(byte_humidity_map_low_raw, 0, sizeof(char) * MAX_PATH);
-#if __APPLE__
-	snprintf(byte_humidity_map_low_raw, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_byte_humidity_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
-#else
-	sprintf_s(byte_humidity_map_low_raw, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_byte_humidity_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
-#endif
+	// Refactor (Phase 2.2): replaced #if __APPLE__ snprintf/sprintf_s with ps_sprintf.
+	ps_sprintf(byte_humidity_map_low_raw, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_byte_humidity_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
 	bool outputHumidityMapLow = Output2DVectorToRawFile(humidityExportLow, byte_humidity_map_low_raw);
 
 #if USE_OUTPUT_HIGH_ROAD_DATA
@@ -261,11 +255,9 @@ bool CPlantsSimulation::LoadInputImage()
 
 	char byte_humidity_map_high_raw[MAX_PATH];
 	memset(byte_humidity_map_high_raw, 0, sizeof(char) * MAX_PATH);
-#if __APPLE__
-	snprintf(byte_humidity_map_high_raw, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_byte_humidity_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth * m_exportHighRatio, m_roadInputHeightMapHeight * exportHighRatio);
-#else
-	sprintf_s(byte_humidity_map_high_raw, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_byte_humidity_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth * m_exportHighRatio, m_roadInputHeightMapHeight * m_exportHighRatio);
-#endif
+	// Refactor (Phase 2.2): replaced #if __APPLE__ snprintf/sprintf_s with ps_sprintf.
+	// Apple branch used exportHighRatio (wrong var), Windows used m_exportHighRatio -- kept Windows name.
+	ps_sprintf(byte_humidity_map_high_raw, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_byte_humidity_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth * m_exportHighRatio, m_roadInputHeightMapHeight * m_exportHighRatio);
 	bool outputHumidityMapHigh = Output2DVectorToRawFile(humidityExportHigh, byte_humidity_map_high_raw);
 #endif
 
@@ -424,11 +416,9 @@ bool CPlantsSimulation::LoadRegionsTest()
 	char subRegionOutput_Dir[MAX_PATH];
 	memset(subRegionOutput_Dir, 0, sizeof(char) * MAX_PATH);
 
-#if __APPLE__ 
-	snprintf(subFullOutput_Dir, MAX_PATH, "%s/regionoutput", m_outputDir.c_str());
-#else
-	sprintf_s(subRegionOutput_Dir, MAX_PATH, "%s\\regionoutput", m_outputDir.c_str());
-#endif
+	// Refactor (Phase 2.2): replaced #if __APPLE__ block with ps_sprintf.
+	// Apple branch used wrong variable (subFullOutput_Dir); Windows used subRegionOutput_Dir -- kept Windows name.
+	ps_sprintf(subRegionOutput_Dir, MAX_PATH, "%s/regionoutput", m_outputDir.c_str());
 
 	if (!std::filesystem::exists(subRegionOutput_Dir)) {
 		if (!std::filesystem::create_directory(subRegionOutput_Dir)) {
@@ -476,11 +466,9 @@ bool CPlantsSimulation::LoadAndOutputRegions()
 	char subRegionOutput_Dir[MAX_PATH];
 	memset(subRegionOutput_Dir, 0, sizeof(char) * MAX_PATH);
 
-#if __APPLE__ 
-	snprintf(subFullOutput_Dir, MAX_PATH, "%s/regionoutput", m_outputDir.c_str());
-#else
-	sprintf_s(subRegionOutput_Dir, MAX_PATH, "%s\\regionoutput", m_outputDir.c_str());
-#endif
+	// Refactor (Phase 2.2): replaced #if __APPLE__ block with ps_sprintf.
+	// Apple branch used wrong variable (subFullOutput_Dir); Windows used subRegionOutput_Dir -- kept Windows name.
+	ps_sprintf(subRegionOutput_Dir, MAX_PATH, "%s/regionoutput", m_outputDir.c_str());
 
 	if (!std::filesystem::exists(subRegionOutput_Dir)) {
 		if (!std::filesystem::create_directory(subRegionOutput_Dir)) {
@@ -495,11 +483,8 @@ bool CPlantsSimulation::LoadAndOutputRegions()
 
 	char inputRegionRawCSV[MAX_PATH];
 	memset(inputRegionRawCSV, 0, sizeof(char) * MAX_PATH);
-#if __APPLE__ 
-	snprintf(inputRegionRawCSV, MAX_PATH, "%s/region_raw.csv", m_outputDir.c_str());
-#else
-	sprintf_s(inputRegionRawCSV, MAX_PATH, "%s\\region_raw.csv", m_outputDir.c_str());
-#endif
+	// Refactor (Phase 2.2): replaced #if __APPLE__ snprintf/sprintf_s with ps_sprintf.
+	ps_sprintf(inputRegionRawCSV, MAX_PATH, "%s/region_raw.csv", m_outputDir.c_str());
 	bool saveRegionRawCSV = Write2DArrayAsCSV(inputRegionRawCSV, regionsIntInput);
 	
 	std::cout << "Total region info count is " << m_regionInfoMap.size() << std::endl;
@@ -1261,90 +1246,46 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	if (!m_isLevel1Instances) 
 	{
 	
-#if __APPLE__
+	// Refactor (Phase 2.2): replaced #if __APPLE__ snprintf/sprintf_s with ps_sprintf.
+	// Apple branch used mesh2_heightmap_raw_export; Windows used mesh1_heightmap_raw_export -- kept Windows names.
 #if USE_OUTPUT_HEIGHT_MAP_CSV
-	snprintf(mesh_heightmap_raw_export, MAX_PATH, "%s/%d_%d_%d_mesh_heightmap_raw_export.csv", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
-	snprintf(mesh2_heightmap_raw_export, MAX_PATH, "%s/%d_%d_%d_mesh2_heightmap_raw_export.csv", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
-	snprintf(pc_heightmap_raw_export, MAX_PATH, "%s/%d_%d_%d_pc_heightmap_raw_export.csv", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
-	snprintf(l1_heightmap_raw_export, MAX_PATH, "%s/%d_%d_%d_l1_heightmap_raw_export.csv", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
-	snprintf(bedrock_heightmap_raw_export, MAX_PATH, "%s/%d_%d_%d_bedrock_heightmap_raw_export.csv", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
-	snprintf(short_height_map_export, MAX_PATH, "%s/%d_%d_%d_short_height_map_export.csv", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
-	snprintf(short_normal_blur_height_map_export, MAX_PATH, "%s/%d_%d_%d_short_normal_blur_height_map_export.csv", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
-	snprintf(short_iir_blur_height_map_export, MAX_PATH, "%s/%d_%d_%d_short_iir_blur_height_map_export.csv", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	ps_sprintf(mesh_heightmap_raw_export,  MAX_PATH, "%s/%d_%d_%d_mesh_heightmap_raw_export.csv", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	ps_sprintf(mesh1_heightmap_raw_export, MAX_PATH, "%s/%d_%d_%d_mesh1_heightmap_raw_export.csv", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	ps_sprintf(pc_heightmap_raw_export,    MAX_PATH, "%s/%d_%d_%d_pc_heightmap_raw_export.csv", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	ps_sprintf(l1_heightmap_raw_export,    MAX_PATH, "%s/%d_%d_%d_1l_heightmap_raw_export.csv", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	ps_sprintf(bedrock_heightmap_raw_export, MAX_PATH, "%s/%d_%d_%d_bedrock_heightmap_raw_export.csv", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	ps_sprintf(short_height_map_export,    MAX_PATH, "%s/%d_%d_%d_short_height_map_export.csv", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	ps_sprintf(short_normal_blur_height_map_export, MAX_PATH, "%s/%d_%d_%d_short_normal_blur_height_map_export.csv", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	ps_sprintf(short_iir_blur_height_map_export, MAX_PATH, "%s/%d_%d_%d_short_iir_blur_height_map_export.csv", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 #else
-	snprintf(mesh_heightmap_raw_export, MAX_PATH, "%s/%d_%d_%d_mesh_heightmap_raw_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
-	snprintf(mesh2_heightmap_raw_export, MAX_PATH, "%s/%d_%d_%d_mesh2_heightmap_raw_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
-	snprintf(pc_heightmap_raw_export, MAX_PATH, "%s/%d_%d_%d_pc_heightmap_raw_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
-	snprintf(l1_heightmap_raw_export, MAX_PATH, "%s/%d_%d_%d_11_heightmap_raw_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
-	snprintf(bedrock_heightmap_raw_export, MAX_PATH, "%s/%d_%d_%d_bedrock_heightmap_raw_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
-	snprintf(short_height_map_export, MAX_PATH, "%s/%d_%d_%d_short_height_map_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
-	snprintf(short_normal_blur_height_map_export, MAX_PATH, "%s/%d_%d_%d_short_normal_blur_height_map_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
-	snprintf(short_iir_blur_height_map_export, MAX_PATH, "%s/%d_%d_%d_short_iir_blur_height_map_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	ps_sprintf(mesh_heightmap_raw_export,  MAX_PATH, "%s/%d_%d_%d_mesh_heightmap_raw_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	ps_sprintf(mesh1_heightmap_raw_export, MAX_PATH, "%s/%d_%d_%d_mesh1_heightmap_raw_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	ps_sprintf(pc_heightmap_raw_export,    MAX_PATH, "%s/%d_%d_%d_pc_heightmap_raw_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	ps_sprintf(l1_heightmap_raw_export,    MAX_PATH, "%s/%d_%d_%d_l1_heightmap_raw_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	ps_sprintf(bedrock_heightmap_raw_export, MAX_PATH, "%s/%d_%d_%d_bedrock_heightmap_raw_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	ps_sprintf(short_height_map_export,    MAX_PATH, "%s/%d_%d_%d_short_height_map_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	ps_sprintf(short_normal_blur_height_map_export, MAX_PATH, "%s/%d_%d_%d_short_normal_blur_height_map_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	ps_sprintf(short_iir_blur_height_map_export, MAX_PATH, "%s/%d_%d_%d_short_iir_blur_height_map_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 #endif
-	snprintf(double_height_map_exportout, MAX_PATH, "%s/%d_%d_%d_double_height_map_exportout.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
-	snprintf(height_slope_map_exportout, MAX_PATH, "%s/%d_%d_%d_height_slope_map_exportout.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
-	snprintf(angle_slope_map_exportout, MAX_PATH, "%s/%d_%d_%d_angle_slope_map_exportout.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
-	
-#else
-#if USE_OUTPUT_HEIGHT_MAP_CSV
-	sprintf_s(mesh_heightmap_raw_export, MAX_PATH, "%s\\%d_%d_%d_mesh_heightmap_raw_export.csv", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
-	sprintf_s(mesh1_heightmap_raw_export, MAX_PATH, "%s\\%d_%d_%d_mesh1_heightmap_raw_export.csv", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
-	sprintf_s(pc_heightmap_raw_export, MAX_PATH, "%s\\%d_%d_%d_pc_heightmap_raw_export.csv", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
-	sprintf_s(l1_heightmap_raw_export, MAX_PATH, "%s\\%d_%d_%d_1l_heightmap_raw_export.csv", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
-	sprintf_s(bedrock_heightmap_raw_export, MAX_PATH, "%s\\%d_%d_%d_bedrock_heightmap_raw_export.csv", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
-	sprintf_s(short_height_map_export, MAX_PATH, "%s\\%d_%d_%d_short_height_map_export.csv", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
-	sprintf_s(short_normal_blur_height_map_export, MAX_PATH, "%s\\%d_%d_%d_short_normal_blur_height_map_export.csv", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
-	sprintf_s(short_iir_blur_height_map_export, MAX_PATH, "%s\\%d_%d_%d_short_iir_blur_height_map_export.csv", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
-#else
-	sprintf_s(mesh_heightmap_raw_export, MAX_PATH, "%s\\%d_%d_%d_mesh_heightmap_raw_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
-	sprintf_s(mesh1_heightmap_raw_export, MAX_PATH, "%s\\%d_%d_%d_mesh1_heightmap_raw_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
-	sprintf_s(pc_heightmap_raw_export, MAX_PATH, "%s\\%d_%d_%d_pc_heightmap_raw_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
-	sprintf_s(l1_heightmap_raw_export, MAX_PATH, "%s\\%d_%d_%d_l1_heightmap_raw_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
-	sprintf_s(bedrock_heightmap_raw_export, MAX_PATH, "%s\\%d_%d_%d_bedrock_heightmap_raw_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
-	sprintf_s(short_height_map_export, MAX_PATH, "%s\\%d_%d_%d_short_height_map_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
-	sprintf_s(short_normal_blur_height_map_export, MAX_PATH, "%s\\%d_%d_%d_short_normal_blur_height_map_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
-	sprintf_s(short_iir_blur_height_map_export, MAX_PATH, "%s\\%d_%d_%d_short_iir_blur_height_map_export.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
-#endif
-	sprintf_s(double_height_map_exportout, MAX_PATH, "%s\\%d_%d_%d_double_height_map_exportout.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
-	sprintf_s(height_slope_map_exportout, MAX_PATH, "%s\\%d_%d_%d_height_slope_map_exportout.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
-	sprintf_s(angle_slope_map_exportout, MAX_PATH, "%s\\%d_%d_%d_angle_slope_map_exportout.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
-#endif
+	ps_sprintf(double_height_map_exportout, MAX_PATH, "%s/%d_%d_%d_double_height_map_exportout.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	ps_sprintf(height_slope_map_exportout,  MAX_PATH, "%s/%d_%d_%d_height_slope_map_exportout.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	ps_sprintf(angle_slope_map_exportout,   MAX_PATH, "%s/%d_%d_%d_angle_slope_map_exportout.xyz", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 
-#if __APPLE__
-	snprintf(ushort_height_map_low_raw, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_ushort_height_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
-	snprintf(ushort_slope_map_neighbour_cell_low_raw, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_ushort_slope_map_neighbour_cell_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
-	snprintf(ushort_slope_map_inside_cell_low_raw, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_ushort_slope_map_inside_cell_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
-	
+	// Refactor (Phase 2.2): replaced #if __APPLE__ snprintf/sprintf_s with ps_sprintf.
+	ps_sprintf(ushort_height_map_low_raw,               MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_ushort_height_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
+	ps_sprintf(ushort_slope_map_neighbour_cell_low_raw, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_ushort_slope_map_neighbour_cell_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
+	ps_sprintf(ushort_slope_map_inside_cell_low_raw,    MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_ushort_slope_map_inside_cell_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
 #if USE_OUTPUT_HIGH_ROAD_DATA
-	snprintf(ushort_height_map_high_raw, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_ushort_height_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth * exportHeightMapHighRatio, m_roadInputHeightMapHeight * exportHeightMapHighRatio);
-#endif
-#else
-	sprintf_s(ushort_height_map_low_raw, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_ushort_height_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
-	sprintf_s(ushort_slope_map_neighbour_cell_low_raw, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_ushort_slope_map_neighbour_cell_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
-	sprintf_s(ushort_slope_map_inside_cell_low_raw, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_ushort_slope_map_inside_cell_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
-
-#if USE_OUTPUT_HIGH_ROAD_DATA
-	sprintf_s(ushort_height_map_high_raw, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_ushort_height_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth * exportHeightMapHighRatio, m_roadInputHeightMapHeight * exportHeightMapHighRatio);
-#endif
+	ps_sprintf(ushort_height_map_high_raw, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_ushort_height_map_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth * exportHeightMapHighRatio, m_roadInputHeightMapHeight * exportHeightMapHighRatio);
 #endif
 
-#if __APPLE__
-	snprintf(short_l1_heightmap_export_low_raw, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_short_l1_heightmap_export_low_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
-	snprintf(short_bedrock_heightmap_export_low_raw, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_short_bedrock_heightmap_export_low_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
-	snprintf(byte_exposure_low_map_export, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_byte_exposure_low_map_export.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);	
-	snprintf(byte_exposure_mask_low_map_export, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_byte_exposure_mask_low_map_export.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
-#else
-	sprintf_s(short_l1_heightmap_export_low_raw, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_short_l1_heightmap_export_low_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
-	sprintf_s(short_bedrock_heightmap_export_low_raw, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_short_bedrock_heightmap_export_low_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);	
-	sprintf_s(byte_exposure_low_map_export, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_byte_exposure_low_map_export.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
-	sprintf_s(byte_exposure_mask_low_map_export, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_byte_exposure_mask_low_map_export.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
-#endif
-
-#if __APPLE__
-	snprintf(level1_surface_map_raw_path, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_byte_level1_surface_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
-#else
-	sprintf_s(byte_level1_surface_map_raw, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_byte_level1_surface_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
-#endif
+	// Refactor (Phase 2.2): replaced #if __APPLE__ snprintf/sprintf_s with ps_sprintf.
+	ps_sprintf(short_l1_heightmap_export_low_raw,      MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_short_l1_heightmap_export_low_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
+	ps_sprintf(short_bedrock_heightmap_export_low_raw, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_short_bedrock_heightmap_export_low_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
+	ps_sprintf(byte_exposure_low_map_export,           MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_byte_exposure_low_map_export.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
+	ps_sprintf(byte_exposure_mask_low_map_export,      MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_byte_exposure_mask_low_map_export.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
+	// Apple branch used level1_surface_map_raw_path; Windows used byte_level1_surface_map_raw -- kept Windows name.
+	ps_sprintf(byte_level1_surface_map_raw,            MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_byte_level1_surface_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
 	//std::cout << "level1 surface map raw file is " << level1_surface_map_raw_path << std::endl;
 
 
@@ -1397,17 +1338,11 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	memset(exposure_map_raw_export, 0, sizeof(char)* MAX_PATH);
 	char exposure_byte_map_raw_export[MAX_PATH];
 	memset(exposure_byte_map_raw_export, 0, sizeof(char)* MAX_PATH);
-#if __APPLE__
-	snprintf(exposure_mask_map_raw_export, MAX_PATH, "%s/%d_%d_%d_exposure_mask_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
-	snprintf(exposure_init_map_raw_export, MAX_PATH, "%s/%d_%d_%d_exposure_init_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
-	snprintf(exposure_map_raw_export, MAX_PATH, "%s/%d_%d_%d_exposure_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
-	snprintf(exposure_byte_map_raw_export, MAX_PATH, "%s/%d_%d_%d_exposure_byte_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
-#else
-	sprintf_s(exposure_mask_map_raw_export, MAX_PATH, "%s\\%d_%d_%d_exposure_mask_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
-	sprintf_s(exposure_init_map_raw_export, MAX_PATH, "%s\\%d_%d_%d_exposure_init_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
-	sprintf_s(exposure_map_raw_export, MAX_PATH, "%s\\%d_%d_%d_exposure_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
-	sprintf_s(exposure_byte_map_raw_export, MAX_PATH, "%s\\%d_%d_%d_exposure_byte_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
-#endif
+	// Refactor (Phase 2.2): replaced #if __APPLE__ snprintf/sprintf_s with ps_sprintf.
+	ps_sprintf(exposure_mask_map_raw_export,  MAX_PATH, "%s/%d_%d_%d_exposure_mask_map.raw",  m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	ps_sprintf(exposure_init_map_raw_export,  MAX_PATH, "%s/%d_%d_%d_exposure_init_map.raw",  m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	ps_sprintf(exposure_map_raw_export,       MAX_PATH, "%s/%d_%d_%d_exposure_map.raw",       m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
+	ps_sprintf(exposure_byte_map_raw_export,  MAX_PATH, "%s/%d_%d_%d_exposure_byte_map.raw",  m_outputDir.c_str(), m_tiles, m_tileX, m_tileY);
 	bool outputExposureMaskMap = Output2DVectorToRawFile(exposure_mask_byte_map, exposure_mask_map_raw_export);
 	bool outputExposureInitMap = Output2DVectorToRawFile(exposure_init_map, exposure_init_map_raw_export);
 	bool outputExposureMap = Output2DVectorToRawFile(exposure_map, exposure_map_raw_export);
@@ -1799,9 +1734,9 @@ bool CPlantsSimulation::ExportAngleSlopeMap(std::vector<std::vector<double>>& sl
 			outputFile 
 				<< static_cast<int>(i) << ","
 				<< static_cast<int>(j) << ","
-				<< static_cast<double>(180 * slopeMap[i][j] / PI) << ","
+				<< static_cast<double>(180 * slopeMap[i][j] / PS_PI) << ","
 				//<< redColor << ","
-				<< static_cast<int>( 255 * 2 *slopeMap[i][j] / PI)
+				<< static_cast<int>( 255 * 2 *slopeMap[i][j] / PS_PI)
 				<< greenColor << ","
 				<< blueColor << std::endl;
 		}
@@ -1851,17 +1786,11 @@ bool CPlantsSimulation::OutputLakeRawData()
 	char ocean_map_raw_path[MAX_PATH];
 	memset(ocean_map_raw_path, 0, sizeof(char) * MAX_PATH);
 
-#if __APPLE__
-	snprintf(lake_map_raw_path, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_byte_lake_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
-	snprintf(top_lake_map_raw_path, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_byte_top_lake_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
-	snprintf(level1_lake_map_raw_path, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_byte_level1_lake_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
-	snprintf(ocean_map_raw_path, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_byte_ocean_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
-#else
-	sprintf_s(lake_map_raw_path, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_byte_lake_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
-	sprintf_s(top_lake_map_raw_path, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_byte_top_lake_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
-	sprintf_s(level1_lake_map_raw_path, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_byte_level1_lake_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
-	sprintf_s(ocean_map_raw_path, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_byte_ocean_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
-#endif
+	// Refactor (Phase 2.2): replaced #if __APPLE__ snprintf/sprintf_s with ps_sprintf.
+	ps_sprintf(lake_map_raw_path,        MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_byte_lake_map.raw",        m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
+	ps_sprintf(top_lake_map_raw_path,    MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_byte_top_lake_map.raw",    m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
+	ps_sprintf(level1_lake_map_raw_path, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_byte_level1_lake_map.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
+	ps_sprintf(ocean_map_raw_path,       MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_byte_ocean_map.raw",       m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
 	std::cout << "lake map raw file is " << lake_map_raw_path << std::endl;
 	std::cout << "top lake map raw file is " << top_lake_map_raw_path << std::endl;
 	std::cout << "level1 lake map raw file is " << level1_lake_map_raw_path << std::endl;
@@ -2068,11 +1997,8 @@ bool CPlantsSimulation::SaveCavesAsObj(std::vector<std::pair<std::vector<Point>,
 
 	char cave_obj_path[MAX_PATH];
 	memset(cave_obj_path, 0, sizeof(char) * MAX_PATH);
-#if __APPLE__
-	snprintf(cave_obj_path, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_cave_obj.obj", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
-#else
-	sprintf_s(cave_obj_path, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_cave_obj.obj", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
-#endif
+	// Refactor (Phase 2.2): replaced #if __APPLE__ snprintf/sprintf_s with ps_sprintf.
+	ps_sprintf(cave_obj_path, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_cave_obj.obj", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
 	std::cout << "Cave obj file is " << cave_obj_path << std::endl;
 
 	std::ofstream outFile(cave_obj_path);
@@ -2165,11 +2091,8 @@ bool CPlantsSimulation::SaveCavesAsRoadMap(std::vector<std::pair<std::vector<Poi
 	std::vector<std::vector<unsigned short>> caveRoadMapArray = invert2DArray(caveRoadMapArrayInvert);
 	char ushort_cave_roadmap_raw[MAX_PATH];
 	memset(ushort_cave_roadmap_raw, 0, sizeof(char) * MAX_PATH);
-#if __APPLE__
-	snprintf(ushort_cave_roadmap_raw, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_ushort_cave_roadmap_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
-#else
-	sprintf_s(ushort_cave_roadmap_raw, MAX_PATH, "%s\\%d_%d_%d_%d_%d_%d_ushort_cave_roadmap_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
-#endif
+	// Refactor (Phase 2.2): replaced #if __APPLE__ snprintf/sprintf_s with ps_sprintf.
+	ps_sprintf(ushort_cave_roadmap_raw, MAX_PATH, "%s/%d_%d_%d_%d_%d_%d_ushort_cave_roadmap_raw.raw", m_outputDir.c_str(), m_tiles, m_tileX, m_tileY, m_tileScale, m_roadInputHeightMapWidth, m_roadInputHeightMapHeight);
 	std::cout << "Cave Road Map file is " << ushort_cave_roadmap_raw << std::endl;
 	bool outputCaveRoadMap = Output2DVectorToRawFile(caveRoadMapArray, ushort_cave_roadmap_raw);
 	return outputCaveRoadMap;
@@ -2466,25 +2389,11 @@ bool CPlantsSimulation::OutputResults()
 	char subFullOutput_Dir[MAX_PATH];
 	memset(subFullOutput_Dir, 0, sizeof(char) * MAX_PATH);
 
-#if __APPLE__ 
+	// Refactor (Phase 2.2): replaced #if __APPLE__ snprintf/sprintf_s with ps_sprintf.
 	if (m_isLevel1Instances)
-	{
-		snprintf(subFullOutput_Dir, MAX_PATH, "%s/instanceoutput_level1", m_outputDir.c_str());
-	}
+		ps_sprintf(subFullOutput_Dir, MAX_PATH, "%s/instanceoutput_level1", m_outputDir.c_str());
 	else
-	{
-		snprintf(subFullOutput_Dir, MAX_PATH, "%s/instanceoutput_level0", m_outputDir.c_str());
-	}
-#else
-	if (m_isLevel1Instances)
-	{
-		sprintf_s(subFullOutput_Dir, MAX_PATH, "%s\\instanceoutput_level1", m_outputDir.c_str());
-	}
-	else
-	{
-		sprintf_s(subFullOutput_Dir, MAX_PATH, "%s\\instanceoutput_level0", m_outputDir.c_str());
-	}
-#endif
+		ps_sprintf(subFullOutput_Dir, MAX_PATH, "%s/instanceoutput_level0", m_outputDir.c_str());
 
 	if (output)
 	{

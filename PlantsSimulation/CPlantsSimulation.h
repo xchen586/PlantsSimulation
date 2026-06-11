@@ -3,15 +3,10 @@
 #include "CForest.h"
 #include "CPsInstanceExporter.h"
 
-#if __APPLE__
-    #include "../Common/include/PsHelper.h"
-    #include "../Common/include/CCellInfo.h"
-	#include "../Common/include/RegionStruct.h"
-#else
-    #include "..\Common\include\PsHelper.h"
-    #include "..\Common\include\CCellInfo.h"
-	#include "..\Common\include\RegionStruct.h"
-#endif
+// Refactor (Phase 2.2): normalized to forward-slash includes; dropped #if __APPLE__ blocks.
+#include "../Common/include/PsHelper.h"
+#include "../Common/include/CCellInfo.h"
+#include "../Common/include/RegionStruct.h"
 
 using namespace std;
 

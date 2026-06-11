@@ -1,10 +1,7 @@
 #pragma once
 
-#if __APPLE__
+// Refactor (Phase 2.2): normalized to forward-slash includes; dropped #if __APPLE__ block.
 #include "../Common/include/CColonizationTree.h"
-#else
-#include "..\Common\include\CColonizationTree.h"
-#endif
 
 class CRoughnessDensityMap : public DensityMap
 {
@@ -17,45 +14,5 @@ public:
 	}
 };
 
-class COakRoughnessDensityMap : public CRoughnessDensityMap
-{
-public:
-	COakRoughnessDensityMap() : CRoughnessDensityMap()
-	{
-		minval = 0.1;
-		maxval = 0.298;
-	}
-};
-
-class CMapleRoughnessDensityMap : public CRoughnessDensityMap
-{
-public:
-	CMapleRoughnessDensityMap() : CRoughnessDensityMap()
-	{
-		//minval = 0.12;
-		//maxval = 0.297;
-
-		minval = 0.1;
-		maxval = 0.298;
-	}
-};
-
-class CBirchRoughnessDensityMap : public CRoughnessDensityMap
-{
-public:
-	CBirchRoughnessDensityMap() : CRoughnessDensityMap()
-	{
-		minval = 0.1;
-		maxval = 0.297;
-	}
-};
-
-class CFirRoughnessDensityMap : public CRoughnessDensityMap
-{
-public:
-	CFirRoughnessDensityMap() : CRoughnessDensityMap()
-	{
-		minval = 0.135;
-		maxval = 0.299;
-	}
-};
+// Refactor (Phase 1.1): species-specific subclasses removed; params now live in
+// TreeSpeciesData.h and are applied by CTreeSpeciesClass at construction time.

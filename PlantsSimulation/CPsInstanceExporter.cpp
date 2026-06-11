@@ -8,17 +8,12 @@
 #include <future>
 #include <algorithm>
 
-#if __APPLE__
+// Refactor (Phase 2.2): normalized to forward-slash includes; dropped #if __APPLE__ block.
 #include "../Common/include/PsMarco.h"
 #include "../Common/include/PsHelper.h"
 #include "../Common/include/CCellInfo.h"
 #include "../Common/Include/PointInstance.h"
-#else
-#include "..\Common\include\PsMarco.h"
-#include "..\Common\include\PsHelper.h"
-#include "..\Common\include\CCellInfo.h"
-#include "..\Common\Include\PointInstance.h"
-#endif
+#include "PsPlatform.h"
 
 bool CPsInstanceExporter::ShouldKeepOldTreeInstances()
 {
@@ -735,13 +730,9 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 	memset(subFullOutput_Dir_Tree, 0, sizeof(char) * MAX_PATH);
 	char subFullOutput_Dir_Poi[MAX_PATH];
 	memset(subFullOutput_Dir_Poi, 0, sizeof(char) * MAX_PATH);
-#if __APPLE__ 
-	snprintf(subFullOutput_Dir_Tree, MAX_PATH, "%s/Trees", outputSubsDir.c_str());
-	snprintf(subFullOutput_Dir_Poi, MAX_PATH, "%s/POIs", outputSubsDir.c_str());
-#else
-	sprintf_s(subFullOutput_Dir_Tree, MAX_PATH, "%s\\Trees", outputSubsDir.c_str());
-	sprintf_s(subFullOutput_Dir_Poi, MAX_PATH, "%s\\POIs", outputSubsDir.c_str());
-#endif
+	// Refactor (Phase 2.2): replaced #if __APPLE__ snprintf/sprintf_s with ps_sprintf.
+	ps_sprintf(subFullOutput_Dir_Tree, MAX_PATH, "%s/Trees", outputSubsDir.c_str());
+	ps_sprintf(subFullOutput_Dir_Poi, MAX_PATH, "%s/POIs", outputSubsDir.c_str());
 
 	if (!std::filesystem::exists(subFullOutput_Dir_Tree)) {
 		if (!std::filesystem::create_directory(subFullOutput_Dir_Tree)) {
@@ -867,23 +858,16 @@ bool CPsInstanceExporter::outputSubfiles(const std::string& outputSubsDir)
 	string geoLevelFolderTree = std::format("GeoChemical_Level_{}_Trees", level);
 	string geoLevelFolderPoi = std::format("GeoChemical_Level_{}_POIs", level);
 	
-#if __APPLE__
-	std::string allinstances_csv_file = std::format("{}//{}_{}_{}_allinstances_level{}.csv", outputDirPath.string(), m_tiles, m_tileIndexX, m_tileIndexY, level);
-	std::string allinstancesGeo_folder = std::format("{}//{}", outputDirPath.string(), geofolder);
-	std::string allinstancesGeo_Csv = std::format("{}//{}//{}_{}_{}_geo_merged.csv", outputDirPath.string(), geofolder, m_tiles, m_tileIndexX, m_tileIndexY);
-	std::string allinstancesGeo_Tree_folder = std::format("{}//{}", outputDirPath.string(), geofolderTree);
-	std::string allinstancesGeo_Tree_Csv = std::format("{}//{}//{}_{}_{}_geo_merged.csv", outputDirPath.string(), geofolderTree, m_tiles, m_tileIndexX, m_tileIndexY);
-	std::string allinstancesGeo_Poi_folder = std::format("{}//{}", outputDirPath.string(), geofolderPoi);
-	std::string allinstancesGeo_Poi_Csv = std::format("{}//{}//{}_{}_{}_geo_merged.csv", outputDirPath.string(), geofolderPoi, m_tiles, m_tileIndexX, m_tileIndexY);
-#else
-	std::string allinstances_csv_file = std::format("{}\\{}_{}_{}_allinstances_level{}.csv", outputDirPath.string(), m_tiles, m_tileIndexX, m_tileIndexY, level);
-	std::string allinstancesGeo_folder = std::format("{}\\{}", outputDirPath.string(), geoLevelFolder);
-	std::string allinstancesGeo_Csv = std::format("{}\\{}\\{}_{}_{}_geo_merged.csv", outputDirPath.string(), geoLevelFolder, m_tiles, m_tileIndexX, m_tileIndexY);
-	std::string allinstancesGeo_Tree_folder = std::format("{}\\{}", outputDirPath.string(), geoLevelFolderTree);
-	std::string allinstancesGeo_Tree_Csv = std::format("{}\\{}\\{}_{}_{}_geo_merged.csv", outputDirPath.string(), geoLevelFolderTree, m_tiles, m_tileIndexX, m_tileIndexY);
-	std::string allinstancesGeo_Poi_folder = std::format("{}\\{}", outputDirPath.string(), geoLevelFolderPoi);
-	std::string allinstancesGeo_Poi_Csv = std::format("{}\\{}\\{}_{}_{}_geo_merged.csv", outputDirPath.string(), geoLevelFolderPoi, m_tiles, m_tileIndexX, m_tileIndexY);
-#endif
+	// Refactor (Phase 2.2): unified path separator to '/' (Windows accepts forward slashes);
+	// dropped #if __APPLE__ branch. Note: Apple used "geofolder/Tree/Poi" names, Windows used
+	// "geoLevelFolder/Tree/Poi" — kept Windows names as they match the variables declared above.
+	std::string allinstances_csv_file     = std::format("{}/{}_{}_{}_allinstances_level{}.csv", outputDirPath.string(), m_tiles, m_tileIndexX, m_tileIndexY, level);
+	std::string allinstancesGeo_folder    = std::format("{}/{}", outputDirPath.string(), geoLevelFolder);
+	std::string allinstancesGeo_Csv       = std::format("{}/{}/{}_{}_{}_geo_merged.csv", outputDirPath.string(), geoLevelFolder, m_tiles, m_tileIndexX, m_tileIndexY);
+	std::string allinstancesGeo_Tree_folder = std::format("{}/{}", outputDirPath.string(), geoLevelFolderTree);
+	std::string allinstancesGeo_Tree_Csv  = std::format("{}/{}/{}_{}_{}_geo_merged.csv", outputDirPath.string(), geoLevelFolderTree, m_tiles, m_tileIndexX, m_tileIndexY);
+	std::string allinstancesGeo_Poi_folder = std::format("{}/{}", outputDirPath.string(), geoLevelFolderPoi);
+	std::string allinstancesGeo_Poi_Csv   = std::format("{}/{}/{}_{}_{}_geo_merged.csv", outputDirPath.string(), geoLevelFolderPoi, m_tiles, m_tileIndexX, m_tileIndexY);
 
 	if (!std::filesystem::exists(allinstancesGeo_Tree_folder)) {
 		if (!std::filesystem::create_directory(allinstancesGeo_Tree_folder)) {

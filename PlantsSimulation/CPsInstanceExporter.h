@@ -1,12 +1,7 @@
 #pragma once
 
-#if __APPLE__
+// Refactor (Phase 2.2): normalized to forward-slash includes; dropped #if __APPLE__ blocks.
 #include "../Common/include/TreeInstance.h"
-//#include "../Common/include/Utils.h"
-#else
-#include "..\Common\include\TreeInstance.h"
-//#include "..\Common\include\Utils.h"
-#endif
 
 using namespace std;
 class CCellInfo;
