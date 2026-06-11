@@ -3,6 +3,7 @@
 
 #include "CForest.h"
 #include "CPsInstanceExporter.h"
+#include "SimulationConfig.h"  // Refactor (Phase 4.1): replaces 46-param constructor
 
 // Refactor (Phase 2.2): normalized to forward-slash includes; dropped #if __APPLE__ blocks.
 #include "../Common/include/PsHelper.h"
@@ -14,67 +15,62 @@ using namespace std;
 class CPlantsSimulation
 {
 public:
-	CPlantsSimulation(const string& outputDir, const string& inputTreeList, const string& inputLevel1TreeList, const string& inputImageFile, const string& inputImageMataFile, const string& mesh_HeightMapFile, const string& mesh2_HeightMapFile, const string& pc_HeightMapFile, const string& l1_HeightMapFile, const string& bedrock_HeightMapFile,
-		const string& mesh_HeightMasksFile, const string& mesh2_HeightMasksFile, const string& pc_HeightMasksFile, const string& l1_HeightMasksFile, const string& bedrock_HeightMaskFile, const string& lakes_HeightMasksFile, const string& level1Lakes_HeightMasksFile, const string& ocean_HeightMasksFile, const string& mostTravelledPointFile, const string& mostDistantPointFile, const string& level1PoiPointFile, const string& centroidPointFile,
-		const string& cavesPointCloudLevel0File, const string& cavesPointCloudLevel1File, const string& dungeonsPOILevel0File, const string& dungeonsPOILevel1File,
-		const string& regionsRawFile, const string& regionsInfoFile, const string& outputFile_level0, const string& fullOutputFile_level0, const string& pcFullOutputFile_level0, const string& outputFile_level1, const string& fullOutputFile_level1, const string& pcFullOutputFile_level1, int32_t lod, 
-		float forestAge, int iteration, int gridDelta, double initialDensity, double seedDensity, double competitionFactor, double growthFactor, double thinningThreshold,
-		int tiles, int tileX, int tileY, int tileScale, int roadHeightMapScaleWidth, int roadHeightMapScaleHeight)
-		: m_outputDir(outputDir)
-		, m_inputTreeListCsv(inputTreeList)
-		, m_inputLevel1TreeListCsv(inputLevel1TreeList)
-		, m_inputImageFile(inputImageFile)
-		, m_inputImageMetaFile(inputImageMataFile)
-		, m_meshHeightMapFile(mesh_HeightMapFile)
-		, m_mesh2HeightMapFile(mesh2_HeightMapFile)
-		, m_pcHeightMapFile(pc_HeightMapFile)
-		, m_l1HeightMapFile(l1_HeightMapFile)
-		, m_bedrockHeightMapFile(bedrock_HeightMapFile)
-		, m_lakesHeightMasksFile(lakes_HeightMasksFile)
-		, m_level1LakesHeightMasksFile(level1Lakes_HeightMasksFile)
-		, m_oceanHeightMasksFile(ocean_HeightMasksFile)
-		, m_meshHeightMasksFile(mesh_HeightMasksFile)
-		, m_mesh2HeightMasksFile(mesh2_HeightMasksFile)
-		, m_pcHeightMasksFile(pc_HeightMasksFile)
-		, m_l1HeightMasksFile(l1_HeightMasksFile)
-		, m_bedrockHeightMasksFile(bedrock_HeightMaskFile)
-		, m_mostTravelledPointFile(mostTravelledPointFile)
-		, m_mostDistantPointFile(mostDistantPointFile)
-		, m_level1PoiPointFile(level1PoiPointFile)
-		, m_centroidPointFile(centroidPointFile)
-		, m_cavesPointCloudLevel0File(cavesPointCloudLevel0File)
-		, m_cavesPointCloudLevel1File(cavesPointCloudLevel1File)
-		, m_dungeonsPOILevel0File(dungeonsPOILevel0File)
-		, m_dungeonsPOILevel1File(dungeonsPOILevel1File)
-		, m_regionsRawFile(regionsRawFile)
-		, m_regionsInfoFile(regionsInfoFile)
-		, m_outputFile_level0(outputFile_level0)
-		, m_fullOutputFile_level0(fullOutputFile_level0)
-		, m_pcFullOutputFile_level0(pcFullOutputFile_level0)
-		, m_outputFile_level1(outputFile_level1)
-		, m_fullOutputFile_level1(fullOutputFile_level1)
-		, m_pcFullOutputFile_level1(pcFullOutputFile_level1)
+	// Refactor (Phase 4.1): single config struct replaces 46 individual parameters.
+	// All member variables and internal logic are unchanged.
+	CPlantsSimulation(const SimulationConfig& config)
+		: m_outputDir(config.input.outputDir)
+		, m_inputTreeListCsv(config.input.treeListCsv)
+		, m_inputLevel1TreeListCsv(config.input.level1TreeListCsv)
+		, m_inputImageFile(config.input.topLayerImage)
+		, m_inputImageMetaFile(config.input.topLayerImageMeta)
+		, m_meshHeightMapFile(config.input.meshHeightMap)
+		, m_mesh2HeightMapFile(config.input.mesh2HeightMap)
+		, m_pcHeightMapFile(config.input.pcHeightMap)
+		, m_l1HeightMapFile(config.input.l1HeightMap)
+		, m_bedrockHeightMapFile(config.input.bedrockHeightMap)
+		, m_lakesHeightMasksFile(config.input.lakesHeightMask)
+		, m_level1LakesHeightMasksFile(config.input.level1LakesHeightMask)
+		, m_oceanHeightMasksFile(config.input.oceanHeightMask)
+		, m_meshHeightMasksFile(config.input.meshHeightMask)
+		, m_mesh2HeightMasksFile(config.input.mesh2HeightMask)
+		, m_pcHeightMasksFile(config.input.pcHeightMask)
+		, m_l1HeightMasksFile(config.input.l1HeightMask)
+		, m_bedrockHeightMasksFile(config.input.bedrockHeightMask)
+		, m_mostTravelledPointFile(config.input.mostTravelledPointFile)
+		, m_mostDistantPointFile(config.input.mostDistantPointFile)
+		, m_level1PoiPointFile(config.input.level1PoiPointFile)
+		, m_centroidPointFile(config.input.centroidPointFile)
+		, m_cavesPointCloudLevel0File(config.input.cavesPointCloudLevel0)
+		, m_cavesPointCloudLevel1File(config.input.cavesPointCloudLevel1)
+		, m_dungeonsPOILevel0File(config.input.dungeonsPOILevel0)
+		, m_dungeonsPOILevel1File(config.input.dungeonsPOILevel1)
+		, m_regionsRawFile(config.input.regionsRaw)
+		, m_regionsInfoFile(config.input.regionsInfo)
+		, m_outputFile_level0(config.output.outputFileLevel0)
+		, m_fullOutputFile_level0(config.output.fullOutputFileLevel0)
+		, m_pcFullOutputFile_level0(config.output.pcFullOutputFileLevel0)
+		, m_outputFile_level1(config.output.outputFileLevel1)
+		, m_fullOutputFile_level1(config.output.fullOutputFileLevel1)
+		, m_pcFullOutputFile_level1(config.output.pcFullOutputFileLevel1)
 		, m_pCellTable(nullptr)
 		, m_pForest(nullptr)
-		, m_currentLod(lod)
-		, m_forestAge(forestAge)
-		, m_iteration(iteration)
-		, m_gridDelta(gridDelta)
-		, m_initialDensity(initialDensity)
-		, m_seedDensity(seedDensity)
-		, m_competitionFactor(competitionFactor)
-		, m_growthFactor(growthFactor)
-		, m_thinningThreshold(thinningThreshold)
-		, m_tiles(tiles)
-		, m_tileX(tileX)
-		, m_tileY(tileY)
-		, m_tileScale(tileScale)
-		, m_roadInputHeightMapWidth(roadHeightMapScaleWidth)
-		, m_roadInputHeightMapHeight(roadHeightMapScaleHeight)
+		, m_currentLod(config.sim.lod)
+		, m_forestAge(config.sim.forestAge)
+		, m_iteration(config.sim.iteration)
+		, m_gridDelta(config.sim.gridDelta)
+		, m_initialDensity(config.sim.initialDensity)
+		, m_seedDensity(config.sim.seedDensity)
+		, m_competitionFactor(config.sim.competitionFactor)
+		, m_growthFactor(config.sim.growthFactor)
+		, m_thinningThreshold(config.sim.thinningThreshold)
+		, m_tiles(config.tile.tiles)
+		, m_tileX(config.tile.tileX)
+		, m_tileY(config.tile.tileY)
+		, m_tileScale(config.tile.tileScale)
+		, m_roadInputHeightMapWidth(config.tile.roadHeightMapScaleWidth)
+		, m_roadInputHeightMapHeight(config.tile.roadHeightMapScaleHeight)
 		, m_maxHeight(10000)
-
 	{
-		
 	}
 
 private:

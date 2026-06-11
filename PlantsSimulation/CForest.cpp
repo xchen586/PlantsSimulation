@@ -405,19 +405,21 @@ void CForest::generate(float forestAge, int iterations)
 	int gridXSize = xSize/gridDelta;
 	int gridZSize = zSize/gridDelta;
 	int gridSize = (gridXSize + 1)*(gridZSize + 1)*sizeof(int);
-	int* grid = (int*)malloc(gridSize);
-	memset(grid, 0, gridSize);
+	// Refactor (Phase 3.3): malloc/memset -> std::vector; fixes UB delete+classArray leak below.
+	std::vector<int> gridVec((gridXSize + 1) * (gridZSize + 1), 0);
+	int* grid = gridVec.data();
 
 	cout << "gridDelta is :" << gridDelta << endl;
 	cout << "gridXSize is :" << gridXSize << endl;
 	cout << "gridZSize is :" << gridZSize << endl;
 	cout << "gridSize is :" << gridSize << endl;
 
-	CTreeInstance* instances = (CTreeInstance*)malloc(SEED_MAX*sizeof(CTreeInstance));
-	memset(instances, 0, SEED_MAX*sizeof(CTreeInstance));
+	std::vector<CTreeInstance> instancesVec(SEED_MAX);
+	CTreeInstance* instances = instancesVec.data();
 	int instanceIndex = 0;
 
-	ClassStrength* classArray = (ClassStrength*)malloc(classes.size()*sizeof(ClassStrength));
+	std::vector<ClassStrength> classArrayVec(classes.size());
+	ClassStrength* classArray = classArrayVec.data();
 
 	/*
 	for (int x = xo; x < xo + xSize; x += gridDelta)
@@ -820,8 +822,7 @@ void CForest::generate(float forestAge, int iterations)
 	
 	std::cout << "Trees Size :" << " " << trees.size() << std::endl;
 
-	delete instances;
-	free(grid);
+	// Refactor (Phase 3.3): vectors freed automatically at end of scope.
 }
 
 TreeInstanceOutput CForest::GetTreeOutputFromInstance(const CTreeInstance& instance)
@@ -2013,18 +2014,20 @@ void CForest::generateOptimized(float forestAge, int iterations) {
 	const int gridXSize = xSize / gridDelta;
 	const int gridZSize = zSize / gridDelta;
 	const int gridSize = (gridXSize + 1) * (gridZSize + 1) * sizeof(int);
-	int* grid = (int*)malloc(gridSize);
-	memset(grid, 0, gridSize);
+	// Refactor (Phase 3.3): malloc/memset -> std::vector.
+	std::vector<int> gridVec((gridXSize + 1) * (gridZSize + 1), 0);
+	int* grid = gridVec.data();
 
 	cout << "gridDelta: " << gridDelta
 		<< ", gridXSize: " << gridXSize
 		<< ", gridZSize: " << gridZSize << endl;
 
 	// Allocate instances
-	CTreeInstance* instances = (CTreeInstance*)malloc(SEED_MAX * sizeof(CTreeInstance));
-	memset(instances, 0, SEED_MAX * sizeof(CTreeInstance));
+	std::vector<CTreeInstance> instancesVec(SEED_MAX);
+	CTreeInstance* instances = instancesVec.data();
 
-	ClassStrength* classArray = (ClassStrength*)malloc(classes.size() * sizeof(ClassStrength));
+	std::vector<ClassStrength> classArrayVec(classes.size());
+	ClassStrength* classArray = classArrayVec.data();
 
 	// Build cache once
 	std::vector<TreeClassCacheOptimized> treeClassCache;
@@ -2076,10 +2079,7 @@ void CForest::generateOptimized(float forestAge, int iterations) {
 
 	cout << "Final Trees Size: " << trees.size() << endl;
 
-	// Cleanup
-	free(instances);
-	free(grid);
-	free(classArray);
+	// Refactor (Phase 3.3): vectors freed automatically at end of scope.
 }
 
 // Pre-compute mask lookups to avoid repeated map searches
@@ -2192,20 +2192,13 @@ void CForest::generateFast(float forestAge, int iterations) {
 
 	// Grid allocation
 	const int gridSize = (gridXSize + 1) * (gridZSize + 1) * sizeof(int);
-	int* grid = (int*)malloc(gridSize);
-	if (!grid) {
-		cerr << "Failed to allocate grid memory!" << endl;
-		return;
-	}
-	memset(grid, 0, gridSize);
+	// Refactor (Phase 3.3): malloc+null-check -> std::vector (throws std::bad_alloc on OOM).
+	std::vector<int> gridVec((gridXSize + 1) * (gridZSize + 1), 0);
+	int* grid = gridVec.data();
 
 	// Pre-allocate class array
-	ClassStrength* classArray = (ClassStrength*)malloc(classes.size() * sizeof(ClassStrength));
-	if (!classArray) {
-		cerr << "Failed to allocate class array!" << endl;
-		free(grid);
-		return;
-	}
+	std::vector<ClassStrength> classArrayVec(classes.size());
+	ClassStrength* classArray = classArrayVec.data();
 
 	// Build cache once
 	std::vector<TreeClassCache> treeClassCache;
@@ -2473,9 +2466,7 @@ finish_generation:
 
 	cout << "Final Trees Size: " << trees.size() << endl;
 
-	// Cleanup - vector auto-releases, only need to free other allocated memory
-	free(grid);
-	free(classArray);
+	// Refactor (Phase 3.3): vectors freed automatically at end of scope.
 }
 
 /**
@@ -2635,20 +2626,13 @@ void CForest::generateFastAdjustAmount(
 
 	// Grid allocation
 	const int gridSize = (gridXSize + 1) * (gridZSize + 1) * sizeof(int);
-	int* grid = (int*)malloc(gridSize);
-	if (!grid) {
-		cerr << "Failed to allocate grid memory!" << endl;
-		return;
-	}
-	memset(grid, 0, gridSize);
+	// Refactor (Phase 3.3): malloc+null-check -> std::vector (throws std::bad_alloc on OOM).
+	std::vector<int> gridVec((gridXSize + 1) * (gridZSize + 1), 0);
+	int* grid = gridVec.data();
 
 	// Pre-allocate class array
-	ClassStrength* classArray = (ClassStrength*)malloc(classes.size() * sizeof(ClassStrength));
-	if (!classArray) {
-		cerr << "Failed to allocate class array!" << endl;
-		free(grid);
-		return;
-	}
+	std::vector<ClassStrength> classArrayVec(classes.size());
+	ClassStrength* classArray = classArrayVec.data();
 
 	// Build cache once
 	std::vector<TreeClassCache> treeClassCache;
@@ -2960,7 +2944,5 @@ finish_generation:
 	cout << "Estimated density multiplier vs default: "
 		<< (trees.size() / max(1.0, totalGridCells * 0.05)) << "x" << endl;
 
-	// Cleanup - vector auto-releases, only need to free other allocated memory
-	free(grid);
-	free(classArray);
+	// Refactor (Phase 3.3): vectors freed automatically at end of scope.
 }

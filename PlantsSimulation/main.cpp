@@ -402,12 +402,63 @@ int iniAbsolutePathMain(int argc, const char* argv[])
         }
     }
 
-    CPlantsSimulation ps(output_final_path, tree_list_csv_name, level1_tree_list_csv_name, input_image_name, input_meta_name, mesh_heightmap_raw_name, mesh2_heightmap_raw_name, pc_heightmap_raw_name, l1_heightmap_raw_name, bedrock_heightmap_raw_name
-		, mesh_heightmap_masks_name, mesh2_heightmap_masks_name, pc_heightmap_masks_name, l1_heightmap_masks_name, bedrock_heightmap_masks_name, lakes_heightmap_masks_name, level1_lakes_heightmap_masks_name, ocean_heightmap_masks_name,
-        point_most_travelled_name, point_most_distant_name, point_level1_POI_name, point_centroid_name, caves_point_cloud_level_0_name, caves_point_cloud_level_1_name, dungeons_poi_csv_level_0_name, dungeons_poi_csv_level_1_name, regions_raw_name, regions_info_name
-        , output_file_level0, fullOutput_file_level0, pcFullOutput_file_level0, output_file_level1, fullOutput_file_level1, pcFullOutput_file_level1
-		, lod, forestAge, iteration, gridDelta, initialDensity, seedDensity, competitionFactor, growthFactor, thinningThreshold
-        , tiles, tileX, tileY, tileScale, roadHeightMapScaleWidth, roadHeightMapScaleHeight);
+    // Refactor (Phase 4.1): build SimulationConfig struct instead of passing 46 args directly.
+    SimulationConfig cfg;
+    // Input paths
+    cfg.input.outputDir                = output_final_path;
+    cfg.input.treeListCsv              = tree_list_csv_name              ? tree_list_csv_name              : "";
+    cfg.input.level1TreeListCsv        = level1_tree_list_csv_name       ? level1_tree_list_csv_name       : "";
+    cfg.input.topLayerImage            = input_image_name                ? input_image_name                : "";
+    cfg.input.topLayerImageMeta        = input_meta_name                 ? input_meta_name                 : "";
+    cfg.input.meshHeightMap            = mesh_heightmap_raw_name         ? mesh_heightmap_raw_name         : "";
+    cfg.input.mesh2HeightMap           = mesh2_heightmap_raw_name        ? mesh2_heightmap_raw_name        : "";
+    cfg.input.pcHeightMap              = pc_heightmap_raw_name           ? pc_heightmap_raw_name           : "";
+    cfg.input.l1HeightMap              = l1_heightmap_raw_name           ? l1_heightmap_raw_name           : "";
+    cfg.input.bedrockHeightMap         = bedrock_heightmap_raw_name      ? bedrock_heightmap_raw_name      : "";
+    cfg.input.meshHeightMask           = mesh_heightmap_masks_name       ? mesh_heightmap_masks_name       : "";
+    cfg.input.mesh2HeightMask          = mesh2_heightmap_masks_name      ? mesh2_heightmap_masks_name      : "";
+    cfg.input.pcHeightMask             = pc_heightmap_masks_name         ? pc_heightmap_masks_name         : "";
+    cfg.input.l1HeightMask             = l1_heightmap_masks_name         ? l1_heightmap_masks_name         : "";
+    cfg.input.bedrockHeightMask        = bedrock_heightmap_masks_name    ? bedrock_heightmap_masks_name    : "";
+    cfg.input.lakesHeightMask          = lakes_heightmap_masks_name      ? lakes_heightmap_masks_name      : "";
+    cfg.input.level1LakesHeightMask    = level1_lakes_heightmap_masks_name ? level1_lakes_heightmap_masks_name : "";
+    cfg.input.oceanHeightMask          = ocean_heightmap_masks_name      ? ocean_heightmap_masks_name      : "";
+    cfg.input.mostTravelledPointFile   = point_most_travelled_name       ? point_most_travelled_name       : "";
+    cfg.input.mostDistantPointFile     = point_most_distant_name         ? point_most_distant_name         : "";
+    cfg.input.level1PoiPointFile       = point_level1_POI_name           ? point_level1_POI_name           : "";
+    cfg.input.centroidPointFile        = point_centroid_name             ? point_centroid_name             : "";
+    cfg.input.cavesPointCloudLevel0    = caves_point_cloud_level_0_name  ? caves_point_cloud_level_0_name  : "";
+    cfg.input.cavesPointCloudLevel1    = caves_point_cloud_level_1_name  ? caves_point_cloud_level_1_name  : "";
+    cfg.input.dungeonsPOILevel0        = dungeons_poi_csv_level_0_name   ? dungeons_poi_csv_level_0_name   : "";
+    cfg.input.dungeonsPOILevel1        = dungeons_poi_csv_level_1_name   ? dungeons_poi_csv_level_1_name   : "";
+    cfg.input.regionsRaw               = regions_raw_name                ? regions_raw_name                : "";
+    cfg.input.regionsInfo              = regions_info_name               ? regions_info_name               : "";
+    // Output paths
+    cfg.output.outputFileLevel0        = output_file_level0;
+    cfg.output.fullOutputFileLevel0    = fullOutput_file_level0;
+    cfg.output.pcFullOutputFileLevel0  = pcFullOutput_file_level0;
+    cfg.output.outputFileLevel1        = output_file_level1;
+    cfg.output.fullOutputFileLevel1    = fullOutput_file_level1;
+    cfg.output.pcFullOutputFileLevel1  = pcFullOutput_file_level1;
+    // Simulation parameters
+    cfg.sim.lod                = lod;
+    cfg.sim.forestAge          = forestAge;
+    cfg.sim.iteration          = iteration;
+    cfg.sim.gridDelta          = gridDelta;
+    cfg.sim.initialDensity     = initialDensity;
+    cfg.sim.seedDensity        = seedDensity;
+    cfg.sim.competitionFactor  = competitionFactor;
+    cfg.sim.growthFactor       = growthFactor;
+    cfg.sim.thinningThreshold  = thinningThreshold;
+    // Tile configuration
+    cfg.tile.tiles                   = tiles;
+    cfg.tile.tileX                   = tileX;
+    cfg.tile.tileY                   = tileY;
+    cfg.tile.tileScale               = tileScale;
+    cfg.tile.roadHeightMapScaleWidth  = roadHeightMapScaleWidth;
+    cfg.tile.roadHeightMapScaleHeight = roadHeightMapScaleHeight;
+
+    CPlantsSimulation ps(cfg);
 
 	ps.setOnlyPOIs(isOnlyPOIs);
 	ps.setKeepOldTreeFiles(keepOldTreeFiles);
