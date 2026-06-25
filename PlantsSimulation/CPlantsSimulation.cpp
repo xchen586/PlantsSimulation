@@ -294,6 +294,150 @@ bool CPlantsSimulation::LoadImageMetaFile()
 	return ret;
 }
 
+
+void CPlantsSimulation::ComputeExposureData(
+	const std::vector<std::vector<short>>& mesh0HM,
+	const std::vector<std::vector<short>>& pcHM,
+	const std::vector<std::vector<short>>& mesh1HM,
+	const std::vector<std::vector<short>>& l1SmoothHM,
+	const std::vector<std::vector<short>>& bedrockHM,
+	const std::vector<std::vector<short>>& pcMask,
+	const std::vector<std::vector<short>>& l1SmoothMask,
+	const std::vector<std::vector<short>>& bedrockMask,
+	int width, int height,
+	std::vector<std::vector<double>>& outExposureInit,
+	std::vector<std::vector<bool>>&   outExposureMask,
+	std::vector<std::vector<double>>& outExposureMap,
+	std::vector<std::vector<byte>>&   outExposureByte,
+	std::vector<std::vector<byte>>&   outExposureMaskByte)
+{
+	// Refactor (Phase 4.2): extracted from LoadInputHeightMap.
+	// Computes per-cell sun exposure by comparing smooth and bedrock heights,
+	// then propagates values via averaging and converts to byte maps.
+	outExposureInit.assign(width, std::vector<double>(height, 0.0));
+	outExposureMask.assign(width, std::vector<bool>(height, false));
+
+	int countSmoothNoBedrock = 0;
+	int countNoSmoothBedrock = 0;
+	int countNoSmoothNoBedrock = 0;
+	for (int x = 0; x < width; x++)
+	{
+		for (int y = 0; y < height; y++)
+		{
+			short mesh0Value  = mesh0HM[x][y];
+			short pcValue     = pcHM[x][y];
+			short mesh1Value  = mesh1HM[x][y];
+			short l1SmoothValue = l1SmoothHM[x][y];
+			short bedrockValue  = bedrockHM[x][y];
+			short level1Value   = std::max(mesh1Value, l1SmoothValue);
+
+			bool hasMesh0Value    = mesh0HM[x][y]    ? true : false;
+			bool hasPCValue       = pcMask[x][y]     ? true : false;
+			bool hasl1SmoothValue = l1SmoothMask[x][y] ? true : false;
+			bool hasBedRockValue  = bedrockMask[x][y]  ? true : false;
+			bool hasMesh1Value    = mesh1HM[x][y]    ? true : false;
+			bool hasLevel1Value   = hasMesh1Value || hasl1SmoothValue;
+			bool hasSmoothValue   = hasPCValue || hasl1SmoothValue;
+
+			short smoothValue = pcValue;
+			if (hasSmoothValue && hasBedRockValue) {
+				smoothValue = (bedrockValue > pcValue) ? l1SmoothValue : pcValue;
+			}
+
+			if (hasSmoothValue && hasBedRockValue) {
+				outExposureInit[x][y] = (smoothValue < bedrockValue) ? 1.0 : 0.0;
+				outExposureMask[x][y] = true;
+			}
+			else if (hasSmoothValue && !hasBedRockValue) {
+				outExposureInit[x][y] = 0.0;
+				outExposureMask[x][y] = true;
+				countSmoothNoBedrock++;
+				std::cout << "-------- Warning: Smooth value exists but no bedrock value at cell ("
+					<< x << ", " << y << ") for exposure map. Assuming exposure to the sun." << std::endl;
+			}
+			else if (hasBedRockValue && !hasSmoothValue) {
+				outExposureInit[x][y] = 1.0;
+				outExposureMask[x][y] = false;
+				countNoSmoothBedrock++;
+				std::cout << "-------- Warning: Bed rock value exists but no smooth value at cell ("
+					<< x << ", " << y << ") for exposure map. Assuming exposure to the sun." << std::endl;
+			}
+			else {
+				outExposureInit[x][y] = 0.0;
+				outExposureMask[x][y] = false;
+				countNoSmoothNoBedrock++;
+			}
+		}
+	}
+	std::cout << "Count of Smooth and No bedrock value : "    << countSmoothNoBedrock    << std::endl;
+	std::cout << "Count of No Smooth and bedrock value : "    << countNoSmoothBedrock    << std::endl;
+	std::cout << "Count of No Smooth and No bedrock value : " << countNoSmoothNoBedrock  << std::endl;
+
+	const double PROPAGATION_FACTOR = 1.0;
+	const double MIN_THRESHOLD      = 0.001;
+	int max_iterations = 5000;
+	outExposureMap = PropagateLightingAverage(
+		outExposureInit, outExposureMask, max_iterations, PROPAGATION_FACTOR, MIN_THRESHOLD);
+
+	outExposureByte.assign(width, std::vector<byte>(height, 0));
+	outExposureMaskByte.assign(width, std::vector<byte>(height, 0));
+	for (int x = 0; x < width; x++)
+	{
+		for (int y = 0; y < height; y++)
+		{
+			double ev = outExposureMap[x][y];
+			if (ev > 1.0) ev = 1.0;
+			else if (ev < 0.0) ev = 0.0;
+			outExposureByte[x][y]     = static_cast<byte>(ev * 255);
+			outExposureMaskByte[x][y] = static_cast<byte>(outExposureMask[x][y] ? 1 : 0);
+		}
+	}
+}
+
+void CPlantsSimulation::PopulateCellTable(
+	const std::vector<std::vector<double>>& heightMapDouble,
+	const std::vector<std::vector<short>>&  slopeMap,
+	const std::vector<std::vector<double>>& slopeMapDouble,
+	const std::vector<std::vector<double>>& l1SmoothHMDouble,
+	const std::vector<std::vector<short>>&  heightMask,
+	const std::vector<std::vector<short>>&  l1SmoothMask,
+	const std::vector<std::vector<double>>& exposureMap,
+	const std::vector<std::vector<bool>>&   exposureMaskMap,
+	int width, int height)
+{
+	// Refactor (Phase 4.2): extracted from LoadInputHeightMap.
+	// Writes computed height/slope/exposure values into each CCellInfo in m_pCellTable.
+	for (auto i = 0; i < width; i++) {
+		for (auto j = 0; j < height; j++) {
+			CCellInfo* cell = (*m_pCellTable)[i][j];
+			if (!cell)
+			{
+				std::cout << "Fail to get CCellData at i = " << i << " j = " << j << std::endl;
+			}
+			else
+			{
+				cell->SetHeightValue(heightMapDouble[i][j]);
+				cell->SetSlopeHeightValue(slopeMap[i][j]);
+				cell->SetSlopeAngleValue(slopeMapDouble[i][j]);
+				cell->SetLevel1HeightValue(l1SmoothHMDouble[i][j]);
+
+				short hasHeightValue = heightMask[i][j];
+				if (m_isLevel1Instances)
+				{
+					//hasHeightValue = (lakesHeightMasksShort4096[i][j] > 0) ? 0 : heightMask[i][j];
+				}
+				cell->SetHasHeightValue(hasHeightValue);
+
+				short hasLevel1HeightValue = l1SmoothMask[i][j];
+				cell->SetHasLevel1HeightValue(hasLevel1HeightValue);
+
+				cell->SetSunlightAffinity(exposureMap[i][j]);
+				bool hasSunlightAffinity = exposureMaskMap[i][j];
+				cell->SetHasSunlightAffinity(hasSunlightAffinity);
+			}
+		}
+	}
+}
 bool CPlantsSimulation::LoadRegionsTest()
 {
 	bool ret = true;
@@ -762,93 +906,19 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	std::vector<std::vector<short>> l1SmoothHeightMapShort4096 = Read2DShortArray(m_l1HeightMapFile, width, height);
 	std::vector<std::vector<short>> bedrockHeightMapShort4096 = Read2DShortArray(m_bedrockHeightMapFile, width, height);
 	
-	std::vector<std::vector<double>> exposure_init_map(width, std::vector<double>(height));
-	std::vector<std::vector<bool>> exposure_mask_map(width, std::vector<bool>(height));
-
-	int countSmoothNoBedrock = 0;
-	int countNoSmoothBedrock = 0;
-	int countNoSmoothNoBedrock = 0;
-	for (int x = 0; x < width; x++)
-	{
-		for (int y = 0; y < height; y++)
-		{
-			short mesh0Value = mesh0HeightMapShort4096[x][y];
-			short pcValue = pcHeightMapShort4096[x][y];
-			short mesh1Value = mesh1HeightMapShort4096[x][y];
-			short l1SmoothValue = l1SmoothHeightMapShort4096[x][y];
-			short bedrockValue = bedrockHeightMapShort4096[x][y];
-			short level1Value = std::max(mesh1Value, l1SmoothValue);
-
-			bool hasMesh0Value = mesh0HeightMasksShort4096[x][y] ? true : false;
-			bool hasPCValue = pcHeightMasksShort4096[x][y] ? true : false;
-			bool hasl1SmoothValue = l1SmoothHeightMasksShort4096[x][y] ? true : false;
-			bool hasBedRockValue = bedrockHeightMasksShort4096[x][y] ? true : false;
-			bool hasMesh1Value = mesh1HeightMapShort4096[x][y] ? true : false;
-			bool hasLevel1Value = hasMesh1Value || hasl1SmoothValue;
-			bool hasSmoothValue = hasPCValue || hasl1SmoothValue;
-
-			short smoothValue = pcValue;
-			if (hasSmoothValue && hasBedRockValue) {
-				smoothValue = (bedrockValue > pcValue) ? l1SmoothValue : pcValue;
-			}
-			
-			if (hasSmoothValue && hasBedRockValue) {
-				if (smoothValue < bedrockValue) {
-					exposure_init_map[x][y] = 1.0f; //expose to the sun
-				}
-				else {
-					exposure_init_map[x][y] = 0.0f; //not expose to the sun
-				}
-				exposure_mask_map[x][y] = true; //expose to the sun
-			}
-			else if (hasSmoothValue && !hasBedRockValue) {
-				// If there is no bedrock, we assume it is not exposed to the sun
-				exposure_init_map[x][y] = 0.0f; //expose to the sun
-				exposure_mask_map[x][y] = true; //expose to the sun
-				countSmoothNoBedrock++;
-				std::cout << "-------- Warning: Smooth value exists but no bedrock value at cell (" << x << ", " << y << ") for exposure map. Assuming exposure to the sun." << std::endl;
-			}
-			else if (hasBedRockValue && !hasSmoothValue) {
-				// If there is bedrock but no level 1, we assume it is not exposed to the sun
-				exposure_init_map[x][y] = 1.0f; //not expose to the sun
-				exposure_mask_map[x][y] = false; //not expose to the sun
-				countNoSmoothBedrock++;
-				std::cout << "-------- Warning: Bed rock value exists but no smooth value at cell (" << x << ", " << y << ") for exposure map. Assuming exposure to the sun." << std::endl;
-			}
-			else {
-				exposure_init_map[x][y] = 0.0f;
-				exposure_mask_map[x][y] = false; //not expose to the sun
-				countNoSmoothNoBedrock++;
-			}
-		}
-	}
-	std::cout << "Count of Smooth and No bedrock value : " << countSmoothNoBedrock << std::endl;
-	std::cout << "Count of No Smooth and bedrock value : " << countNoSmoothBedrock << std::endl;
-	std::cout << "Count of No Smooth and No bedrock value : " << countNoSmoothNoBedrock << std::endl;
-
-	const double PROPAGATION_FACTOR = 1.0; // This factor can be adjusted based on the desired propagation effect
-	const double MIN_THRESHOLD = 0.001; // Minimum value to continue propagation
-	int max_iterations = 5000; // Maximum iterations to prevent infinite loops
-	//std::vector<std::vector<double>> exposure_map = PropagateLightingMax(exposure_init_map, exposure_mask_map, max_iterations, PROPAGATION_FACTOR, MIN_THRESHOLD);
-	//std::vector<std::vector<double>> exposure_map = PropagateLightingMax4Dir(exposure_init_map, exposure_mask_map, max_iterations, PROPAGATION_FACTOR, MIN_THRESHOLD);
-	std::vector<std::vector<double>> exposure_map = PropagateLightingAverage(exposure_init_map, exposure_mask_map, max_iterations, PROPAGATION_FACTOR, MIN_THRESHOLD);
-	std::vector<std::vector<byte>> exposure_byte_map(width, std::vector<byte>(height));
-	std::vector<std::vector<byte>> exposure_mask_byte_map(width, std::vector<byte>(height));
-	for (int x = 0; x < width; x++)
-	{
-		for (int y = 0; y < height; y++)
-		{
-			double exposureValue = exposure_map[x][y];
-			if (exposureValue > 1.0) {
-				exposureValue = 1.0;
-			}
-			else if (exposureValue < 0.0) {
-				exposureValue = 0.0;
-			}
-			exposure_byte_map[x][y] = static_cast<byte>(exposureValue * 255);
-			exposure_mask_byte_map[x][y] = static_cast<byte>(exposure_mask_map[x][y] ? 1 : 0); // Convert bool to byte  
-		}
-	}
+	// Refactor (Phase 4.2): exposure computation extracted to ComputeExposureData.
+	std::vector<std::vector<double>> exposure_init_map;
+	std::vector<std::vector<bool>>   exposure_mask_map;
+	std::vector<std::vector<double>> exposure_map;
+	std::vector<std::vector<byte>>   exposure_byte_map;
+	std::vector<std::vector<byte>>   exposure_mask_byte_map;
+	ComputeExposureData(
+		mesh0HeightMapShort4096, pcHeightMapShort4096, mesh1HeightMapShort4096,
+		l1SmoothHeightMapShort4096, bedrockHeightMapShort4096,
+		pcHeightMasksShort4096, l1SmoothHeightMasksShort4096, bedrockHeightMasksShort4096,
+		width, height,
+		exposure_init_map, exposure_mask_map, exposure_map,
+		exposure_byte_map, exposure_mask_byte_map)
 
 	std::vector<std::vector<short>> heightMapShort4096(width, std::vector<short>(height));
 
@@ -1138,39 +1208,11 @@ bool CPlantsSimulation::LoadInputHeightMap()
 	std::vector<std::vector<double>> slopeDouble4096 = ComputeAbsAverageNeighborSlopeAngle(heightMapDouble4096, ratio);
 #endif
 
-	for (auto i = 0; i < width; i++) {
-		for (auto j = 0; j < height; j++) {
-			CCellInfo* cell = (*m_pCellTable)[i][j];
-			if (!cell)
-			{
-				std::cout << "Fail to get CCellData at i = " << i << " j = " << j << std::endl;
-			}
-			else
-			{
-				cell->SetHeightValue(heightMapDouble4096[i][j]);
-				//cell->SetHeightValue(pcHeightMapShort4096[i][j]);
-
-				cell->SetSlopeHeightValue(slopeShort4096[i][j]);
-				cell->SetSlopeAngleValue(slopeDouble4096[i][j]);
-
-				cell->SetLevel1HeightValue(l1SmoothHeightMapDouble4096[i][j]);
-
-				short hasHeightValue = heightMasksShort4096[i][j];
-				if (m_isLevel1Instances)
-				{
-					//hasHeightValue = (lakesHeightMasksShort4096[i][j] > 0) ? 0 : heightMasksShort4096[i][j];
-				}
-				cell->SetHasHeightValue(hasHeightValue);
-
-				short hasLevel1HeightValue = l1SmoothHeightMasksShort4096[i][j];
-				cell->SetHasLevel1HeightValue(hasLevel1HeightValue);
-
-				cell->SetSunlightAffinity(exposure_map[i][j]);
-				bool hasSunlightAffinity = exposure_mask_map[i][j];
-				cell->SetHasSunlightAffinity(hasSunlightAffinity);
-			}
-		}
-	}
+	// Refactor (Phase 4.2): extracted to PopulateCellTable.
+	PopulateCellTable(
+		heightMapDouble4096, slopeShort4096, slopeDouble4096,
+		l1SmoothHeightMapDouble4096, heightMasksShort4096, l1SmoothHeightMasksShort4096,
+		exposure_map, exposure_mask_map, width, height);
 
 	const int MAX_PATH = 250;
 	

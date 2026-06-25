@@ -177,7 +177,33 @@ private:
 	bool ExportAngleSlopeMap(std::vector<std::vector<double>>& slopeMap, const string& outputPath, int rgbColor, bool hasHeader, bool withRatio = false);
 
 	bool LoadRegionsTest();
-	
+
+	// Refactor (Phase 4.2): helpers extracted from LoadInputHeightMap.
+	void ComputeExposureData(
+		const std::vector<std::vector<short>>& mesh0HM,
+		const std::vector<std::vector<short>>& pcHM,
+		const std::vector<std::vector<short>>& mesh1HM,
+		const std::vector<std::vector<short>>& l1SmoothHM,
+		const std::vector<std::vector<short>>& bedrockHM,
+		const std::vector<std::vector<short>>& pcMask,
+		const std::vector<std::vector<short>>& l1SmoothMask,
+		const std::vector<std::vector<short>>& bedrockMask,
+		int width, int height,
+		std::vector<std::vector<double>>& outExposureInit,
+		std::vector<std::vector<bool>>&   outExposureMask,
+		std::vector<std::vector<double>>& outExposureMap,
+		std::vector<std::vector<byte>>&   outExposureByte,
+		std::vector<std::vector<byte>>&   outExposureMaskByte);
+	void PopulateCellTable(
+		const std::vector<std::vector<double>>& heightMapDouble,
+		const std::vector<std::vector<short>>&  slopeMap,
+		const std::vector<std::vector<double>>& slopeMapDouble,
+		const std::vector<std::vector<double>>& l1SmoothHMDouble,
+		const std::vector<std::vector<short>>&  heightMask,
+		const std::vector<std::vector<short>>&  l1SmoothMask,
+		const std::vector<std::vector<double>>& exposureMap,
+		const std::vector<std::vector<bool>>&   exposureMaskMap,
+		int width, int height);
 
 	std::vector<std::pair<std::vector<Point>, int>>* LoadCaveNodesFromPointCloud(const std::string& filePath);
 	bool loadPoisLocationsFromCSV(const string& filePath, std::vector<Point>& poisLocations);
